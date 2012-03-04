@@ -193,4 +193,9 @@ public class Block {
     public boolean hasNeighbour(Block block) {
         return neighbors.contains(block);
     }
+
+    @Override
+    public String toString(){
+        return "["+x+","+y+"]("+w+","+h+")";
+    }
 }

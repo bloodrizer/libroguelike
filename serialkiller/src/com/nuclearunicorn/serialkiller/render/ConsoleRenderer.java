@@ -28,7 +28,7 @@ public class ConsoleRenderer extends LayerRenderer{
 
         if (WorldViewCamera.tile_in_fov(tile_x,tile_y)){
 
-            if (tile.get_height() != 100){
+            if (tile!= null && tile.get_height() != 100){
                 glColor3f(0.5f,0.5f,1.0f);
             }else{
                 glColor3f(1.0f,0.0f,0.0f);

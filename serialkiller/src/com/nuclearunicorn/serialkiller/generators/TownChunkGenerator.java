@@ -50,7 +50,20 @@ public class TownChunkGenerator extends ChunkGenerator {
         blocks.add(gameBlock);
 
         List<Block> districts = mapgen.process(blocks);
+       
+        System.out.println(districts);
+        
+        for(Block district: districts){
+            district.scale(-2,-2);
+            for (int i = district.getX(); i< district.getX()+district.getW(); i++){
+                for (int j = district.getY(); j< district.getY()+district.getH(); j++){
+                    getLayer().get_tile(i,j).set_height(100);
 
+                    //TODO: some protection from recursive chunk bloating
+                    //WorldTile tile = getLayer().get_cached_chunk(origin).tile_data.get(new Point(i,j));
+                }
+            }
+        }
 
     }
 
