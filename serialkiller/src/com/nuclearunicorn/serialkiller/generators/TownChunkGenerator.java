@@ -3,6 +3,7 @@ package com.nuclearunicorn.serialkiller.generators;
 import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.generators.ChunkGenerator;
+import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import org.lwjgl.util.Point;
 
 import java.util.ArrayList;
@@ -54,7 +55,7 @@ public class TownChunkGenerator extends ChunkGenerator {
         System.out.println(districts);
         
         for(Block district: districts){
-            district.scale(-2,-2);
+            district.scale(-4,-4);
             for (int i = district.getX(); i< district.getX()+district.getW(); i++){
                 for (int j = district.getY(); j< district.getY()+district.getH(); j++){
                     getLayer().get_tile(i,j).set_height(100);
@@ -68,7 +69,7 @@ public class TownChunkGenerator extends ChunkGenerator {
     }
 
     private WorldTile addTile(int i, int j, Random chunk_random) {
-        WorldTile tile = new WorldTile();
+        WorldTile tile = new RLTile();
         Point origin = new Point(i,j);
         tile.origin = origin;
 

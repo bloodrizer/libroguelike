@@ -18,6 +18,23 @@
     <disable_hints />
   </component>
   <component name="DebuggerManager">
+    <method_breakpoints>
+      <breakpoint url="jar://C:/Program Files/Java/jdk1.6.0_24/src.zip!/java/lang/Object.java" line="231" class="java.lang.Object" package="java.lang">
+        <option name="WATCH_ENTRY" value="true" />
+        <option name="WATCH_EXIT" value="true" />
+        <option name="ENABLED" value="true" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+    </method_breakpoints>
     <breakpoint_any>
       <breakpoint>
         <option name="NOTIFY_CAUGHT" value="true" />
@@ -58,30 +75,30 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="TownChunkGenerator.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/serialkiller/src/com/nuclearunicorn/serialkiller/generators/TownChunkGenerator.java">
+      <file leaf-file-name="RLWorldModel.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/serialkiller/src/com/nuclearunicorn/serialkiller/game/world/RLWorldModel.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="52" column="9" selection-start="1624" selection-end="1624" vertical-scroll-proportion="0.8204283">
+            <state line="38" column="0" selection-start="1186" selection-end="1186" vertical-scroll-proportion="0.6375618">
               <folding>
-                <element signature="e#1525#1532#0" expanded="true" />
+                <element signature="imports" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ConsoleRenderer.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/serialkiller/src/com/nuclearunicorn/serialkiller/render/ConsoleRenderer.java">
+      <file leaf-file-name="WorldModel.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/game/world/WorldModel.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="30" column="0" selection-start="1022" selection-end="1022" vertical-scroll-proportion="0.0">
+            <state line="248" column="34" selection-start="8389" selection-end="8389" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="WorldView.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/game/world/WorldView.java">
+      <file leaf-file-name="RLTile.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/serialkiller/src/com/nuclearunicorn/serialkiller/game/world/RLTile.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="120" column="48" selection-start="4161" selection-end="4161" vertical-scroll-proportion="0.0">
+            <state line="11" column="41" selection-start="358" selection-end="358" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -102,9 +119,6 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/game/modes/ModeInGame.java" />
-        <option value="$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/game/world/WorldChunk.java" />
-        <option value="$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/render/TilesetRenderer.java" />
         <option value="$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/game/world/WorldViewCamera.java" />
         <option value="$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/game/world/generators/ChunkGroundGenerator.java" />
         <option value="$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/utils/NLTimer.java" />
@@ -114,10 +128,13 @@
         <option value="$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/game/ent/controller/NpcController.java" />
         <option value="$PROJECT_DIR$/serialkiller/src/com/nuclearunicorn/serialkiller/generators/TownBlock.java" />
         <option value="$PROJECT_DIR$/serialkiller/src/com/nuclearunicorn/serialkiller/generators/MapGenerator.java" />
+        <option value="$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/game/world/WorldView.java" />
         <option value="$PROJECT_DIR$/serialkiller/src/com/nuclearunicorn/serialkiller/generators/Block.java" />
         <option value="$PROJECT_DIR$/serialkiller/src/com/nuclearunicorn/serialkiller/render/ConsoleRenderer.java" />
-        <option value="$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/game/world/WorldView.java" />
+        <option value="$PROJECT_DIR$/serialkiller/src/com/nuclearunicorn/serialkiller/game/world/AsciiTile.java" />
         <option value="$PROJECT_DIR$/serialkiller/src/com/nuclearunicorn/serialkiller/generators/TownChunkGenerator.java" />
+        <option value="$PROJECT_DIR$/serialkiller/src/com/nuclearunicorn/serialkiller/game/world/RLTile.java" />
+        <option value="$PROJECT_DIR$/serialkiller/src/com/nuclearunicorn/serialkiller/game/world/RLWorldModel.java" />
       </list>
     </option>
   </component>
@@ -153,6 +170,7 @@
       <sortByType />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="PackagesPane">
         <subPane>
           <PATH>
@@ -163,6 +181,96 @@
             <PATH_ELEMENT>
               <option name="myItemId" value="serialkiller" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="jskiller" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="serialkiller" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="resources" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="jskiller" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="serialkiller" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="com.nuclearunicorn.serialkiller" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="jskiller" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="serialkiller" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="com.nuclearunicorn.serialkiller" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="game" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="jskiller" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="serialkiller" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="com.nuclearunicorn.serialkiller" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="game" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="world" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="jskiller" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="serialkiller" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="com.nuclearunicorn.serialkiller" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="game" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="modes" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
             </PATH_ELEMENT>
           </PATH>
           <PATH>
@@ -191,7 +299,6 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -434,7 +541,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="GoToFile.includeJavaFiles" value="false" />
-    <property name="project.structure.last.edited" value="Modules" />
+    <property name="project.structure.last.edited" value="Project" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="OverrideImplement.combined" value="true" />
     <property name="options.splitter.main.proportions" value="0.3" />
@@ -446,9 +553,9 @@
     <property name="GoToClass.toSaveIncludeLibraries" value="false" />
     <property name="MemberChooser.showClasses" value="true" />
     <property name="GoToClass.includeLibraries" value="false" />
-    <property name="dynamic.classpath" value="false" />
-    <property name="options.splitter.details.proportions" value="0.2" />
     <property name="options.searchVisible" value="true" />
+    <property name="options.splitter.details.proportions" value="0.2" />
+    <property name="dynamic.classpath" value="false" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -508,6 +615,24 @@
         <option name="Maven.BeforeRunTask" enabled="false" />
       </method>
     </configuration>
+    <configuration default="true" type="Applet" factoryName="Applet">
+      <module name="" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="HTML_FILE_NAME" />
+      <option name="HTML_USED" value="false" />
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <option name="VM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <method>
+        <option name="AntTarget" enabled="false" />
+        <option name="BuildArtifacts" enabled="false" />
+        <option name="Make" enabled="true" />
+        <option name="Maven.BeforeRunTask" enabled="false" />
+      </method>
+    </configuration>
     <configuration default="true" type="TestNG" factoryName="TestNG">
       <module name="" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
@@ -533,24 +658,6 @@
       <envs />
       <properties />
       <listeners />
-      <method>
-        <option name="AntTarget" enabled="false" />
-        <option name="BuildArtifacts" enabled="false" />
-        <option name="Make" enabled="true" />
-        <option name="Maven.BeforeRunTask" enabled="false" />
-      </method>
-    </configuration>
-    <configuration default="true" type="Applet" factoryName="Applet">
-      <module name="" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="HTML_FILE_NAME" />
-      <option name="HTML_USED" value="false" />
-      <option name="WIDTH" value="400" />
-      <option name="HEIGHT" value="300" />
-      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <option name="VM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
       <method>
         <option name="AntTarget" enabled="false" />
         <option name="BuildArtifacts" enabled="false" />
@@ -654,10 +761,11 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-4" y="-4" width="1928" height="1088" extended-state="6" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32979852" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3107105" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
@@ -669,10 +777,9 @@
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.1736111" sideWeight="0.6702015" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32979852" sideWeight="0.0" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32979852" sideWeight="0.0" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32979852" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
@@ -733,41 +840,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/render/layers/LayerRenderer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="13" column="25" selection-start="314" selection-end="314" vertical-scroll-proportion="0.25" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/game/world/WorldViewCamera.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="54" column="49" selection-start="1621" selection-end="1648" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/libroguelike/lib/lwjgl-2.7.1/jar/lwjgl_util.jar!/org/lwjgl/util/Point.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="16" column="16" selection-start="548" selection-end="548" vertical-scroll-proportion="0.34503818" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/game/world/WorldChunk.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="34" column="23" selection-start="915" selection-end="915" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/render/overlay/DebugOverlay.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="55" column="41" selection-start="2025" selection-end="2025" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/game/ent/controller/NpcController.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="133" column="11" selection-start="4168" selection-end="4168" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="jar://C:/Program Files/Java/jdk1.6.0_24/src.zip!/java/util/Random.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="247" column="15" selection-start="10250" selection-end="10250" vertical-scroll-proportion="0.55735296" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/serialkiller/src/com/nuclearunicorn/serialkiller/generators/MapGenerator.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="59" column="28" selection-start="1751" selection-end="1751" vertical-scroll-proportion="0.0" />
@@ -776,11 +848,6 @@
     <entry file="file://$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/core/client/ClientEventManager.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="34" column="0" selection-start="774" selection-end="774" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/serialkiller/src/com/nuclearunicorn/serialkiller/generators/Block.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="85" column="100" selection-start="1572" selection-end="1971" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/game/world/generators/ChunkGenerator.java">
@@ -798,25 +865,81 @@
         <state line="78" column="27" selection-start="2078" selection-end="2390" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/serialkiller/src/com/nuclearunicorn/serialkiller/render/ConsoleRenderer.java">
+    <entry file="file://$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/game/world/WorldView.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="30" column="0" selection-start="1022" selection-end="1022" vertical-scroll-proportion="0.0">
+        <state line="120" column="48" selection-start="4161" selection-end="4161" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="jar://C:/Program Files/Java/jdk1.6.0_24/src.zip!/java/lang/Object.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="246" column="62" selection-start="10427" selection-end="11819" vertical-scroll-proportion="1.2883031">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/game/world/WorldView.java">
+    <entry file="file://$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/game/world/layers/WorldLayer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="120" column="48" selection-start="4161" selection-end="4161" vertical-scroll-proportion="0.0">
+        <state line="274" column="22" selection-start="8668" selection-end="8668" vertical-scroll-proportion="0.76112026">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/serialkiller/src/com/nuclearunicorn/serialkiller/render/ConsoleRenderer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="30" column="16" selection-start="1038" selection-end="1053" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/serialkiller/src/com/nuclearunicorn/serialkiller/generators/Block.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="198" column="44" selection-start="4985" selection-end="4985" vertical-scroll-proportion="1.2158155">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/serialkiller/src/com/nuclearunicorn/serialkiller/generators/TownChunkGenerator.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="52" column="9" selection-start="1624" selection-end="1624" vertical-scroll-proportion="0.8204283">
+        <state line="71" column="32" selection-start="2377" selection-end="2377" vertical-scroll-proportion="0.8352553">
           <folding>
-            <element signature="e#1525#1532#0" expanded="true" />
+            <element signature="e#1583#1590#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://C:/Program Files/Java/jdk1.6.0_24/src.zip!/java/util/HashMap.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="296" column="13" selection-start="11737" selection-end="11737" vertical-scroll-proportion="0.33278418">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/serialkiller/src/com/nuclearunicorn/serialkiller/game/world/RLTile.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="11" column="41" selection-start="358" selection-end="358" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/game/world/WorldModel.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="248" column="34" selection-start="8389" selection-end="8389" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://C:/Program Files/Java/jdk1.6.0_24/src.zip!/java/util/ArrayList.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="81" column="13" selection-start="3991" selection-end="3991" vertical-scroll-proportion="0.33278418">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/serialkiller/src/com/nuclearunicorn/serialkiller/game/world/RLWorldModel.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="38" column="0" selection-start="1186" selection-end="1186" vertical-scroll-proportion="0.6375618">
+          <folding>
+            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
