@@ -14,7 +14,6 @@ import com.nuclearunicorn.libroguelike.game.modes.AbstractGameMode;
 import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.libroguelike.game.ui.IUserInterface;
 import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
-import com.nuclearunicorn.libroguelike.game.world.WorldModel;
 import com.nuclearunicorn.libroguelike.game.world.WorldView;
 import com.nuclearunicorn.libroguelike.game.world.WorldViewCamera;
 import com.nuclearunicorn.libroguelike.game.world.generators.ChunkGenerator;
@@ -26,12 +25,15 @@ import com.nuclearunicorn.libroguelike.render.overlay.OverlaySystem;
 import com.nuclearunicorn.libroguelike.utils.NLTimer;
 import com.nuclearunicorn.libroguelike.utils.Timer;
 import com.nuclearunicorn.libroguelike.vgui.effects.EffectsSystem;
+import com.nuclearunicorn.serialkiller.game.world.RLWorldModel;
 import com.nuclearunicorn.serialkiller.generators.TownChunkGenerator;
 import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
 import com.nuclearunicorn.serialkiller.render.AsciiWorldView;
 import com.nuclearunicorn.serialkiller.render.ConsoleRenderer;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.Point;
+import rlforj.los.IFovAlgorithm;
+import rlforj.los.PrecisePermissive;
 
 /**
  * Main game mode
@@ -42,8 +44,11 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
     IUserInterface wgt = null;
 
     private WorldView view;
-    private WorldModel model;
+    private RLWorldModel model;
     private EffectsSystem fx;
+
+    //IFovAlgorithm fov = new ShadowCasting();
+    IFovAlgorithm fov = new PrecisePermissive();
 
 
     private GameEnvironment clientGameEnvironment;
@@ -61,7 +66,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         };
         ClientGameEnvironment.setEnvironment(clientGameEnvironment);
 
-        model = new WorldModel(1);
+        model = new RLWorldModel(1);
         clientGameEnvironment.setWorld(model);
 
 
@@ -106,6 +111,8 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         model.update();
         fx.update();
 
+        fovUpdate();
+
         DebugOverlay.updateTime = timer.popDiff();
         timer.push();
 
@@ -116,6 +123,11 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
 
         DebugOverlay.frameTime = timer.popDiff();
 
+    }
+
+    private void fovUpdate() {
+        model.resetFov();
+        fov.visitFieldOfView(model, Player.get_ent().x(), Player.get_ent().y(), 9);
     }
 
     @Override

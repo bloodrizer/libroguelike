@@ -249,4 +249,8 @@ public class WorldModel implements IEventListener {
     public Collection<WorldLayer> getLayers() {
         return worldLayers.values();
     }
+    
+    public WorldLayer getLayer(int zindex){
+        return worldLayers.get(zindex);
+    }
 }

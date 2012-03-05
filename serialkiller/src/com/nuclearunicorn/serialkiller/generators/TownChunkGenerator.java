@@ -58,7 +58,9 @@ public class TownChunkGenerator extends ChunkGenerator {
             district.scale(-4,-4);
             for (int i = district.getX(); i< district.getX()+district.getW(); i++){
                 for (int j = district.getY(); j< district.getY()+district.getH(); j++){
-                    getLayer().get_tile(i,j).set_height(100);
+                    RLTile tile = (RLTile)(getLayer().get_tile(i,j));
+                    tile.setWall(true);
+
 
                     //TODO: some protection from recursive chunk bloating
                     //WorldTile tile = getLayer().get_cached_chunk(origin).tile_data.get(new Point(i,j));

@@ -6,9 +6,9 @@ import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 Typical RogueLike tile - can be explored/unexplored, visible, etc
 */
 public class RLTile extends WorldTile{
-    private boolean isVisible;
-    private boolean isExplored;
-    private boolean isWall;
+    private boolean isVisible = false;
+    private boolean isExplored = false;
+    private boolean isWall = false;
     private boolean isFovChecked = false;
 
     public boolean isFovChecked() {
