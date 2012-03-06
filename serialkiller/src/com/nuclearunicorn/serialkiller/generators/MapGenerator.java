@@ -121,6 +121,9 @@ public class MapGenerator {
     }
     
     public List<Block> halfSplit(Block block){
+        System.out.println("half split");
+
+
         if (block.getArea() < getMinBlockSize()){
             return null;
         }
@@ -130,13 +133,17 @@ public class MapGenerator {
         int y = block.getY();
         int w = block.getW();
         int h = block.getH();
-        
+
+        //horisontal split
         if (block.getH() > block.getW() ){
+
             int topOffset = (int)(h * ((float)(random.nextInt(20) + 40) / 100));
 
             blocks.add(new Block(x, y, w, topOffset));  //top
             blocks.add(new Block(x, y+topOffset, w, h-topOffset));   //bottom
         }else{
+        //vertical split
+
             int leftOffset = (int)(w * ((float)(random.nextInt(20) + 40) / 100));
 
             blocks.add(new Block(x, y, leftOffset, h));  //left
@@ -146,6 +153,7 @@ public class MapGenerator {
     }
 
     public List<Block> quadSplit(Block block){
+
         if (block.getArea() < getMinBlockSize()){
             return null;
         }
@@ -160,9 +168,9 @@ public class MapGenerator {
         int leftOffset = (int)(w * ((float)(random.nextInt(20) + 40) / 100));
 
         Block tl = new Block(x, y, leftOffset, topOffset);
-        Block tr = new Block(x+leftOffset, y, w-leftOffset, topOffset);
-        Block br = new Block(x+leftOffset, y+topOffset, (w-leftOffset), (h-topOffset));
-        Block bl = new Block(x, y+leftOffset, leftOffset, (h-topOffset));
+        Block tr = new Block(x + leftOffset, y, w-leftOffset, topOffset);
+        Block br = new Block(x + leftOffset, y+topOffset, (w-leftOffset), (h-topOffset));
+        Block bl = new Block(x, y+topOffset, leftOffset, (h-topOffset));
 
         blocks = mergeBlocks(tl, tr, br, bl);
 

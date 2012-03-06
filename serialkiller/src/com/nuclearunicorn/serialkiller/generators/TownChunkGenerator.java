@@ -43,7 +43,7 @@ public class TownChunkGenerator extends ChunkGenerator {
         }
 
         //----------debug---------
-        Block __block = new Block( 10, 10, 50, 50);
+        /*Block __block = new Block( 10, 10, 50, 50);
         //traceBlock(__block);
 
         MapGenerator gen = new MapGenerator(__block);
@@ -54,7 +54,8 @@ public class TownChunkGenerator extends ChunkGenerator {
         List<Block> resultBlocks = gen.process(__blocks);
         for(Block result: resultBlocks){
             traceBlock(result);
-        }
+        } */
+
         //---------debug end-------
 
 
@@ -92,13 +93,7 @@ public class TownChunkGenerator extends ChunkGenerator {
     }
 
     private void generateHousing(Block block) {
-        //todo: get object manager there
-        //#bug there >>>>>
-        //#commenting following lines will exploit incorrect room wall placement
-
-        //traceBlock(block);
-
-        //#<<< bug there
+        traceBlock(block);
 
         int ROOM_COUNT = 4;
 
@@ -112,7 +107,7 @@ public class TownChunkGenerator extends ChunkGenerator {
 
         //TODO: extract method traceBlock
         for(Block room: rooms){
-            //traceBlock(room);
+            traceBlock(room);
         }
     }
     /**
