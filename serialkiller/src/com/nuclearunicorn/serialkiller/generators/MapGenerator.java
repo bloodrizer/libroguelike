@@ -16,8 +16,8 @@ public class MapGenerator {
     private int refSize;
     private int MIN_BLOCK_SIZE = 1800;
     private boolean MERGE_BLOCKS = true;
-    private Random random = new Random();
 
+    private Random random = new Random();
     public int chunkSeed = 123456;
 
     public MapGenerator(Block block){
@@ -31,6 +31,11 @@ public class MapGenerator {
     
     public int getMinBlockSize(){
         return MIN_BLOCK_SIZE;
+    }
+
+
+    public void setMinBlockSize(int size) {
+        MIN_BLOCK_SIZE = size;
     }
 
     public ArrayList<Block> mergeBlocks(Block tl, Block tr, Block br, Block bl){
@@ -70,6 +75,7 @@ public class MapGenerator {
         for (Block block: blocks){
             //debug blocks there
         }
+
         for (Block block: blocks){
             if (block != null){
                 mergedBlocks.add(block);
@@ -129,12 +135,12 @@ public class MapGenerator {
             int topOffset = (int)(h * ((float)(random.nextInt(20) + 40) / 100));
 
             blocks.add(new Block(x, y, w, topOffset));  //top
-            blocks.add(new Block(x,y+topOffset, w, h-topOffset));   //bottom
+            blocks.add(new Block(x, y+topOffset, w, h-topOffset));   //bottom
         }else{
             int leftOffset = (int)(w * ((float)(random.nextInt(20) + 40) / 100));
 
             blocks.add(new Block(x, y, leftOffset, h));  //left
-            blocks.add(new Block(x+leftOffset,y, w-leftOffset, h));   //right 
+            blocks.add(new Block(x+leftOffset, y, w-leftOffset, h));   //right
         }
         return blocks;
     }
@@ -153,50 +159,45 @@ public class MapGenerator {
         int topOffset = (int)(h * ((float)(random.nextInt(20) + 40) / 100));
         int leftOffset = (int)(w * ((float)(random.nextInt(20) + 40) / 100));
 
-        Block tl = new Block(x,y,leftOffset,topOffset);
+        Block tl = new Block(x, y, leftOffset, topOffset);
         Block tr = new Block(x+leftOffset, y, w-leftOffset, topOffset);
-        Block br = new Block(x+leftOffset,y+topOffset,(w-leftOffset),(h-topOffset));
-        Block bl = new Block(x,y+leftOffset,leftOffset,(h-topOffset));
+        Block br = new Block(x+leftOffset, y+topOffset, (w-leftOffset), (h-topOffset));
+        Block bl = new Block(x, y+leftOffset, leftOffset, (h-topOffset));
 
-        blocks = mergeBlocks(tl,tr,br,bl);
+        blocks = mergeBlocks(tl, tr, br, bl);
 
         return blocks;
     }
 
-    /*
-	def RoomProcess(self,blocks):
-	
-	
+  
 
-		if not self.generator:
-			self.generator = libtcod.random_new_from_seed(self.chunk_seed)
+    public List<Block> roomProcess(List<Block> blocks) {
+        //#some tricky algorythms there
 
+        List<Block> rooms = new ArrayList<Block>();
+        List<Block> splited = new ArrayList<Block>();
 
-		#some tricky algorythms there
-		rooms = []
-		#TODO: make me a neat room
-		for i in range(len(blocks)):
-			sub_block = blocks[i]
+        //#TODO: make me a neat room
+        for (Block subBlock : blocks){
+            if (Math.min(subBlock.getW(),subBlock.getH())*2 < Math.max(subBlock.getW(), subBlock.getH())){
+                splited = halfSplit(subBlock);    
+            } else {
+                splited = quadSplit(subBlock);
+            }
+            
+            if (splited != null){
+                for(Block sb: splited){
+                    rooms.add(sb);
+                }
+            }
+        }
 
-			if (min(sub_block.w,sub_block.h)*2) < max(sub_block.w,sub_block.h):
-				splited = self.HalfSplit(sub_block)
-			else:
-				splited = self.QuadSplit(sub_block)
+        if (rooms.size() <= blocks.size()){
+            return blocks;
+        }
 
-			if splited:
-				for sb in splited:
-					rooms.append(sb)
-
-		#---------------------------------------------------------------
-		if len(rooms) <= len(blocks):	# or ==?
-			return blocks
-
-		rooms = self.RoomProcess(rooms)
-		#---------------------------------------------------------------
-
-		#TODO: make a doors there
-		return rooms
-
-
-     */
+        rooms = roomProcess(rooms);
+        //#TODO: make a doors there (orly?)
+        return rooms;
+    }
 }

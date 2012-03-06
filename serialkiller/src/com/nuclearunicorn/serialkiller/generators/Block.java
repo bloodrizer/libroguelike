@@ -63,8 +63,8 @@ public class Block {
      */
     public void merge(Block block){
 
-        int i = Math.max(x+w, block.x + block.w);
-        int j = Math.max(y+h, block.y + block.h);
+        int i = Math.max(x + w, block.x + block.w);
+        int j = Math.max(y + h, block.y + block.h);
         
         x = Math.min(x, block.x);
         y = Math.min(y, block.y);
@@ -88,12 +88,12 @@ public class Block {
 
     public void scale(int dx, int dy){
         if (w + dx*2 > 0){
-            w = w+dx*2;
-            x = x-dx;
+            w = w + dx*2;
+            x = x - dx;
         }
         if (h + dy*2 > 0){
-            h = h+dy*2;
-            y = y-dy;
+            h = h + dy*2;
+            y = y - dy;
         }
     }
     /*
@@ -106,7 +106,8 @@ public class Block {
         }
         
         for(int i=0; i<=w; i++)
-            for(int j=0; j<h; j++){
+            for(int j=0; j<=h; j++){
+
                 int x = this.x+i;
                 int y = this.y+j;
                 
@@ -139,20 +140,15 @@ public class Block {
     }
     
     public boolean isConnected(Block other){
-        for (Block block: neighbors){
-            if (block == other){
-                return true;
-            }
-        }
-        return false;
+        return neighbors.contains(other);
     }
     
     public Block getIntersection(Block other){
         Block block = new Block(
             Math.max(x, other.x),
             Math.max(y, other.y),
-            Math.min(x+w, other.x+other.w)-Math.max(x,other.x),
-            Math.min(y+h, other.y+other.h)-Math.max(y,other.y) 
+            Math.min(x + w, other.x + other.w) - Math.max(x, other.x),
+            Math.min(y + h, other.y + other.h) - Math.max(y, other.y)
         );
         //some obscure tweaks
         
@@ -178,7 +174,7 @@ public class Block {
         
         for(int i =0; i<w; i++)
             for(int j=0; j<h; j++){
-                Point point = new Point(x+i,y+j);
+                Point point = new Point(x+i, y+j);
                 tiles.add(point);
             }
         return tiles;
