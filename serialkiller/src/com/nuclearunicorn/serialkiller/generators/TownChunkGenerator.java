@@ -1,11 +1,9 @@
 package com.nuclearunicorn.serialkiller.generators;
 
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
-import com.nuclearunicorn.libroguelike.game.ent.EntityNPC;
 import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.generators.ChunkGenerator;
-import com.nuclearunicorn.serialkiller.game.modes.in_game.InGameMode;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import com.nuclearunicorn.serialkiller.game.world.entity.EnityRLHuman;
 import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
@@ -178,17 +176,68 @@ public class TownChunkGenerator extends ChunkGenerator {
         //TODO: extract method traceBlock
         for(Block room: rooms){
             traceBlock(room);
+            room.clearNeighbours(); //so we could correctly generate rooms
+        }
+
+        /*
+            This algorythm doesn't work with buggy corner rooms like
+
+            -----------|
+            |       ___|
+            |      |   |
+            |      |   |
+            -------|---|
+
+            Smaller room will result in pfanthom intersection wall.
+            Altho this bug is invisible, we should probably assimilate smaller room by larger one
+         */
+
+        for (Block room : rooms){
+            for(Block room2 : rooms){
+                if(room != room2 && room.intersect(room2)){
+                    if( !room.isConnected(room2) && !room2.isConnected(room)){ //transitive FTW?
+                        Block intrs = room.getIntersection(room2);
+                        if (intrs != null){
+
+
+                            //------------room intersection debug start-------------
+                            /*for(Point debug: intrs.getTiles()){
+                                Entity playerEnt = new EnityRLHuman();
+
+                                playerEnt.setName("NPC");
+                                playerEnt.setEnvironment(environment);
+                                playerEnt.setRenderer(new AsciiEntRenderer("X"));
+
+                                playerEnt.setLayerId(z_index);
+                                playerEnt.spawn(12345, new Point(debug.getX(),debug.getY()));
+                            }*/
+
+                            //------------debug end---------------
+                            List<Point> wall = intrs.getTiles();
+                            if (wall.size() > 0){
+                                Point door_coord = wall.get(chunk_random.nextInt(wall.size()));
+                                clearWall(door_coord.getX(), door_coord.getY());
+
+                                room.addNeighbour(room2);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
+
+
+
     /**
       Trace outer conture of block and mark every outer block as wall
      */
     private void traceBlock(Block block){
-        for (int i = 0; i<= block.getH(); i++){
+        for (int i = 0; i< block.getH()+1; i++){
             placeWall(block.getX(), block.getY()+i);
             placeWall(block.getX()+block.getW(), block.getY()+i);
         }
-        for (int j = 0; j<= block.getW(); j++){
+        for (int j = 0; j< block.getW()+1; j++){
             placeWall(block.getX()+j, block.getY());
             placeWall(block.getX()+j, block.getY()+block.getH());
         }
@@ -201,6 +250,11 @@ public class TownChunkGenerator extends ChunkGenerator {
 
         //self.tiles[(x,y)].blocked = True
         //self.tiles[(x,y)].block_sight = True
+    }
+
+    private void clearWall(int i, int j) {
+        RLTile tile = (RLTile)(getLayer().get_tile(i,j));
+        tile.setWall(false);
     }
 
 

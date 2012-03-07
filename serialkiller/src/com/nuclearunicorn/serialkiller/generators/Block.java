@@ -135,8 +135,8 @@ public class Block {
     Door/Window generation helpers
     -------------------------------------------------------------------*/
     public boolean intersect(Block other){
-        return (x <= other.x+other.w && x+w >= other.x &&
-        y <= other.y+h && y+h >= other.y);    
+        return (x <= other.x+other.w && x + w >= other.x &&
+        y <= other.y + h && y + h >= other.y);
     }
     
     public boolean isConnected(Block other){
@@ -172,11 +172,17 @@ public class Block {
     public List<Point> getTiles(){
         List<Point> tiles = new ArrayList<Point>();
         
-        for(int i =0; i<w; i++)
-            for(int j=0; j<h; j++){
+        for(int i = 0; i<w; i++){
+            for(int j= 0; j<h; j++){
                 Point point = new Point(x+i, y+j);
                 tiles.add(point);
             }
+        }
+
+        if (tiles.size()>0){
+            tiles.remove(0);
+        }
+
         return tiles;
     }
 
@@ -193,5 +199,13 @@ public class Block {
     @Override
     public String toString(){
         return "["+x+","+y+"]("+w+","+h+")";
+    }
+
+    public void addNeighbour(Block nb) {
+        neighbors.add(nb);
+    }
+
+    public void clearNeighbours() {
+        neighbors.clear();
     }
 }
