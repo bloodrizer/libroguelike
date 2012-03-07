@@ -1,9 +1,14 @@
 package com.nuclearunicorn.serialkiller.generators;
 
+import com.nuclearunicorn.libroguelike.game.ent.Entity;
+import com.nuclearunicorn.libroguelike.game.ent.EntityNPC;
 import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.generators.ChunkGenerator;
+import com.nuclearunicorn.serialkiller.game.modes.in_game.InGameMode;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
+import com.nuclearunicorn.serialkiller.game.world.entity.EnityRLHuman;
+import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
 import org.lwjgl.util.Point;
 
 import java.util.ArrayList;
@@ -21,6 +26,11 @@ public class TownChunkGenerator extends ChunkGenerator {
 
     int seed;
     Random chunk_random;
+
+    List<Block> districts = null;
+    List<Block> roads = new ArrayList<Block>();
+    private static final int ROAD_SIZE = 3;
+
 
     public void generate(Point origin){
 
@@ -74,13 +84,46 @@ public class TownChunkGenerator extends ChunkGenerator {
         List<Block> blocks = new ArrayList<Block>();
         blocks.add(gameBlock);
 
-        List<Block> districts = mapgen.process(blocks);
+        districts = mapgen.process(blocks);
 
         for(Block district: districts){
-            district.scale(-4,-4);
+            generateRoads(district);
+            district.scale(-ROAD_SIZE,-ROAD_SIZE);
             fillBlock(district);
         }
 
+        //todo: milestones
+
+        populateMap();
+
+    }
+
+    private void generateRoads(Block block) {
+        for ( List<Point> outerWall : block.getOuterWall(block) ){
+            if( outerWall != null ){
+                int wlen = outerWall.size()-1;
+                int x = outerWall.get(0).getX();
+                int y = outerWall.get(0).getY();
+                int w = outerWall.get(wlen).getX()-x;
+                int h = outerWall.get(wlen).getY()-y;
+                
+                Block road = new Block(x,y,w,h);
+                road.scale(ROAD_SIZE-2,ROAD_SIZE-2);
+                roads.add(road);
+
+                //TODO : place road on a map
+                /*
+                    self.tiles[(road.x+i,road.y+j)].model = libtcod.CHAR_BLOCK3
+                    self.tiles[(road.x+i,road.y+j)].color = libtcod.darker_yellow
+                    self.tiles[(road.x+i,road.y+j)].road = True
+                */
+
+            }
+        }
+    }
+
+    private void populateMap() {
+        //roads
     }
 
     private void fillBlock(Block district){
@@ -88,8 +131,35 @@ public class TownChunkGenerator extends ChunkGenerator {
         if (chance > 20){
             generateHousing(district);
         }else{
-            //generate park
+            generatePark(district);
         }
+    }
+
+    private void generatePark(Block block) {
+        //RLTile tile = (RLTile)(getLayer().get_tile(i,j));
+
+        for(int i = 0; i<=block.getW(); i++ )
+            for(int j = 0; j<=block.getH(); j++ ){
+                if (chunk_random.nextInt(200) < 1){
+                    placeNPC(block.getX()+i, block.getY()+j);
+                }
+
+            }
+    }
+
+    private void placeNPC(int x, int y  ) {
+
+        Entity playerEnt = new EnityRLHuman();
+
+        playerEnt.setName("NPC");
+        playerEnt.setEnvironment(environment);
+        playerEnt.setRenderer(new AsciiEntRenderer("@"));
+        
+        playerEnt.setLayerId(z_index);
+        playerEnt.spawn(12345, new Point(x,y));
+
+        //playerEnt.set_controller(new PlayerController());
+
     }
 
     private void generateHousing(Block block) {
