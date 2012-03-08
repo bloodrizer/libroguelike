@@ -10,6 +10,7 @@ import com.nuclearunicorn.libroguelike.render.overlay.OverlaySystem;
 import com.nuclearunicorn.libroguelike.utils.NLTimer;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import org.lwjgl.opengl.GL11;
+import org.newdawn.slick.Color;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -58,7 +59,15 @@ public class ConsoleRenderer extends LayerRenderer{
            if (rltile.isWall()){
             drawChar(tile_x, tile_y, "#");
            }
+
+           if (!rltile.getTileModel().isEmpty() && rltile.getTileModelColor() != null){
+                drawChar(tile_x, tile_y, rltile.getTileModel(), rltile.getTileModelColor());
+           }
         }
+    }
+
+    private void drawChar(int i, int j, String tileModel, Color tileModelColor) {
+        OverlaySystem.ttf.drawString(i*TILE_SIZE,j*TILE_SIZE-2, tileModel, tileModelColor);
     }
 
     public void setBgColor(int r, int g, int b){

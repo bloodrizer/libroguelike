@@ -4,6 +4,7 @@ import com.nuclearunicorn.libroguelike.core.client.ClientEventManager;
 import com.nuclearunicorn.libroguelike.events.Event;
 import com.nuclearunicorn.libroguelike.events.IEventListener;
 import com.nuclearunicorn.libroguelike.game.ui.IUserInterface;
+import com.nuclearunicorn.libroguelike.vgui.NE_GUI_FrameModern;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_System;
 
 /**
@@ -29,6 +30,18 @@ public class InGameUI implements IUserInterface, IEventListener {
     @Override
     public void build_ui() {
         ClientEventManager.eventManager.subscribe(this);
+
+        NE_GUI_FrameModern frame = new NE_GUI_FrameModern();
+        ui.root.add(frame);
+        frame.set_tw(31);
+        frame.set_th(5);
+        frame.solid = true;
+
+        frame.set_coord(15,600);
+        frame.set_title("Console");
+
+        /*NE_GUI_Text console = new NE_GUI_Text();
+        frame.add(console);*/
 
     }
 

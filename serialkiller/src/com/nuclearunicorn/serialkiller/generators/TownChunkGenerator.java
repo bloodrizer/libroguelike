@@ -14,6 +14,7 @@ import com.nuclearunicorn.serialkiller.game.world.entities.EntDoor;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntFurniture;
 import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
 import org.lwjgl.util.Point;
+import org.newdawn.slick.Color;
 
 import java.util.*;
 
@@ -115,6 +116,18 @@ public class TownChunkGenerator extends ChunkGenerator {
                 Block road = new Block(x,y,w,h);
                 road.scale(ROAD_SIZE-2,ROAD_SIZE-2);
                 roads.add(road);
+
+                for (int i = 0; i<=road.getW(); i++)
+                    for (int j = 0; j<=road.getH(); j++){
+                        RLTile tile = (RLTile)(getLayer().get_tile(road.getX()+i,road.getY()+j));
+
+                        //TODO: use textures instead of broken pseudographics
+                        //String model = new String(Character.toChars(178));
+                        //tile.setModel(".");
+
+                        tile.setModelColor(new Color(127,127,0));
+
+                    }
 
                 //TODO : place road on a map
                 /*
