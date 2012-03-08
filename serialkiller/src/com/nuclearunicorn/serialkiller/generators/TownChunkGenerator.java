@@ -4,6 +4,8 @@ import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.generators.ChunkGenerator;
+import com.nuclearunicorn.serialkiller.game.entities.EntDoor;
+import com.nuclearunicorn.serialkiller.game.entities.EntFurniture;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import com.nuclearunicorn.serialkiller.game.world.entity.EnityRLHuman;
 import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
@@ -142,22 +144,34 @@ public class TownChunkGenerator extends ChunkGenerator {
                     placeNPC(block.getX()+i, block.getY()+j);
                 }
 
+                if (chunk_random.nextInt(100) < 2){
+                    Entity ent = new Entity();
+                    placeEntity(block.getX() + i, block.getY() + j, ent, "tree", "T");
+                }
+
+                if (chunk_random.nextInt(100) < 15){
+                    placeEntity(block.getX()+i, block.getY()+j, new Entity(), "grass", "\"");
+                }
+
             }
     }
 
+
     private void placeNPC(int x, int y  ) {
-
         Entity playerEnt = new EnityRLHuman();
+        placeEntity(x, y, playerEnt, "NPC", "@");
+    }
 
-        playerEnt.setName("NPC");
-        playerEnt.setEnvironment(environment);
-        playerEnt.setRenderer(new AsciiEntRenderer("@"));
-        
-        playerEnt.setLayerId(z_index);
-        playerEnt.spawn(12345, new Point(x,y));
+    /*
+        Helper function. Place given entity at given point as ascii-art RL entity
+     */
+    private void placeEntity(int x, int y, Entity ent, String name, String symbol){
+        ent.setName(name);
+        ent.setEnvironment(environment);
+        ent.setRenderer(new AsciiEntRenderer(symbol));
 
-        //playerEnt.set_controller(new PlayerController());
-
+        ent.setLayerId(z_index);
+        ent.spawn(12345, new Point(x,y));
     }
 
     private void generateHousing(Block block) {
@@ -221,6 +235,32 @@ public class TownChunkGenerator extends ChunkGenerator {
                                 room.addNeighbour(room2);
                             }
                         }
+                    }
+                }
+            }
+
+
+            for (List<Point> outerWall : room.getOuterWall(block)){
+                //int rndChar =
+                if (outerWall != null && outerWall.size()>0){
+                    Point windowCoord = outerWall.get(outerWall.size()/2);
+                    if (chunk_random.nextInt(100) > 20){
+
+                        //Window
+
+                        Entity window = new EntFurniture();
+                        placeEntity(windowCoord.getX(), windowCoord.getY(), window, "window", "=");
+                        window.get_combat().set_hp(1);
+                        clearWall(windowCoord.getX(), windowCoord.getY());
+                    } else {
+
+                        //Door
+
+                        EntDoor door = new EntDoor();
+                        placeEntity(windowCoord.getX(), windowCoord.getY(), door, "door", "+");
+                        door.get_combat().set_hp(5);
+                        door.lock();
+                        clearWall(windowCoord.getX(), windowCoord.getY());
                     }
                 }
             }

@@ -1,7 +1,10 @@
 package com.nuclearunicorn.serialkiller.render;
 
+import com.nuclearunicorn.libroguelike.core.Input;
+import com.nuclearunicorn.libroguelike.game.world.WorldViewCamera;
 import com.nuclearunicorn.libroguelike.render.EntityRenderer;
 import com.nuclearunicorn.libroguelike.render.overlay.OverlaySystem;
+import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import org.lwjgl.util.vector.Vector3f;
 
 /**
@@ -26,6 +29,14 @@ public class AsciiEntRenderer extends EntityRenderer {
         int x = ent.x();
         int y = ent.y();
         int w = ConsoleRenderer.TILE_SIZE;
+
+        if (!((RLTile)this.ent.tile).isExplored() && Input.key_state_ctrl){
+            return;
+        }
+
+        if (!WorldViewCamera.tile_in_fov(x, y)){
+            return;
+        }
 
         OverlaySystem.ttf.drawString(x*w,y*w-2, symbol);
     }

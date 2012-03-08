@@ -35,8 +35,8 @@ public class ConsoleRenderer extends LayerRenderer{
                 return;
            }
             
-           if (!rltile.isExplored() && !Input.key_state_alt){
-               //return;
+           if (!rltile.isExplored() && Input.key_state_ctrl){
+               return;
            }
 
            if (rltile.isVisible()){

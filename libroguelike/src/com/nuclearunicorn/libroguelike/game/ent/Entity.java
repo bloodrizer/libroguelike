@@ -53,7 +53,7 @@ public class Entity implements Comparable, Serializable {
     transient public IEntityController controller;
     private WorldChunk chunk = null;
     
-    private boolean blocking = false;
+    private boolean blocking = true;
     protected String name = "undefined";
 
     protected EntityRenderer render = null;
@@ -74,7 +74,7 @@ public class Entity implements Comparable, Serializable {
     //  inventory
     //--------------------------------------------------------------------------
     public ItemContainer container = new ItemContainer();
-    
+
     public enum Orientation {
         ORIENT_N,
         ORIENT_W,
