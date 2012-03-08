@@ -1,4 +1,4 @@
-package com.nuclearunicorn.serialkiller.game.entities;
+package com.nuclearunicorn.serialkiller.game.world.entities;
 
 import com.nuclearunicorn.libroguelike.game.combat.BasicCombat;
 import com.nuclearunicorn.libroguelike.game.combat.Combat;

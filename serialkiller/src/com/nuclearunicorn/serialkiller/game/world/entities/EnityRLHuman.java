@@ -1,4 +1,4 @@
-package com.nuclearunicorn.serialkiller.game.world.entity;
+package com.nuclearunicorn.serialkiller.game.world.entities;
 
 import com.nuclearunicorn.libroguelike.game.ent.EntityNPC;
 import com.nuclearunicorn.serialkiller.render.MessageRenderer;
@@ -43,4 +43,19 @@ public class EnityRLHuman extends EntityNPC {
     public String getModel(){
         return "@";
     }
+
+    /*
+        Since this game is turn-based, entity is allways awake
+
+        TODO: fix possible bug with awakeness
+     */
+    @Override
+    public boolean is_awake(long current_time_ms){
+        return true;
+    }
+
+    /*@Override
+    public void think(){
+        super.think();
+    }*/
 }

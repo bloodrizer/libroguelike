@@ -69,8 +69,11 @@ public class WorldLayer implements Serializable {
         WorldChunk chunk = get_cached_chunk(chunkOrigin);
 
         pop_point(util_point);
-
-        return chunk.tile_data;
+        
+        if (chunk != null){
+            return chunk.tile_data;
+        }
+        return null;
     }
 
 
@@ -111,8 +114,13 @@ public class WorldLayer implements Serializable {
     public WorldTile get_tile(int x, int y){
         push_point(util_point);
         util_point.setLocation(x, y);
-        
-        WorldTile tile = getTileData(util_point).get(util_point);
+
+
+        Map<Point,WorldTile> tileData = getTileData(util_point);
+        if (tileData == null){
+            return null;
+        }
+        WorldTile tile = tileData.get(util_point);
         pop_point(util_point);
 
         return tile;
@@ -153,7 +161,11 @@ public class WorldLayer implements Serializable {
     public WorldChunk get_cached_chunk(int chunk_x, int chunk_y){
         WorldChunk chunk = get_chunk(chunk_x, chunk_y);
         if (chunk == null){
-            chunk = precache_chunk(chunk_x, chunk_y);
+
+            util_point.setLocation(chunk_x, chunk_y);
+            if( WorldCluster.chunk_in_cluster(util_point)){
+                chunk = precache_chunk(chunk_x, chunk_y);
+            }
         }
         return chunk;
     }

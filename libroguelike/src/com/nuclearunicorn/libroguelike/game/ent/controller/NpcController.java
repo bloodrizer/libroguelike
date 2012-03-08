@@ -212,7 +212,7 @@ public class NpcController extends BaseController implements Mover, IEventListen
         //owner.move_to(new Point(owner.origin.getX()-1, owner.origin.getY()));
 
         //displacement = 1.0f / (owner.get_renderer().ANIMATION_LENGTH-2)   //1 start frame + 1 end frame + iterated animation
-        float dx = (float)(x-owner.origin.getX())*MOVE_SPEED * tile.get_speed_modifier();
+        /*float dx = (float)(x-owner.origin.getX())*MOVE_SPEED * tile.get_speed_modifier();
         float dy = (float)(y-owner.origin.getY())*MOVE_SPEED * tile.get_speed_modifier();
 
         owner.dx += dx;
@@ -227,7 +227,14 @@ public class NpcController extends BaseController implements Mover, IEventListen
                     owner.y()+(int)owner.dy
             );
             return;
-        }
+        }*/
+
+        //TODO: implement slow turn-based movement
+        //TODO: implement policy settings
+        change_tile(
+                x,
+                y
+        );
     }
 
 

@@ -1,13 +1,17 @@
 package com.nuclearunicorn.serialkiller.generators;
 
+import com.nuclearunicorn.libroguelike.game.combat.BasicCombat;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
+import com.nuclearunicorn.libroguelike.game.ent.EntityActor;
+import com.nuclearunicorn.libroguelike.game.ent.controller.MobController;
 import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.generators.ChunkGenerator;
-import com.nuclearunicorn.serialkiller.game.entities.EntDoor;
-import com.nuclearunicorn.serialkiller.game.entities.EntFurniture;
+import com.nuclearunicorn.serialkiller.game.ai.PedestrianAI;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
-import com.nuclearunicorn.serialkiller.game.world.entity.EnityRLHuman;
+import com.nuclearunicorn.serialkiller.game.world.entities.EnityRLHuman;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntDoor;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntFurniture;
 import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
 import org.lwjgl.util.Point;
 
@@ -142,25 +146,32 @@ public class TownChunkGenerator extends ChunkGenerator {
         for(int i = 0; i<=block.getW(); i++ )
             for(int j = 0; j<=block.getH(); j++ ){
                 if (chunk_random.nextInt(200) < 1){
-                    placeNPC(block.getX()+i, block.getY()+j);
+                    EntityActor npc = placeNPC(block.getX()+i, block.getY()+j);
+                    npc.set_ai(new PedestrianAI());
+                    npc.set_controller(new MobController());
+                    npc.set_combat(new BasicCombat());
                 }
 
                 if (chunk_random.nextInt(100) < 2){
-                    Entity ent = new Entity();
-                    placeEntity(block.getX() + i, block.getY() + j, ent, "tree", "T");
+                    Entity tree = new Entity();
+                    placeEntity(block.getX() + i, block.getY() + j, tree, "tree", "T");
                 }
 
                 if (chunk_random.nextInt(100) < 15){
-                    placeEntity(block.getX()+i, block.getY()+j, new Entity(), "grass", "\"");
+                    Entity grass = new Entity();
+                    grass.set_blocking(false);
+                    placeEntity(block.getX() + i, block.getY() + j, grass, "grass", "\"");
                 }
 
             }
     }
 
 
-    private void placeNPC(int x, int y  ) {
-        Entity playerEnt = new EnityRLHuman();
+    private EntityActor placeNPC(int x, int y  ) {
+        EntityActor playerEnt = new EnityRLHuman();
         placeEntity(x, y, playerEnt, "NPC", "@");
+
+        return playerEnt;
     }
 
     /*

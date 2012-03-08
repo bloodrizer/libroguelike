@@ -1,4 +1,4 @@
-package com.nuclearunicorn.serialkiller.game.entities;
+package com.nuclearunicorn.serialkiller.game.world.entities;
 
 
 public class EntDoor extends EntFurniture {

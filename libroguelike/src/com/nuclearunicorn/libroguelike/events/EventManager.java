@@ -28,7 +28,10 @@ public class EventManager {
             return; //do not allow to handle events, catched by gui overlay
         }
 
-        for(IEventListener listener:listeners){
+        //WARN: problematic place
+        //use defensive copy of list and than iterate it
+        //otherwase obscure ConcurentModification exception
+        for(IEventListener listener: listeners.toArray(new IEventListener[0])){
             listener.e_on_event(event);
         }
 

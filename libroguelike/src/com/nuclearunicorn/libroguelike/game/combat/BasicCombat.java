@@ -50,6 +50,11 @@ public class BasicCombat extends Combat{
     public void inflict_damage(Entity ent){
         super.inflict_damage(ent);
 
+        //that is very strange scenario when we try to damage ourselves.
+        if (ent == this.owner){
+            return;
+        }
+
         Combat ent_combat = ent.get_combat();
         if (ent_combat != null){
             //do something there

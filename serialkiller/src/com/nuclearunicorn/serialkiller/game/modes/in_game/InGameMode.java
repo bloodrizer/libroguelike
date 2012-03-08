@@ -108,7 +108,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         super.update();
 
         get_ui().update();
-        model.update();
+        //model.update();
         fx.update();
 
         fovUpdate();
@@ -142,22 +142,36 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
 
     @Override
     public void e_on_event(Event event) {
+        boolean isNextTurn = false;
+
         if (event instanceof EKeyPress){
             switch(((EKeyPress) event).key){
                 case Keyboard.KEY_UP:
                     Player.move(Player.get_ent().x(),Player.get_ent().y()-1);
+                    isNextTurn = true;
                 break;
                 case Keyboard.KEY_DOWN:
                     Player.move(Player.get_ent().x(),Player.get_ent().y()+1);
+                    isNextTurn = true;
                 break;
                 case Keyboard.KEY_RIGHT:
                     Player.move(Player.get_ent().x()+1,Player.get_ent().y());
-                    break;
+                    isNextTurn = true;
+                break;
                 case Keyboard.KEY_LEFT:
                     Player.move(Player.get_ent().x()-1,Player.get_ent().y());
-                    break;
+                    isNextTurn = true;
+                break;
             }
         }
+
+        if (isNextTurn){
+            makeTurn();
+        }
+    }
+
+    void makeTurn(){
+        model.update();
     }
 
     void spawn_player(Point location){
