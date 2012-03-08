@@ -53,7 +53,7 @@ public class RLWorldModel extends WorldModel implements ILosBoard {
             return false;
         }*/
 
-        return tile.isWall() || tile.is_blocked();
+        return tile.isWall() || tile.isBlocked();
         //return tile.get_height() > 0;
     }
 

@@ -200,7 +200,7 @@ public class NpcController extends BaseController implements Mover, IEventListen
         }
 
         //wachky-hacky safe switch
-        if(tile.is_blocked()){
+        if(tile.isBlocked()){
             step = null;
             path = null;
             destination = null;

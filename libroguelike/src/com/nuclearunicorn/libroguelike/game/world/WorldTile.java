@@ -146,7 +146,7 @@ public class WorldTile implements Serializable {
         return null;
     }
 
-    public boolean is_blocked(){
+    public boolean isBlocked(){
         Object[] list = ent_list.toArray();
         for(int i=ent_list.size()-1; i>=0; i--){
             Entity entity = (Entity)list[i];

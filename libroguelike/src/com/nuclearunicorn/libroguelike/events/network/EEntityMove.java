@@ -49,7 +49,7 @@ public class EEntityMove extends Event {
         WorldLayer layer = entity.getLayer();
 
         WorldTile tile = layer.get_tile(this.to.getX(), this.to.getY());
-        if (tile!= null && !tile.is_blocked()){
+        if (tile!= null && !tile.isBlocked()){
             super.post();
         }
         //TODO: fix server bug when tile is null

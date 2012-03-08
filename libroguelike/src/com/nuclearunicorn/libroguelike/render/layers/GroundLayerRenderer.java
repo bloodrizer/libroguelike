@@ -79,7 +79,7 @@ public class GroundLayerRenderer extends LayerRenderer{
             tileSprite.texture_name = textureName;
         }
 
-        if (tile.is_blocked()){
+        if (tile.isBlocked()){
             GL11.glColor3f(0.1f,0.1f,0.1f);
         }
 

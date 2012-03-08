@@ -30,7 +30,7 @@ public class AsciiEntRenderer extends EntityRenderer {
         int y = ent.y();
         int w = ConsoleRenderer.TILE_SIZE;
 
-        if (!((RLTile)this.ent.tile).isExplored() && Input.key_state_ctrl){
+        if (!((RLTile)this.ent.tile).isExplored() && !Input.key_state_alt){
             return;
         }
 

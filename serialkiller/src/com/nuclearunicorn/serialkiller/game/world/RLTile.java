@@ -53,4 +53,11 @@ public class RLTile extends WorldTile {
     public void setWall(boolean wall) {
         isWall = wall;
     }
+    
+    public boolean isBlocked(){
+        if (isWall){
+            return true;
+        }
+        return super.isBlocked();
+    }
 }

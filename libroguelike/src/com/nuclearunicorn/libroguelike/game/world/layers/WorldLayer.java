@@ -452,7 +452,7 @@ public class WorldLayer implements Serializable {
                 return true;
             }
 
-            return tile.is_blocked();
+            return tile.isBlocked();
 
             //todo: check border collision
         }

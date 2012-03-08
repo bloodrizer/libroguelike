@@ -35,14 +35,22 @@ public class ConsoleRenderer extends LayerRenderer{
                 return;
            }
             
-           if (!rltile.isExplored() && Input.key_state_ctrl){
+           if (!rltile.isExplored() && !Input.key_state_alt){
                return;
            }
 
            if (rltile.isVisible()){
-               glColor3f(0.5f,1.0f,0.5f);
+               setBgColor(200, 180, 50);
            }else{
-               glColor3f(0.5f,0.5f,1.0f);
+               setBgColor(50, 50, 150);
+           }
+
+           if (rltile.isWall()){
+               if (rltile.isVisible()){
+                    setBgColor(130, 110, 50);
+               }else{
+                    setBgColor(0, 0, 100);
+               }
            }
 
            renderTileQuad(tile_x,tile_y);
@@ -51,6 +59,14 @@ public class ConsoleRenderer extends LayerRenderer{
             drawChar(tile_x, tile_y, "#");
            }
         }
+    }
+
+    public void setBgColor(int r, int g, int b){
+        float rf = r/255f;
+        float gf = g/255f;
+        float bf = b/255f;
+
+        glColor3f(rf,gf,bf);
     }
     
     

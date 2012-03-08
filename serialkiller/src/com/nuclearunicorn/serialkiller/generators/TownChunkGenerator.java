@@ -11,9 +11,7 @@ import com.nuclearunicorn.serialkiller.game.world.entity.EnityRLHuman;
 import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
 import org.lwjgl.util.Point;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -30,6 +28,9 @@ public class TownChunkGenerator extends ChunkGenerator {
     List<Block> districts = null;
     List<Block> roads = new ArrayList<Block>();
     private static final int ROAD_SIZE = 3;
+    
+    //List<Block> apartments = new ArrayList<Block>();
+    Map<Block,List<Block>> apartmentRooms = new HashMap<Block, List<Block>>();
 
 
     public void generate(Point origin){
@@ -265,8 +266,36 @@ public class TownChunkGenerator extends ChunkGenerator {
                 }
             }
         }
+
+        apartmentRooms.put(block, rooms);   //save apartment and rooms in in for later handling
     }
 
+    /*
+        Get rundom unoccumpite tile inside of the block
+     */
+    private Point blockGetFreeTile(Block block){
+       while(true){
+           int x = chunk_random.nextInt( block.getW()-1 ) + block.getX()+1;
+           int y = chunk_random.nextInt( block.getY()-1 ) + block.getY()+1;
+
+           if (!isBlocked(x,y)){
+               return new Point(x,y);
+           }
+       }
+    }
+
+    private boolean isBlocked(int x, int y) {
+        RLTile tile = (RLTile)(getLayer().get_tile(x,y));
+
+        if ( tile!=null ){
+            if (tile.isWall() || tile.isBlocked()){
+                return true;
+            }
+            return false;
+        }
+
+        return true;
+    }
 
 
     /**
