@@ -15,12 +15,13 @@ import java.util.ArrayList;
  *
  * @author Administrator
  */
-class NE_GUI_Text extends NE_GUI_Element{
+public class NE_GUI_Text extends NE_GUI_Element{
     ArrayList<String> lines = new ArrayList<String>(5);
     public int max_lines = 5;
     static final int FONT_SIZE = 12;
 
     TrueTypeFont chat_ttf;
+    public Color color = Color.white;
 
     public NE_GUI_Text(){
         chat_ttf = OverlaySystem.precache_font(FONT_SIZE);
@@ -47,10 +48,10 @@ class NE_GUI_Text extends NE_GUI_Element{
         chat_ttf.drawString(
                 get_x(),
                 get_y()+ chat_offset*(FONT_SIZE + 2),
-                lines.get(i) , Color.black);
+                lines.get(i) , color);
     }
 
-    void add_line(String text) {
+    public void add_line(String text) {
         lines.add(text);
     }
 }

@@ -6,6 +6,8 @@ import com.nuclearunicorn.libroguelike.events.IEventListener;
 import com.nuclearunicorn.libroguelike.game.ui.IUserInterface;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_FrameModern;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_System;
+import com.nuclearunicorn.libroguelike.vgui.NE_GUI_Text;
+import org.newdawn.slick.Color;
 
 /**
  * Created by IntelliJ IDEA.
@@ -40,9 +42,16 @@ public class InGameUI implements IUserInterface, IEventListener {
         frame.set_coord(15,600);
         frame.set_title("Console");
 
-        /*NE_GUI_Text console = new NE_GUI_Text();
-        frame.add(console);*/
+        NE_GUI_Text console = new NE_GUI_Text();
+        console.x = 20;
+        console.y = 35;
+        console.dragable = false;
+        console.color = new Color(191,191,191);
+        console.max_lines = 8;
 
+        console.add_line("Wellcome to the SERIAL KILLER RL");
+
+        frame.add(console);
     }
 
     @Override

@@ -97,9 +97,35 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         TilesetRenderer.TILE_SIZE = ConsoleRenderer.TILE_SIZE;
 
         WorldChunk.CHUNK_SIZE = 128;
+        
+        spawn_player(new Point(0,0));
+
+        
+        //hack begin
+
+        /**
+         * This ugly hack fixes player position.
+         * First, we create player entity, as it requeres local environment
+         * Then, we force game to make player turn in order to detect chunks and pre-build them
+         * As an effect of chunk building, generator sets player location inside of generated safehouses
+         * Then, we finally able to use pre-generated player and place it into the safehouse
+         */
+        model.update();
+
+        if (RLWorldModel.playerSafeHouseLocation != null){
+            Player.get_ent().move_to(RLWorldModel.playerSafeHouseLocation);
+        }
+        //hack end
+        
+        
+        
 
         //finally, spawn player
-        spawn_player(new Point(5, 5));
+        /*if (RLWorldModel.playerSafeHouseLocation != null){
+            spawn_player(RLWorldModel.playerSafeHouseLocation);
+        }else{
+            //throw new RuntimeException("no safehouse detected, we are in deep shit");
+        }*/
     }
 
     @Override

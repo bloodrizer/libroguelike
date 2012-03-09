@@ -10,6 +10,7 @@ import com.nuclearunicorn.libroguelike.game.world.generators.ChunkGenerator;
 import com.nuclearunicorn.serialkiller.game.ai.PedestrianAI;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldChunk;
+import com.nuclearunicorn.serialkiller.game.world.RLWorldModel;
 import com.nuclearunicorn.serialkiller.game.world.entities.EnityRLHuman;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntDoor;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntFurniture;
@@ -122,6 +123,24 @@ public class TownChunkGenerator extends ChunkGenerator {
 
             generateRoads(district);
             district.scale(-ROAD_SIZE,-ROAD_SIZE);
+        }
+
+        //-----------------------------------------------------------
+        //		randomly place safehouse
+        //-----------------------------------------------------------
+        Block safehouseBlock = districts.get(chunk_random.nextInt(districts.size()));
+        generateSafehouse(safehouseBlock);
+        districts.remove(safehouseBlock);
+            /*safehouse_block = districts[libtcod.random_get_int(self.generator, 0, len(districts)-1)]
+            self.GenerateSafehosue(safehouse_block)
+    
+            districts.remove(safehouse_block) */
+
+        //-----------------------------------------------------------
+        //		create other housing areas
+        //-----------------------------------------------------------
+        
+        for(Block district: districts){
             fillBlock(district);
         }
 
@@ -129,6 +148,34 @@ public class TownChunkGenerator extends ChunkGenerator {
 
         populateMap();
 
+    }
+
+    /*
+        Safehouse it the apartment block owned by a player.
+     */
+    private void generateSafehouse(Block safehouseBlock) {
+        generateHousing(safehouseBlock);
+        apartmentRooms.remove(safehouseBlock);  //no one dares to live in my house!
+
+        for (int i = 0; i <= safehouseBlock.getW(); i++)
+            for (int j = 0; j <= safehouseBlock.getH(); j++){
+                RLTile tile = (RLTile)(getLayer().get_tile(safehouseBlock.getX()+i,safehouseBlock.getY()+j));
+                tile.setExplored(true);
+            }
+        //TODO: save safehouse
+
+        fillApartmentRooms(safehouseBlock);
+
+        //store safehouse to place player there later
+        Point playerPosition = this.blockGetFreeTile(safehouseBlock);
+        RLWorldModel.playerSafeHouseLocation = playerPosition;
+        
+        /*Point playerPosition = this.blockGetFreeTile(safehouseBlock);
+        Player.get_ent().move_to(playerPosition);*/
+    }
+
+    private void fillApartmentRooms(Block safehouseBlock) {
+        //To change body of created methods use File | Settings | File Templates.
     }
 
     private void generateRoads(Block block) {

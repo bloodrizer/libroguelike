@@ -18,6 +18,10 @@ public class WorldViewCamera {
     public static float camera_x = 0;
     public static float camera_y = 0;
 
+    public static float cameraOffsetX = 0;
+    public static float cameraOffsetY = 80;
+
+
     public static Point target = new Point(0, 0);
     public static float speed = 1.0f;
 
@@ -74,8 +78,8 @@ public class WorldViewCamera {
                     + WorldView.getYOffset(Player.get_ent().tile);
 
             Point delta = WorldView.world2local(new Point((int) target_x, (int) target_y));
-            target_x = delta.getX();
-            target_y = delta.getY();
+            target_x = delta.getX() + cameraOffsetX;
+            target_y = delta.getY() + cameraOffsetY;
 
             int dxt = WindowRender.get_window_w() / TilesetRenderer.TILE_SIZE / 2;
             int dyt = WindowRender.get_window_h() / TilesetRenderer.TILE_SIZE / 2;

@@ -4,6 +4,7 @@ import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.libroguelike.game.world.WorldModel;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.layers.WorldLayer;
+import org.lwjgl.util.Point;
 import rlforj.los.ILosBoard;
 
 import java.util.ArrayList;
@@ -12,6 +13,8 @@ import java.util.List;
 public class RLWorldModel extends WorldModel implements ILosBoard {
     
     private List<RLTile> fovTiles = new ArrayList<RLTile>();
+    
+    public static Point playerSafeHouseLocation;
 
     public RLWorldModel(int layersCount) {
         this.LAYER_COUNT = layersCount;

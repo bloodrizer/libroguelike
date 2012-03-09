@@ -18,8 +18,8 @@ public class AreaRenderer {
     public int w = 32;
     public int h = 32;
 
-    public int TEXTURE_W = 512;
-    public int TEXTURE_H = 512;
+    public int TEXTURE_W = 256;
+    public int TEXTURE_H = 256;
 
     public AreaRenderer(){
         

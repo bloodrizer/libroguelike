@@ -1,7 +1,6 @@
 package com.nuclearunicorn.serialkiller.game;
 
 import com.nuclearunicorn.libroguelike.core.Game;
-import com.nuclearunicorn.serialkiller.game.SkillerGame;
 import com.nuclearunicorn.serialkiller.game.modes.in_game.InGameMode;
 import com.nuclearunicorn.serialkiller.game.modes.main_menu.MainMenuMode;
 import org.lwjgl.opengl.Display;
@@ -43,7 +42,6 @@ public class MainApplet extends Applet {
                 game.set_state("inGame");
                 game.run();
 
-                game.run();
             }
         };
         gameThread.start();
