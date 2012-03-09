@@ -39,15 +39,18 @@ public class NpcController extends BaseController implements Mover, IEventListen
     public int NEXT_FRAME_DELAY = 100;
     public float MOVE_SPEED = 0.50f;
 
-    static final boolean ALLOW_DIAGONAL_MOVEMENT = true;
+    static final boolean ALLOW_DIAGONAL_MOVEMENT = false;
+    static int MAX_SEARCH_DISTANCE = 30;
     private AStarPathFinder finder;
+    
+    public static int pathfinderRequests = 0;
 
     public NpcController(){
         ClientEventManager.eventManager.subscribe(this);
 
-        finder = new AStarPathFinder(
+        finder = new AStarPathFinder( 
             ClientGameEnvironment.getWorldLayer(Player.get_zindex()).tile_map,
-            50,
+            MAX_SEARCH_DISTANCE,
             ALLOW_DIAGONAL_MOVEMENT);
     }
 
@@ -90,6 +93,9 @@ public class NpcController extends BaseController implements Mover, IEventListen
     }
 
     public void calculate_path(int x, int y){
+        
+        //System.out.println("path calculation requested by entity #"+this.owner.get_uid());
+        pathfinderRequests++;
 
         Point target = new Point(x,y);
         target = ClientGameEnvironment.getWorldLayer(Player.get_zindex()).tile_map.world2local(target);

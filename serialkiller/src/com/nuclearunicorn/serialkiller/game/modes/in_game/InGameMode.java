@@ -9,11 +9,13 @@ import com.nuclearunicorn.libroguelike.events.IEventListener;
 import com.nuclearunicorn.libroguelike.game.GameEnvironment;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.ent.EntityPlayer;
+import com.nuclearunicorn.libroguelike.game.ent.controller.NpcController;
 import com.nuclearunicorn.libroguelike.game.ent.controller.PlayerController;
 import com.nuclearunicorn.libroguelike.game.modes.AbstractGameMode;
 import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.libroguelike.game.ui.IUserInterface;
 import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
+import com.nuclearunicorn.libroguelike.game.world.WorldCluster;
 import com.nuclearunicorn.libroguelike.game.world.WorldView;
 import com.nuclearunicorn.libroguelike.game.world.WorldViewCamera;
 import com.nuclearunicorn.libroguelike.game.world.generators.ChunkGenerator;
@@ -52,7 +54,8 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
 
 
     private GameEnvironment clientGameEnvironment;
-    
+    private int turnNumber = 0;
+
     @Override
     public void run() {
         overlay = new OverlaySystem();
@@ -68,6 +71,8 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
 
         model = new RLWorldModel(1);
         clientGameEnvironment.setWorld(model);
+
+        WorldCluster.CLUSTER_SIZE = 1;
 
 
         ChunkGenerator townGenerator = new TownChunkGenerator();
@@ -91,7 +96,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         //tileset render affects camera positioning. Todo:fix this shit
         TilesetRenderer.TILE_SIZE = ConsoleRenderer.TILE_SIZE;
 
-        WorldChunk.CHUNK_SIZE = 64;
+        WorldChunk.CHUNK_SIZE = 128;
 
         //finally, spawn player
         spawn_player(new Point(5, 5));
@@ -171,7 +176,15 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
     }
 
     void makeTurn(){
+        turnNumber++;
+        NLTimer timer = new NLTimer();
+        timer.push();
+
         model.update();
+
+        timer.pop("Turn # "+turnNumber);
+        System.out.println(NpcController.pathfinderRequests + " astar calls on this turn ");
+        NpcController.pathfinderRequests = 0;
     }
 
     void spawn_player(Point location){

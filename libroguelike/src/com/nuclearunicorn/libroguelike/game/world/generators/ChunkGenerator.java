@@ -5,6 +5,7 @@
 package com.nuclearunicorn.libroguelike.game.world.generators;
 
 import com.nuclearunicorn.libroguelike.game.GameEnvironment;
+import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
 import com.nuclearunicorn.libroguelike.game.world.layers.WorldLayer;
 import org.lwjgl.util.Point;
 
@@ -31,6 +32,6 @@ public abstract class ChunkGenerator {
         return environment.getWorldLayer(z_index);
     }
     
-    public void generate(Point origin){
+    public void generate(WorldChunk chunk){
     }
 }

@@ -14,7 +14,14 @@ public class RLWorldModel extends WorldModel implements ILosBoard {
     private List<RLTile> fovTiles = new ArrayList<RLTile>();
 
     public RLWorldModel(int layersCount) {
-        super(layersCount);
+        this.LAYER_COUNT = layersCount;
+
+        for (int i = 0; i< LAYER_COUNT; i++ ){
+            WorldLayer layer = new RLWorldLayer();
+            layer.set_zindex(i);
+            layer.setModel(this);
+            worldLayers.put(i, layer);
+        }
     }
 
     /**
@@ -48,6 +55,11 @@ public class RLWorldModel extends WorldModel implements ILosBoard {
     @Override
     public boolean isObstacle(int x, int y) {
         RLTile tile = getRLTile(x, y);
+
+        //do not allow to check FOV outside of the cluster
+        if (tile == null){
+            return true;
+        }
 
         /*if (tile.get_actor() != null && tile.get_actor() instanceof EntityPlayer){
             return false;

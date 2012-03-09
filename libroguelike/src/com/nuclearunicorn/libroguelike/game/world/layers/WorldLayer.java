@@ -266,7 +266,7 @@ public class WorldLayer implements Serializable {
      * Note that we probably need to build every layer in this chunk(?)
      */
 
-    private WorldChunk precache_chunk(int x, int y){
+    protected WorldChunk precache_chunk(int x, int y){
         WorldChunk chunk = new WorldChunk(x, y){
             @Override
             public synchronized void unload(){
@@ -283,15 +283,15 @@ public class WorldLayer implements Serializable {
         };
 
         chunk_data.put(new Point(x,y), chunk);
-        process_chunk(chunk.origin, z_index);
+        process_chunk(chunk, z_index);
 
         return chunk;
     }
 
 
 
-    public void process_chunk(Point origin, int z_index){
-        build_chunk(origin, z_index);
+    public void process_chunk(WorldChunk chunk, int z_index){
+        build_chunk(chunk, z_index);
 
         /*
          * TODO: We can not simply load one region player is into,
@@ -300,16 +300,16 @@ public class WorldLayer implements Serializable {
          * We should load large portion of regions, at least 3x3 blocks
          */
 
-        int rx = origin.getX()/ WorldRegion.REGION_SIZE;
-        int ry = origin.getY()/WorldRegion.REGION_SIZE;
+        int rx = chunk.origin.getX()/ WorldRegion.REGION_SIZE;
+        int ry = chunk.origin.getY()/WorldRegion.REGION_SIZE;
         Point regionOrigin = new Point(rx,ry);
         WorldModel.worldRegions.get_cached(regionOrigin);
         
     }
 
-    protected void build_chunk(Point origin, int z_index){
+    protected void build_chunk(WorldChunk chunk, int z_index){
 
-        System.out.println("building chunk @"+origin);
+        System.out.println("building chunk @"+chunk.origin);
 
         if (model.getEnvironment() == null){
             throw new WorldGenerationException("model environment is null on WorldLayer");
@@ -322,7 +322,7 @@ public class WorldLayer implements Serializable {
         for(ChunkGenerator gen: generators){
             gen.setEnvironment(model.getEnvironment());
             gen.set_zindex(z_index);
-            gen.generate(origin);
+            gen.generate(chunk);
         }
 
         terrain_outdated = true;

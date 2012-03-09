@@ -35,7 +35,7 @@ public class InGameUI implements IUserInterface, IEventListener {
         ui.root.add(frame);
         frame.set_tw(31);
         frame.set_th(5);
-        frame.solid = true;
+        frame.solid = false;
 
         frame.set_coord(15,600);
         frame.set_title("Console");

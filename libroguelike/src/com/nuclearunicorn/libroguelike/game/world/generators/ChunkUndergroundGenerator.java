@@ -5,7 +5,7 @@
 
 package com.nuclearunicorn.libroguelike.game.world.generators;
 
-import org.lwjgl.util.Point;
+import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
 
 /**
  *
@@ -13,7 +13,7 @@ import org.lwjgl.util.Point;
  */
 public class ChunkUndergroundGenerator extends ChunkGenerator {
     @Override
-    public void generate(Point origin){
+    public void generate(WorldChunk chunk){
         
     }
 }

@@ -5,8 +5,9 @@
 
 package com.nuclearunicorn.libroguelike.game.world.generators;
 
+import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
+
 import java.util.Random;
-import org.lwjgl.util.Point;
 
 /**
  *
@@ -14,10 +15,10 @@ import org.lwjgl.util.Point;
  */
 public class NPCVillageGenerator extends ChunkGenerator {
     @Override
-    public void generate(Point origin){
+    public void generate(WorldChunk chunk){
         //NLTimer.push();
 
         Random chunk_random = new Random();
-        chunk_random.setSeed(origin.getX()*1000+origin.getY());    //set chunk-specific seed
+        chunk_random.setSeed(chunk.origin.getX()*1000+chunk.origin.getY());    //set chunk-specific seed
     }
 }

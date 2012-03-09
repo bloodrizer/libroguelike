@@ -1,7 +1,11 @@
 package com.nuclearunicorn.serialkiller.game.world;
 
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
+import com.nuclearunicorn.serialkiller.game.world.entities.EnityRLHuman;
 import org.newdawn.slick.Color;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /*
 Typical RogueLike tile - can be explored/unexplored, visible, etc
@@ -25,6 +29,18 @@ public class RLTile extends WorldTile {
     
     private String tileModel = "";
     private Color tileModelColor;
+
+    List<EnityRLHuman> owners = new ArrayList<EnityRLHuman>();
+
+
+    public void addOwner(EnityRLHuman npc) {
+        owners.add(npc);
+    }
+
+    public boolean isOwned(){
+        return !owners.isEmpty();
+    }
+
 
     public void setModel(String model){
         tileModel = model;

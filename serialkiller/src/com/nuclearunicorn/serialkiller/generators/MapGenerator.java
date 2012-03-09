@@ -121,8 +121,6 @@ public class MapGenerator {
     }
     
     public List<Block> halfSplit(Block block){
-        System.out.println("half split");
-
 
         if (block.getArea() < getMinBlockSize()){
             return null;
@@ -205,7 +203,6 @@ public class MapGenerator {
         }
 
         rooms = roomProcess(rooms);
-        //#TODO: make a doors there (orly?)
         return rooms;
     }
 }

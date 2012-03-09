@@ -30,19 +30,19 @@ public class ChunkGroundGenerator extends ChunkGenerator {
     }
     
     @Override
-    public void generate(Point origin){
+    public void generate(WorldChunk chunk){
 
         NLTimer timer = new NLTimer();
         timer.push();
 
         Random chunk_random = new Random();
-        chunk_random.setSeed(origin.getX()*10000+origin.getY());    //set chunk-specific seed
+        chunk_random.setSeed(chunk.origin.getX()*10000+chunk.origin.getY());    //set chunk-specific seed
 
         //Thread.currentThread().dumpStack();
         //System.out.println("building data chunk @"+origin.toString());
 
-        int x = origin.getX()* WorldChunk.CHUNK_SIZE;
-        int y = origin.getY()*WorldChunk.CHUNK_SIZE;
+        int x = chunk.origin.getX()* WorldChunk.CHUNK_SIZE;
+        int y = chunk.origin.getY()*WorldChunk.CHUNK_SIZE;
         int size = WorldChunk.CHUNK_SIZE;
         
         final int OFFSET = WorldChunk.CHUNK_SIZE;
@@ -57,7 +57,7 @@ public class ChunkGroundGenerator extends ChunkGenerator {
 
         //todo:generate objects
 
-        timer.pop("chunk @"+origin.getX()+","+origin.getY());
+        timer.pop("chunk @"+chunk.origin.getX()+","+chunk.origin.getY());
     }
 
     //TODO: use environment.getWorldLayer there

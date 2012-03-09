@@ -9,6 +9,7 @@ import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.generators.ChunkGenerator;
 import com.nuclearunicorn.serialkiller.game.ai.PedestrianAI;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
+import com.nuclearunicorn.serialkiller.game.world.RLWorldChunk;
 import com.nuclearunicorn.serialkiller.game.world.entities.EnityRLHuman;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntDoor;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntFurniture;
@@ -36,16 +37,27 @@ public class TownChunkGenerator extends ChunkGenerator {
     
     //List<Block> apartments = new ArrayList<Block>();
     Map<Block,List<Block>> apartmentRooms = new HashMap<Block, List<Block>>();
+    
+    RLWorldChunk chunk;
 
+    /*
+        List of Path nodes in the crossroads or corner points of town. Used for generation of patroling routes
+    */
 
-    public void generate(Point origin){
+    public void generate(WorldChunk chunk){
 
-        seed = origin.getX()*10000+origin.getY();
+        if (chunk instanceof RLWorldChunk){
+            this.chunk = (RLWorldChunk)chunk;
+        }else{
+            throw new RuntimeException("trying to generate non-RLWorldChunk element");
+        }
+
+        seed = chunk.origin.getX()*10000 + chunk.origin.getY();
         chunk_random = new Random(seed);
 
 
-        int x = origin.getX()* WorldChunk.CHUNK_SIZE;
-        int y = origin.getY()*WorldChunk.CHUNK_SIZE;
+        int x = chunk.origin.getX()* WorldChunk.CHUNK_SIZE;
+        int y = chunk.origin.getY()*WorldChunk.CHUNK_SIZE;
         int size = WorldChunk.CHUNK_SIZE;
 
         final int OFFSET = WorldChunk.CHUNK_SIZE;
@@ -93,6 +105,21 @@ public class TownChunkGenerator extends ChunkGenerator {
         districts = mapgen.process(blocks);
 
         for(Block district: districts){
+
+            //register corner nodes before scaling and tracing roads
+
+            Point[] ms = new Point[]{
+                new Point(district.getX(), district.getY()),
+                new Point(district.getX(), district.getY()+district.getH()),
+                new Point(district.getX()+district.getW(), district.getY()),
+                new Point(district.getX()+district.getW(), district.getY()+district.getH()),
+            };
+            for (Point milestone: ms){
+                if (!this.chunk.hasMilestone(milestone)){
+                    this.chunk.addMilestone(milestone);
+                }
+            }
+
             generateRoads(district);
             district.scale(-ROAD_SIZE,-ROAD_SIZE);
             fillBlock(district);
@@ -140,8 +167,40 @@ public class TownChunkGenerator extends ChunkGenerator {
         }
     }
 
+    /**
+        As legacy code says:
+        #FILL MAP WITH NPC
+	    #this method should be called BEFORE room structure generation!
+     */
     private void populateMap() {
-        //roads
+        for (Block road: roads){
+
+            //add pedestrians to the road
+
+            int npcCount = 0;
+
+            if (chunk_random.nextInt(100) < 50){
+                npcCount = 1;
+            }
+            for (int i = 0; i< npcCount; i++){
+                Point coord = blockGetFreeTile(road);
+
+                EnityRLHuman npc = (EnityRLHuman)placeNPC(coord.getX(), coord.getY());
+                npc.set_ai(new PedestrianAI());
+                npc.set_controller(new MobController());
+                npc.set_combat(new BasicCombat());
+
+                int randomApt = chunk_random.nextInt(apartmentRooms.size());
+                Block apt = new ArrayList<Block>(apartmentRooms.keySet()).get(randomApt);
+
+                for (int n = apt.getX(); n < apt.getX()+apt.getW(); n++)
+                    for (int m = apt.getY(); m < apt.getY()+apt.getH(); m++){
+                        RLTile tile = (RLTile)(getLayer().get_tile(n,m));
+                        tile.addOwner(npc);
+                    }
+
+            }
+        }
     }
 
     private void fillBlock(Block district){
@@ -295,7 +354,7 @@ public class TownChunkGenerator extends ChunkGenerator {
     }
 
     /*
-        Get rundom unoccumpite tile inside of the block
+        Get random unoccupied tile inside of the block
      */
     private Point blockGetFreeTile(Block block){
        while(true){

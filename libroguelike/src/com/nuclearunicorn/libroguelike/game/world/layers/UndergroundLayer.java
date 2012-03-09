@@ -19,7 +19,7 @@ public class UndergroundLayer extends WorldLayer{
         ChunkGenerator underground_gen = new ChunkUndergroundGenerator();
         underground_gen.set_zindex(z_index);
 
-        underground_gen.generate(origin);
+        //underground_gen.generate(origin);
 
         terrain_outdated = true;
     }

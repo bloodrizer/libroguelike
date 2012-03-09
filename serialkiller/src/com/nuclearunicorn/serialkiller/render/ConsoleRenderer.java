@@ -57,7 +57,11 @@ public class ConsoleRenderer extends LayerRenderer{
            renderTileQuad(tile_x,tile_y);
 
            if (rltile.isWall()){
-            drawChar(tile_x, tile_y, "#");
+                drawChar(tile_x, tile_y, "#");
+           }else{
+                if(rltile.isOwned()){
+                    drawChar(tile_x, tile_y, ".", Color.red);
+                }
            }
 
            if (!rltile.getTileModel().isEmpty() && rltile.getTileModelColor() != null){
