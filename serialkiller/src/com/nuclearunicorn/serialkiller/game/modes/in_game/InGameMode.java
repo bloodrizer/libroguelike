@@ -27,6 +27,7 @@ import com.nuclearunicorn.libroguelike.render.overlay.OverlaySystem;
 import com.nuclearunicorn.libroguelike.utils.NLTimer;
 import com.nuclearunicorn.libroguelike.utils.Timer;
 import com.nuclearunicorn.libroguelike.vgui.effects.EffectsSystem;
+import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldModel;
 import com.nuclearunicorn.serialkiller.generators.TownChunkGenerator;
 import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
@@ -158,7 +159,8 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
 
     private void fovUpdate() {
         model.resetFov();
-        fov.visitFieldOfView(model, Player.get_ent().x(), Player.get_ent().y(), 9);
+        int fovRadius = ((RLCombat)Player.get_player_ent().get_combat()).getFovRadius();
+        fov.visitFieldOfView(model, Player.get_ent().x(), Player.get_ent().y(), fovRadius);
     }
 
     @Override
@@ -177,20 +179,23 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
 
         if (event instanceof EKeyPress){
             switch(((EKeyPress) event).key){
-                case Keyboard.KEY_UP:
+                case Keyboard.KEY_UP: case Keyboard.KEY_W:
                     Player.move(Player.get_ent().x(),Player.get_ent().y()-1);
                     isNextTurn = true;
                 break;
-                case Keyboard.KEY_DOWN:
+                case Keyboard.KEY_DOWN: case Keyboard.KEY_S:
                     Player.move(Player.get_ent().x(),Player.get_ent().y()+1);
                     isNextTurn = true;
                 break;
-                case Keyboard.KEY_RIGHT:
+                case Keyboard.KEY_RIGHT: case Keyboard.KEY_A:
                     Player.move(Player.get_ent().x()+1,Player.get_ent().y());
                     isNextTurn = true;
                 break;
-                case Keyboard.KEY_LEFT:
+                case Keyboard.KEY_LEFT: case Keyboard.KEY_D:
                     Player.move(Player.get_ent().x()-1,Player.get_ent().y());
+                    isNextTurn = true;
+                break;
+                case Keyboard.KEY_SPACE:
                     isNextTurn = true;
                 break;
             }
@@ -216,6 +221,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
     void spawn_player(Point location){
 
         Entity playerEnt = new EntityPlayer();
+        playerEnt.set_combat(new RLCombat());
 
         playerEnt.setName("Player");
         playerEnt.setEnvironment(clientGameEnvironment);

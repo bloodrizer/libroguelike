@@ -49,7 +49,10 @@ public class InGameUI implements IUserInterface, IEventListener {
         console.color = new Color(191,191,191);
         console.max_lines = 8;
 
-        console.add_line("Wellcome to the SERIAL KILLER RL");
+        console.add_line("Wellcome to the Serial Killer Roguelike");
+        console.add_line("Press 'wsad' to move, 'space' to skil turn");
+        console.add_line("Use 'ctrl' + direction to attack ");
+        console.add_line("Press 'tab' to view your character screen and inventory ");
 
         frame.add(console);
     }

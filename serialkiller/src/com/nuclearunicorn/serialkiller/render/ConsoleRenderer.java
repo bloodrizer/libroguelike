@@ -1,6 +1,7 @@
 package com.nuclearunicorn.serialkiller.render;
 
 import com.nuclearunicorn.libroguelike.core.Input;
+import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.WorldViewCamera;
@@ -41,7 +42,8 @@ public class ConsoleRenderer extends LayerRenderer{
            }
 
            if (rltile.isVisible()){
-               setBgColor(200, 180, 50);
+               setFovColor(tile_x, tile_y);
+               //setBgColor(200, 180, 50);
            }else{
                setBgColor(50, 50, 150);
            }
@@ -70,6 +72,33 @@ public class ConsoleRenderer extends LayerRenderer{
         }
     }
 
+    static public final float lerp(float start, float stop, float amt) {
+        return start + (stop-start) * amt;
+    }
+
+    private void setFovColor(int tile_x, int tile_y) {
+        //200, 180, 50
+        
+        //50, 50, 150
+        int dx = Player.get_ent().origin.getX()-tile_x;
+        int dy = Player.get_ent().origin.getY()-tile_y;
+        //float disst = (float)Math.sqrt(dx*dx+dy*dy);
+        float disst = dx*dx+dy*dy;
+
+        //float amt = 1.0f / ((float)Math.sqrt(disst));
+        //float amt = 1.0f / (float)Math.sqrt((Math.sqrt(disst)));
+        float amt = 32.0f / (disst);
+        if (amt > 1.0f){
+            amt = 1.0f;
+        }
+
+        float r = lerp(50, 200, amt)/255f;
+        float g = lerp(50, 180, amt)/255f;
+        float b = lerp(150, 50, amt)/255f;
+
+        glColor3f(r,g,b);
+    }
+
     private void drawChar(int i, int j, String tileModel, Color tileModelColor) {
         OverlaySystem.ttf.drawString(i*TILE_SIZE,j*TILE_SIZE-2, tileModel, tileModelColor);
     }
@@ -80,6 +109,10 @@ public class ConsoleRenderer extends LayerRenderer{
         float bf = b/255f;
 
         glColor3f(rf,gf,bf);
+    }
+
+    public void setBgColor(Color color){
+        setBgColor((int)color.r, (int)color.g, (int)color.b);
     }
     
     
@@ -98,8 +131,8 @@ public class ConsoleRenderer extends LayerRenderer{
         drawQuad(
                 i * TILE_SIZE,
                 j * TILE_SIZE,
-                TILE_SIZE - 1,
-                TILE_SIZE - 1
+                TILE_SIZE,
+                TILE_SIZE
         );
         glEnable(GL11.GL_TEXTURE_2D);
 

@@ -6,6 +6,8 @@
 package com.nuclearunicorn.libroguelike.game.items;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -17,6 +19,16 @@ public class BaseItem{
     int max_count = 64;
     String type = "undefined";
     String slot = "undefined";
+    
+    Map<String,String> effects = new HashMap<String,String>();
+    
+    public void setEffect(String effectId, String value){
+        effects.put(effectId,value);
+    }
+
+    public String getEffect(String effectId){
+        return effects.get(effectId);
+    }
 
     public BaseItem set_slot(String slot){
         this.slot = slot;

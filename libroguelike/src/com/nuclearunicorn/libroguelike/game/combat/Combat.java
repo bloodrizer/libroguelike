@@ -13,9 +13,10 @@ import java.io.Serializable;
  * This is a simple combat wrapper
  */
 public abstract class Combat implements Serializable{
+
     public Stats stats = new Stats();
-    int hp = get_max_hp();
-    Entity owner;
+    protected int hp; // = get_max_hp()
+    protected Entity owner;
 
     public void set_owner(Entity owner){
         this.owner = owner;
