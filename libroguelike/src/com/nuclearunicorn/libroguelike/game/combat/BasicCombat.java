@@ -30,7 +30,7 @@ public class BasicCombat extends Combat{
 
     public void die(Entity killer){
         //TODO: post event there
-        owner.trash();
+        //owner.trash();
 
         if (owner instanceof EntityActor){
             ((EntityActor)owner).die(killer);

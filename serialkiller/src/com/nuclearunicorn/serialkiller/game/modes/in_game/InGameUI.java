@@ -1,13 +1,21 @@
 package com.nuclearunicorn.serialkiller.game.modes.in_game;
 
+import com.nuclearunicorn.libroguelike.core.Input;
 import com.nuclearunicorn.libroguelike.core.client.ClientEventManager;
+import com.nuclearunicorn.libroguelike.events.EMouseClick;
 import com.nuclearunicorn.libroguelike.events.Event;
 import com.nuclearunicorn.libroguelike.events.IEventListener;
+import com.nuclearunicorn.libroguelike.game.ent.Entity;
+import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.libroguelike.game.ui.IUserInterface;
+import com.nuclearunicorn.libroguelike.game.world.WorldTile;
+import com.nuclearunicorn.libroguelike.game.world.WorldView;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_FrameModern;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_System;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_Text;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntRLActor;
 import com.nuclearunicorn.serialkiller.messages.EConsoleMessage;
+import org.lwjgl.util.Point;
 import org.newdawn.slick.Color;
 
 import java.text.SimpleDateFormat;
@@ -30,7 +38,24 @@ public class InGameUI implements IUserInterface, IEventListener {
 
     @Override
     public void e_on_event(Event event) {
+        if (event instanceof EMouseClick){
+            EMouseClick clickEvent = (EMouseClick)event;
 
+            if (clickEvent.type == Input.MouseInputType.LCLICK){
+                Point tile_coord = WorldView.getTileCoord(clickEvent.origin.getX(), clickEvent.origin.getY());
+                
+                
+                WorldTile tile = Player.get_ent().getLayer().get_tile(tile_coord);
+                if (tile!=null){
+                    Entity ent = tile.get_obstacle();
+                    if (ent instanceof EntRLActor){
+                        ((EntRLActor)ent).describe();
+                    }
+
+                    //RLMessages.message("You see", Color.lightGray);
+                }
+            }
+        }
     }
 
     @Override

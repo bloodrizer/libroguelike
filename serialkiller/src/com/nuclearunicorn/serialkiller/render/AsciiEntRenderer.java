@@ -16,7 +16,7 @@ import org.lwjgl.util.vector.Vector3f;
  */
 public class AsciiEntRenderer extends EntityRenderer {
 
-    String symbol = "?";
+    public String symbol = "?";
     Vector3f color;
 
     public AsciiEntRenderer(String s) {

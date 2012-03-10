@@ -14,7 +14,7 @@ import com.nuclearunicorn.libroguelike.game.items.BaseItem;
 public class EntityActor extends Entity {
     
     public void die(Entity killer){
-        
+        trash();
     }
 
     public void say_message(String text){

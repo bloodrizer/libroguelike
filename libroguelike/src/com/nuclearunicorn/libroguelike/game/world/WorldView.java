@@ -266,8 +266,11 @@ public class WorldView implements IEventListener {
         x = (x / ISOMETRY_TILE_SCALE);
         y = (y / ISOMETRY_Y_SCALE / ISOMETRY_TILE_SCALE);
 
-        float world_x = x*(float)Math.sin(ISOMETRY_ANGLE * Noise.DEG_TO_RAD)
-                    +y*(float)Math.cos(ISOMETRY_ANGLE * Noise.DEG_TO_RAD);
+        /*float world_x = x*(float)Math.sin(ISOMETRY_ANGLE * Noise.DEG_TO_RAD)
+                    +y*(float)Math.cos(ISOMETRY_ANGLE * Noise.DEG_TO_RAD);*/
+
+        //TODO: fix trigonometry shit
+        float world_x = x;
 
         return (int)world_x;
     }
@@ -276,8 +279,10 @@ public class WorldView implements IEventListener {
         x = (x / ISOMETRY_TILE_SCALE);
         y = (y / ISOMETRY_Y_SCALE / ISOMETRY_TILE_SCALE);
 
-        float world_y = -x*(float)Math.cos(ISOMETRY_ANGLE * Noise.DEG_TO_RAD)
-                    +y*(float)Math.cos(ISOMETRY_ANGLE * Noise.DEG_TO_RAD);
+        float world_y = y;
+
+        /*float world_y = -x*(float)Math.cos(ISOMETRY_ANGLE * Noise.DEG_TO_RAD)
+                    +y*(float)Math.cos(ISOMETRY_ANGLE * Noise.DEG_TO_RAD);*/
 
         return (int)world_y;
     }
@@ -331,16 +336,16 @@ public class WorldView implements IEventListener {
      *  without checking tile height modifiers
      */
     private static Point getTileCoordPlain(int mx, int my){
-            int local_x = local2world_x(mx,my);
-            int local_y = local2world_y(mx,my);
+            int local_x = local2world_x(mx, my);
+            int local_y = local2world_y(mx, my);
             //point = local2world(point);
 
             //--------------------------------------------
             //there is actually a hack there, but it works
             //--------------------------------------------
-            int tile_x = local_x/ TilesetRenderer.TILE_SIZE;
+            int tile_x = local_x / TilesetRenderer.TILE_SIZE;
             if (local_x<0){ tile_x = tile_x-1; }
-            int tile_y = local_y/ TilesetRenderer.TILE_SIZE;
+            int tile_y = local_y / TilesetRenderer.TILE_SIZE;
             if (local_y<0){ tile_y = tile_y-1; }
             //-----------------end of hack----------------
 
@@ -378,12 +383,14 @@ public class WorldView implements IEventListener {
             int tile_x = point.getX();
             int tile_y = point.getY();
 
+            return point;
+
             /**Step 2.
              * Iterate all tiles at that region
              * Check each tile if our point is in their top region
              */
 
-            for (int i = tile_x-3; i<tile_x+3; i++){
+            /*for (int i = tile_x-3; i<tile_x+3; i++){
                 for(int j = tile_y-3; j<tile_y+3; j++){
                     if (!WorldCluster.tile_in_cluster(i, j)) { continue; }
 
@@ -400,8 +407,8 @@ public class WorldView implements IEventListener {
                         return point2;
                     }
                 }
-            }
-            return point;
+            } */
+            //return point;
     }
 
     /**

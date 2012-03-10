@@ -1,8 +1,6 @@
 package com.nuclearunicorn.serialkiller.game.world.entities;
 
-import com.nuclearunicorn.libroguelike.game.ent.EntityNPC;
 import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
-import com.nuclearunicorn.serialkiller.render.RLMessages;
 
 /**
  * Created by IntelliJ IDEA.
@@ -11,7 +9,7 @@ import com.nuclearunicorn.serialkiller.render.RLMessages;
  * Time: 15:10
  * To change this template use File | Settings | File Templates.
  */
-public class EntityRLHuman extends EntityNPC {
+public class EntityRLHuman extends EntRLActor {
 
     enum Sex {
         MALE,
@@ -44,11 +42,11 @@ public class EntityRLHuman extends EntityNPC {
 
     //TODO: apartment link
     
-    public void describe(RLMessages render){
+    /*public void describe(RLMessages render){
         render.message(name + " is " + sex + ", age " + age);
 
         //etc etc
-    }
+    } */
     
     public String getModel(){
         return "@";

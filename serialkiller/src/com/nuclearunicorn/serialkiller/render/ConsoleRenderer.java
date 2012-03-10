@@ -128,12 +128,21 @@ public class ConsoleRenderer extends LayerRenderer{
             glColor3f(1.0f,0.5f,0.5f);
         }
 
-        drawQuad(
-                i * TILE_SIZE,
-                j * TILE_SIZE,
-                TILE_SIZE,
-                TILE_SIZE
-        );
+        if (!Input.key_state_alt){
+            drawQuad(
+                    i * TILE_SIZE,
+                    j * TILE_SIZE,
+                    TILE_SIZE,
+                    TILE_SIZE
+            );
+        }else{
+            drawQuad(
+                    i * TILE_SIZE,
+                    j * TILE_SIZE,
+                    TILE_SIZE -1,
+                    TILE_SIZE -1
+            );
+        }
         glEnable(GL11.GL_TEXTURE_2D);
 
         DebugOverlay.renderTime += renderTimer.popDiff();
