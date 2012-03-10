@@ -7,7 +7,11 @@ import com.nuclearunicorn.libroguelike.game.ui.IUserInterface;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_FrameModern;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_System;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_Text;
+import com.nuclearunicorn.serialkiller.messages.EConsoleMessage;
 import org.newdawn.slick.Color;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 /**
  * Created by IntelliJ IDEA.
@@ -42,9 +46,22 @@ public class InGameUI implements IUserInterface, IEventListener {
         frame.set_coord(15,600);
         frame.set_title("Console");
 
-        NE_GUI_Text console = new NE_GUI_Text();
-        console.x = 20;
-        console.y = 35;
+        NE_GUI_Text console = new NE_GUI_Text(){
+            @Override
+            public void notify_event(Event e) {
+                super.notify_event(e);
+                
+                if (e instanceof EConsoleMessage){
+                    EConsoleMessage msgEvent = (EConsoleMessage)e;
+                    SimpleDateFormat sdf =
+                            new SimpleDateFormat("[hh:mm:ss]");
+                    Calendar cal = Calendar.getInstance();
+                    add_line(sdf.format(cal.getTime()) + " " + msgEvent.message, msgEvent.color);
+                }
+            }
+        };
+        console.x = 12;
+        console.y = 9;
         console.dragable = false;
         console.color = new Color(191,191,191);
         console.max_lines = 8;

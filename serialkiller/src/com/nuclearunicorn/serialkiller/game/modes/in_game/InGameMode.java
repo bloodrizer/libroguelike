@@ -33,6 +33,7 @@ import com.nuclearunicorn.serialkiller.generators.TownChunkGenerator;
 import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
 import com.nuclearunicorn.serialkiller.render.AsciiWorldView;
 import com.nuclearunicorn.serialkiller.render.ConsoleRenderer;
+import com.nuclearunicorn.serialkiller.render.RLMessages;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.Point;
 import rlforj.los.IFovAlgorithm;
@@ -69,6 +70,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
             }
         };
         ClientGameEnvironment.setEnvironment(clientGameEnvironment);
+        RLMessages.setEventManager(clientGameEnvironment.getEventManager());
 
         model = new RLWorldModel(1);
         clientGameEnvironment.setWorld(model);

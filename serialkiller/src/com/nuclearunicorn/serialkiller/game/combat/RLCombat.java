@@ -1,9 +1,13 @@
 package com.nuclearunicorn.serialkiller.game.combat;
 
 import com.nuclearunicorn.libroguelike.game.combat.BasicCombat;
+import com.nuclearunicorn.libroguelike.game.combat.Damage;
+import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.ent.EntityNPC;
 import com.nuclearunicorn.libroguelike.game.items.BaseItem;
 import com.nuclearunicorn.libroguelike.game.world.WorldTimer;
+import com.nuclearunicorn.serialkiller.render.RLMessages;
+import org.newdawn.slick.Color;
 
 /**
  * Stats-aware combat engine
@@ -59,5 +63,16 @@ public class RLCombat extends BasicCombat {
     
     public int getDefence(){
         return getEquipBonus("defence");
+    }
+
+    @Override
+    public void take_damage(Damage damage) {
+        super.take_damage(damage);
+        RLMessages.message(owner.getName() + " took " + damage.amt + " damage", new Color(231,4,231));
+    }
+
+    @Override
+    public void attack(Entity ent) {
+        RLMessages.message(owner.getName() + " is attacking "+ent.getName(), new Color(253,126,126));
     }
 }

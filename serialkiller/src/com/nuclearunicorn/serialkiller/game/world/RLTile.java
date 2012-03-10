@@ -1,7 +1,7 @@
 package com.nuclearunicorn.serialkiller.game.world;
 
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
-import com.nuclearunicorn.serialkiller.game.world.entities.EnityRLHuman;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
 import org.newdawn.slick.Color;
 
 import java.util.ArrayList;
@@ -30,10 +30,10 @@ public class RLTile extends WorldTile {
     private String tileModel = "";
     private Color tileModelColor;
 
-    List<EnityRLHuman> owners = new ArrayList<EnityRLHuman>();
+    List<EntityRLHuman> owners = new ArrayList<EntityRLHuman>();
 
 
-    public void addOwner(EnityRLHuman npc) {
+    public void addOwner(EntityRLHuman npc) {
         owners.add(npc);
     }
 

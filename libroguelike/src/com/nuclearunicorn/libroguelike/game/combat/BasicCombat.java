@@ -50,6 +50,8 @@ public class BasicCombat extends Combat{
     public void inflict_damage(Entity ent){
         super.inflict_damage(ent);
 
+        attack(ent);
+
         //that is very strange scenario when we try to damage ourselves.
         if (ent == this.owner){
             return;
@@ -62,6 +64,10 @@ public class BasicCombat extends Combat{
             dmg.set_inflictor(this.owner);
             ent_combat.take_damage(dmg);
         }
+    }
+
+    public void attack(Entity ent){
+
     }
         
 }

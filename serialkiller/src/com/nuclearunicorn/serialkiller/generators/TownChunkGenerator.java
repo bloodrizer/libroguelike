@@ -1,6 +1,5 @@
 package com.nuclearunicorn.serialkiller.generators;
 
-import com.nuclearunicorn.libroguelike.game.combat.BasicCombat;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.ent.EntityActor;
 import com.nuclearunicorn.libroguelike.game.ent.controller.MobController;
@@ -8,12 +7,13 @@ import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.generators.ChunkGenerator;
 import com.nuclearunicorn.serialkiller.game.ai.PedestrianAI;
+import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldChunk;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldModel;
-import com.nuclearunicorn.serialkiller.game.world.entities.EnityRLHuman;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntDoor;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntFurniture;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
 import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
 import org.lwjgl.util.Point;
 import org.newdawn.slick.Color;
@@ -232,10 +232,10 @@ public class TownChunkGenerator extends ChunkGenerator {
             for (int i = 0; i< npcCount; i++){
                 Point coord = blockGetFreeTile(road);
 
-                EnityRLHuman npc = (EnityRLHuman)placeNPC(coord.getX(), coord.getY());
+                EntityRLHuman npc = (EntityRLHuman)placeNPC(coord.getX(), coord.getY());
                 npc.set_ai(new PedestrianAI());
                 npc.set_controller(new MobController());
-                npc.set_combat(new BasicCombat());
+                npc.set_combat(new RLCombat());
 
                 int randomApt = chunk_random.nextInt(apartmentRooms.size());
                 Block apt = new ArrayList<Block>(apartmentRooms.keySet()).get(randomApt);
@@ -268,7 +268,7 @@ public class TownChunkGenerator extends ChunkGenerator {
                     EntityActor npc = placeNPC(block.getX()+i, block.getY()+j);
                     npc.set_ai(new PedestrianAI());
                     npc.set_controller(new MobController());
-                    npc.set_combat(new BasicCombat());
+                    npc.set_combat(new RLCombat());
                 }
 
                 if (chunk_random.nextInt(100) < 2){
@@ -287,7 +287,7 @@ public class TownChunkGenerator extends ChunkGenerator {
 
 
     private EntityActor placeNPC(int x, int y  ) {
-        EntityActor playerEnt = new EnityRLHuman();
+        EntityActor playerEnt = new EntityRLHuman();
         placeEntity(x, y, playerEnt, "NPC", "@");
 
         return playerEnt;
@@ -347,7 +347,7 @@ public class TownChunkGenerator extends ChunkGenerator {
 
                             //------------room intersection debug start-------------
                             /*for(Point debug: intrs.getTiles()){
-                                Entity playerEnt = new EnityRLHuman();
+                                Entity playerEnt = new EntityRLHuman();
 
                                 playerEnt.setName("NPC");
                                 playerEnt.setEnvironment(environment);
