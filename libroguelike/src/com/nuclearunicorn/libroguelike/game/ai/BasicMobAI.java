@@ -22,7 +22,7 @@ public class BasicMobAI extends AI{
     public static final String AI_STATE_CHASING = "ai_state_CHASING";
 
     private Map<String,IAIAction> stateMap = new HashMap<String, IAIAction>();
-    private String state;
+    protected String state;
 
     public BasicMobAI(){
 

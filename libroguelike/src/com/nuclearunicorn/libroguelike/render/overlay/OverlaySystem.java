@@ -66,7 +66,9 @@ public class OverlaySystem {
         
         //System.out.println("drawing line from "+tileCoord1+" to "+tileCoord2);
 
-        drawLine(x1, y1 + y_offset1, x2, y2 + y_offset2, color);
+        int d = 8; //TODO: FIX ME
+
+        drawLine(x1 + d, y1 + y_offset1 + d, x2 + d, y2 + y_offset2 + d, color);
     }
     
     public static void drawLine(int x1, int y1, int x2, int y2, Color color){

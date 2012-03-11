@@ -34,4 +34,10 @@ public class PlayerController extends NpcController{
             owner.get_combat().inflict_damage(obstacle);
         }
     }
+
+    @Override
+    public void think() {
+        super.think();    //To change body of overridden methods use File | Settings | File Templates.
+        follow_path();
+    }
 }

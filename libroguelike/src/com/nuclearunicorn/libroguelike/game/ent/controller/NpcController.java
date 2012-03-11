@@ -62,10 +62,14 @@ public class NpcController extends BaseController implements Mover, IEventListen
             50,
             ALLOW_DIAGONAL_MOVEMENT);
     }
+    
+    public boolean hasPath(){
+        return (path != null && !path.steps.isEmpty() && destination != null);
+    }
 
     @Override
     public void think() {
-        if (destination != null){
+        /*if (destination != null){
 
             owner.set_next_frame(NEXT_FRAME_DELAY);
 
@@ -73,7 +77,7 @@ public class NpcController extends BaseController implements Mover, IEventListen
             return;
         }
 
-        owner.set_next_frame(200000);
+        owner.set_next_frame(200000);*/
     }
 
     public void set_destination(Point destination){
@@ -245,6 +249,11 @@ public class NpcController extends BaseController implements Mover, IEventListen
 
 
     public void follow_path(){
+        //safe switch
+        if (destination == null){
+            return;
+        }
+
         Point __destination = new Point(this.destination);
 
         if (path!=null && path.getLength() > 0){
