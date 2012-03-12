@@ -119,16 +119,6 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
             Player.get_ent().move_to(RLWorldModel.playerSafeHouseLocation);
         }
         //hack end
-        
-        
-        
-
-        //finally, spawn player
-        /*if (RLWorldModel.playerSafeHouseLocation != null){
-            spawn_player(RLWorldModel.playerSafeHouseLocation);
-        }else{
-            //throw new RuntimeException("no safehouse detected, we are in deep shit");
-        }*/
     }
 
     @Override
@@ -153,6 +143,8 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         view.render();
         fx.render();
         get_ui().render();
+
+        DebugOverlay.debugPathfinding();    //heavy, but very useful
         overlay.render();
 
         DebugOverlay.frameTime = timer.popDiff();
