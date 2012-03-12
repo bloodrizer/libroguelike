@@ -145,6 +145,10 @@ public class WorldTile implements Serializable {
         }
         return null;
     }
+    
+    public Entity getEntity(){
+        return getEntity(Entity.class);
+    }
 
     public boolean isBlocked(){
         Object[] list = ent_list.toArray();

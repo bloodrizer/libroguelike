@@ -40,7 +40,9 @@ public class NpcController extends BaseController implements Mover, IEventListen
     public float MOVE_SPEED = 0.50f;
 
     static final boolean ALLOW_DIAGONAL_MOVEMENT = false;
-    static int MAX_SEARCH_DISTANCE = 30;
+
+    static int MAX_SEARCH_DISTANCE = 50;
+
     private AStarPathFinder finder;
     
     public static int pathfinderRequests = 0;

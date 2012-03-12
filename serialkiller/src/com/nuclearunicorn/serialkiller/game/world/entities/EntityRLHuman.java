@@ -1,6 +1,10 @@
 package com.nuclearunicorn.serialkiller.game.world.entities;
 
+import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
+import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
+import com.nuclearunicorn.serialkiller.render.RLMessages;
+import org.newdawn.slick.Color;
 
 /**
  * Created by IntelliJ IDEA.
@@ -67,5 +71,42 @@ public class EntityRLHuman extends EntRLActor {
         super.think();
 
         bodysim.think();
+    }
+
+    @Override
+    public void die(Entity killer){
+        //super.die(killer);
+
+        ((AsciiEntRenderer)this.render).symbol = "%";
+        RLMessages.message(name + " has died", Color.red);
+
+        set_blocking(false);
+    }
+
+    @Override
+    public void describe(){
+        super.describe();
+
+        RLMessages.message(name + " is " + sex + ", age " + age, Color.lightGray);
+        RLMessages.message(name + " is " + race + ", " + religion, Color.lightGray);
+
+        //if (this.apt)
+
+        int maxHp;
+        if (combat != null){
+            maxHp = combat.get_max_hp();
+
+            if (combat.get_hp() >= maxHp){
+                RLMessages.message(name + " is healthy", Color.lightGray);
+            } else if (combat.get_hp() >= maxHp * 0.5){
+                RLMessages.message(name + " is injured", Color.lightGray);
+            } else if (combat.get_hp() > 0 ){
+                RLMessages.message(name + " is near death", Color.lightGray);
+            } else if (combat.get_hp() <= 0 ){
+                RLMessages.message(name + " is dead", Color.lightGray);
+            }
+        }
+
+
     }
 }

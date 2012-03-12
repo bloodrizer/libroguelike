@@ -228,6 +228,12 @@ public class Entity implements Comparable, Serializable {
 
     public void think(){
         if (ai != null){
+
+            //dead entities do not think >:3
+            if (combat != null && !combat.is_alive()){
+                return;
+            }
+
             ai.think();
         }
     }

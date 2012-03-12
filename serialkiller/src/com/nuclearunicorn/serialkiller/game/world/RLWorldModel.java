@@ -1,9 +1,11 @@
 package com.nuclearunicorn.serialkiller.game.world;
 
+import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.libroguelike.game.world.WorldModel;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.layers.WorldLayer;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntRLActor;
 import org.lwjgl.util.Point;
 import rlforj.los.ILosBoard;
 
@@ -64,11 +66,21 @@ public class RLWorldModel extends WorldModel implements ILosBoard {
             return true;
         }
 
-        /*if (tile.get_actor() != null && tile.get_actor() instanceof EntityPlayer){
-            return false;
-        }*/
+        if (tile.isWall()){
+            return true;
+        }
+        if (tile.isBlocked()){
+            Entity ent = tile.getEntity();
+            if (ent instanceof EntRLActor){
+                if (!((EntRLActor) ent).isBlockSight()){
+                    return false;
+                }
+            }
+            return true;
+        }
 
-        return tile.isWall() || tile.isBlocked();
+        return false;
+        //return tile.isWall() || tile.isBlocked();
         //return tile.get_height() > 0;
     }
 

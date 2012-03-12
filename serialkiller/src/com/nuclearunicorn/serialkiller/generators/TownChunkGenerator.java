@@ -29,6 +29,13 @@ import java.util.*;
  */
 public class TownChunkGenerator extends ChunkGenerator {
 
+    enum RoomType {
+        KITCHEN,
+        BEDROOM,
+        BATHROOM
+    }
+
+
     int seed;
     Random chunk_random;
 
@@ -174,8 +181,30 @@ public class TownChunkGenerator extends ChunkGenerator {
         Player.get_ent().move_to(playerPosition);*/
     }
 
-    private void fillApartmentRooms(Block safehouseBlock) {
-        //To change body of created methods use File | Settings | File Templates.
+    private void fillApartmentRooms(Block apt) {
+        List<Block> rooms = this.apartmentRooms.get(apt);
+        if (rooms == null || rooms.isEmpty()){
+            return;
+        }
+
+        //one kitchen
+        Block kitchen = rooms.get(chunk_random.nextInt(rooms.size()));
+        fillRoom(kitchen, RoomType.KITCHEN);
+
+    }
+
+    private void fillRoom(Block room, RoomType type) {
+        switch (type) {
+            case KITCHEN:
+
+            break;
+            case BEDROOM:
+
+            break;
+            case BATHROOM:
+
+            break;
+        }
     }
 
     private void generateRoads(Block block) {
@@ -362,6 +391,12 @@ public class TownChunkGenerator extends ChunkGenerator {
                             if (wall.size() > 0){
                                 Point door_coord = wall.get(chunk_random.nextInt(wall.size()));
                                 clearWall(door_coord.getX(), door_coord.getY());
+                                
+                                EntDoor door = new EntDoor();
+                                placeEntity(door_coord.getX(), door_coord.getY(), door, "door", "+");
+                                door.get_combat().set_hp(5);
+                                
+                                door.unlock();
 
                                 room.addNeighbour(room2);
                             }
@@ -379,10 +414,13 @@ public class TownChunkGenerator extends ChunkGenerator {
 
                         //Window
 
-                        Entity window = new EntFurniture();
+                        EntFurniture window = new EntFurniture();
                         placeEntity(windowCoord.getX(), windowCoord.getY(), window, "window", "=");
                         window.get_combat().set_hp(1);
+                        window.setBlockSight(false);
                         clearWall(windowCoord.getX(), windowCoord.getY());
+
+
                     } else {
 
                         //Door

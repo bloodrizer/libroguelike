@@ -47,7 +47,7 @@ public class InGameUI implements IUserInterface, IEventListener {
                 
                 WorldTile tile = Player.get_ent().getLayer().get_tile(tile_coord);
                 if (tile!=null){
-                    Entity ent = tile.get_obstacle();
+                    Entity ent = tile.getEntity();
                     if (ent instanceof EntRLActor){
                         ((EntRLActor)ent).describe();
                     }
