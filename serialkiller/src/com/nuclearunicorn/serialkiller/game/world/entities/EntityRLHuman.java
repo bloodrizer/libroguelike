@@ -1,6 +1,7 @@
 package com.nuclearunicorn.serialkiller.game.world.entities;
 
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
+import com.nuclearunicorn.libroguelike.game.items.EquipContainer;
 import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
 import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
 import com.nuclearunicorn.serialkiller.render.RLMessages;
@@ -37,6 +38,8 @@ public class EntityRLHuman extends EntRLActor {
 
     BodySimulation bodysim;
 
+    public EquipContainer equipment;
+    //public EquipContainer inventory;  use container instead
 
     public EntityRLHuman(){
         super();

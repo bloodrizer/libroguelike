@@ -5,7 +5,7 @@ import com.nuclearunicorn.libroguelike.game.world.WorldViewCamera;
 import com.nuclearunicorn.libroguelike.render.EntityRenderer;
 import com.nuclearunicorn.libroguelike.render.overlay.OverlaySystem;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
-import org.lwjgl.util.vector.Vector3f;
+import org.newdawn.slick.Color;
 
 /**
  * Created by IntelliJ IDEA.
@@ -17,12 +17,23 @@ import org.lwjgl.util.vector.Vector3f;
 public class AsciiEntRenderer extends EntityRenderer {
 
     public String symbol = "?";
-    Vector3f color;
+    Color color = Color.white;
 
     public AsciiEntRenderer(String s) {
         super();
         
         this.symbol = s;
+    }
+
+    public AsciiEntRenderer(String s, Color color) {
+        super();
+
+        this.symbol = s;
+        this.color = color;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
     }
 
     public void render(){
@@ -38,8 +49,6 @@ public class AsciiEntRenderer extends EntityRenderer {
             return;
         }
 
-        OverlaySystem.ttf.drawString(x*w,y*w-2, symbol);
+        OverlaySystem.ttf.drawString(x*w,y*w-2, symbol, color);
     }
-    
-    
 }

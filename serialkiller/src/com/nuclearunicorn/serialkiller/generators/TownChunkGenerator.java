@@ -3,16 +3,19 @@ package com.nuclearunicorn.serialkiller.generators;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.ent.EntityActor;
 import com.nuclearunicorn.libroguelike.game.ent.controller.MobController;
+import com.nuclearunicorn.libroguelike.game.items.BaseItem;
 import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.generators.ChunkGenerator;
 import com.nuclearunicorn.serialkiller.game.ai.PedestrianAI;
+import com.nuclearunicorn.serialkiller.game.ai.PoliceAI;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldChunk;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldModel;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntDoor;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntFurniture;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntRLActor;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
 import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
 import org.lwjgl.util.Point;
@@ -77,23 +80,6 @@ public class TownChunkGenerator extends ChunkGenerator {
                 }
             }
         }
-
-        //----------debug---------
-        /*Block __block = new Block( 10, 10, 50, 50);
-        //traceBlock(__block);
-
-        MapGenerator gen = new MapGenerator(__block);
-        gen.setSeed(123456);
-        List<Block> __blocks = new ArrayList<Block>();
-        __blocks.add(__block);
-
-        List<Block> resultBlocks = gen.process(__blocks);
-        for(Block result: resultBlocks){
-            traceBlock(result);
-        } */
-
-        //---------debug end-------
-
 
         //Now, time to generate sum town
 
@@ -277,6 +263,43 @@ public class TownChunkGenerator extends ChunkGenerator {
 
             }
         }
+
+        //police
+        for (int i=0; i<2; i++){    //4 policemans
+            Block road = roads.get(chunk_random.nextInt(roads.size()));
+            Point coord = blockGetFreeTile(road);
+
+            EntityRLHuman police = new EntityRLHuman();
+            placeEntity(coord.getX(), coord.getY(), police, "Police man", "P", new Color(127, 127, 255));
+
+            police.set_ai(new PoliceAI());
+            police.set_controller(new MobController());
+            police.set_combat(new RLCombat());
+
+            //TODO: add police equipment
+
+            BaseItem vest = BaseItem.produce("Bulletproof est", 1);
+            vest.set_slot("armor");
+            vest.setEffect("defence", "60"); //60% damage resistance
+
+            police.container.add_item(vest);
+
+            BaseItem stunstick = BaseItem.produce("Stunstick", 1);
+
+            stunstick.set_slot("weapon");
+            stunstick.setEffect("stun_chance", "40");
+            stunstick.setEffect("damage", "5");
+            stunstick.setEffect("damage_type", "dmg_blunt");
+
+            police.container.add_item(stunstick);
+
+
+        }
+    }
+
+    private void placeEntity(int x, int y, EntRLActor ent, String symbol, String name, Color color) {
+        placeEntity(x, y, ent, symbol, name);
+        ((AsciiEntRenderer)ent.get_render()).setColor(color);
     }
 
     private void fillBlock(Block district){
@@ -393,7 +416,7 @@ public class TownChunkGenerator extends ChunkGenerator {
                                 clearWall(door_coord.getX(), door_coord.getY());
                                 
                                 EntDoor door = new EntDoor();
-                                placeEntity(door_coord.getX(), door_coord.getY(), door, "door", "+");
+                                placeEntity(door_coord.getX(), door_coord.getY(), door, "door", "+", Color.green);
                                 door.get_combat().set_hp(5);
                                 
                                 door.unlock();
@@ -415,7 +438,7 @@ public class TownChunkGenerator extends ChunkGenerator {
                         //Window
 
                         EntFurniture window = new EntFurniture();
-                        placeEntity(windowCoord.getX(), windowCoord.getY(), window, "window", "=");
+                        placeEntity(windowCoord.getX(), windowCoord.getY(), window, "window", "=", Color.green);
                         window.get_combat().set_hp(1);
                         window.setBlockSight(false);
                         clearWall(windowCoord.getX(), windowCoord.getY());
@@ -426,7 +449,7 @@ public class TownChunkGenerator extends ChunkGenerator {
                         //Door
 
                         EntDoor door = new EntDoor();
-                        placeEntity(windowCoord.getX(), windowCoord.getY(), door, "door", "+");
+                        placeEntity(windowCoord.getX(), windowCoord.getY(), door, "door", "+", Color.green);
                         door.get_combat().set_hp(5);
                         door.lock();
                         clearWall(windowCoord.getX(), windowCoord.getY());
