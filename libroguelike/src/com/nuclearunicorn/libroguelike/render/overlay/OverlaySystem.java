@@ -36,13 +36,40 @@ public class OverlaySystem {
 
     public static final int FONT_SIZE = 15;
 
+    ///resources/ui/window_ui_modern.png
+    static String FONT_PATH = "/resources/fonts/arialMonospaced.ttf";
+
     public OverlaySystem() {
-        font = new Font("Arial", Font.BOLD, FONT_SIZE);
+        //
+        //font = new Font("Arial", Font.BOLD, FONT_SIZE);
+        try {
+
+            font = Font.createFont(Font.TRUETYPE_FONT, OverlaySystem.class.getResourceAsStream(FONT_PATH));
+            font = font.deriveFont((float)FONT_SIZE);
+            //font = font.deriveFont(Font.BOLD);
+
+            //font = new Font("Arial", Font.BOLD, FONT_SIZE);
+
+        } catch (Exception e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
+
         ttf = new TrueTypeFont(font, true);
     }
 
     public static TrueTypeFont precache_font(int size){
-        Font _font = new Font("Arial", Font.BOLD, size);
+        //Font _font = new Font(FONT_PATH, Font.BOLD, size);
+
+        Font _font = null;
+        try {
+            _font = Font.createFont(Font.TRUETYPE_FONT, OverlaySystem.class.getResourceAsStream(FONT_PATH));
+            _font = font.deriveFont((float)FONT_SIZE);
+            //_font = font.deriveFont(Font.BOLD);
+        } catch (Exception e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
         TrueTypeFont _ttf = new TrueTypeFont(_font, true);
 
         return _ttf;

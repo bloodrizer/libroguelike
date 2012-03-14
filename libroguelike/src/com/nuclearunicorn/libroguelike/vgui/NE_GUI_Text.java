@@ -16,7 +16,7 @@ import java.util.ArrayList;
  * @author Administrator
  */
 public class NE_GUI_Text extends NE_GUI_Element{
-    
+
     class NE_GUI_TextLine {
         public String message;
         public Color color;
@@ -32,7 +32,6 @@ public class NE_GUI_Text extends NE_GUI_Element{
     static final int FONT_SIZE = 16;
 
     TrueTypeFont chat_ttf;
-    public Color color = Color.white;
 
     public NE_GUI_Text(){
         chat_ttf = OverlaySystem.precache_font(FONT_SIZE);
@@ -69,4 +68,9 @@ public class NE_GUI_Text extends NE_GUI_Element{
     public void add_line(String text, Color color) {
         lines.add(new NE_GUI_TextLine(text, color));
     }
+
+    public void clearLines() {
+        lines.clear();
+    }
+
 }

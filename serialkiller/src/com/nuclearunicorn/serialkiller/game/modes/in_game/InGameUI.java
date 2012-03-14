@@ -2,6 +2,7 @@ package com.nuclearunicorn.serialkiller.game.modes.in_game;
 
 import com.nuclearunicorn.libroguelike.core.Input;
 import com.nuclearunicorn.libroguelike.core.client.ClientEventManager;
+import com.nuclearunicorn.libroguelike.events.EKeyPress;
 import com.nuclearunicorn.libroguelike.events.EMouseClick;
 import com.nuclearunicorn.libroguelike.events.Event;
 import com.nuclearunicorn.libroguelike.events.IEventListener;
@@ -15,8 +16,9 @@ import com.nuclearunicorn.libroguelike.vgui.NE_GUI_System;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_Text;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntRLActor;
 import com.nuclearunicorn.serialkiller.messages.EConsoleMessage;
+import com.nuclearunicorn.serialkiller.vgui.VGUICharacterInfo;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.Point;
-import org.newdawn.slick.Color;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -31,6 +33,8 @@ import java.util.Calendar;
 public class InGameUI implements IUserInterface, IEventListener {
 
     public NE_GUI_System ui;
+
+    private VGUICharacterInfo charInfo;
 
     public InGameUI(){
         ui = new NE_GUI_System();
@@ -54,6 +58,14 @@ public class InGameUI implements IUserInterface, IEventListener {
 
                     //RLMessages.message("You see", Color.lightGray);
                 }
+            }
+        }
+        if (event instanceof EKeyPress){
+            EKeyPress key_event = (EKeyPress) event;
+            switch(key_event.key){
+                case Keyboard.KEY_TAB:
+                    charInfo.toggle();
+                break;
             }
         }
     }
@@ -88,7 +100,6 @@ public class InGameUI implements IUserInterface, IEventListener {
         console.x = 12;
         console.y = 9;
         console.dragable = false;
-        console.color = new Color(191,191,191);
         console.max_lines = 8;
 
         console.add_line("Wellcome to the Serial Killer Roguelike");
@@ -97,6 +108,13 @@ public class InGameUI implements IUserInterface, IEventListener {
         console.add_line("Press 'tab' to view your character screen and inventory ");
 
         frame.add(console);
+
+        //Inventory
+        charInfo = new VGUICharacterInfo();
+        charInfo.set_tw(25);
+        charInfo.set_th(15);
+        charInfo.visible = true;
+        ui.root.add(charInfo);
     }
 
     @Override

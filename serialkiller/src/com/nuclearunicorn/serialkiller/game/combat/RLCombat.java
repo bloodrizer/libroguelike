@@ -75,4 +75,8 @@ public class RLCombat extends BasicCombat {
     public void attack(Entity ent) {
         RLMessages.message(owner.getName() + " is attacking "+ent.getName(), new Color(253,126,126));
     }
+
+    public NPCStats getStats() {
+        return stats;
+    }
 }

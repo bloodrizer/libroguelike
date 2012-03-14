@@ -7,13 +7,13 @@ public class NPCStats {
     
     Random rand;
     
-    int str;
-    int per;
-    int end;
-    int chr;
-    int intl;
-    int agi;
-    int luk;
+    public int str;
+    public int per;
+    public int end;
+    public int chr;
+    public int intl;
+    public int agi;
+    public int luk;
 
     //TODO : seed initialization
     public NPCStats(){

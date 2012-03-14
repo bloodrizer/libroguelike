@@ -112,4 +112,12 @@ public class EntityRLHuman extends EntRLActor {
 
 
     }
+
+    public BodySimulation getBodysim() {
+        return bodysim;
+    }
+
+    public void setBodysim(BodySimulation bodysim) {
+        this.bodysim = bodysim;
+    }
 }
