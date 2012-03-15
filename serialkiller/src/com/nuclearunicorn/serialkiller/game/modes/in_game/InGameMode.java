@@ -7,7 +7,6 @@ import com.nuclearunicorn.libroguelike.events.Event;
 import com.nuclearunicorn.libroguelike.events.EventManager;
 import com.nuclearunicorn.libroguelike.events.IEventListener;
 import com.nuclearunicorn.libroguelike.game.GameEnvironment;
-import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.ent.EntityPlayer;
 import com.nuclearunicorn.libroguelike.game.ent.controller.NpcController;
 import com.nuclearunicorn.libroguelike.game.ent.controller.PlayerController;
@@ -27,6 +26,7 @@ import com.nuclearunicorn.libroguelike.render.overlay.OverlaySystem;
 import com.nuclearunicorn.libroguelike.utils.NLTimer;
 import com.nuclearunicorn.libroguelike.utils.Timer;
 import com.nuclearunicorn.libroguelike.vgui.effects.EffectsSystem;
+import com.nuclearunicorn.serialkiller.game.ItemFactory;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldModel;
 import com.nuclearunicorn.serialkiller.generators.TownChunkGenerator;
@@ -214,7 +214,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
 
     void spawn_player(Point location){
 
-        Entity playerEnt = new EntityPlayer();
+        EntityPlayer playerEnt = new EntityPlayer();
         playerEnt.set_combat(new RLCombat());
 
         playerEnt.setName("Player");
@@ -231,5 +231,10 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
 
         playerEnt.set_controller(new PlayerController());
         Player.set_ent(playerEnt);
+
+        //---------------------------------------------------
+        //TODO: use some kind of item factory
+        playerEnt.container.add_item(ItemFactory.produce("hammer"));
+        playerEnt.container.add_item(ItemFactory.produce("knife"));
     }
 }

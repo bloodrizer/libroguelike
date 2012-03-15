@@ -112,8 +112,9 @@ public class InGameUI implements IUserInterface, IEventListener {
         //Inventory
         charInfo = new VGUICharacterInfo();
         charInfo.set_tw(25);
-        charInfo.set_th(15);
+        charInfo.set_th(17);
         charInfo.visible = true;
+        charInfo.center();
         ui.root.add(charInfo);
     }
 

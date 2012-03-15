@@ -5,8 +5,6 @@
 
 package com.nuclearunicorn.libroguelike.game.items;
 
-import java.util.Collections;
-
 /*
  * This shit is very similar to ItemContainer, except it uses slots for item assigment
  */
@@ -14,8 +12,7 @@ public class EquipContainer {
 
     public static final String[] slot_list = {"head","body","legs","foot"};
 
-    public java.util.Map<String,BaseItem> slots  =
-            Collections.synchronizedMap(new java.util.HashMap<String,BaseItem>(slot_list.length));
+    public java.util.Map<String,BaseItem> slots = new java.util.HashMap<String,BaseItem>(slot_list.length);
 
     /*
      *  Check if equipment set has that type of slot
@@ -47,6 +44,14 @@ public class EquipContainer {
             }
         }
     }
-    
 
+
+    public boolean hasItem(BaseItem item) {
+        for (BaseItem equippedItem : slots.values()){
+            if (equippedItem.get_type().equals(item.get_type())){
+                return true;
+            }
+        }
+        return false;
+    }
 }

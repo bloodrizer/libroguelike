@@ -58,13 +58,16 @@ public class DebugOverlay {
                 ,Color.white);
         
         //debug render shit
-        
-        OverlaySystem.ttf.drawString(10, 110, "Render profile:");
-        OverlaySystem.ttf.drawString(10, 130, "Avg frame:    " + frameTime + "ms");
-        OverlaySystem.ttf.drawString(10, 150, "Update calls: " + updateTime + "ms");
-        OverlaySystem.ttf.drawString(10, 170, "Render calls: " + renderTime + "ms");
-        
-        OverlaySystem.ttf.drawString(WindowRender.get_window_w()-100 , 10, "z-index: " + WorldView.get_zindex(), Color.white);
+
+        if (Input.key_state_alt) {
+
+            OverlaySystem.ttf.drawString(10, 110, "Render profile:");
+            OverlaySystem.ttf.drawString(10, 130, "Avg frame:    " + frameTime + "ms");
+            OverlaySystem.ttf.drawString(10, 150, "Update calls: " + updateTime + "ms");
+            OverlaySystem.ttf.drawString(10, 170, "Render calls: " + renderTime + "ms");
+
+            OverlaySystem.ttf.drawString(WindowRender.get_window_w()-100 , 10, "z-index: " + WorldView.get_zindex(), Color.white);
+        }
 
     }
 

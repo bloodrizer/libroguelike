@@ -8,7 +8,7 @@ package com.nuclearunicorn.libroguelike.game.items;
 import com.nuclearunicorn.libroguelike.events.EContainerUpdate;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 /**
  *
@@ -19,7 +19,7 @@ public class ItemContainer {
      //max_item slots
      public int max_items = 10;
 
-     public Collection<BaseItem> items = new ArrayList<BaseItem>();
+     public List<BaseItem> items = new ArrayList<BaseItem>();
 
      public void set_max_items(int count){
          max_items = count;

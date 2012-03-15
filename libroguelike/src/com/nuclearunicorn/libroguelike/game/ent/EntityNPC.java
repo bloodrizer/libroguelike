@@ -19,7 +19,7 @@ public class EntityNPC extends EntityActor {
     //name to show above
     public String name = "undefined";
 
-    public EquipContainer equipment;
+    public EquipContainer equipment = new EquipContainer() ;
 
     public void EquipItem(BaseItem item){
         //if (BaseItem)

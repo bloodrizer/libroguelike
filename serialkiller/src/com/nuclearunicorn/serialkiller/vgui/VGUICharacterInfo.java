@@ -10,16 +10,29 @@ import org.newdawn.slick.Color;
 public class VGUICharacterInfo extends NE_GUI_FrameModern{
 
     NE_GUI_Text stats;
+    VGUICharacterInventory inventory;
 
     public VGUICharacterInfo(){
         super(true);    //close button
 
+        title = "Character info";
+
         stats = new NE_GUI_Text();
         stats.max_lines = 10;
-        stats.x = 10;
-        stats.y = 10;
+        stats.x = 20;
+        stats.y = 20;
         
         add(stats);
+
+        inventory = new VGUICharacterInventory();
+
+        inventory.set_tw(7);
+        inventory.set_th(9);
+        inventory.x = 20;
+        inventory.y = 230;
+        inventory.dragable = false;
+        
+        add(inventory);
     }
 
     public void updateInfo(){

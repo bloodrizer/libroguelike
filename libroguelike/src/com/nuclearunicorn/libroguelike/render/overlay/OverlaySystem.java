@@ -43,12 +43,11 @@ public class OverlaySystem {
         //
         //font = new Font("Arial", Font.BOLD, FONT_SIZE);
         try {
-
-            font = Font.createFont(Font.TRUETYPE_FONT, OverlaySystem.class.getResourceAsStream(FONT_PATH));
-            font = font.deriveFont((float)FONT_SIZE);
+            /*font = Font.createFont(Font.TRUETYPE_FONT, OverlaySystem.class.getResourceAsStream(FONT_PATH));
+            font = font.deriveFont((float)FONT_SIZE); */
             //font = font.deriveFont(Font.BOLD);
 
-            //font = new Font("Arial", Font.BOLD, FONT_SIZE);
+            font = new Font("Arial", Font.BOLD, FONT_SIZE);
 
         } catch (Exception e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
@@ -59,13 +58,15 @@ public class OverlaySystem {
     }
 
     public static TrueTypeFont precache_font(int size){
-        //Font _font = new Font(FONT_PATH, Font.BOLD, size);
+        return precache_font(size, FONT_PATH);
+    }
+
+    public static TrueTypeFont precache_font(int size, String fontPath){
 
         Font _font = null;
         try {
             _font = Font.createFont(Font.TRUETYPE_FONT, OverlaySystem.class.getResourceAsStream(FONT_PATH));
             _font = font.deriveFont((float)FONT_SIZE);
-            //_font = font.deriveFont(Font.BOLD);
         } catch (Exception e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }

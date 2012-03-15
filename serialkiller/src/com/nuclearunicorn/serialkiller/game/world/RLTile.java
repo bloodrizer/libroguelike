@@ -24,6 +24,8 @@ public class RLTile extends WorldTile {
     private boolean isWall = false;
     private boolean isFovChecked = false;
 
+    //how much blood this tile is covered with
+    int bloodAmt = 0;
 
     private TileType tileType;
     
@@ -107,4 +109,14 @@ public class RLTile extends WorldTile {
         }
         return super.isBlocked();
     }
+
+    public int getBloodAmt() {
+        return bloodAmt;
+    }
+
+    public void setBloodAmt(int bloodAmt) {
+        this.bloodAmt = bloodAmt;
+    }
+
+
 }

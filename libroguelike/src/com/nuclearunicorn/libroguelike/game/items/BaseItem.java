@@ -21,6 +21,8 @@ public class BaseItem{
     String slot = "undefined";
     
     Map<String,String> effects = new HashMap<String,String>();
+
+    protected ItemContainer container;
     
     public void setEffect(String effectId, String value){
         effects.put(effectId,value);
@@ -38,14 +40,6 @@ public class BaseItem{
     public String get_slot(){
         return slot;
     }
-
-    /*
-     * Create an instance of BaseItem
-     * 
-     *
-     */
-
-    protected ItemContainer container;
 
     public void set_container(ItemContainer container){
         this.container = container;

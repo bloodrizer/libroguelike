@@ -5,6 +5,7 @@
 
 package com.nuclearunicorn.libroguelike.vgui;
 
+import com.nuclearunicorn.libroguelike.events.EMouseClick;
 import com.nuclearunicorn.libroguelike.render.overlay.OverlaySystem;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.TrueTypeFont;
@@ -47,10 +48,27 @@ public class NE_GUI_Text extends NE_GUI_Element{
         }
     }
 
+    @Override
+    public void e_on_mouse_click(EMouseClick e) {
+        //super.e_on_mouse_click(e);
+        System.out.println(this+"::click");
+
+        int clientY = e.get_window_y() - this.get_y();
+        int lineId = clientY / FONT_SIZE;
+        
+        //System.out.println("Clicked on line #" + lineId);
+        this.e_on_line_click(lineId);
+    }
+
+    protected void e_on_line_click(int lineId) {
+        //override me!
+    }
+
     public void render_line(int i){
 
-        int offset = lines.size()-max_lines;
-        int chat_offset = i - offset;
+        //int offset = lines.size()-max_lines;
+        //int chat_offset = i - offset;
+        int chat_offset = i;
 
         w = FONT_SIZE;
         h = lines.get(i).message.length()*FONT_SIZE;
