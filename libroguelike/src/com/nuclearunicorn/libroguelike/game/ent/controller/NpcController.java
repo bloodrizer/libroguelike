@@ -334,4 +334,42 @@ public class NpcController extends BaseController implements Mover, IEventListen
     public void e_on_obstacle(int x, int y) {
         //throw new UnsupportedOperationException("Not yet implemented");
     }
+
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    public int distanceToTarget(Point target){
+
+        int dx = target.getX() - owner.x();
+        int dy = target.getY() - owner.y();
+        return (int)Math.sqrt(dx * dx + dy * dy);
+    }
+    
+    private Point getTargetDestinationVector(Point target){
+
+        //vector from this object to the target, and distance
+        int dx = target.getX() - owner.x();
+        int dy = target.getY() - owner.y();
+        double distance = Math.sqrt(dx * dx + dy * dy);
+
+        //normalize it to length 1 (preserving direction), then round it and
+        //convert to integer so the movement is restricted to the map grid
+        
+        dx = (int)(dx/distance);
+        dy = (int)(dy/distance);
+        
+        return new Point(dx,dy);
+    }
+
+    public void escapeTarget(Entity target) {
+        Point vec = getTargetDestinationVector(target.origin);
+
+        this.move_ent(owner.x() - vec.getX(), owner.y() - vec.getY());
+    }
+
+    public void chaseTarget(Entity target) {
+        Point vec = getTargetDestinationVector(target.origin);
+
+        this.move_ent(owner.x() + vec.getX(), owner.y() + vec.getY());
+    }
 }

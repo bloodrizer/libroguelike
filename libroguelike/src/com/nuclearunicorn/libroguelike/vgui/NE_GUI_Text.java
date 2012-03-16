@@ -34,12 +34,16 @@ public class NE_GUI_Text extends NE_GUI_Element{
 
     TrueTypeFont chat_ttf;
 
+    boolean alignBottom = false;
+
     public NE_GUI_Text(){
         chat_ttf = OverlaySystem.precache_font(FONT_SIZE);
     }
 
     @Override
     public void render(){
+
+        //GL11.glRectf(get_x(), get_y(), get_x() + w, get_y() + h);
 
         for(int i=lines.size()-max_lines; i<lines.size();i++){
             if (i >= 0 ){
@@ -51,12 +55,12 @@ public class NE_GUI_Text extends NE_GUI_Element{
     @Override
     public void e_on_mouse_click(EMouseClick e) {
         //super.e_on_mouse_click(e);
-        System.out.println(this+"::click");
+        //System.out.3println(this+"::click");
 
         int clientY = e.get_window_y() - this.get_y();
         int lineId = clientY / FONT_SIZE;
         
-        //System.out.println("Clicked on line #" + lineId);
+        System.out.println("Clicked on line #" + lineId);
         this.e_on_line_click(lineId);
     }
 
@@ -66,16 +70,16 @@ public class NE_GUI_Text extends NE_GUI_Element{
 
     public void render_line(int i){
 
-        //int offset = lines.size()-max_lines;
-        //int chat_offset = i - offset;
-        int chat_offset = i;
+        int offset = lines.size()-max_lines;
+        if (offset <= 0 && !alignBottom){
+            offset = 0;
+        }
+        int chat_offset = i - offset;
 
-        w = FONT_SIZE;
-        h = lines.get(i).message.length()*FONT_SIZE;
 
         chat_ttf.drawString(
                 get_x(),
-                get_y()+ chat_offset*(FONT_SIZE + 2),
+                get_y() + chat_offset*(FONT_SIZE + 2),
                 lines.get(i).message , lines.get(i).color);
     }
 

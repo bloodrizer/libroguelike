@@ -1,10 +1,13 @@
 package com.nuclearunicorn.serialkiller.game.world;
 
+import com.nuclearunicorn.libroguelike.events.Event;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.libroguelike.game.world.WorldModel;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.layers.WorldLayer;
+import com.nuclearunicorn.serialkiller.game.events.CriminalActionEvent;
+import com.nuclearunicorn.serialkiller.game.events.NPCWitnessCrimeEvent;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntRLActor;
 import org.lwjgl.util.Point;
 import rlforj.los.ILosBoard;
@@ -102,5 +105,26 @@ public class RLWorldModel extends WorldModel implements ILosBoard {
             return (RLTile)tile;
         }
         return null;
+    }
+
+    @Override
+    public void e_on_event(Event event) {
+        super.e_on_event(event);
+
+        if (event instanceof CriminalActionEvent){
+
+            CriminalActionEvent criminalEvent = (CriminalActionEvent)event;
+
+            Entity[] entList = getEnvironment().getEntityManager().getList(Player.get_zindex()).toArray(new Entity[0]);
+            for (Entity ent : entList){
+                if (ent instanceof EntRLActor){
+
+                    if (((RLTile)ent.tile).isVisible()){
+                        NPCWitnessCrimeEvent witnessCrimeEvent = new NPCWitnessCrimeEvent(criminalEvent.origin, criminalEvent.criminal);
+                        ((EntRLActor) ent).e_on_event(witnessCrimeEvent);
+                    }
+                }
+            }
+        }
     }
 }

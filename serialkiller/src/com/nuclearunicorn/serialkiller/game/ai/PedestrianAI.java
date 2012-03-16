@@ -1,11 +1,19 @@
 package com.nuclearunicorn.serialkiller.game.ai;
 
+import com.nuclearunicorn.libroguelike.events.Event;
 import com.nuclearunicorn.libroguelike.game.ai.BasicMobAI;
 import com.nuclearunicorn.libroguelike.game.ai.IAIAction;
+import com.nuclearunicorn.libroguelike.game.ent.EntityActor;
 import com.nuclearunicorn.libroguelike.game.ent.controller.NpcController;
+import com.nuclearunicorn.serialkiller.game.events.NPCWitnessCrimeEvent;
+import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldChunk;
+import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
+import com.nuclearunicorn.serialkiller.render.RLMessages;
 import org.lwjgl.util.Point;
+import org.newdawn.slick.Color;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -14,6 +22,10 @@ import java.util.List;
 public class PedestrianAI extends BasicMobAI {
 
     public static final String AI_STATE_PATROLLING = "ai_state_PATROLLING";
+    private static final String AI_STATE_ESCAPING = "ai_state_ESCAPING";
+
+    List<EntityActor> knowCriminals = new ArrayList<EntityActor>();
+    EntityActor nearestEnemy = null;
 
 
     public PedestrianAI(){
@@ -25,13 +37,17 @@ public class PedestrianAI extends BasicMobAI {
                 actionPatroll(npcController);
             }
         });
-        
+
+        registerState(AI_STATE_ESCAPING, new IAIAction() {
+            @Override
+            public void act(NpcController npcController) {
+                actionEscape(npcController);
+            }
+        });
+
     }
 
     private void actionPatroll(NpcController npcController) {
-
-        //System.out.println("patrolling!");
-
         if (npcController == null){
             return;
         }
@@ -44,6 +60,26 @@ public class PedestrianAI extends BasicMobAI {
         if ((int)(Math.random()*100) >= 15){
             npcController.follow_path();
         }
+    }
+
+    private void actionEscape(NpcController npcController) {
+
+        ((AsciiEntRenderer)owner.get_render()).symbol = "!";
+
+        if (npcController == null){
+            return;
+        }
+
+        int disst = npcController.distanceToTarget(nearestEnemy.origin);
+
+        if (disst > 0 && disst < 10){
+            npcController.escapeTarget(nearestEnemy);
+        } else {
+            System.out.println("Invalid escape distance :"+disst);
+        }
+
+        RLMessages.message(owner.getName() + " screams!", Color.red);
+        //implement some sophisticated AI to escape multiple targets
     }
 
     private void getRandomRoute(NpcController npcController) {
@@ -92,6 +128,31 @@ public class PedestrianAI extends BasicMobAI {
 
         state = AI_STATE_PATROLLING;
 
+
+        nearestEnemy = null;
+        //just get some criminal in fov
+        for (EntityActor enemy : knowCriminals){
+            if (((RLTile)enemy.tile).isVisible()){
+                nearestEnemy = enemy;
+
+                state = AI_STATE_ESCAPING;
+            }
+        }
+
+        //------------------------pseudocode time
+        //IF NO PLAYER (OR CRIMINAL) IS IN FOV, THAN RESET TO PATROLLING
+        //ELSE DO NOTHING
+
+
     }
 
+    @Override
+    public void e_on_event(Event event) {
+        if (event instanceof NPCWitnessCrimeEvent){
+            NPCWitnessCrimeEvent e = (NPCWitnessCrimeEvent)event;
+
+            //TODO: pass criminal to the AI manager, so state will be reseted only if no known criminal is in fov
+            knowCriminals.add((EntityActor) e.criminal);
+        }
+    }
 }

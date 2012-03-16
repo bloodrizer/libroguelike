@@ -49,7 +49,12 @@ public class DebugOverlay {
 
         OverlaySystem.ttf.drawString(10, 70, "FPS: " + Integer.toString( Timer.get_fps() ), Color.white);
 
-        OverlaySystem.ttf.drawString(10, 90, "Camera @: " +
+
+        if (Input.key_state_alt) {
+
+        //debug camera shit
+
+            OverlaySystem.ttf.drawString(10, 90, "Camera @: " +
                 (int) WorldViewCamera.camera_x +
                 "," + 
                 (int)WorldViewCamera.camera_y +
@@ -58,8 +63,6 @@ public class DebugOverlay {
                 ,Color.white);
         
         //debug render shit
-
-        if (Input.key_state_alt) {
 
             OverlaySystem.ttf.drawString(10, 110, "Render profile:");
             OverlaySystem.ttf.drawString(10, 130, "Avg frame:    " + frameTime + "ms");

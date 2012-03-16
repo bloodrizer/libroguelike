@@ -1,5 +1,6 @@
 package com.nuclearunicorn.serialkiller.game.world.entities;
 
+import com.nuclearunicorn.libroguelike.events.Event;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.items.EquipContainer;
 import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
@@ -119,5 +120,12 @@ public class EntityRLHuman extends EntRLActor {
 
     public void setBodysim(BodySimulation bodysim) {
         this.bodysim = bodysim;
+    }
+
+    @Override
+    public void e_on_event(Event event) {
+        if (this.ai != null){
+            ai.e_on_event(event);
+        }
     }
 }

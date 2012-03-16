@@ -5,6 +5,8 @@
 
 package com.nuclearunicorn.libroguelike.game.ai;
 
+import com.nuclearunicorn.libroguelike.events.Event;
+import com.nuclearunicorn.libroguelike.events.IEventListener;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.utils.Fov;
 
@@ -14,7 +16,7 @@ import java.io.Serializable;
  *
  * @author Administrator
  */
-public class AI implements Serializable{
+public class AI implements Serializable, IEventListener{
     
     protected Entity owner;
     public void set_owner(Entity owner){
@@ -36,5 +38,10 @@ public class AI implements Serializable{
         }
 
         return false;
+    }
+
+    @Override
+    public void e_on_event(Event event) {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 }

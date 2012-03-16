@@ -12,17 +12,26 @@ public class ItemFactory {
     
     static Map<String, BaseItem> itemMap = new HashMap<String, BaseItem>();
 
+    private static final String SLOT_WEAPON = "weapon";
+
     static {
 
         BaseItem item;
         
         item = BaseItem.produce("hammer",1);
-        //set effects etc
+        item.set_slot(SLOT_WEAPON);
+        item.setEffect("damage","5");
+        item.setEffect("damage_type","dmg_blunt");
+        item.setEffect("stun_chance","15");
+
         registerItem("hammer", item);
 
 
         item = BaseItem.produce("knife",1);
-        //set effects etc
+        item.set_slot(SLOT_WEAPON);
+        item.setEffect("damage","3");
+        item.setEffect("damage_type","dmg_cut");
+
         registerItem("knife", item);
     }
     

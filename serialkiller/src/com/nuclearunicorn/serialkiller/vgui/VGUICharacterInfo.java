@@ -11,6 +11,7 @@ public class VGUICharacterInfo extends NE_GUI_FrameModern{
 
     NE_GUI_Text stats;
     VGUICharacterInventory inventory;
+    VGUICharacterEquipment equipment;
 
     public VGUICharacterInfo(){
         super(true);    //close button
@@ -33,6 +34,16 @@ public class VGUICharacterInfo extends NE_GUI_FrameModern{
         inventory.dragable = false;
         
         add(inventory);
+
+        equipment = new VGUICharacterEquipment();
+
+        equipment.set_tw(7);
+        equipment.set_th(4);
+        equipment.x = 260;
+        equipment.y = 20;
+        equipment.dragable = false;
+
+        add(equipment);
     }
 
     public void updateInfo(){

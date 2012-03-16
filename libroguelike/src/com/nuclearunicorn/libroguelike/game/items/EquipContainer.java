@@ -10,7 +10,7 @@ package com.nuclearunicorn.libroguelike.game.items;
  */
 public class EquipContainer {
 
-    public static final String[] slot_list = {"head","body","legs","foot"};
+    public static final String[] slot_list = {"head","weapon","armor","misc"};
 
     public java.util.Map<String,BaseItem> slots = new java.util.HashMap<String,BaseItem>(slot_list.length);
 
@@ -30,7 +30,7 @@ public class EquipContainer {
         String item_slot = item.get_slot();
 
         if (has_slot(item_slot)){
-            if(slots.get(item_slot).is_empty()){
+            if(slots.get(item_slot) == null){
                 slots.put(item_slot, item);
             }
         }
@@ -48,10 +48,19 @@ public class EquipContainer {
 
     public boolean hasItem(BaseItem item) {
         for (BaseItem equippedItem : slots.values()){
+            if (equippedItem == null){
+                return false;
+            }
             if (equippedItem.get_type().equals(item.get_type())){
                 return true;
             }
         }
         return false;
+    }
+
+    public void unequipSlot(String item_slot) {
+        if (has_slot(item_slot)){
+            slots.put(item_slot, null);
+        }
     }
 }

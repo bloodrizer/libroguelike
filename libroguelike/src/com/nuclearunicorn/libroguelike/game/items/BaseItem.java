@@ -112,11 +112,16 @@ public class BaseItem{
     public BaseItem getItem() {
         BaseItem item = BaseItem.produce(type, count);
 
-        //should be set too to avoid bugs
         item.set_container(container);
-        //this too
         item.set_slot(slot);
+
+        item.setEffects(effects);
+        
         return item;
+    }
+
+    private void setEffects(Map<String, String> effects) {
+        this.effects = effects;
     }
 
     /*
@@ -159,4 +164,8 @@ public class BaseItem{
         container.remove_item(this);
     }
 
+    @Override
+    public String toString() {
+        return "Item["+type+"@"+slot+"("+count+")]";
+    }
 }
