@@ -33,7 +33,7 @@ public class FXTextBubble extends Effect_Element {
 
     static AreaRenderer bubble_sprite = new AreaRenderer(){
         {
-            texture_name = "/render/gfx/effects/bubble.png";
+            texture_name = "/resources/gfx/effects/bubble.png";
             set_size(64,64);
         }
     };
@@ -50,6 +50,8 @@ public class FXTextBubble extends Effect_Element {
         }else{
             System.err.println("Failed to aquire entity #"+eChatMessage.uid);
         }
+
+        life_time = 2000;
     }
 
     /**
@@ -72,7 +74,7 @@ public class FXTextBubble extends Effect_Element {
         int ent_screen_y = WorldView.world2local_y(
                     (ent.origin.getX()+ ent.dx)*TilesetRenderer.TILE_SIZE ,
                     (ent.origin.getY()+ ent.dy)*TilesetRenderer.TILE_SIZE
-        ) - 54
+        ) - TilesetRenderer.TILE_SIZE
 
            - (int)WorldViewCamera.camera_y
         ;

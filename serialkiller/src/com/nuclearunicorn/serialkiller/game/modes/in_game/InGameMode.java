@@ -7,7 +7,6 @@ import com.nuclearunicorn.libroguelike.events.Event;
 import com.nuclearunicorn.libroguelike.events.EventManager;
 import com.nuclearunicorn.libroguelike.events.IEventListener;
 import com.nuclearunicorn.libroguelike.game.GameEnvironment;
-import com.nuclearunicorn.libroguelike.game.ent.EntityPlayer;
 import com.nuclearunicorn.libroguelike.game.ent.controller.NpcController;
 import com.nuclearunicorn.libroguelike.game.ent.controller.PlayerController;
 import com.nuclearunicorn.libroguelike.game.modes.AbstractGameMode;
@@ -29,6 +28,7 @@ import com.nuclearunicorn.libroguelike.vgui.effects.EffectsSystem;
 import com.nuclearunicorn.serialkiller.game.ItemFactory;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldModel;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntRLPlayer;
 import com.nuclearunicorn.serialkiller.generators.TownChunkGenerator;
 import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
 import com.nuclearunicorn.serialkiller.render.AsciiWorldView;
@@ -153,7 +153,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
 
     private void fovUpdate() {
         model.resetFov();
-        int fovRadius = ((RLCombat)Player.get_player_ent().get_combat()).getFovRadius();
+        int fovRadius = ((RLCombat)Player.get_ent().get_combat()).getFovRadius();
         fov.visitFieldOfView(model, Player.get_ent().x(), Player.get_ent().y(), fovRadius);
     }
 
@@ -214,7 +214,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
 
     void spawn_player(Point location){
 
-        EntityPlayer playerEnt = new EntityPlayer();
+        EntRLPlayer playerEnt = new EntRLPlayer();
         playerEnt.set_combat(new RLCombat());
 
         playerEnt.setName("Player");
@@ -225,7 +225,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         //clientGameEnvironment.getEntityManager().add(player_ent, Player.get_zindex());
 
         playerEnt.setLayerId(Player.get_zindex());
-        playerEnt.spawn(12345, location);
+        playerEnt.spawn(location);
 
         WorldViewCamera.target.setLocation(location);
 

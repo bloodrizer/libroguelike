@@ -355,8 +355,8 @@ public class NpcController extends BaseController implements Mover, IEventListen
         //normalize it to length 1 (preserving direction), then round it and
         //convert to integer so the movement is restricted to the map grid
         
-        dx = (int)(dx/distance);
-        dy = (int)(dy/distance);
+        dx = (int)(Math.round(dx/distance));
+        dy = (int)(Math.round(dy/distance));
         
         return new Point(dx,dy);
     }
@@ -364,7 +364,11 @@ public class NpcController extends BaseController implements Mover, IEventListen
     public void escapeTarget(Entity target) {
         Point vec = getTargetDestinationVector(target.origin);
 
-        this.move_ent(owner.x() - vec.getX(), owner.y() - vec.getY());
+        //this.set_destination(new Point(owner.x() - vec.getX(), owner.y() - vec.getY()));
+
+        move_ent(owner.x() - vec.getX(), owner.y());
+        move_ent(owner.x(), owner.y()- vec.getY());
+        //this.follow_path();
     }
 
     public void chaseTarget(Entity target) {

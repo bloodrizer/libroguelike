@@ -100,7 +100,7 @@ public class ModeInGame implements IGameMode, IEventListener {
         //TODO: extract player information from the event
         
         clientGameEnvironment.getEntityManager().add(player_ent, Player.get_zindex());
-        player_ent.spawn(12345, location);
+        player_ent.spawn(location);
 
         WorldViewCamera.target.setLocation(location);
 

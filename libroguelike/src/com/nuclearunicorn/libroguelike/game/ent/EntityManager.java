@@ -91,7 +91,7 @@ public class EntityManager implements IEventListener {
         return (Entity[]) getList(layer_id).toArray(new Entity[0]);
     }
 
-    public Entity get_entity(int entity_id, int layer_id){
+    public Entity get_entity(String entity_id, int layer_id){
         for (Entity ent: getList(layer_id)){
             if (ent.get_uid() == entity_id){
                 return ent;
@@ -103,7 +103,7 @@ public class EntityManager implements IEventListener {
     /*
      * Search for entity in whole list
      */
-    public Entity get_entity(int uid) {
+    public Entity get_entity(String uid) {
         for (int layer_id: layer_ent_list.keySet()){
             Entity ent = get_entity(uid, layer_id);
             if (ent!=null){

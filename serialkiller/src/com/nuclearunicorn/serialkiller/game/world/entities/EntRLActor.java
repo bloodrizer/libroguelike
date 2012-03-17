@@ -25,6 +25,5 @@ public class EntRLActor extends EntityActor implements IEventListener {
 
     @Override
     public void e_on_event(Event event) {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 }

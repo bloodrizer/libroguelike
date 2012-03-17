@@ -75,11 +75,16 @@ public class PedestrianAI extends BasicMobAI {
         if (disst > 0 && disst < 10){
             npcController.escapeTarget(nearestEnemy);
         } else {
-            System.out.println("Invalid escape distance :"+disst);
+            //System.out.println("Invalid escape distance :"+disst+" to target '" + nearestEnemy.getName() + "'@"+nearestEnemy.origin);
         }
 
-        RLMessages.message(owner.getName() + " screams!", Color.red);
-        //implement some sophisticated AI to escape multiple targets
+        if (Math.random()*100 > 60){
+
+            RLMessages.message(owner.getName() + " screams!", Color.red);
+
+            ((EntityActor)owner).say_message("AAAAAAAA!");
+        }
+
     }
 
     private void getRandomRoute(NpcController npcController) {
@@ -151,7 +156,7 @@ public class PedestrianAI extends BasicMobAI {
         if (event instanceof NPCWitnessCrimeEvent){
             NPCWitnessCrimeEvent e = (NPCWitnessCrimeEvent)event;
 
-            //TODO: pass criminal to the AI manager, so state will be reseted only if no known criminal is in fov
+            //TODO: pass criminal to the AI manager, so state will be reset only if no known criminal is in fov
             knowCriminals.add((EntityActor) e.criminal);
         }
     }

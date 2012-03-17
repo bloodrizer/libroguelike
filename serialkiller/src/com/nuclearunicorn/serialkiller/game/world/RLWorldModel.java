@@ -119,7 +119,12 @@ public class RLWorldModel extends WorldModel implements ILosBoard {
             for (Entity ent : entList){
                 if (ent instanceof EntRLActor){
 
-                    if (((RLTile)ent.tile).isVisible()){
+                    //TODO: replace it with bresinhem line from npc to player
+                    /*if ( ((RLTile)ent.tile).isVisible() &&
+                            ((RLTile)this.getLayer(Player.get_zindex()).get_tile(criminalEvent.origin)).isVisible()) {*/
+
+                    if ( ((RLTile)ent.tile).isVisible() && criminalEvent.criminal.isPlayerEnt()){
+                        System.out.println( ent.getName() + " is witnessing crime of " + criminalEvent.criminal.getName()+ "@"+criminalEvent.origin);
                         NPCWitnessCrimeEvent witnessCrimeEvent = new NPCWitnessCrimeEvent(criminalEvent.origin, criminalEvent.criminal);
                         ((EntRLActor) ent).e_on_event(witnessCrimeEvent);
                     }

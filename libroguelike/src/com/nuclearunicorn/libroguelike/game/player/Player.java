@@ -35,7 +35,7 @@ public class Player {
     
     public static void set_ent(Entity ent){
         player_ent = ent;
-        ent.set_uid(character_id);  //special hack to synchronize client-side entity_id and server_side entity_id
+        //ent.set_uid(character_id);  //special hack to synchronize client-side entity_id and server_side entity_id
 
         //GameUI.inventory.set_container(player_ent.container);
         //NE_GUI_CharScreen.update_stats();

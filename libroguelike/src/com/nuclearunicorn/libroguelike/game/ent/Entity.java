@@ -23,6 +23,7 @@ import org.lwjgl.util.Point;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.UUID;
 
 
 /**
@@ -47,7 +48,7 @@ public class Entity implements Comparable, Serializable {
     public float dy = 0.0f;
     
     public float light_amt = 0.0f;
-    private int uid = 0;
+    private String uid = "undefined";
     private long next_think;
 
     transient public IEntityController controller;
@@ -141,11 +142,11 @@ public class Entity implements Comparable, Serializable {
         return hc_this - hc_ent;
     }
     
-    public int get_uid(){
+    public String get_uid(){
         return this.uid;
     }
 
-    public void set_uid(int uid) {
+    public void set_uid(String uid) {
         this.uid = uid;
     }
 
@@ -180,7 +181,7 @@ public class Entity implements Comparable, Serializable {
     }
 
     //--------------------------------------------------------------------------
-    public void spawn(int uid, Point origin){
+    public void spawn(String uid, Point origin){
         if (layer_id < 0){
             throw new RuntimeException("Spawning entity without correct layerID");
         }
@@ -204,7 +205,7 @@ public class Entity implements Comparable, Serializable {
 
     //this is a debug version of spawn method, that use temporary timestamp-based uid
     public void spawn(Point origin){
-        int __uid = (int)System.currentTimeMillis();
+        String __uid = UUID.randomUUID().toString();
         spawn(__uid, origin);
     }
 

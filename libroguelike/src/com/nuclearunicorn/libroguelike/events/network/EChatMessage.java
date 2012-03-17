@@ -10,9 +10,9 @@ package com.nuclearunicorn.libroguelike.events.network;
  * @author Administrator
  */
 public class EChatMessage extends NetworkEvent{
-    public int uid;
+    public String uid;
     public String message;
-    public EChatMessage(int uid, String message){
+    public EChatMessage(String uid, String message){
         this.uid = uid;
         this.message = message;
     }

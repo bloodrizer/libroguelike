@@ -354,7 +354,7 @@ public class TownChunkGenerator extends ChunkGenerator {
         ent.setRenderer(new AsciiEntRenderer(symbol));
 
         ent.setLayerId(z_index);
-        ent.spawn(12345, new Point(x,y));
+        ent.spawn(new Point(x,y));
     }
 
     private void generateHousing(Block block) {

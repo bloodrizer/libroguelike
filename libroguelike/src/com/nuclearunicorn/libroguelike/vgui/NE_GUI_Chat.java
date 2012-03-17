@@ -80,7 +80,7 @@ public class NE_GUI_Chat extends NE_GUI_FrameModern {
             return;
         }
 
-        EChatMessage message = new EChatMessage(Player.character_id,text);
+        EChatMessage message = new EChatMessage(Player.get_ent().get_uid(),text);
         message.post();
     }
 
