@@ -319,7 +319,6 @@ public class NpcController extends BaseController implements Mover, IEventListen
      */
 
     public void e_on_event(Event event) {
-       //throw new UnsupportedOperationException("Not supported yet.");
         if (event instanceof EEntityChangeChunk){
             if (((EEntityChangeChunk)event).ent.isPlayerEnt() && destination!=null){
                 calculate_path(destination.getX(),destination.getY());

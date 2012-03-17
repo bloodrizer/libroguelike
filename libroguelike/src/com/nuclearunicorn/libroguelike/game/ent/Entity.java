@@ -76,6 +76,10 @@ public class Entity implements Comparable, Serializable {
     //--------------------------------------------------------------------------
     public ItemContainer container = new ItemContainer();
 
+    public AI getAI() {
+        return ai;
+    }
+
     public enum Orientation {
         ORIENT_N,
         ORIENT_W,

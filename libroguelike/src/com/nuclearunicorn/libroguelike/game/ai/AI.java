@@ -44,4 +44,10 @@ public class AI implements Serializable, IEventListener{
     public void e_on_event(Event event) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
+
+    //this event is triggered when Entity Controller hits obstacle
+    //implement behavior logic there (e.g. attacking target, etc)
+    public void e_on_obstacle(int x, int y) {
+        //override me
+    }
 }
