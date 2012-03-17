@@ -1,5 +1,6 @@
 package com.nuclearunicorn.serialkiller.game.modes.in_game;
 
+import com.nuclearunicorn.libroguelike.core.Input;
 import com.nuclearunicorn.libroguelike.core.client.ClientEventManager;
 import com.nuclearunicorn.libroguelike.core.client.ClientGameEnvironment;
 import com.nuclearunicorn.libroguelike.events.EKeyPress;
@@ -132,7 +133,12 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         super.update();
 
         get_ui().update();
-        //model.update();
+
+        //debug-only timeskip
+        if (Input.key_state_shft){
+            model.update();
+        }
+
         fx.update();
 
         fovUpdate();

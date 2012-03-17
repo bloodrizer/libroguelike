@@ -22,7 +22,8 @@ public class WorldTimer {
 
 
     public static void tick(){
-        datetime.add(Calendar.SECOND,15);
+        //datetime.add(Calendar.SECOND,15);
+        datetime.add(Calendar.MINUTE, 1);
 
         if(datetime.get(Calendar.MINUTE) == 0 && datetime.get(Calendar.SECOND) == 0){
             e_on_new_hour();
@@ -44,7 +45,7 @@ public class WorldTimer {
             amt = (21.0f-hour)/5.0f;
         }
    
-        amt = amt/2.0f;
+        //amt = amt/2.0f;
 
         return amt;
     }

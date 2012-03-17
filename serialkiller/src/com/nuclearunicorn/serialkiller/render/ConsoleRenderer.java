@@ -4,6 +4,7 @@ import com.nuclearunicorn.libroguelike.core.Input;
 import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
+import com.nuclearunicorn.libroguelike.game.world.WorldTimer;
 import com.nuclearunicorn.libroguelike.game.world.WorldViewCamera;
 import com.nuclearunicorn.libroguelike.render.layers.LayerRenderer;
 import com.nuclearunicorn.libroguelike.render.overlay.DebugOverlay;
@@ -45,7 +46,12 @@ public class ConsoleRenderer extends LayerRenderer{
                setFovColor(tile_x, tile_y);
                //setBgColor(200, 180, 50);
            }else{
-               setBgColor(50, 50, 150);
+               //int dRGB = (int)(WorldTimer.get_light_amt()*255);
+
+               int r = (int)lerp(60, 50 , WorldTimer.get_light_amt());
+               int g = (int)lerp(60, 50 , WorldTimer.get_light_amt());
+               int b = (int)lerp(60, 150 , WorldTimer.get_light_amt());
+               setBgColor(r, g, b);
            }
 
            if (rltile.isWall()){

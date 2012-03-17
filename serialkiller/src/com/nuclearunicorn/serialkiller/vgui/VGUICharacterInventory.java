@@ -7,6 +7,7 @@ import com.nuclearunicorn.libroguelike.vgui.NE_GUI_FrameModern;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_Text;
 import com.nuclearunicorn.serialkiller.game.combat.NPCStats;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntRLPlayer;
 import org.newdawn.slick.Color;
 
 import java.util.List;
@@ -59,8 +60,8 @@ public class VGUICharacterInventory extends NE_GUI_FrameModern {
         NPCStats npcStats = combat.getStats();
 
         Color color;
-        for(BaseItem item: Player.get_player_ent().container.items){
-            EquipContainer equipment = Player.get_player_ent().equipment;
+        for(BaseItem item: Player.get_ent().container.items){
+            EquipContainer equipment = ((EntRLPlayer) Player.get_ent()).equipment;
 
             if (equipment != null && equipment.hasItem(item)){
                 color = Color.white;

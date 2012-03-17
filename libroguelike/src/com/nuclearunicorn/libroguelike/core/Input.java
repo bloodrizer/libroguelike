@@ -14,12 +14,11 @@ import com.nuclearunicorn.libroguelike.events.EMouseClick;
 import com.nuclearunicorn.libroguelike.events.EMouseDrag;
 import com.nuclearunicorn.libroguelike.events.EMouseRelease;
 import com.nuclearunicorn.libroguelike.render.WindowRender;
-
-import java.util.Collections;
-
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.util.Point;
+
+import java.util.Collections;
 
 
 public class Input {
@@ -37,6 +36,8 @@ public class Input {
 
     public static boolean key_state_alt = false;
     public static boolean key_state_ctrl = false;
+    public static boolean key_state_shft = false;
+
     private static java.util.Map<Integer,Boolean> key_states
             = Collections.synchronizedMap(new java.util.HashMap<Integer,Boolean>(100));
     
@@ -105,12 +106,16 @@ public class Input {
 
         while (Keyboard.next()) {
 	    if (Keyboard.getEventKeyState()) {
-                if (Keyboard.getEventKey() == Keyboard.KEY_LMENU) {
-		    key_state_alt = true;
-		}
-                if (Keyboard.getEventKey() == Keyboard.KEY_LCONTROL) {
-		    key_state_ctrl = true;
-		}
+
+            if (Keyboard.getEventKey() == Keyboard.KEY_LMENU) {
+                key_state_alt = true;
+            }
+            if (Keyboard.getEventKey() == Keyboard.KEY_LCONTROL) {
+                key_state_ctrl = true;
+            }
+            if (Keyboard.getEventKey() == Keyboard.KEY_LSHIFT) {
+               key_state_shft = true;
+            }
 
                 Boolean state = key_states.get(Keyboard.getEventKey());
                 if(state == null || state == false){
@@ -124,11 +129,14 @@ public class Input {
 
             }else{
                 if (Keyboard.getEventKey() == Keyboard.KEY_LMENU) {
-		    key_state_alt = false;
-		}
-                 if (Keyboard.getEventKey() == Keyboard.KEY_LCONTROL) {
-		    key_state_ctrl = false;
-		}
+		            key_state_alt = false;
+		        }
+                if (Keyboard.getEventKey() == Keyboard.KEY_LCONTROL) {
+                    key_state_ctrl = false;
+                }
+                if (Keyboard.getEventKey() == Keyboard.KEY_LSHIFT) {
+                    key_state_shft = false;
+                }
                 key_states.put(Keyboard.getEventKey(), false);
             }
         }

@@ -32,10 +32,14 @@ public class RLCombat extends BasicCombat {
     }
     
     public int getFovRadius(){
-        int fov = (int)(5 + 1.2*stats.per);
-        if (WorldTimer.is_night()){
+        int maxFov = (int)(5 + 1.2*stats.per);
+        int minFov = (int)(maxFov * 0.7);
+
+        int fov = (int)(minFov + (maxFov-minFov) * WorldTimer.get_light_amt());
+
+        /*if (WorldTimer.is_night()){
             fov = (int)(fov * 0.7);
-        }
+        } */
 
         return fov;
     }
