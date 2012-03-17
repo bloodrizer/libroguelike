@@ -47,7 +47,10 @@ public class TownChunkGenerator extends ChunkGenerator {
     private static final int ROAD_SIZE = 3;
     
     //List<Block> apartments = new ArrayList<Block>();
+
+    //TODO: replace with a class, lol
     Map<Block,List<Block>> apartmentRooms = new HashMap<Block, List<Block>>();
+    Map<Block,List<Entity>> apartmentBeds = new HashMap<Block, List<Entity>>();
     
     RLWorldChunk chunk;
 
@@ -124,10 +127,6 @@ public class TownChunkGenerator extends ChunkGenerator {
         Block safehouseBlock = districts.get(chunk_random.nextInt(districts.size()));
         generateSafehouse(safehouseBlock);
         districts.remove(safehouseBlock);
-            /*safehouse_block = districts[libtcod.random_get_int(self.generator, 0, len(districts)-1)]
-            self.GenerateSafehosue(safehouse_block)
-    
-            districts.remove(safehouse_block) */
 
         //-----------------------------------------------------------
         //		create other housing areas
@@ -137,10 +136,11 @@ public class TownChunkGenerator extends ChunkGenerator {
             fillBlock(district);
         }
 
-        //todo: milestones
-
         populateMap();
 
+        for (Block apt :apartmentRooms.keySet()){
+            fillApartmentRooms(apt);
+        }
     }
 
     /*
@@ -148,7 +148,6 @@ public class TownChunkGenerator extends ChunkGenerator {
      */
     private void generateSafehouse(Block safehouseBlock) {
         generateHousing(safehouseBlock);
-        apartmentRooms.remove(safehouseBlock);  //no one dares to live in my house!
 
         for (int i = 0; i <= safehouseBlock.getW(); i++)
             for (int j = 0; j <= safehouseBlock.getH(); j++){
@@ -165,26 +164,60 @@ public class TownChunkGenerator extends ChunkGenerator {
         
         /*Point playerPosition = this.blockGetFreeTile(safehouseBlock);
         Player.get_ent().move_to(playerPosition);*/
+
+        apartmentRooms.remove(safehouseBlock);  //no one dares to live in my house!
     }
 
     private void fillApartmentRooms(Block apt) {
         List<Block> rooms = this.apartmentRooms.get(apt);
         if (rooms == null || rooms.isEmpty()){
+            System.err.println("no rooms, failed to fill apartment");
             return;
         }
 
         //one kitchen
         Block kitchen = rooms.get(chunk_random.nextInt(rooms.size()));
-        fillRoom(kitchen, RoomType.KITCHEN);
+        fillRoom(apt, kitchen, RoomType.KITCHEN);
+        rooms.remove(kitchen);
+
+        //one bathroom
+
+        //multiple bedrooms
+
+        int ownerCount = 1; //at least one owner
+        RLTile sampleTile = (RLTile)(getLayer().get_tile(apt.getX()+1,apt.getY()+1));
+        if (!sampleTile.getOwners().isEmpty()){
+            ownerCount = sampleTile.getOwners().size();
+        }
+
+        for (int i = 0; i<ownerCount; i++){
+            if (rooms == null || rooms.isEmpty()){
+                return;
+            }
+            Block bedroom = rooms.get(chunk_random.nextInt(rooms.size()));
+            fillRoom(apt, bedroom, RoomType.BEDROOM);
+
+            //rooms.remove(kitchen);    //two ore more beds can be placed in same room, so do not remove it
+        }
 
     }
 
-    private void fillRoom(Block room, RoomType type) {
+    private void fillRoom(Block apt, Block room, RoomType type) {
         switch (type) {
             case KITCHEN:
 
             break;
             case BEDROOM:
+                Point coord = blockGetFreeTile(room);
+
+                EntFurniture bed = new EntFurniture();
+                placeEntity(coord.getX(), coord.getY(), bed, "bed", "B", Color.green);
+                bed.get_combat().set_hp(50);    //good wooden bed, hard to break >:3
+
+                if (apartmentBeds.get(apt) == null){
+                    apartmentBeds.put(apt, new ArrayList<Entity>(3));
+                }
+                apartmentBeds.get(apt).add(bed);
 
             break;
             case BATHROOM:
@@ -270,7 +303,7 @@ public class TownChunkGenerator extends ChunkGenerator {
             Point coord = blockGetFreeTile(road);
 
             EntityRLHuman police = new EntityRLHuman();
-            placeEntity(coord.getX(), coord.getY(), police, "Police man", "P", new Color(127, 127, 255));
+            placeEntity(coord.getX(), coord.getY(), police, "Policeman", "P", new Color(127, 127, 255));
 
             police.set_ai(new PoliceAI());
             police.set_controller(new MobController());

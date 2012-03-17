@@ -39,6 +39,10 @@ public class RLTile extends WorldTile {
         owners.add(npc);
     }
 
+    public List<EntityRLHuman> getOwners(){
+        return owners;
+    }
+
     public boolean isOwned(){
         return !owners.isEmpty();
     }
