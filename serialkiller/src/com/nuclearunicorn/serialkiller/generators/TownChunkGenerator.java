@@ -45,13 +45,15 @@ public class TownChunkGenerator extends ChunkGenerator {
     List<Block> districts = null;
     List<Block> roads = new ArrayList<Block>();
     private static final int ROAD_SIZE = 3;
-    
+
     //List<Block> apartments = new ArrayList<Block>();
 
     //TODO: replace with a class, lol
-    Map<Block,List<Block>> apartmentRooms = new HashMap<Block, List<Block>>();
-    Map<Block,List<Entity>> apartmentBeds = new HashMap<Block, List<Entity>>();
-    
+    //Map<Block,List<Block>> apartmentRooms = new HashMap<Block, List<Block>>();
+    //Map<Block,List<Entity>> apartmentBeds = new HashMap<Block, List<Entity>>();
+
+    List<Apartment> apartments = new ArrayList<Apartment>(16);
+
     RLWorldChunk chunk;
 
     /*
@@ -106,10 +108,10 @@ public class TownChunkGenerator extends ChunkGenerator {
             //register corner nodes before scaling and tracing roads
 
             Point[] ms = new Point[]{
-                new Point(district.getX(), district.getY()),
-                new Point(district.getX(), district.getY()+district.getH()),
-                new Point(district.getX()+district.getW(), district.getY()),
-                new Point(district.getX()+district.getW(), district.getY()+district.getH()),
+                    new Point(district.getX(), district.getY()),
+                    new Point(district.getX(), district.getY()+district.getH()),
+                    new Point(district.getX()+district.getW(), district.getY()),
+                    new Point(district.getX()+district.getW(), district.getY()+district.getH()),
             };
             for (Point milestone: ms){
                 if (!this.chunk.hasMilestone(milestone)){
@@ -125,20 +127,24 @@ public class TownChunkGenerator extends ChunkGenerator {
         //		randomly place safehouse
         //-----------------------------------------------------------
         Block safehouseBlock = districts.get(chunk_random.nextInt(districts.size()));
-        generateSafehouse(safehouseBlock);
+
+        Apartment safehouseBlockApt = new Apartment(safehouseBlock);
+        apartments.add(safehouseBlockApt);
+
+        generateSafehouse(safehouseBlockApt);
         districts.remove(safehouseBlock);
 
         //-----------------------------------------------------------
         //		create other housing areas
         //-----------------------------------------------------------
-        
+
         for(Block district: districts){
             fillBlock(district);
         }
 
         populateMap();
 
-        for (Block apt :apartmentRooms.keySet()){
+        for (Apartment apt : apartments){
             fillApartmentRooms(apt);
         }
     }
@@ -146,7 +152,7 @@ public class TownChunkGenerator extends ChunkGenerator {
     /*
         Safehouse it the apartment block owned by a player.
      */
-    private void generateSafehouse(Block safehouseBlock) {
+    private void generateSafehouse(Apartment safehouseBlock) {
         generateHousing(safehouseBlock);
 
         for (int i = 0; i <= safehouseBlock.getW(); i++)
@@ -159,17 +165,18 @@ public class TownChunkGenerator extends ChunkGenerator {
         fillApartmentRooms(safehouseBlock);
 
         //store safehouse to place player there later
-        Point playerPosition = this.blockGetFreeTile(safehouseBlock);
+        Point playerPosition = safehouseBlock.getFreeTile(chunk_random, getLayer());
         RLWorldModel.playerSafeHouseLocation = playerPosition;
-        
+
         /*Point playerPosition = this.blockGetFreeTile(safehouseBlock);
         Player.get_ent().move_to(playerPosition);*/
 
-        apartmentRooms.remove(safehouseBlock);  //no one dares to live in my house!
+        apartments.remove(safehouseBlock);  //no one dares to live in my house!
     }
 
-    private void fillApartmentRooms(Block apt) {
-        List<Block> rooms = this.apartmentRooms.get(apt);
+    private void fillApartmentRooms(Apartment apt) {
+
+        List<Block> rooms = apt.rooms;
         if (rooms == null || rooms.isEmpty()){
             System.err.println("no rooms, failed to fill apartment");
             return;
@@ -202,27 +209,27 @@ public class TownChunkGenerator extends ChunkGenerator {
 
     }
 
-    private void fillRoom(Block apt, Block room, RoomType type) {
+    private void fillRoom(Apartment apt, Block room, RoomType type) {
         switch (type) {
             case KITCHEN:
 
-            break;
+                break;
             case BEDROOM:
-                Point coord = blockGetFreeTile(room);
+                Point coord = room.getFreeTile(chunk_random, getLayer());
 
                 EntFurniture bed = new EntFurniture();
                 placeEntity(coord.getX(), coord.getY(), bed, "bed", "B", Color.green);
                 bed.get_combat().set_hp(50);    //good wooden bed, hard to break >:3
 
-                if (apartmentBeds.get(apt) == null){
+                /*if (apt.beds == null){
                     apartmentBeds.put(apt, new ArrayList<Entity>(3));
-                }
-                apartmentBeds.get(apt).add(bed);
+                }*/
+                apt.beds.add(bed);
 
-            break;
+                break;
             case BATHROOM:
 
-            break;
+                break;
         }
     }
 
@@ -234,7 +241,7 @@ public class TownChunkGenerator extends ChunkGenerator {
                 int y = outerWall.get(0).getY();
                 int w = outerWall.get(wlen).getX()-x;
                 int h = outerWall.get(wlen).getY()-y;
-                
+
                 Block road = new Block(x,y,w,h);
                 road.scale(ROAD_SIZE-2,ROAD_SIZE-2);
                 roads.add(road);
@@ -263,9 +270,9 @@ public class TownChunkGenerator extends ChunkGenerator {
     }
 
     /**
-        As legacy code says:
-        #FILL MAP WITH NPC
-	    #this method should be called BEFORE room structure generation!
+     As legacy code says:
+     #FILL MAP WITH NPC
+     #this method should be called BEFORE room structure generation!
      */
     private void populateMap() {
         for (Block road: roads){
@@ -278,15 +285,15 @@ public class TownChunkGenerator extends ChunkGenerator {
                 npcCount = 1;
             }
             for (int i = 0; i< npcCount; i++){
-                Point coord = blockGetFreeTile(road);
+                Point coord = road.getFreeTile(chunk_random, getLayer());
 
                 EntityRLHuman npc = (EntityRLHuman)placeNPC(coord.getX(), coord.getY());
                 npc.set_ai(new PedestrianAI());
                 npc.set_controller(new MobController());
                 npc.set_combat(new RLCombat());
 
-                int randomApt = chunk_random.nextInt(apartmentRooms.size());
-                Block apt = new ArrayList<Block>(apartmentRooms.keySet()).get(randomApt);
+                int randomApt = chunk_random.nextInt(apartments.size());
+                Block apt = apartments.get(randomApt);
 
                 for (int n = apt.getX(); n < apt.getX()+apt.getW(); n++)
                     for (int m = apt.getY(); m < apt.getY()+apt.getH(); m++){
@@ -300,7 +307,7 @@ public class TownChunkGenerator extends ChunkGenerator {
         //police
         for (int i=0; i<2; i++){    //4 policemans
             Block road = roads.get(chunk_random.nextInt(roads.size()));
-            Point coord = blockGetFreeTile(road);
+            Point coord = road.getFreeTile(chunk_random, getLayer());
 
             EntityRLHuman police = new EntityRLHuman();
             placeEntity(coord.getX(), coord.getY(), police, "Policeman", "P", new Color(127, 127, 255));
@@ -338,7 +345,11 @@ public class TownChunkGenerator extends ChunkGenerator {
     private void fillBlock(Block district){
         int chance = chunk_random.nextInt(100);
         if (chance > 20){
-            generateHousing(district);
+
+            Apartment apt = new Apartment(district);
+            apartments.add(apt);
+            generateHousing(apt);
+
         }else{
             generatePark(district);
         }
@@ -390,7 +401,7 @@ public class TownChunkGenerator extends ChunkGenerator {
         ent.spawn(new Point(x,y));
     }
 
-    private void generateHousing(Block block) {
+    private void generateHousing(Apartment block) {
         traceBlock(block);
 
         int ROOM_COUNT = 4;
@@ -447,11 +458,11 @@ public class TownChunkGenerator extends ChunkGenerator {
                             if (wall.size() > 0){
                                 Point door_coord = wall.get(chunk_random.nextInt(wall.size()));
                                 clearWall(door_coord.getX(), door_coord.getY());
-                                
+
                                 EntDoor door = new EntDoor();
                                 placeEntity(door_coord.getX(), door_coord.getY(), door, "door", "+", Color.green);
                                 door.get_combat().set_hp(5);
-                                
+
                                 door.unlock();
 
                                 room.addNeighbour(room2);
@@ -491,39 +502,14 @@ public class TownChunkGenerator extends ChunkGenerator {
             }
         }
 
-        apartmentRooms.put(block, rooms);   //save apartment and rooms in in for later handling
+        block.rooms = rooms;
+        //apartmentRooms.put(block, rooms);   //save apartment and rooms in in for later handling
     }
 
-    /*
-        Get random unoccupied tile inside of the block
-     */
-    private Point blockGetFreeTile(Block block){
-       while(true){
-           int x = chunk_random.nextInt( block.getW()-1 ) + block.getX()+1;
-           int y = chunk_random.nextInt( block.getY()-1 ) + block.getY()+1;
-
-           if (!isBlocked(x,y)){
-               return new Point(x,y);
-           }
-       }
-    }
-
-    private boolean isBlocked(int x, int y) {
-        RLTile tile = (RLTile)(getLayer().get_tile(x,y));
-
-        if ( tile!=null ){
-            if (tile.isWall() || tile.isBlocked()){
-                return true;
-            }
-            return false;
-        }
-
-        return true;
-    }
 
 
     /**
-      Trace outer conture of block and mark every outer block as wall
+     Trace outer conture of block and mark every outer block as wall
      */
     private void traceBlock(Block block){
         for (int i = 0; i< block.getH()+1; i++){

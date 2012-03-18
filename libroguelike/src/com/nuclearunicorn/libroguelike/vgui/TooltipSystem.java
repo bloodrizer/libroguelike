@@ -71,20 +71,16 @@ public class TooltipSystem extends EffectsSystem {
 
     private void tooltip_show(NE_GUI_Element elem) {
 
-        
-
         //throw new UnsupportedOperationException("Not yet implemented");
-        if (fx_tooltip == null){
+        /*if (fx_tooltip == null){
 
             System.out.println("showing tooltip on elem"+elem);
 
             //show it there
-            /*ETooltipShow tooltip_show_msg = new ETooltipShow(elem);
-            tooltip_show_msg.post();*/
             FXTooltip tooltip = new FXTooltip(elem);
             root.add(tooltip);
             TooltipSystem.set_tooltip(tooltip);
-        }
+        }*/
     }
 
     /*public void e_on_event(Event event){

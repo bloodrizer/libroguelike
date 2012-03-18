@@ -4,6 +4,7 @@ import com.nuclearunicorn.libroguelike.events.Event;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.items.EquipContainer;
 import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
+import com.nuclearunicorn.serialkiller.generators.Block;
 import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
 import com.nuclearunicorn.serialkiller.render.RLMessages;
 import org.newdawn.slick.Color;
@@ -49,12 +50,21 @@ public class EntityRLHuman extends EntRLActor {
     }
 
     //TODO: apartment link
+    Block apartment;
     
     /*public void describe(RLMessages render){
         render.message(name + " is " + sex + ", age " + age);
 
         //etc etc
     } */
+    
+    public Block getApartment(){
+        return apartment;
+    }
+
+    public void setApartment(Block apt){
+        apartment = apt;
+    }
     
     public String getModel(){
         return "@";

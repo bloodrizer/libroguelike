@@ -1,9 +1,12 @@
 package com.nuclearunicorn.serialkiller.generators;
 
+import com.nuclearunicorn.libroguelike.game.world.layers.WorldLayer;
+import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import org.lwjgl.util.Point;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by IntelliJ IDEA.
@@ -207,5 +210,31 @@ public class Block {
 
     public void clearNeighbours() {
         neighbors.clear();
+    }
+
+    //helper functions - extracted from TownChunkGenerator
+
+    public Point getFreeTile(Random chunk_random, WorldLayer layer){
+        while(true){
+            int _x = chunk_random.nextInt( w-1 ) + x + 1;
+            int _y = chunk_random.nextInt( h-1 ) + y + 1;
+
+            if (!isBlocked(_x,_y, layer)){
+                return new Point(_x,_y);
+            }
+        }
+    }
+
+    private boolean isBlocked(int x, int y, WorldLayer layer) {
+        RLTile tile = (RLTile)(layer.get_tile(x,y));
+
+        if ( tile!=null ){
+            if (tile.isWall() || tile.isBlocked()){
+                return true;
+            }
+            return false;
+        }
+
+        return true;
     }
 }
