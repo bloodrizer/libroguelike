@@ -383,8 +383,21 @@ public class TownChunkGenerator extends ChunkGenerator {
 
 
     private EntityActor placeNPC(int x, int y  ) {
-        EntityActor playerEnt = new EntityRLHuman();
+        EntityRLHuman playerEnt = new EntityRLHuman();
         placeEntity(x, y, playerEnt, "NPC", "@");
+
+
+        NameGenerator namegen = new NameGenerator();
+
+        boolean isMale = false;
+        if (chunk_random.nextInt(100)>50){
+            playerEnt.setSex(EntityRLHuman.Sex.MALE);
+            isMale = true;
+        } else {
+            playerEnt.setSex(EntityRLHuman.Sex.FEMALE);
+        }
+
+        playerEnt.setName(namegen.generate(isMale));
 
         return playerEnt;
     }

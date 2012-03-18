@@ -18,7 +18,7 @@ import org.newdawn.slick.Color;
  */
 public class EntityRLHuman extends EntRLActor {
 
-    enum Sex {
+    public enum Sex {
         MALE,
         FEMALE
     }
@@ -43,6 +43,15 @@ public class EntityRLHuman extends EntRLActor {
     public EquipContainer equipment;
     //public EquipContainer inventory;  use container instead
 
+
+    public void setSex(Sex sex){
+        this.sex = sex;
+    }
+
+    public Sex getSex(){
+        return sex;
+    }
+
     public EntityRLHuman(){
         super();
 
@@ -51,12 +60,7 @@ public class EntityRLHuman extends EntRLActor {
 
     //TODO: apartment link
     Block apartment;
-    
-    /*public void describe(RLMessages render){
-        render.message(name + " is " + sex + ", age " + age);
 
-        //etc etc
-    } */
     
     public Block getApartment(){
         return apartment;
