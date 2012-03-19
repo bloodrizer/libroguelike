@@ -43,15 +43,17 @@ public class ConsoleRenderer extends LayerRenderer{
            }
 
            if (rltile.isVisible()){
-               setFovColor(tile_x, tile_y);
+               setFovColor(rltile, tile_x, tile_y);
                //setBgColor(200, 180, 50);
            }else{
                //int dRGB = (int)(WorldTimer.get_light_amt()*255);
+               
+               int rBlood = (int)lerp(0, 100, rltile.getBloodAmt());
 
                int r = (int)lerp(60, 50 , WorldTimer.get_light_amt());
                int g = (int)lerp(60, 50 , WorldTimer.get_light_amt());
                int b = (int)lerp(60, 150 , WorldTimer.get_light_amt());
-               setBgColor(r, g, b);
+               setBgColor(r + rBlood, g - rBlood/2, b - rBlood/2);
            }
 
            if (rltile.isWall()){
@@ -82,7 +84,7 @@ public class ConsoleRenderer extends LayerRenderer{
         return start + (stop-start) * amt;
     }
 
-    private void setFovColor(int tile_x, int tile_y) {
+    private void setFovColor(RLTile rlTile, int tile_x, int tile_y) {
         //200, 180, 50
         
         //50, 50, 150
@@ -98,11 +100,20 @@ public class ConsoleRenderer extends LayerRenderer{
             amt = 1.0f;
         }
 
-        float r = lerp(50, 200, amt)/255f;
-        float g = lerp(50, 180, amt)/255f;
-        float b = lerp(150, 50, amt)/255f;
 
-        glColor3f(r,g,b);
+        //int rBlood = (int)lerp(0, 100, rlTile.getBloodAmt());
+
+
+        float r = lerp(50, 200, amt);
+        float g = lerp(50, 180, amt);
+        float b = lerp(150, 50, amt);
+
+
+        glColor3f(
+                lerp(r, 250, rlTile.getBloodAmt())/255f,
+                lerp(g, 50, rlTile.getBloodAmt())/255f,
+                lerp(b, 50, rlTile.getBloodAmt())/255f
+        );
     }
 
     private void drawChar(int i, int j, String tileModel, Color tileModelColor) {

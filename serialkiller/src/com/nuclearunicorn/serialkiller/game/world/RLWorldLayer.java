@@ -2,6 +2,8 @@ package com.nuclearunicorn.serialkiller.game.world;
 
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
+import com.nuclearunicorn.libroguelike.game.world.WorldCluster;
+import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.layers.WorldLayer;
 import org.lwjgl.util.Point;
 
@@ -39,4 +41,26 @@ public class RLWorldLayer extends WorldLayer {
         return chunk;
     }
 
+    @Override
+    public void update() {
+        super.update();
+
+        int x = WorldCluster.origin.getX()*WorldChunk.CHUNK_SIZE;
+        int y = WorldCluster.origin.getY()*WorldChunk.CHUNK_SIZE;
+        int size = WorldCluster.CLUSTER_SIZE*WorldChunk.CHUNK_SIZE;
+
+        for (int i = x; i<x+size; i++)
+            for (int j = y; j<y+size; j++){
+                int chunk_x = (int)Math.floor((float)i / WorldChunk.CHUNK_SIZE);
+                int chunk_y = (int)Math.floor((float)j / WorldChunk.CHUNK_SIZE);
+
+                if (get_cached_chunk(
+                        chunk_x,
+                        chunk_y) != null)
+                {
+                    WorldTile tile = get_tile(i,j);
+                    tile.update();
+                }
+            }
+    }
 }

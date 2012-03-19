@@ -8,6 +8,7 @@ import com.nuclearunicorn.libroguelike.game.ent.EntityNPC;
 import com.nuclearunicorn.libroguelike.game.items.BaseItem;
 import com.nuclearunicorn.libroguelike.game.world.WorldTimer;
 import com.nuclearunicorn.serialkiller.game.events.CriminalActionEvent;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
 import com.nuclearunicorn.serialkiller.render.RLMessages;
 import org.newdawn.slick.Color;
 
@@ -42,6 +43,42 @@ public class RLCombat extends BasicCombat {
         } */
 
         return fov;
+    }
+
+    @Override
+    public Damage.DamageType getDamageType() {
+
+
+
+        String dmgTypeId = "dmg_generic";
+        if (!(owner instanceof EntityRLHuman)){
+            return super.getDamageType();
+        }
+        EntityRLHuman npc = (EntityRLHuman) owner;
+
+        if (npc.equipment != null){
+            for(BaseItem item : npc.equipment.slots.values()){
+
+                if (item == null){
+                    continue;
+                }
+                String effect = item.getEffect("damage_type");
+
+                if (effect != null){
+                    dmgTypeId = effect;
+                }
+            }
+        }
+        
+        //System.out.println("RLCombat: calculating damage for id '" + dmgTypeId + "'");
+
+        if (dmgTypeId == "dmg_cut"){
+            return Damage.DamageType.DMG_CUT;
+        }else if (dmgTypeId == "dmg_blunt"){
+            return Damage.DamageType.DMG_BLUNT;
+        }
+
+        return super.getDamageType();
     }
 
     @Override
@@ -81,6 +118,8 @@ public class RLCombat extends BasicCombat {
 
         return 0;
     }
+
+
     
     public int getDefence(){
         return getEquipBonus("defence");
@@ -91,7 +130,12 @@ public class RLCombat extends BasicCombat {
         super.take_damage(damage);
         RLMessages.message(owner.getName() + " took " + damage.amt + " damage", new Color(231,4,231));
 
-
+        if (!(owner instanceof EntityRLHuman)){
+            return;
+        }
+        if ( ((EntityRLHuman)owner).getBodysim() != null ){
+            ((EntityRLHuman)owner).getBodysim().takeDamage(damage);
+        }
     }
 
     @Override

@@ -53,7 +53,13 @@ public class VGUICharacterEquipment extends NE_GUI_FrameModern {
         NPCStats npcStats = combat.getStats();
 
         Color color;
-        for(BaseItem item: ((EntRLPlayer) Player.get_ent()).equipment.slots.values()){
+
+        EntRLPlayer playerEnt = (EntRLPlayer) Player.get_ent();
+        if (playerEnt.equipment == null){
+            return;
+        }
+
+        for(BaseItem item: playerEnt.equipment.slots.values()){
             if (item != null){
                 items.add_line(item.get_type(), Color.lightGray);
             }

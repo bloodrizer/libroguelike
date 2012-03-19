@@ -25,7 +25,7 @@ public class RLTile extends WorldTile {
     private boolean isFovChecked = false;
 
     //how much blood this tile is covered with
-    int bloodAmt = 0;
+    float bloodAmt = 0.0f;
 
     private TileType tileType;
     
@@ -114,13 +114,28 @@ public class RLTile extends WorldTile {
         return super.isBlocked();
     }
 
-    public int getBloodAmt() {
+    public float getBloodAmt() {
         return bloodAmt;
     }
 
-    public void setBloodAmt(int bloodAmt) {
+    public void setBloodAmt(float bloodAmt) {
+        if (bloodAmt > 1.0f){
+            bloodAmt = 1.0f;
+        }
+        if (bloodAmt < 0.0f){
+            bloodAmt = 0.0f;
+        }
         this.bloodAmt = bloodAmt;
     }
 
+    @Override
+    public void update() {
+        super.update();
+        setBloodAmt( bloodAmt - 0.03f);
+    }
 
+    @Override
+    public String debug() {
+        return Float.toString(bloodAmt);
+    }
 }

@@ -8,6 +8,7 @@ import com.nuclearunicorn.libroguelike.vgui.NE_GUI_Text;
 import com.nuclearunicorn.serialkiller.game.combat.NPCStats;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntRLPlayer;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
 import org.newdawn.slick.Color;
 
 import java.util.List;
@@ -30,19 +31,26 @@ public class VGUICharacterInventory extends NE_GUI_FrameModern {
 
                 super.e_on_line_click(lineId);
 
-                List<BaseItem> items = Player.get_player_ent().container.items;
+                List<BaseItem> items = Player.get_ent().container.items;
                 if (lineId < 0 || items.size() <= lineId){
                     return;
                 }
                 
                 BaseItem item = items.get(lineId);
                 System.out.println(item);
-                
-                if (Player.get_player_ent().equipment.hasItem(item)){
-                    Player.get_player_ent().equipment.unequip(item);
+
+
+                EntityRLHuman ent = (EntityRLHuman) Player.get_ent();
+                if (ent.equipment == null){
+                    System.err.println("Player's entity equipment is null!");
+                    return;
+                }
+
+                if (ent.equipment.hasItem(item)){
+                    ent.equipment.unequip(item);
                 }else{
-                    Player.get_player_ent().equipment.unequipSlot(item.get_slot());
-                    Player.get_player_ent().equipment.equip_item(item);
+                    ent.equipment.unequipSlot(item.get_slot());
+                    ent.equipment.equip_item(item);
                 }
             }
         };

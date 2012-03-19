@@ -384,7 +384,7 @@ public class TownChunkGenerator extends ChunkGenerator {
 
     private EntityActor placeNPC(int x, int y  ) {
         EntityRLHuman playerEnt = new EntityRLHuman();
-        placeEntity(x, y, playerEnt, "NPC", "@");
+        placeEntity(x, y, playerEnt, "NPC", "@", new Color(150,250,150));
 
 
         NameGenerator namegen = new NameGenerator();

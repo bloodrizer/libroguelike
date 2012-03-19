@@ -34,6 +34,10 @@ public class WorldTile implements Serializable {
         return null;
     }
 
+    public String debug() {
+        return "";
+    }
+
     public enum TerrainType {
         TERRAIN_FORREST,
         TERRAIN_PLAIN,
@@ -202,5 +206,8 @@ public class WorldTile implements Serializable {
         return height;
     }
 
+    public void update(){
+
+    }
 
 }

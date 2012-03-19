@@ -41,6 +41,11 @@ public class BasicCombat extends Combat{
         return 2;
     }
 
+
+    public Damage.DamageType getDamageType(){
+        return Damage.DamageType.DMG_GENERIC;
+    }
+
     @Override
     public int get_max_hp(){
         return 50;
@@ -60,8 +65,10 @@ public class BasicCombat extends Combat{
         Combat ent_combat = ent.get_combat();
         if (ent_combat != null){
             //do something there
-            Damage dmg = new Damage(get_damage_amt());
+            Damage dmg = new Damage(get_damage_amt(), getDamageType());
             dmg.set_inflictor(this.owner);
+
+
             ent_combat.take_damage(dmg);
         }
     }

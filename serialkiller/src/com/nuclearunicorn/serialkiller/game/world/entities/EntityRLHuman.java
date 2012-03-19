@@ -40,7 +40,7 @@ public class EntityRLHuman extends EntRLActor {
 
     BodySimulation bodysim;
 
-    public EquipContainer equipment;
+    public EquipContainer equipment = new EquipContainer();
     //public EquipContainer inventory;  use container instead
 
 
@@ -55,7 +55,7 @@ public class EntityRLHuman extends EntRLActor {
     public EntityRLHuman(){
         super();
 
-        bodysim = new BodySimulation();
+        setBodysim(new BodySimulation());
     }
 
     //TODO: apartment link
@@ -134,6 +134,7 @@ public class EntityRLHuman extends EntRLActor {
 
     public void setBodysim(BodySimulation bodysim) {
         this.bodysim = bodysim;
+        bodysim.setOwner(this);
     }
 
     @Override

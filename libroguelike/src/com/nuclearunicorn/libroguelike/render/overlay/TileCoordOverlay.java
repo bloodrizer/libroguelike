@@ -58,9 +58,10 @@ public class TileCoordOverlay {
                     /*"entities:" + Integer.toString(ent_list.length) +
                     "blocked:" + Boolean.toString(tile.isBlocked()) +*/
                     "light level:" + tile.light_level +
-                    " height:" + tile.get_height() + "("+tile.get_elevation_zone()+")" +
-                    " moist:" + tile.moisture + "("+tile.get_moisture_zone()+")" +
-                    " biome:" + tile.biome_type
+                    //" height:" + tile.get_height() + "("+tile.get_elevation_zone()+")" +
+                    //" moist:" + tile.moisture + "("+tile.get_moisture_zone()+")" +
+                    //" biome:" + tile.biome_type
+                    "blood amount: " + tile.debug()
             );
         }
 

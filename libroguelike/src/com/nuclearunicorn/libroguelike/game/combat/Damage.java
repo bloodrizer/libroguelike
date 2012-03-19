@@ -12,12 +12,13 @@ import com.nuclearunicorn.libroguelike.game.ent.Entity;
  * @author Administrator
  */
 public class Damage {
+
     public enum DamageType {
         DMG_GENERIC,    //generic damage
         DMG_CUT,        //inflicts bleading
         DMG_BLUNT,      //inflicts stun
         DMG_FIRE,       //inflicts continous burning
-        DMG_MAGIC       //reserved
+        DMG_BLOODLOSS, DMG_MAGIC       //reserved
     };
 
     public DamageType type = DamageType.DMG_GENERIC;
