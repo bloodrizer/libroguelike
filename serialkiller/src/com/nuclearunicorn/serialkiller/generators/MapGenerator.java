@@ -66,8 +66,10 @@ public class MapGenerator {
                  */
                 int i = random.nextInt(4);
                 if (blocks[i] != null && block.hasNeighbour(blocks[i])){
-                    block.merge(blocks[i]);
-                    blocks[i] = null;
+                    //if (block.isMergable(blocks[i])) {
+                        block.merge(blocks[i]);
+                        blocks[i] = null;
+                    //}
                 }
             }
         }

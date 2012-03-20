@@ -86,7 +86,7 @@ public class RLCombat extends BasicCombat {
         return stats.str + getEquipBonus("damage");
     }
 
-    private int getEquipBonus(String effectId) {
+    public int getEquipBonus(String effectId) {
         if (owner instanceof EntityNPC){
             EntityNPC npc = (EntityNPC) owner;
 

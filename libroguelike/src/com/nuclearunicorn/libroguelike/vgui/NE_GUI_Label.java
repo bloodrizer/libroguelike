@@ -14,6 +14,7 @@ import org.newdawn.slick.Color;
  */
 public class NE_GUI_Label extends NE_GUI_Element {
     public String text = "Login";
+    private Color color = Color.black;
 
     public NE_GUI_Label(){
         h = 10;
@@ -34,7 +35,11 @@ public class NE_GUI_Label extends NE_GUI_Element {
         OverlaySystem.ttf.drawString(
                 get_x(),
                 get_y(),
-                text , Color.black);
+                text , color);
 
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
     }
 }

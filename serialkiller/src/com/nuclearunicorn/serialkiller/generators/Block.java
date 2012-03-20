@@ -61,6 +61,23 @@ public class Block {
         this.y = y - h/2;
     }
 
+    //check if block can be merged with other block (i.e. assert non-diagonal merging)
+    public boolean isMergable(Block other){
+        if ( this.x == other.getX() && this.w == other.getW() &&
+                ( other.getY() >= y+h || other.getY()+other.getH() <= y)
+        ){
+            return true;
+        }
+        if ( this.y == other.getY() && this.h == other.getH() &&
+                ( other.getX() >= x+w || other.getX()+other.getW() <= x)
+        ){
+            return true;
+        }
+
+        return false;
+    }
+    
+    
     /*
     TODO: produce unexpected results for diagonal merging
      */

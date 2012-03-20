@@ -187,12 +187,12 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
                     Player.move(Player.get_ent().x(),Player.get_ent().y()+1);
                     isNextTurn = true;
                 break;
-                case Keyboard.KEY_RIGHT: case Keyboard.KEY_A:
-                    Player.move(Player.get_ent().x()+1,Player.get_ent().y());
+                case Keyboard.KEY_LEFT: case Keyboard.KEY_A:
+                    Player.move(Player.get_ent().x()-1,Player.get_ent().y());
                     isNextTurn = true;
                 break;
-                case Keyboard.KEY_LEFT: case Keyboard.KEY_D:
-                    Player.move(Player.get_ent().x()-1,Player.get_ent().y());
+                case Keyboard.KEY_RIGHT: case Keyboard.KEY_D:
+                    Player.move(Player.get_ent().x()+1,Player.get_ent().y());
                     isNextTurn = true;
                 break;
                 case Keyboard.KEY_SPACE:

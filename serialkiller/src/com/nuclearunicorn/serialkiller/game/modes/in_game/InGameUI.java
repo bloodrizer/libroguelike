@@ -11,7 +11,9 @@ import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.libroguelike.game.ui.IUserInterface;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.WorldView;
+import com.nuclearunicorn.libroguelike.render.WindowRender;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_FrameModern;
+import com.nuclearunicorn.libroguelike.vgui.NE_GUI_Label;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_System;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_Text;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntRLActor;
@@ -19,6 +21,7 @@ import com.nuclearunicorn.serialkiller.messages.EConsoleMessage;
 import com.nuclearunicorn.serialkiller.vgui.VGUICharacterInfo;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.Point;
+import org.newdawn.slick.Color;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -35,6 +38,8 @@ public class InGameUI implements IUserInterface, IEventListener {
     public NE_GUI_System ui;
 
     private VGUICharacterInfo charInfo;
+    private NE_GUI_Label lookAtLabel;
+    private NE_GUI_Label lookAtObject;
 
     public InGameUI(){
         ui = new NE_GUI_System();
@@ -84,6 +89,10 @@ public class InGameUI implements IUserInterface, IEventListener {
         frame.set_title("Console");
 
         NE_GUI_Text console = new NE_GUI_Text(){
+
+            {
+                FONT_SIZE = 14;
+            }
             @Override
             public void notify_event(Event e) {
                 super.notify_event(e);
@@ -98,9 +107,9 @@ public class InGameUI implements IUserInterface, IEventListener {
             }
         };
         console.x = 12;
-        console.y = 9;
+        console.y = 36;
         console.dragable = false;
-        console.max_lines = 8;
+        console.max_lines = 7;
 
         console.add_line("Wellcome to the Serial Killer Roguelike");
         console.add_line("Press 'wsad' to move, 'space' to skil turn");
@@ -108,6 +117,27 @@ public class InGameUI implements IUserInterface, IEventListener {
         console.add_line("Press 'tab' to view your character screen and inventory ");
 
         frame.add(console);
+
+        lookAtLabel = new NE_GUI_Label();
+        lookAtLabel.text = "Look at:";
+        lookAtLabel.setColor(Color.yellow);
+
+        lookAtLabel.x = 12;
+        lookAtLabel.y = 9;
+        lookAtLabel.dragable = false;
+
+        frame.add(lookAtLabel);
+
+        lookAtObject = new NE_GUI_Label();
+        lookAtObject.text = "";
+        lookAtObject.setColor(Color.white);
+
+        lookAtObject.x = 81;
+        lookAtObject.y = 9;
+        lookAtObject.dragable = false;
+
+        frame.add(lookAtObject);
+
 
         //Inventory
         charInfo = new VGUICharacterInfo();
@@ -125,11 +155,26 @@ public class InGameUI implements IUserInterface, IEventListener {
 
     @Override
     public void update() {
-
+        updateLookAt();
     }
 
     @Override
     public void render() {
         ui.render();
+    }
+
+    private void updateLookAt(){
+        Point tile_coord = WorldView.getTileCoord(Input.get_mx(), WindowRender.get_window_h() - Input.get_my());
+
+        WorldTile tile = Player.get_ent().getLayer().get_tile(tile_coord);
+        if (tile!=null){
+            Entity ent = tile.getEntity();
+
+            if (ent != null){
+                lookAtObject.text = ent.getName();
+            }else{
+                lookAtObject.text = "";
+            }
+        }
     }
 }

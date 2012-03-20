@@ -30,7 +30,7 @@ public class NE_GUI_Text extends NE_GUI_Element{
     
     ArrayList<NE_GUI_TextLine> lines = new ArrayList<NE_GUI_TextLine>(5);
     public int max_lines = 5;
-    static final int FONT_SIZE = 16;
+    protected static int FONT_SIZE = 16;
 
     TrueTypeFont chat_ttf;
 

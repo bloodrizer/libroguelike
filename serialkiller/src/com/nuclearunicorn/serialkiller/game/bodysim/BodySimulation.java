@@ -2,6 +2,7 @@ package com.nuclearunicorn.serialkiller.game.bodysim;
 
 import com.nuclearunicorn.libroguelike.game.combat.Damage;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
+import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
 import com.nuclearunicorn.serialkiller.render.RLMessages;
@@ -80,7 +81,13 @@ public class BodySimulation {
             case DMG_GENERIC:
             break;
             case DMG_BLUNT:
-                //TODO: add stun handling
+                if (owner.get_combat() == null){
+                    return;
+                }
+                int stunChance = ((RLCombat)owner.get_combat()).getEquipBonus("damage");
+                if (Math.random()*100 < stunChance){
+                    stunned = true;
+                }
             break;
         }
     }
