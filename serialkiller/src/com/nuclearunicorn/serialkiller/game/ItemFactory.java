@@ -20,9 +20,10 @@ public class ItemFactory {
         
         item = BaseItem.produce("hammer",1);
         item.set_slot(SLOT_WEAPON);
-        item.setEffect("damage","5");
+        item.setEffect("damage","2");
         item.setEffect("damage_type","dmg_blunt");
-        item.setEffect("stun_chance","15");
+        item.setEffect("stun_chance","50");
+        item.setEffect("stun_duration","5");
 
         registerItem("hammer", item);
 

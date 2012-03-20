@@ -9,9 +9,7 @@ import com.nuclearunicorn.libroguelike.game.world.WorldTimer;
 import com.nuclearunicorn.serialkiller.game.events.NPCWitnessCrimeEvent;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldChunk;
-import com.nuclearunicorn.serialkiller.game.world.RLWorldModel;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
-import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
 import com.nuclearunicorn.serialkiller.render.RLMessages;
 import org.lwjgl.util.Point;
 import org.newdawn.slick.Color;
@@ -104,8 +102,6 @@ public class PedestrianAI extends BasicMobAI {
     }
 
     private void actionEscape(NpcController npcController) {
-
-        ((AsciiEntRenderer)owner.get_render()).symbol = "!";
 
         if (npcController == null){
             return;

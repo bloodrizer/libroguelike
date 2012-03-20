@@ -130,8 +130,12 @@ public class WorldLayer implements Serializable {
         push_point(util_point);
         util_point.setLocation(tileOrigin);
 
-        WorldTile tile = getTileData(tileOrigin).get(util_point);
-        pop_point(util_point);
+        WorldTile tile = null;
+        Map<Point,WorldTile> tileData = getTileData(tileOrigin);
+        if (tileData!= null){
+            tile = tileData.get(util_point);
+            pop_point(util_point);
+        }
 
         return tile;
     }

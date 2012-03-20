@@ -4,7 +4,6 @@ import com.nuclearunicorn.libroguelike.game.combat.BasicCombat;
 import com.nuclearunicorn.libroguelike.game.combat.Damage;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.ent.EntityActor;
-import com.nuclearunicorn.libroguelike.game.ent.EntityNPC;
 import com.nuclearunicorn.libroguelike.game.items.BaseItem;
 import com.nuclearunicorn.libroguelike.game.world.WorldTimer;
 import com.nuclearunicorn.serialkiller.game.events.CriminalActionEvent;
@@ -74,7 +73,8 @@ public class RLCombat extends BasicCombat {
 
         if (dmgTypeId == "dmg_cut"){
             return Damage.DamageType.DMG_CUT;
-        }else if (dmgTypeId == "dmg_blunt"){
+        }
+        if (dmgTypeId == "dmg_blunt"){
             return Damage.DamageType.DMG_BLUNT;
         }
 
@@ -87,8 +87,8 @@ public class RLCombat extends BasicCombat {
     }
 
     public int getEquipBonus(String effectId) {
-        if (owner instanceof EntityNPC){
-            EntityNPC npc = (EntityNPC) owner;
+        if (owner instanceof EntityRLHuman){
+            EntityRLHuman npc = (EntityRLHuman) owner;
 
             //System.out.println("getting effect '"+effectId+"' on ent"+npc.getName());
 
@@ -115,7 +115,6 @@ public class RLCombat extends BasicCombat {
 
             return bonus;
         }
-
         return 0;
     }
 

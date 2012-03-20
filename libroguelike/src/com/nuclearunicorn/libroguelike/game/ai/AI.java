@@ -11,13 +11,22 @@ import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.utils.Fov;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
  * @author Administrator
  */
 public class AI implements Serializable, IEventListener{
-    
+
+    protected String state;
+    protected Map<String,IAIAction> stateMap = new HashMap<String, IAIAction>();
+
+    protected void registerState(String name, IAIAction action){
+        stateMap.put(name, action);
+    }
+
     protected Entity owner;
     public void set_owner(Entity owner){
         this.owner = owner;
@@ -49,5 +58,10 @@ public class AI implements Serializable, IEventListener{
     //implement behavior logic there (e.g. attacking target, etc)
     public void e_on_obstacle(int x, int y) {
         //override me
+    }
+
+
+    public String getState() {
+        return state;
     }
 }

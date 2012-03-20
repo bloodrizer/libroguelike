@@ -39,6 +39,14 @@ public class BodySimulation {
         limbs.add(new Limb("right eye",0.2f));
     }
 
+    public boolean isBleeding(){
+        return bleeding;
+    }
+
+    public boolean isStunned(){
+        return stunned;
+    }
+
     public void setHunger(float hunger){
         this.hunger = hunger;
 
@@ -81,12 +89,28 @@ public class BodySimulation {
             case DMG_GENERIC:
             break;
             case DMG_BLUNT:
-                if (owner.get_combat() == null){
+
+                RLTile tile = (RLTile)owner.tile;
+                float bloodAmt = tile.getBloodAmt();
+                tile.setBloodAmt(bloodAmt + 0.35f);
+
+
+                if (damage.inflictor.get_combat() == null){
                     return;
                 }
-                int stunChance = ((RLCombat)owner.get_combat()).getEquipBonus("damage");
-                if (Math.random()*100 < stunChance){
+
+                RLCombat inflictorCombat = ((RLCombat)damage.inflictor.get_combat());
+
+                int stunChance = inflictorCombat.getEquipBonus("stun_chance");
+                int chance = (int)(Math.random()*100);
+
+                System.out.println("stun chance: "+chance+"/"+stunChance);
+
+                if (chance < stunChance){
                     stunned = true;
+                    stun_duration = inflictorCombat.getEquipBonus("stun_duration");
+
+                    RLMessages.message(owner.getName() + " is stunned", Color.orange);
                 }
             break;
         }

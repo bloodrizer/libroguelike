@@ -16,6 +16,7 @@ import com.nuclearunicorn.libroguelike.vgui.NE_GUI_FrameModern;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_Label;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_System;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_Text;
+import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntRLActor;
 import com.nuclearunicorn.serialkiller.messages.EConsoleMessage;
 import com.nuclearunicorn.serialkiller.vgui.VGUICharacterInfo;
@@ -132,7 +133,7 @@ public class InGameUI implements IUserInterface, IEventListener {
         lookAtObject.text = "";
         lookAtObject.setColor(Color.white);
 
-        lookAtObject.x = 81;
+        lookAtObject.x = 76;
         lookAtObject.y = 9;
         lookAtObject.dragable = false;
 
@@ -167,7 +168,7 @@ public class InGameUI implements IUserInterface, IEventListener {
         Point tile_coord = WorldView.getTileCoord(Input.get_mx(), WindowRender.get_window_h() - Input.get_my());
 
         WorldTile tile = Player.get_ent().getLayer().get_tile(tile_coord);
-        if (tile!=null){
+        if (tile!=null && ((RLTile)tile).isExplored()){         //isVisible()
             Entity ent = tile.getEntity();
 
             if (ent != null){

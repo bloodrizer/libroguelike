@@ -3,6 +3,7 @@ package com.nuclearunicorn.serialkiller.game.world.entities;
 import com.nuclearunicorn.libroguelike.events.Event;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.items.EquipContainer;
+import com.nuclearunicorn.serialkiller.game.ai.PedestrianAI;
 import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
 import com.nuclearunicorn.serialkiller.generators.Block;
 import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
@@ -86,9 +87,49 @@ public class EntityRLHuman extends EntRLActor {
 
     @Override
     public void think(){
-        super.think();
-
         bodysim.think();
+
+        if (!bodysim.isStunned()){
+            super.think();
+        }
+
+        updateASCIIModel();
+    }
+
+    @Override
+    public void update() {
+        if (!bodysim.isStunned()){
+            if (controller != null){
+                controller.think();
+            }
+
+            //ai also disabled if stunned. (not very good)
+            if (ai != null){
+                ai.update();
+            }
+        }
+
+    }
+
+    private void updateASCIIModel() {
+        AsciiEntRenderer renderer = (AsciiEntRenderer)get_render();
+        renderer.symbol = "@";
+
+        if (ai != null){
+            //TODO: move into internal method
+            if (ai.getState() == PedestrianAI.AI_STATE_ESCAPING){
+                renderer.symbol = "!";
+            }
+            if (ai.getState() == PedestrianAI.AI_STATE_CHASING){
+                renderer.symbol = "!";
+            }
+        }
+        if (bodysim.isStunned()){
+            renderer.symbol = "?";
+        }
+        if (!combat.is_alive()){
+            renderer.symbol = "%";
+        }
     }
 
     @Override

@@ -9,9 +9,6 @@ import com.nuclearunicorn.libroguelike.game.ent.controller.NpcController;
 import com.nuclearunicorn.libroguelike.game.player.Player;
 import org.lwjgl.util.Point;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  *
  * @author Administrator
@@ -20,9 +17,6 @@ public class BasicMobAI extends AI{
 
     public static final String AI_STATE_ROAMING = "ai_state_ROAMING";
     public static final String AI_STATE_CHASING = "ai_state_CHASING";
-
-    private Map<String,IAIAction> stateMap = new HashMap<String, IAIAction>();
-    protected String state;
 
     public BasicMobAI(){
 
@@ -41,10 +35,7 @@ public class BasicMobAI extends AI{
         });
     }
     
-    protected void registerState(String name, IAIAction action){
-        stateMap.put(name, action);
-    }
-    
+
     @Override
     public void update(){
         state = AI_STATE_ROAMING;
