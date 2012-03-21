@@ -70,6 +70,10 @@ public class VGUIDetailedNPCInformation extends NE_GUI_FrameModern{
             }
         }
 
+        if (ent.getAI() != null){
+            info.add_line("AI state is" + ent.getAI().getState());
+        }
+
     }
 
 

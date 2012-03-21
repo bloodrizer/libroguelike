@@ -318,6 +318,7 @@ public class TownChunkGenerator extends ChunkGenerator {
             vest.setEffect("defence", "60"); //60% damage resistance
 
             police.container.add_item(vest);
+            police.equipment.equip_item(vest);
 
             BaseItem stunstick = BaseItem.produce("Stunstick", 1);
 
@@ -327,6 +328,7 @@ public class TownChunkGenerator extends ChunkGenerator {
             stunstick.setEffect("damage_type", "dmg_blunt");
 
             police.container.add_item(stunstick);
+            police.equipment.equip_item(stunstick);
 
 
         }

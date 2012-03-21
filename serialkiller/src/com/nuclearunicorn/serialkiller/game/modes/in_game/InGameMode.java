@@ -8,6 +8,7 @@ import com.nuclearunicorn.libroguelike.events.Event;
 import com.nuclearunicorn.libroguelike.events.EventManager;
 import com.nuclearunicorn.libroguelike.events.IEventListener;
 import com.nuclearunicorn.libroguelike.game.GameEnvironment;
+import com.nuclearunicorn.libroguelike.game.combat.Combat;
 import com.nuclearunicorn.libroguelike.game.ent.controller.NpcController;
 import com.nuclearunicorn.libroguelike.game.ent.controller.PlayerController;
 import com.nuclearunicorn.libroguelike.game.modes.AbstractGameMode;
@@ -134,8 +135,14 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
 
         get_ui().update();
 
-        //debug-only timeskip
-        if (Input.key_state_shft){
+        boolean playerDead = false;
+        if (Player.get_ent() != null){
+            Combat combat = Player.get_ent().get_combat();
+            if (combat != null && !combat.is_alive()){
+                playerDead = true;
+            }
+        }
+        if (Input.key_state_shft || playerDead){
             model.update();
         }
 
@@ -176,6 +183,13 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
     @Override
     public void e_on_event(Event event) {
         boolean isNextTurn = false;
+
+        if (Player.get_ent() != null){
+            Combat combat = Player.get_ent().get_combat();
+            if (combat != null && !combat.is_alive()){
+                return;
+            }
+        }
 
         if (event instanceof EKeyPress){
             switch(((EKeyPress) event).key){

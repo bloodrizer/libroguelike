@@ -12,6 +12,7 @@ public class PoliceAI extends PedestrianAI {
 
     public PoliceAI(){
         super();
+
     }
 
     @Override
@@ -29,6 +30,9 @@ public class PoliceAI extends PedestrianAI {
         nearestEnemy = null;
         //just get some criminal in fov
         for (EntityActor enemy : knowCriminals){
+            if (enemy.get_combat() != null && !enemy.get_combat().is_alive()){
+                continue;
+            }
             if (((RLTile)enemy.tile).isVisible()){
                 nearestEnemy = enemy;
 

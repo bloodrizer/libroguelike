@@ -30,7 +30,7 @@ public class BasicMobAI extends AI{
         registerState(AI_STATE_CHASING, new IAIAction() {
             @Override
             public void act(NpcController npcController) {
-                actionRoaming(npcController);
+                actionChase(npcController);
             }
         });
     }
@@ -76,8 +76,13 @@ public class BasicMobAI extends AI{
         }
     }
 
-    protected void actionChase(NpcController npc_ctrl){
-        npc_ctrl.set_destination(Player.get_origin());
+    protected void actionChase(NpcController npcController){
+
+        if (!npcController.hasPath()){
+            npcController.set_destination(Player.get_origin());
+        }
+
+        npcController.follow_path();
     }
 
 }
