@@ -337,7 +337,7 @@ public class TownChunkGenerator extends ChunkGenerator {
         }
     }
 
-    private void placeEntity(int x, int y, EntRLActor ent, String symbol, String name, Color color) {
+    void placeEntity(int x, int y, EntRLActor ent, String symbol, String name, Color color) {
         placeEntity(x, y, ent, symbol, name);
         ((AsciiEntRenderer)ent.get_render()).setColor(color);
     }
@@ -383,21 +383,7 @@ public class TownChunkGenerator extends ChunkGenerator {
 
 
     private EntityActor placeNPC(int x, int y  ) {
-        EntityRLHuman playerEnt = new EntityRLHuman();
-        placeEntity(x, y, playerEnt, "NPC", "@", new Color(150,250,150));
-
-
-        NameGenerator namegen = new NameGenerator();
-
-        boolean isMale = false;
-        if (chunk_random.nextInt(100)>50){
-            playerEnt.setSex(EntityRLHuman.Sex.MALE);
-            isMale = true;
-        } else {
-            playerEnt.setSex(EntityRLHuman.Sex.FEMALE);
-        }
-
-        playerEnt.setName(namegen.generate(isMale));
+        EntityRLHuman playerEnt = NPCGenerator.generateNPC(chunk_random, this, x, y);
 
         return playerEnt;
     }

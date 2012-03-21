@@ -5,10 +5,15 @@ import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.items.EquipContainer;
 import com.nuclearunicorn.serialkiller.game.ai.PedestrianAI;
 import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
+import com.nuclearunicorn.serialkiller.game.social.CrimeRecord;
+import com.nuclearunicorn.serialkiller.game.social.CrimeType;
 import com.nuclearunicorn.serialkiller.generators.Block;
 import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
 import com.nuclearunicorn.serialkiller.render.RLMessages;
 import org.newdawn.slick.Color;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -40,6 +45,7 @@ public class EntityRLHuman extends EntRLActor {
     Religion religion = Religion.ATHEIST;
 
     BodySimulation bodysim;
+    List<CrimeRecord> crimes = new ArrayList<CrimeRecord>();
 
     public EquipContainer equipment = new EquipContainer();
     //public EquipContainer inventory;  use container instead
