@@ -1,16 +1,14 @@
 package com.nuclearunicorn.serialkiller.generators;
 
+import com.nuclearunicorn.serialkiller.game.social.CrimeRecord;
+import com.nuclearunicorn.serialkiller.game.social.CrimeType;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
 import org.newdawn.slick.Color;
 
 import java.util.Random;
 
 /**
- * Created by IntelliJ IDEA.
- * User: dpopov
- * Date: 21.03.12
- * Time: 17:59
- * To change this template use File | Settings | File Templates.
+
  */
 public class NPCGenerator {
     public static EntityRLHuman generateNPC(Random chunk_random, TownChunkGenerator generator, int x, int y) {
@@ -30,13 +28,15 @@ public class NPCGenerator {
         }
 
         entity.setName(namegen.generate(isMale));
+        entity.age = 8 + chunk_random.nextInt(87);
+
 
         //generate criminal background
         int criminalRate = 30;  //30%
         if (chunk_random.nextInt(100) < criminalRate){
             int crimeTypes = chunk_random.nextInt(5);  //random criminal records
             for (int i = 0; i< crimeTypes; i++){
-
+                entity.addCrimeRecord(new CrimeRecord(CrimeType.getRandomCrime()));
             }
         }
 

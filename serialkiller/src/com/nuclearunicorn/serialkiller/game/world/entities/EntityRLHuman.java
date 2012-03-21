@@ -1,12 +1,16 @@
 package com.nuclearunicorn.serialkiller.game.world.entities;
 
+import com.nuclearunicorn.libroguelike.core.Game;
 import com.nuclearunicorn.libroguelike.events.Event;
+import com.nuclearunicorn.libroguelike.events.IEventListener;
+import com.nuclearunicorn.libroguelike.game.ent.BaseEntityAction;
+import com.nuclearunicorn.libroguelike.game.ent.EntActionList;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.items.EquipContainer;
 import com.nuclearunicorn.serialkiller.game.ai.PedestrianAI;
 import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
+import com.nuclearunicorn.serialkiller.game.events.ShowDetailedInformationEvent;
 import com.nuclearunicorn.serialkiller.game.social.CrimeRecord;
-import com.nuclearunicorn.serialkiller.game.social.CrimeType;
 import com.nuclearunicorn.serialkiller.generators.Block;
 import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
 import com.nuclearunicorn.serialkiller.render.RLMessages;
@@ -40,12 +44,22 @@ public class EntityRLHuman extends EntRLActor {
     }
 
     Sex sex = Sex.MALE;
-    int age = 30;
-    Race race = Race.WHITE;
+    public int age = 30;
+    public Race race = Race.WHITE;
     Religion religion = Religion.ATHEIST;
 
     BodySimulation bodysim;
-    List<CrimeRecord> crimes = new ArrayList<CrimeRecord>();
+    public List<CrimeRecord> crimeRecords = new ArrayList<CrimeRecord>();
+
+    public void addCrimeRecord(CrimeRecord crimeRecord) {
+        for (CrimeRecord crime: crimeRecords){
+            if (crime.crimeType == crimeRecord.crimeType){
+                crime.incCount();
+                return;
+            }
+        }
+        crimeRecords.add(crimeRecord);
+    }
 
     public EquipContainer equipment = new EquipContainer();
     //public EquipContainer inventory;  use container instead
@@ -155,6 +169,10 @@ public class EntityRLHuman extends EntRLActor {
         RLMessages.message(name + " is " + sex + ", age " + age, Color.lightGray);
         RLMessages.message(name + " is " + race + ", " + religion, Color.lightGray);
 
+        if (!crimeRecords.isEmpty()){
+            RLMessages.message(name + " is criminal", new Color(250,160,160));
+        }
+
         //if (this.apt)
 
         int maxHp;
@@ -189,5 +207,25 @@ public class EntityRLHuman extends EntRLActor {
         if (this.ai != null){
             ai.e_on_event(event);
         }
+    }
+
+
+    @Override
+    public ArrayList get_action_list() {
+        class ActionDetailedInformation extends BaseEntityAction {
+
+            @Override
+            public void execute() {
+                ((IEventListener)Game.get_game_mode().get_ui()).e_on_event(new ShowDetailedInformationEvent(owner));
+            }
+
+        }
+
+
+        EntActionList list = new EntActionList();
+        list.set_owner(this);
+        list.add_action(new ActionDetailedInformation(),"Detailed iformation");
+
+        return list.get_action_list();
     }
 }

@@ -6,26 +6,28 @@ import com.nuclearunicorn.libroguelike.events.EKeyPress;
 import com.nuclearunicorn.libroguelike.events.EMouseClick;
 import com.nuclearunicorn.libroguelike.events.Event;
 import com.nuclearunicorn.libroguelike.events.IEventListener;
+import com.nuclearunicorn.libroguelike.game.actions.IAction;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.libroguelike.game.ui.IUserInterface;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.WorldView;
 import com.nuclearunicorn.libroguelike.render.WindowRender;
-import com.nuclearunicorn.libroguelike.vgui.NE_GUI_FrameModern;
-import com.nuclearunicorn.libroguelike.vgui.NE_GUI_Label;
-import com.nuclearunicorn.libroguelike.vgui.NE_GUI_System;
-import com.nuclearunicorn.libroguelike.vgui.NE_GUI_Text;
+import com.nuclearunicorn.libroguelike.vgui.*;
+import com.nuclearunicorn.serialkiller.game.events.ShowDetailedInformationEvent;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntRLActor;
 import com.nuclearunicorn.serialkiller.messages.EConsoleMessage;
 import com.nuclearunicorn.serialkiller.vgui.VGUICharacterInfo;
+import com.nuclearunicorn.serialkiller.vgui.VGUIDetailedNPCInformation;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.Point;
 import org.newdawn.slick.Color;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Iterator;
 
 /**
  * Created by IntelliJ IDEA.
@@ -41,6 +43,7 @@ public class InGameUI implements IUserInterface, IEventListener {
     private VGUICharacterInfo charInfo;
     private NE_GUI_Label lookAtLabel;
     private NE_GUI_Label lookAtObject;
+    private VGUIDetailedNPCInformation npcInfo;
 
     public InGameUI(){
         ui = new NE_GUI_System();
@@ -65,6 +68,10 @@ public class InGameUI implements IUserInterface, IEventListener {
                     //RLMessages.message("You see", Color.lightGray);
                 }
             }
+
+            if (clickEvent.type == Input.MouseInputType.RCLICK){
+                contextPopup(clickEvent);
+            }
         }
         if (event instanceof EKeyPress){
             EKeyPress key_event = (EKeyPress) event;
@@ -73,6 +80,14 @@ public class InGameUI implements IUserInterface, IEventListener {
                     charInfo.toggle();
                 break;
             }
+        }
+        if (event instanceof ShowDetailedInformationEvent){
+            //System.out.println("Showing detailed information");
+            ShowDetailedInformationEvent e = (ShowDetailedInformationEvent)event;
+            npcInfo.center();
+            npcInfo.visible = true;
+
+            npcInfo.setNPC(e.ent);
         }
     }
 
@@ -147,6 +162,14 @@ public class InGameUI implements IUserInterface, IEventListener {
         charInfo.visible = false;
         charInfo.center();
         ui.root.add(charInfo);
+
+        //NPC detailed profile
+        npcInfo = new VGUIDetailedNPCInformation();
+        npcInfo.set_tw(20);
+        npcInfo.set_th(10);
+        npcInfo.center();
+        npcInfo.visible = false;
+        ui.root.add(npcInfo);
     }
 
     @Override
@@ -176,6 +199,42 @@ public class InGameUI implements IUserInterface, IEventListener {
             }else{
                 lookAtObject.text = "";
             }
+        }
+    }
+
+
+    public void contextPopup(EMouseClick event){
+
+
+        Point tileCoord = WorldView.getTileCoord(event.origin);
+        WorldTile tile = Player.get_ent().getLayer().get_tile(tileCoord);
+        if (tile == null){
+            System.out.println("no loaded tile at this position");
+            return;
+        }
+
+        Entity ent = tile.get_active_object();
+        if (ent == null){
+            System.out.println("no active object in tile");
+            return;
+        }
+
+        NE_GUI_Popup __popup = new NE_GUI_Popup();
+
+        ui.root.add(__popup);
+        __popup.x = event.origin.getX();
+        __popup.y = event.get_window_y();
+
+        //-------------------------------------------------
+        ArrayList action_list = ent.get_action_list();
+        //IAction<Entity>[] actions = (IAction<Entity>[]) action_list.toArray();
+        Iterator<IAction> itr = action_list.iterator();
+
+        System.out.println("Fetched "+Integer.toString(action_list.size())+" actions");
+
+        while (itr.hasNext()){
+            IAction element = itr.next();
+            __popup.add_item(element);
         }
     }
 }

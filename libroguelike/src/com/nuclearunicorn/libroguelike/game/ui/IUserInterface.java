@@ -5,13 +5,14 @@
 
 package com.nuclearunicorn.libroguelike.game.ui;
 
+import com.nuclearunicorn.libroguelike.events.IEventListener;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_System;
 
 /**
  *
  * @author Administrator
  */
-public interface IUserInterface {
+public interface IUserInterface{
     public boolean quit = false;
     public void build_ui();
 

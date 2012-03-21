@@ -24,11 +24,6 @@ import org.newdawn.slick.Color;
 import java.util.*;
 
 /**
- * Created by IntelliJ IDEA.
- * User: Administrator
- * Date: 03.03.12
- * Time: 19:10
- * To change this template use File | Settings | File Templates.
  */
 public class TownChunkGenerator extends ChunkGenerator {
 
