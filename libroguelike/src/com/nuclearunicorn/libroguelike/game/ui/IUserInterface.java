@@ -5,7 +5,6 @@
 
 package com.nuclearunicorn.libroguelike.game.ui;
 
-import com.nuclearunicorn.libroguelike.events.IEventListener;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_System;
 
 /**
@@ -20,4 +19,5 @@ public interface IUserInterface{
     
     public void update();
     public void render();
+    public void init();
 }

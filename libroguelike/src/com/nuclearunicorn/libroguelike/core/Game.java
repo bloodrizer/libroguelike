@@ -32,6 +32,7 @@ public class Game {
     public void set_state(String state){
         AbstractGameMode mode = gameStates.get(state);
         this.activeMode = mode;
+
     }
 
     public void resetState(String state) {

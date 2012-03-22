@@ -30,4 +30,9 @@ public class DefaultUI implements IUserInterface {
     public void render() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    @Override
+    public void init() {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
 }

@@ -217,6 +217,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
 
                 case Keyboard.KEY_ESCAPE:
                     Main.game.set_state("mainMenu");
+                    Main.game.initStateUI();
                 break;
             }
         }
