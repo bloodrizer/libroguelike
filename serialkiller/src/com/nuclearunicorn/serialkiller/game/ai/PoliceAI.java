@@ -3,6 +3,7 @@ package com.nuclearunicorn.serialkiller.game.ai;
 import com.nuclearunicorn.libroguelike.core.client.ClientGameEnvironment;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.ent.EntityActor;
+import com.nuclearunicorn.libroguelike.game.ent.controller.NpcController;
 import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
 
@@ -35,6 +36,8 @@ public class PoliceAI extends PedestrianAI {
             }
             if (((RLTile)enemy.tile).isVisible()){
                 nearestEnemy = enemy;
+
+                ((NpcController) this.owner.controller).clearPath();
 
                 state = AI_STATE_CHASING;
             }

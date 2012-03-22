@@ -375,4 +375,8 @@ public class NpcController extends BaseController implements Mover, IEventListen
 
         this.move_ent(owner.x() + vec.getX(), owner.y() + vec.getY());
     }
+
+    public void clearPath() {
+        path = null;
+    }
 }

@@ -6,9 +6,12 @@ import com.nuclearunicorn.libroguelike.events.IEventListener;
 import com.nuclearunicorn.libroguelike.game.ent.BaseEntityAction;
 import com.nuclearunicorn.libroguelike.game.ent.EntActionList;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
+import com.nuclearunicorn.libroguelike.game.items.BaseItem;
 import com.nuclearunicorn.libroguelike.game.items.EquipContainer;
+import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.serialkiller.game.ai.PedestrianAI;
 import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
+import com.nuclearunicorn.serialkiller.game.bodysim.Limb;
 import com.nuclearunicorn.serialkiller.game.events.ShowDetailedInformationEvent;
 import com.nuclearunicorn.serialkiller.game.social.CrimeRecord;
 import com.nuclearunicorn.serialkiller.generators.Block;
@@ -221,10 +224,38 @@ public class EntityRLHuman extends EntRLActor {
 
         }
 
+        class ActionDismember extends BaseEntityAction {
+
+            @Override
+            public void execute() {
+                List<Limb> limbs = ((EntityRLHuman)owner).bodysim.getLimbs();
+                Limb limb = limbs.get((int)(Math.random()*limbs.size()));
+                limbs.remove(limb);
+
+                BaseItem limbItem = BaseItem.produce(owner.getName() + "'s "+limb.getName(),1);
+                limbItem.setEffect("damage","1");
+                limbItem.setEffect("damage_type","dmg_blunt");
+                limbItem.set_slot("weapon");
+                //todo: replace with action caller
+                ((EntityRLHuman)Player.get_ent()).container.add_item(limbItem);
+
+                RLMessages.message( Player.get_ent().getName() + " cuts off " + owner.getName() + "'s "+limb.getName(), Color.orange );
+
+                /*if self.owner.is_alive():
+                self.owner.em.services["render"].message(self.owner.name+" screams in agony");
+                #limb loss should ALLWAYS result in blodloss, so - dmg_cut
+                self.owner.take_damage(bodysim.Damage(20*limb.dmg_multiply,"dmg_cut",caller))*/
+            }
+
+        }
+
 
         EntActionList list = new EntActionList();
         list.set_owner(this);
-        list.add_action(new ActionDetailedInformation(),"Detailed iformation");
+        list.add_action(new ActionDetailedInformation(),"Detailed info");
+        if (!combat.is_alive()){
+            list.add_action(new ActionDismember(),"Dismember");
+        }
 
         return list.get_action_list();
     }
