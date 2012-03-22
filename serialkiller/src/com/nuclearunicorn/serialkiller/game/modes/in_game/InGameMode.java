@@ -28,6 +28,7 @@ import com.nuclearunicorn.libroguelike.utils.NLTimer;
 import com.nuclearunicorn.libroguelike.utils.Timer;
 import com.nuclearunicorn.libroguelike.vgui.effects.EffectsSystem;
 import com.nuclearunicorn.serialkiller.game.ItemFactory;
+import com.nuclearunicorn.serialkiller.game.Main;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldModel;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntRLPlayer;
@@ -211,6 +212,11 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
                 break;
                 case Keyboard.KEY_SPACE:
                     isNextTurn = true;
+                break;
+
+
+                case Keyboard.KEY_ESCAPE:
+                    Main.game.set_state("mainMenu");
                 break;
             }
         }

@@ -24,6 +24,7 @@ public class EntityManager implements IEventListener {
     
     //TODO: assign to the world layer
 
+    private GameEnvironment environment = null;
 
     /*static final ArrayList<Entity> ent_list = new ArrayList<Entity>();
     public static Collection ent_list_sync = Collections.synchronizedCollection(ent_list);*/
@@ -40,7 +41,7 @@ public class EntityManager implements IEventListener {
     }
     
     public ArrayList<Entity> getList(int layer_id){
-         ArrayList<Entity> entList = layer_ent_list.get(layer_id);
+        ArrayList<Entity> entList = layer_ent_list.get(layer_id);
 
         if (entList == null){
             entList = new ArrayList<Entity>();
@@ -49,8 +50,6 @@ public class EntityManager implements IEventListener {
         
         return entList;
     }
-
-    private GameEnvironment environment = null;
 
     public void setEnviroment(GameEnvironment environment){
         this.environment = environment;
@@ -122,4 +121,7 @@ public class EntityManager implements IEventListener {
         }
     }
 
+    public void reset() {
+        layer_ent_list.clear();
+    }
 }

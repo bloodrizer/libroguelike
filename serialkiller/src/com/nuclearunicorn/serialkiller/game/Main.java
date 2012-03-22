@@ -15,12 +15,14 @@ public class Main {
 
     public static SkillerGame game;
 
+    public static InGameMode inGameMode = new InGameMode();
+
     public static void main(String[] args) {
 
         game = new SkillerGame();
 
         game.registerMode("mainMenu", new MainMenuMode());
-        game.registerMode("inGame", new InGameMode());
+        game.registerMode("inGame", inGameMode);
 
         game.set_state("inGame");
         game.run();

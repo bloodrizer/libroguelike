@@ -253,4 +253,12 @@ public class WorldModel implements IEventListener {
     public WorldLayer getLayer(int zindex){
         return worldLayers.get(zindex);
     }
+
+    public void reset() {
+        //worldLayers.clear();
+        for(WorldLayer layer: worldLayers.values()){
+            layer.reset();
+        }
+        worldRegions.clear();
+    }
 }

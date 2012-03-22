@@ -26,12 +26,27 @@ import java.util.Map;
  */
 public class Game {
 
-    private Map<String, AbstractGameMode> gameStates = new HashMap<String,AbstractGameMode>();
-    private static AbstractGameMode activeMode = null;
+    protected Map<String, AbstractGameMode> gameStates = new HashMap<String,AbstractGameMode>();
+    protected static AbstractGameMode activeMode = null;
     
     public void set_state(String state){
         AbstractGameMode mode = gameStates.get(state);
         this.activeMode = mode;
+    }
+
+    public void resetState(String state) {
+        AbstractGameMode mode = gameStates.get(state);
+        try {
+
+            AbstractGameMode _mode = mode.getClass().newInstance();
+            gameStates.put(state, _mode );
+            //_mode.setActive(false);
+
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
     }
 
     public void registerMode(String name, AbstractGameMode mode) {

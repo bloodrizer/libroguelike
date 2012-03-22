@@ -25,7 +25,6 @@ import com.nuclearunicorn.libroguelike.game.world.layers.WorldLayer;
 public abstract class GameEnvironment {
 
     protected EntityManager entManager = null;
-    protected EventManager manager = null;
     protected WorldModel clientWorld = null;
 
 
@@ -58,5 +57,11 @@ public abstract class GameEnvironment {
 
     public WorldLayer getWorldLayer(int layerId){
         return getWorld().getWorldLayer(layerId);
+    }
+
+    public void reset() {
+        getEventManager().reset();
+        entManager.reset();
+        clientWorld.reset();
     }
 }

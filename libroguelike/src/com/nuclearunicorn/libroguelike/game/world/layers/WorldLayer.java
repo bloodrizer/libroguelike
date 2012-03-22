@@ -425,6 +425,11 @@ public class WorldLayer implements Serializable {
         return z_index;
     }
 
+    public void reset() {
+        chunk_data.clear();
+        generators.clear();   //kinda ok, but not sure
+    }
+
     /*
      *  WorldModelTileMap is a mediator between WorldModel and AStarPathfinder
      *

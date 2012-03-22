@@ -44,4 +44,8 @@ public class EventManager {
     public boolean hasListener(IEventListener listener) {
         return listeners.contains(listener);
     }
+
+    public void reset() {
+        listeners.clear();
+    }
 }
