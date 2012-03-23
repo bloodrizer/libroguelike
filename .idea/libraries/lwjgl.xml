@@ -2,9 +2,9 @@
   <library name="lwjgl">
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/libroguelike/lib/rlforj.0.2.jar!/" />
-      <root url="jar://$PROJECT_DIR$/libroguelike/lib/lwjgl-2.8.3/jar/lwjgl_util.jar!/" />
-      <root url="jar://$PROJECT_DIR$/libroguelike/lib/lwjgl-2.8.3/jar/lwjgl.jar!/" />
-      <root url="jar://$PROJECT_DIR$/libroguelike/lib/lwjgl-2.8.3/jar/jinput.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libroguelike/lib/lwjgl-2.7.1/jar/jinput.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libroguelike/lib/lwjgl-2.7.1/jar/lwjgl.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libroguelike/lib/lwjgl-2.7.1/jar/lwjgl_util.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
