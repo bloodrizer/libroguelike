@@ -15,7 +15,6 @@ import com.nuclearunicorn.libroguelike.game.GameEnvironment;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
-import com.nuclearunicorn.libroguelike.render.NPCRenderer;
 import com.nuclearunicorn.libroguelike.utils.Timer;
 import com.nuclearunicorn.libroguelike.utils.pathfinder.astar.AStarPathFinder;
 import com.nuclearunicorn.libroguelike.utils.pathfinder.astar.Mover;
@@ -41,7 +40,7 @@ public class NpcController extends BaseController implements Mover, IEventListen
 
     static final boolean ALLOW_DIAGONAL_MOVEMENT = false;
 
-    static int MAX_SEARCH_DISTANCE = 50;
+    static int MAX_SEARCH_DISTANCE = 80;
 
     private AStarPathFinder finder;
     
@@ -98,7 +97,10 @@ public class NpcController extends BaseController implements Mover, IEventListen
 
     }
 
-    public void calculate_path(int x, int y){
+    /*
+        Don't you ever dare to call this method, suckers. Use set_destionation() instead
+     */
+    private void calculate_path(int x, int y){
         
         //System.out.println("path calculation requested by entity #"+this.owner.get_uid());
         pathfinderRequests++;
@@ -301,11 +303,11 @@ public class NpcController extends BaseController implements Mover, IEventListen
         
 
 
-        if(owner.get_render() instanceof NPCRenderer && owner.origin.equals(destination)){
+        if(/*owner.get_render() instanceof NPCRenderer &&*/ owner.origin.equals(destination)){      //strrrange point
             this.destination = null;    //clean up destination
             step = null;                //this is required too
             path = null;
-            ((NPCRenderer)owner.get_render()).set_frame(0);
+            //((NPCRenderer)owner.get_render()).set_frame(0);
         }
     }
 

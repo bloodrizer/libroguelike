@@ -5,6 +5,11 @@ import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
 import com.nuclearunicorn.libroguelike.game.world.WorldCluster;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.layers.WorldLayer;
+import com.nuclearunicorn.libroguelike.utils.pathfinder.astar.Mover;
+import com.nuclearunicorn.libroguelike.utils.pathfinder.astar.TileBasedMap;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntDoor;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntFurniture;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntRLActor;
 import org.lwjgl.util.Point;
 
 import java.util.Iterator;
@@ -17,6 +22,11 @@ import java.util.Iterator;
  * To change this template use File | Settings | File Templates.
  */
 public class RLWorldLayer extends WorldLayer {
+
+
+    public RLWorldLayer(){
+        tile_map = new RLWorldModelTileMap(this);   //inject rl-aware tilemap; todo: move to constructor in WorldLayer
+    }
 
     @Override
     protected WorldChunk precache_chunk(int x, int y){
@@ -62,5 +72,55 @@ public class RLWorldLayer extends WorldLayer {
                     tile.update();
                 }
             }
+    }
+
+    //------------------------- pathfinding -----------------------------
+
+    public static class RLWorldModelTileMap extends WorldLayer.WorldModelTileMap implements TileBasedMap {
+
+        public RLWorldModelTileMap(WorldLayer layer){
+            super(layer);
+        }
+
+        @Override
+        public boolean blocked(Mover mover, int x, int y) {
+
+            RLTile tile = getTile(x, y);
+            if (tile == null){
+                return true;
+            }
+
+            return tile.isWall();   //tile.isBlocked() ||
+
+        }
+        
+        @Override
+        public float getCost(Mover mover, int sx, int sy, int tx, int ty) {
+            RLTile tile = getTile(tx, ty);
+
+            EntRLActor actor = (EntRLActor)tile.get_actor();
+            if (actor == null){
+                return 1;
+            }
+            if ( actor instanceof EntDoor ){
+                return 1;
+            }
+            if ( actor instanceof EntFurniture){    //TODO: check EntWindow there
+                return 30;
+            }
+
+            return 120; //some unknown actor type, better not touch
+
+            //TODO: calculate different terrain types there
+        }
+
+        private RLTile getTile(int x, int y){
+            temp.setLocation(x,y);
+            temp = local2world(temp);
+
+            RLTile tile = (RLTile)layer.get_tile(temp.getX(), temp.getY());
+            return tile;
+        }
+
     }
 }

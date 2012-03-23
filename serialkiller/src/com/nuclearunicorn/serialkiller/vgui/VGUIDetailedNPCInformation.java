@@ -21,7 +21,7 @@ public class VGUIDetailedNPCInformation extends NE_GUI_FrameModern{
        title = "Detailed information"; 
         
        info = new NE_GUI_Text();
-       info.max_lines = 10;
+       info.max_lines = 20;
        info.x = 20;
        info.y = 20;
        info.solid = false;
@@ -71,7 +71,14 @@ public class VGUIDetailedNPCInformation extends NE_GUI_FrameModern{
         }
 
         if (ent.getAI() != null){
-            info.add_line("AI state is" + ent.getAI().getState());
+            info.add_line("AI state is '" + ent.getAI().getState()+"'");
+        }
+
+        if (ent.getApartment() == null){
+            info.add_line(prefix + " is homeless");
+        }else{
+            //Entity bed = ent.getApartment().beds.get((int) Math.random() * ent.getApartment().beds.size());
+            info.add_line(prefix + " has " + ent.getApartment().beds.size() + " beds at his apartment" );
         }
 
     }
