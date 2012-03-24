@@ -28,6 +28,7 @@ import java.util.*;
 public class TownChunkGenerator extends ChunkGenerator {
 
     private static final int NPC_PER_ROAD_RATE = 35;    //50% is a hell lot of npc
+    private static final int MAX_POLICEMAN_COUNT = 4;
 
     enum RoomType {
         KITCHEN,
@@ -255,6 +256,7 @@ public class TownChunkGenerator extends ChunkGenerator {
                         //tile.setModel(".");
 
                         tile.setModelColor(new Color(127,127,0));
+                        tile.setTileType(RLTile.TileType.ROAD);
 
                     }
 
@@ -307,7 +309,8 @@ public class TownChunkGenerator extends ChunkGenerator {
         }
 
         //police
-        for (int i=0; i<2; i++){    //4 policemans
+        
+        for (int i=0; i<MAX_POLICEMAN_COUNT; i++){    //4 policemans
             Block road = roads.get(chunk_random.nextInt(roads.size()));
             Point coord = road.getFreeTile(chunk_random, getLayer());
 

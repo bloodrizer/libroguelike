@@ -1,6 +1,7 @@
 package com.nuclearunicorn.serialkiller.game.world;
 
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
+import com.nuclearunicorn.libroguelike.game.ent.controller.BaseController;
 import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
 import com.nuclearunicorn.libroguelike.game.world.WorldCluster;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
@@ -100,11 +101,17 @@ public class RLWorldLayer extends WorldLayer {
         
         @Override
         public float getCost(Mover mover, int sx, int sy, int tx, int ty) {
+            
+            Entity owner = ((BaseController)mover).getOwner();
             RLTile tile = getTile(sx, sy);
 
             EntRLActor actor = (EntRLActor)tile.get_actor();
             if (actor == null){
-                return 1/getScaleFactor();
+                if (tile.owners.contains(owner)){
+                    return 1/getScaleFactor();
+                }else{
+                    return 4/getScaleFactor();
+                }
             }
             if ( actor instanceof EntDoor ){
                 return 1/getScaleFactor();

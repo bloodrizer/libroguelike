@@ -79,6 +79,7 @@ public class PedestrianAI extends BasicMobAI {
                     /*
                         If we have path to target and target is not a bed (or it is, but it is occupied bed)
                      */
+
                     if (ent != null && (!(ent instanceof EntFurniture) || ent.tile.has_ent(EntityRLHuman.class)  )){
                     //todo: replace with EntBed
                         //System.out.println("NPC's target is not BED, re-calculating target");

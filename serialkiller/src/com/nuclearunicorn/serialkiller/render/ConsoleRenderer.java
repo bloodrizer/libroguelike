@@ -6,6 +6,7 @@ import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.WorldTimer;
 import com.nuclearunicorn.libroguelike.game.world.WorldViewCamera;
+import com.nuclearunicorn.libroguelike.render.Render;
 import com.nuclearunicorn.libroguelike.render.layers.LayerRenderer;
 import com.nuclearunicorn.libroguelike.render.overlay.DebugOverlay;
 import com.nuclearunicorn.libroguelike.render.overlay.OverlaySystem;
@@ -27,7 +28,9 @@ public class ConsoleRenderer extends LayerRenderer{
     
     public static int TILE_SIZE = 16;
     NLTimer renderTimer = new NLTimer();
-    
+    private static final boolean ENABLE_TEXTURE = false;
+    private static final boolean DISABLE_TEXTURE = true;
+
     @Override
     public void render_tile(WorldTile tile, int tile_x, int tile_y) {
         //this may be slow, but anyway, it's faster than render all those quads
@@ -64,7 +67,15 @@ public class ConsoleRenderer extends LayerRenderer{
                }
            }
 
-           renderTileQuad(tile_x,tile_y);
+            if (rltile.getTileType() == RLTile.TileType.ROAD){
+                renderTileQuad(tile_x,tile_y, DISABLE_TEXTURE);
+
+                glColor3f(1.0f,1.0f,1.0f);
+                Render.bind_texture("/resources/road_16.png");
+                renderTileQuad(tile_x,tile_y, ENABLE_TEXTURE);
+            }else{
+                renderTileQuad(tile_x,tile_y, DISABLE_TEXTURE);
+            }
 
            if (rltile.isWall()){
                 drawChar(tile_x, tile_y, "#");
@@ -133,11 +144,17 @@ public class ConsoleRenderer extends LayerRenderer{
     }
     
     
-    public void renderTileQuad(int i, int j){
+    public void renderTileQuad(int i, int j, boolean disableTexture){
 
         renderTimer.push();
 
-        glDisable(GL11.GL_TEXTURE_2D);
+        if (disableTexture){
+            glDisable(GL11.GL_TEXTURE_2D);
+        }else{
+            glEnable(GL11.GL_TEXTURE_2D);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glEnable(GL_BLEND);
+        }
 
 
         if ((i % WorldChunk.CHUNK_SIZE == 0) ||
@@ -150,17 +167,24 @@ public class ConsoleRenderer extends LayerRenderer{
                     i * TILE_SIZE,
                     j * TILE_SIZE,
                     TILE_SIZE,
-                    TILE_SIZE
+                    TILE_SIZE,
+                    disableTexture
             );
         }else{
             drawQuad(
                     i * TILE_SIZE,
                     j * TILE_SIZE,
                     TILE_SIZE -1,
-                    TILE_SIZE -1
+                    TILE_SIZE -1,
+                    disableTexture
             );
         }
-        glEnable(GL11.GL_TEXTURE_2D);
+        if (disableTexture){
+            glEnable(GL11.GL_TEXTURE_2D);
+        }else{
+            //glDisable(GL_BLEND);
+            //glEnable(GL_DEPTH_TEST);
+        }
 
         DebugOverlay.renderTime += renderTimer.popDiff();
     }
@@ -169,7 +193,7 @@ public class ConsoleRenderer extends LayerRenderer{
         OverlaySystem.ttf.drawString(i*TILE_SIZE,j*TILE_SIZE-2, symbol);
     }
 
-    private void drawQuad(int x, int y, int w, int h) {
+    private void drawQuad(int x, int y, int w, int h, boolean disableTexture) {
 
             float tx = 0.0f;
             float ty = 0.0f;
@@ -177,13 +201,21 @@ public class ConsoleRenderer extends LayerRenderer{
             float ts_h = 1.0f;
 
             glBegin(GL_QUADS);
-            //glTexCoord2f(tx, ty);
+            if (!disableTexture){
+                glTexCoord2f(tx, ty);
+            }
             glVertex2f( x,   y);
-            //glTexCoord2f(tx+ts_w, ty);
+            if (!disableTexture){
+                glTexCoord2f(tx+ts_w, ty);
+            }
             glVertex2f( x+w, y);
-            //glTexCoord2f(tx+ts_w, ty+ts_h);
+            if (!disableTexture){
+                glTexCoord2f(tx+ts_w, ty+ts_h);
+            }
             glVertex2f( x+w, y+h);
-            //glTexCoord2f(tx, ty+ts_h);
+            if (!disableTexture){
+                glTexCoord2f(tx, ty+ts_h);
+            }
             glVertex2f( x,   y+h);
 
             glEnd();
