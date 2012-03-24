@@ -6,7 +6,6 @@ import com.nuclearunicorn.libroguelike.game.world.WorldCluster;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.layers.WorldLayer;
 import com.nuclearunicorn.libroguelike.utils.pathfinder.astar.Mover;
-import com.nuclearunicorn.libroguelike.utils.pathfinder.astar.TileBasedMap;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntDoor;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntFurniture;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntRLActor;
@@ -76,7 +75,7 @@ public class RLWorldLayer extends WorldLayer {
 
     //------------------------- pathfinding -----------------------------
 
-    public static class RLWorldModelTileMap extends WorldLayer.WorldModelTileMap implements TileBasedMap {
+    public static class RLWorldModelTileMap extends WorldLayer.WorldModelTileMap{
 
         public RLWorldModelTileMap(WorldLayer layer){
             super(layer);
@@ -93,23 +92,28 @@ public class RLWorldLayer extends WorldLayer {
             return tile.isWall();   //tile.isBlocked() ||
 
         }
+
+        @Override
+        public int getScaleFactor() {
+            return 2;
+        }
         
         @Override
         public float getCost(Mover mover, int sx, int sy, int tx, int ty) {
-            RLTile tile = getTile(tx, ty);
+            RLTile tile = getTile(sx, sy);
 
             EntRLActor actor = (EntRLActor)tile.get_actor();
             if (actor == null){
-                return 1;
+                return 1/getScaleFactor();
             }
             if ( actor instanceof EntDoor ){
-                return 1;
+                return 1/getScaleFactor();
             }
             if ( actor instanceof EntFurniture){    //TODO: check EntWindow there
-                return 30;
+                return 30/getScaleFactor();
             }
 
-            return 120; //some unknown actor type, better not touch
+            return 60/getScaleFactor(); //some unknown actor type, better not touch
 
             //TODO: calculate different terrain types there
         }

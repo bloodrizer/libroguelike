@@ -488,6 +488,11 @@ public class WorldLayer implements Serializable {
             //TODO: calculate different terrain types there
         }
 
+        @Override
+        public int getScaleFactor() {
+            return 1;
+        }
+
         static Point origin = new Point(0,0);
         public synchronized Point world2local(Point world){
             origin.setLocation(

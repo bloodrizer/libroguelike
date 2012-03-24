@@ -60,4 +60,6 @@ public interface TileBasedMap {
 	 * @return The relative cost of moving across the given tile
 	 */
 	public float getCost(Mover mover, int sx, int sy, int tx, int ty);
+
+    public int getScaleFactor();
 }

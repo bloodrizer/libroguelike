@@ -15,6 +15,7 @@ import com.nuclearunicorn.libroguelike.game.GameEnvironment;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
+import com.nuclearunicorn.libroguelike.utils.NLTimer;
 import com.nuclearunicorn.libroguelike.utils.Timer;
 import com.nuclearunicorn.libroguelike.utils.pathfinder.astar.AStarPathFinder;
 import com.nuclearunicorn.libroguelike.utils.pathfinder.astar.Mover;
@@ -45,6 +46,7 @@ public class NpcController extends BaseController implements Mover, IEventListen
     private AStarPathFinder finder;
     
     public static int pathfinderRequests = 0;
+    public static long totalAstarCalculationTime = 0;
 
     public NpcController(){
         ClientEventManager.eventManager.subscribe(this);
@@ -113,8 +115,13 @@ public class NpcController extends BaseController implements Mover, IEventListen
 
         //WorldModel.clearVisited();
         try{
+            NLTimer astarTimer = new NLTimer();
+            astarTimer.push();
+
             path = finder.findPath(this,
                 source.getX(), source.getY(), target.getX(), target.getY());
+
+            NpcController.totalAstarCalculationTime += astarTimer.popDiff();
         }
         catch(ArrayIndexOutOfBoundsException ex){
             /*

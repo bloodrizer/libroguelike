@@ -72,14 +72,19 @@ public class PedestrianAI extends BasicMobAI {
                 //slooow
 
                 //force NPC to switch old path and move to bed
-                /*if (npcController.hasPath()){
+                if (npcController.hasPath()){
                     WorldTile target = owner.getLayer().get_tile(npcController.destination);
                     Entity ent = target.get_actor();
-                    if (ent != null && !(ent instanceof EntFurniture)){ //todo: replace with EntBed
+
+                    /*
+                        If we have path to target and target is not a bed (or it is, but it is occupied bed)
+                     */
+                    if (ent != null && (!(ent instanceof EntFurniture) || ent.tile.has_ent(EntityRLHuman.class)  )){
+                    //todo: replace with EntBed
                         //System.out.println("NPC's target is not BED, re-calculating target");
                         npcController.clearPath();
                     }
-                }*/
+                }
 
                 //System.out.println("Checking if in bed");
                 if (!npcController.hasPath()){
@@ -100,8 +105,19 @@ public class PedestrianAI extends BasicMobAI {
                 Apartment apt = ((EntityRLHuman) owner).getApartment();
                 Entity bed = null;
 
-                if (apt != null && apt.beds != null){
-                    bed = apt.beds.get((int) Math.random() * apt.beds.size());
+                if (apt != null && apt.beds != null && apt.beds.size()>0){
+                    /*while (bed != null){
+                        bed = apt.beds.get((int) Math.random() * apt.beds.size());
+                        if (bed.tile.has_ent(EntityRLHuman.class)){
+                            bed = null;
+                        }
+                    }*/
+                    for (Entity currBed: apt.beds){
+                        if (!currBed.tile.has_ent(EntityRLHuman.class)){
+                            bed = currBed;
+                        }
+                        break;
+                    }
                     //System.out.println("Found my bed @" + bed.origin);
                 }
 
