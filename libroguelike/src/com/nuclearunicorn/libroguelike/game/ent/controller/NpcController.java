@@ -17,7 +17,7 @@ import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.utils.NLTimer;
 import com.nuclearunicorn.libroguelike.utils.Timer;
-import com.nuclearunicorn.libroguelike.utils.pathfinder.astar.AStarPathFinder;
+import com.nuclearunicorn.libroguelike.utils.pathfinder.astar.implementation.AStarPathFinder;
 import com.nuclearunicorn.libroguelike.utils.pathfinder.astar.Mover;
 import com.nuclearunicorn.libroguelike.utils.pathfinder.astar.Path;
 import org.lwjgl.util.Point;
@@ -41,7 +41,7 @@ public class NpcController extends BaseController implements Mover, IEventListen
 
     static final boolean ALLOW_DIAGONAL_MOVEMENT = false;
 
-    static int MAX_SEARCH_DISTANCE = 80;
+    static int MAX_SEARCH_DISTANCE = 80;    //50 is fast, but not accurate, 80 is sorta-ok, 120+ is hell slow
 
     private AStarPathFinder finder;
     
@@ -120,6 +120,11 @@ public class NpcController extends BaseController implements Mover, IEventListen
 
             path = finder.findPath(this,
                 source.getX(), source.getY(), target.getX(), target.getY());
+            
+            if (path == null || path.getLength()<=1){
+                System.err.println("Astar pathfinder failed to calculate the path, took " + astarTimer.popDiff()+" ms");
+                System.err.println("Seaching from @"+source+" to @"+target+" for ent '" + owner.get_uid());
+            }
 
             NpcController.totalAstarCalculationTime += astarTimer.popDiff();
         }

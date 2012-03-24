@@ -11,6 +11,7 @@ import com.nuclearunicorn.libroguelike.game.world.WorldTimer;
 import com.nuclearunicorn.serialkiller.game.events.NPCWitnessCrimeEvent;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldChunk;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntBed;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntDoor;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntFurniture;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
@@ -74,20 +75,18 @@ public class PedestrianAI extends BasicMobAI {
                 //force NPC to switch old path and move to bed
                 if (npcController.hasPath()){
                     WorldTile target = owner.getLayer().get_tile(npcController.destination);
-                    Entity ent = target.get_actor();
 
                     /*
                         If we have path to target and target is not a bed (or it is, but it is occupied bed)
                      */
-
-                    if (ent != null && (!(ent instanceof EntFurniture) || ent.tile.has_ent(EntityRLHuman.class)  )){
-                    //todo: replace with EntBed
-                        //System.out.println("NPC's target is not BED, re-calculating target");
-                        npcController.clearPath();
+                    if (target.has_ent(EntBed.class) && !target.has_ent(EntityRLHuman.class)){
+                        //do nothing, that's our bed we should move to
+                    }else{
+                        npcController.clearPath();  //otherwise, recalculate new path
                     }
+
                 }
 
-                //System.out.println("Checking if in bed");
                 if (!npcController.hasPath()){
                     if (isInBed(npcController)){
                         state = AI_STATE_SLEEPING;
@@ -102,22 +101,16 @@ public class PedestrianAI extends BasicMobAI {
             }
 
             private void calculatePath(NpcController npcController) {
-                //System.out.println("Calculating path to the bedroom");
+
                 Apartment apt = ((EntityRLHuman) owner).getApartment();
                 Entity bed = null;
 
                 if (apt != null && apt.beds != null && apt.beds.size()>0){
-                    /*while (bed != null){
-                        bed = apt.beds.get((int) Math.random() * apt.beds.size());
-                        if (bed.tile.has_ent(EntityRLHuman.class)){
-                            bed = null;
-                        }
-                    }*/
                     for (Entity currBed: apt.beds){
                         if (!currBed.tile.has_ent(EntityRLHuman.class)){
                             bed = currBed;
+                            break;
                         }
-                        break;
                     }
                     //System.out.println("Found my bed @" + bed.origin);
                 }
@@ -135,8 +128,9 @@ public class PedestrianAI extends BasicMobAI {
                     return false;
                 }
 
-                //((RLWorldModel)actor.getEnvironment().getWorld());
-
+                if (owner.tile.has_ent(EntBed.class)){
+                    return true;
+                }
                 return false;
             }
 

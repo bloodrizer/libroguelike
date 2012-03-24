@@ -13,15 +13,14 @@ import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldChunk;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldModel;
-import com.nuclearunicorn.serialkiller.game.world.entities.EntDoor;
-import com.nuclearunicorn.serialkiller.game.world.entities.EntFurniture;
-import com.nuclearunicorn.serialkiller.game.world.entities.EntRLActor;
-import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
+import com.nuclearunicorn.serialkiller.game.world.entities.*;
 import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
 import org.lwjgl.util.Point;
 import org.newdawn.slick.Color;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 /**
  */
@@ -217,7 +216,7 @@ public class TownChunkGenerator extends ChunkGenerator {
             case BEDROOM:
                 Point coord = room.getFreeTile(chunk_random, getLayer());
 
-                EntFurniture bed = new EntFurniture();
+                EntBed bed = new EntBed();
                 placeEntity(coord.getX(), coord.getY(), bed, "bed", "B", Color.green);
                 bed.get_combat().set_hp(50);    //good wooden bed, hard to break >:3
                 bed.set_blocking(false);    //npc can stand on the same tile

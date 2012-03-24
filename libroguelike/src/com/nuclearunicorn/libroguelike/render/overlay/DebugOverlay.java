@@ -39,8 +39,12 @@ public class DebugOverlay {
                 "MB"
         , Color.white);
 
+        String timePostifx = "";
+        if (WorldTimer.is_night()){
+            timePostifx = " (night)";
+        }
         OverlaySystem.ttf.drawString(10, 25, "time: "
-                    + WorldTimer.datetime.getTime()
+                    + WorldTimer.datetime.getTime() + timePostifx
             , Color.white);
 
         
