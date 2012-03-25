@@ -6,9 +6,11 @@
 package com.nuclearunicorn.libroguelike.utils.pathfinder.astar.implementation;
 
 import com.nuclearunicorn.libroguelike.utils.pathfinder.astar.*;
+import org.lwjgl.util.Point;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  *
@@ -72,7 +74,7 @@ public class AStarPathFinder implements PathFinder {
 	/**
 	 * @see PathFinder#findPath(Mover, int, int, int, int)
 	 */
-	public Path findPath(Mover mover, int sx, int sy, int tx, int ty) {
+	public List<Point> findPath(Mover mover, int sx, int sy, int tx, int ty) {
 		// easy first check, if the destination is blocked, we can't get there
 
 		if (map.blocked(mover, tx, ty)) {
@@ -189,13 +191,15 @@ public class AStarPathFinder implements PathFinder {
 
 		// to the start recording the nodes on the way.
 
-		Path path = new Path();
+		List<Point> path = new ArrayList<Point>();
 		Node target = nodes[tx][ty];
 		while (target != nodes[sx][sy]) {
-			path.prependStep(target.x, target.y);
+            path.add(0, new Point(target.x, target.y));
+			//path.prependStep(target.x, target.y);
 			target = target.parent;
 		}
-		path.prependStep(sx,sy);
+        path.add(0, new Point(sx, sy));
+		//path.prependStep(sx,sy);
 
 		// thats it, we have our path
 

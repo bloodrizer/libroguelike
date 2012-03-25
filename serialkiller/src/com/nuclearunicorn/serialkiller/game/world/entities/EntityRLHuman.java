@@ -146,6 +146,9 @@ public class EntityRLHuman extends EntRLActor {
             if (ai.getState() == PedestrianAI.AI_STATE_CHASING){
                 renderer.symbol = "!";
             }
+            if (ai.getState() == PedestrianAI.AI_STATE_SLEEPING){
+                renderer.symbol = "Z";
+            }
         }
         if (bodysim.isStunned()){
             renderer.symbol = "?";

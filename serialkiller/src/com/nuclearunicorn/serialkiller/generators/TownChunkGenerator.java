@@ -7,6 +7,7 @@ import com.nuclearunicorn.libroguelike.game.items.BaseItem;
 import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.generators.ChunkGenerator;
+import com.nuclearunicorn.libroguelike.utils.NLTimer;
 import com.nuclearunicorn.serialkiller.game.ai.PedestrianAI;
 import com.nuclearunicorn.serialkiller.game.ai.PoliceAI;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
@@ -15,6 +16,7 @@ import com.nuclearunicorn.serialkiller.game.world.RLWorldChunk;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldModel;
 import com.nuclearunicorn.serialkiller.game.world.entities.*;
 import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
+import com.nuclearunicorn.serialkiller.utils.pathfinder.adaptive.AdaptivePathfinder;
 import org.lwjgl.util.Point;
 import org.newdawn.slick.Color;
 
@@ -26,7 +28,7 @@ import java.util.Random;
  */
 public class TownChunkGenerator extends ChunkGenerator {
 
-    private static final int NPC_PER_ROAD_RATE = 35;    //50% is a hell lot of npc
+    private static final int NPC_PER_ROAD_RATE = 10;    //50% is a hell lot of npc , 35 is sorta ok
     private static final int MAX_POLICEMAN_COUNT = 4;
 
     enum RoomType {
@@ -115,8 +117,17 @@ public class TownChunkGenerator extends ChunkGenerator {
             for (Point milestone: ms){
                 if (!this.chunk.hasMilestone(milestone)){
                     this.chunk.addMilestone(milestone);
+
                 }
             }
+
+            //AdaptivePathfinder.addPoint(this.chunk, milestone); //sub-optimal
+            
+            /*for(Point ms1 :this.chunk.getMilestones()){
+                for(Point ms2: this.chunk.getMilestones()){
+
+                }
+            }*/
 
             generateRoads(district);
             district.scale(-ROAD_SIZE,-ROAD_SIZE);
@@ -146,6 +157,14 @@ public class TownChunkGenerator extends ChunkGenerator {
         for (Apartment apt : getApartments()){
             fillApartmentRooms(apt);
         }
+
+        NLTimer graphTimer = new NLTimer();
+        graphTimer.push();
+        for (Point milestone: this.chunk.getMilestones()){
+            AdaptivePathfinder.addPoint(this.chunk, milestone); //sub-optimal
+        }
+        //AdaptivePathfinder.buildGraph(this.chunk);  //finally, build graph
+        graphTimer.pop("Adaptive graph generation");
     }
 
     /*

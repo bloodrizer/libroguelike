@@ -17,6 +17,8 @@ import com.nuclearunicorn.serialkiller.game.world.entities.EntFurniture;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
 import com.nuclearunicorn.serialkiller.generators.Apartment;
 import com.nuclearunicorn.serialkiller.render.RLMessages;
+import com.nuclearunicorn.serialkiller.utils.pathfinder.adaptive.AdaptivePathNode;
+import com.nuclearunicorn.serialkiller.utils.pathfinder.adaptive.AdaptivePathfinder;
 import org.lwjgl.util.Point;
 import org.newdawn.slick.Color;
 
@@ -118,7 +120,9 @@ public class PedestrianAI extends BasicMobAI {
                 if (bed != null){
                     //System.out.println("Setting path to bed, halleluyah");
                     //npcController.calculate_path(bed.origin.getX(), bed.origin.getY());
-                    npcController.set_destination(bed.origin);
+                    //npcController.set_destination(bed.origin);
+
+                    calculateAdaptivePath(npcController, owner.origin, bed.origin);
                 }
             }
 
@@ -136,6 +140,35 @@ public class PedestrianAI extends BasicMobAI {
 
         });
 
+    }
+
+    /*
+    * Calculate path, using pre-calculated milestone graph as base for pathfinding route
+     */
+    private void calculateAdaptivePath(NpcController npcController, Point source, Point target) {
+        Point fromMS = ((RLWorldChunk)owner.get_chunk()).getNearestMilestone(source);
+        Point toMS =  ((RLWorldChunk)owner.get_chunk()).getNearestMilestone(target);
+
+        AdaptivePathfinder.resetState();
+        AdaptivePathfinder.calculateAdaptiveRoutes(fromMS);
+        List<AdaptivePathNode> path = AdaptivePathfinder.getShortestPathTo(toMS);
+
+
+        System.out.println("moving from " + owner.origin + " to " + target + " path: " + path);
+        System.out.println("(using " + fromMS + " to " + toMS + " as adaptive nodes)");
+        System.out.println("");
+
+        List<Point> debugPath = new ArrayList<Point>();
+
+        debugPath.add(source);
+        //debugPath.add(fromMS);
+
+        for (AdaptivePathNode node: path){
+            debugPath.add(node.point);
+        }
+        debugPath.add(target);
+
+        npcController.path = debugPath;
     }
 
 

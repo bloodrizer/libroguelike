@@ -78,6 +78,8 @@ public class DebugOverlay {
 
     }
 
+
+
     public static void debugPathfinding() {
         if (!Input.key_state_alt){
             return;
@@ -99,9 +101,9 @@ public class DebugOverlay {
                 }
                 Point prevStep = new Point(ent.origin.getX(), ent.origin.getY());
 
-                for (int i=0; i<npc_controller.path.steps.size();i++){
+                for (int i=0; i<npc_controller.path.size();i++){
 
-                    Point step = (Point)npc_controller.path.steps.get(i);
+                    Point step = (Point)npc_controller.path.get(i);
 
                     tileFrom.setLocation(prevStep);
                     if (i>0){

@@ -17,10 +17,11 @@ import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.utils.NLTimer;
 import com.nuclearunicorn.libroguelike.utils.Timer;
-import com.nuclearunicorn.libroguelike.utils.pathfinder.astar.implementation.AStarPathFinder;
 import com.nuclearunicorn.libroguelike.utils.pathfinder.astar.Mover;
-import com.nuclearunicorn.libroguelike.utils.pathfinder.astar.Path;
+import com.nuclearunicorn.libroguelike.utils.pathfinder.astar.implementation.AStarPathFinder;
 import org.lwjgl.util.Point;
+
+import java.util.List;
 
 /**
  *
@@ -31,7 +32,7 @@ public class NpcController extends BaseController implements Mover, IEventListen
     public Point destination = null;
     public static final int SYNCH_CHUNK_SIZE = 5;
     
-    public Path path = null;
+    public List<Point> path = null;
     public Point step = null;
 
 
@@ -67,7 +68,7 @@ public class NpcController extends BaseController implements Mover, IEventListen
     }
     
     public boolean hasPath(){
-        return (path != null && !path.steps.isEmpty() && destination != null);
+        return (path != null && !path.isEmpty() && destination != null);
     }
 
     @Override
@@ -121,7 +122,7 @@ public class NpcController extends BaseController implements Mover, IEventListen
             path = finder.findPath(this,
                 source.getX(), source.getY(), target.getX(), target.getY());
             
-            if (path == null || path.getLength()<=1){
+            if (path == null || path.size()<=1){
                 System.err.println("Astar pathfinder failed to calculate the path, took " + astarTimer.popDiff()+" ms");
                 System.err.println("Seaching from @"+source+" to @"+target+" for ent '" + owner.get_uid());
             }
@@ -141,8 +142,8 @@ public class NpcController extends BaseController implements Mover, IEventListen
          * There is a bug in the path calculation
          * First element is player position, so it's incorrect
          */
-        if (path != null && path.getLength()>=1){
-            path.steps.remove(0);
+        if (path != null && path.size()>=1){
+            path.remove(0);
         }
     }
 
@@ -198,8 +199,8 @@ public class NpcController extends BaseController implements Mover, IEventListen
 
         //--------------------------------------------
         //ABSOLUTELY REQUIRED OR WEIRED SHIT WILL OCCUR
-        if (path!=null && path.getLength()>0){
-            path.steps.remove(0);   //erase step
+        if (path!=null && path.size()>0){
+            path.remove(0);   //erase step
         }
 
     }
@@ -272,11 +273,11 @@ public class NpcController extends BaseController implements Mover, IEventListen
 
         Point __destination = new Point(this.destination);
 
-        if (path!=null && path.getLength() > 0){
+        if (path!=null && path.size() > 0){
 
 
             if(step == null || step.equals(owner.origin)){  //this is safe hack, that hides the 'ent-lock' glitch
-                step = path.getStep(0);
+                step = path.get(0);
             }
 
             Point location = new Point(step.getX(),step.getY());
