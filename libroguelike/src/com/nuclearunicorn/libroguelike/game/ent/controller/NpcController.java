@@ -42,7 +42,8 @@ public class NpcController extends BaseController implements Mover, IEventListen
 
     static final boolean ALLOW_DIAGONAL_MOVEMENT = false;
 
-    static int MAX_SEARCH_DISTANCE = 80;    //50 is fast, but not accurate, 80 is sorta-ok, 120+ is hell slow
+    //static int MAX_SEARCH_DISTANCE = 80;    //50 is fast, but not accurate, 80 is sorta-ok, 120+ is hell slow
+    static int MAX_SEARCH_DISTANCE = 120;
 
     private AStarPathFinder finder;
     
@@ -104,39 +105,9 @@ public class NpcController extends BaseController implements Mover, IEventListen
         Don't you ever dare to call this method, suckers. Use set_destionation() instead
      */
     private void calculate_path(int x, int y){
-        
-        //System.out.println("path calculation requested by entity #"+this.owner.get_uid());
-        pathfinderRequests++;
 
-        Point target = new Point(x,y);
-        target = ClientGameEnvironment.getWorldLayer(Player.get_zindex()).tile_map.world2local(target);
+        path = getAstarPath(owner.origin.getX(), owner.origin.getY(), x, y);
 
-        Point source = new Point(owner.origin);
-        source = ClientGameEnvironment.getWorldLayer(Player.get_zindex()).tile_map.world2local(source);
-
-        //WorldModel.clearVisited();
-        try{
-            NLTimer astarTimer = new NLTimer();
-            astarTimer.push();
-
-            path = finder.findPath(this,
-                source.getX(), source.getY(), target.getX(), target.getY());
-            
-            if (path == null || path.size()<=1){
-                System.err.println("Astar pathfinder failed to calculate the path, took " + astarTimer.popDiff()+" ms");
-                System.err.println("Seaching from @"+source+" to @"+target+" for ent '" + owner.get_uid());
-            }
-
-            NpcController.totalAstarCalculationTime += astarTimer.popDiff();
-        }
-        catch(ArrayIndexOutOfBoundsException ex){
-            /*
-             * This is a temorary workaround for astar pathfind.
-             * If entity tries to pathfind outside of the loaded data, it's probably should be removed
-             */
-            path = null;
-        }
-        
         step = null;
         /*
          * There is a bug in the path calculation
@@ -145,6 +116,48 @@ public class NpcController extends BaseController implements Mover, IEventListen
         if (path != null && path.size()>=1){
             path.remove(0);
         }
+    }
+    
+    public List<Point> getAstarPath(int sx, int sy, int tx, int ty){
+        
+        Point source = new Point(sx, sy);
+        source = ClientGameEnvironment.getWorldLayer(Player.get_zindex()).tile_map.world2local(source);
+
+        Point target = new Point(tx, ty);
+        target = ClientGameEnvironment.getWorldLayer(Player.get_zindex()).tile_map.world2local(target);
+
+        return getAstarPath(source, target);
+    }
+    
+    public List<Point> getAstarPath(Point source, Point target){
+        //System.out.println("path calculation requested by entity #"+this.owner.get_uid());
+        pathfinderRequests++;
+
+
+        NLTimer astarTimer = new NLTimer();
+        astarTimer.push();
+
+        List<Point> astarPath = null;
+
+        try {
+            astarPath = finder.findPath(this,
+                    source.getX(), source.getY(), target.getX(), target.getY());
+        } catch(ArrayIndexOutOfBoundsException ex) {
+            /*
+            * This is a temorary workaround for astar pathfind.
+            * If entity tries to pathfind outside of the loaded data, it's probably should be removed
+            */
+            ex.printStackTrace();
+        }
+
+        if (astarPath == null || astarPath.size()<=1){
+            System.err.println("Astar pathfinder failed to calculate the path, took " + astarTimer.popDiff()+" ms");
+            System.err.println("Seaching from @"+source+" to @"+target+" for ent '" + owner.get_uid());
+        }
+
+        NpcController.totalAstarCalculationTime += astarTimer.popDiff();
+        
+        return astarPath;
     }
 
     /*

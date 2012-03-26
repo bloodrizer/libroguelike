@@ -125,6 +125,16 @@ public class RLWorldLayer extends WorldLayer {
             //TODO: calculate different terrain types there
         }
 
+        @Override
+        public int getWidthInTiles() {
+            return 128;
+        }
+
+        @Override
+        public int getHeightInTiles() {
+            return 128;
+        }
+
         private RLTile getTile(int x, int y){
             temp.setLocation(x,y);
             temp = local2world(temp);
