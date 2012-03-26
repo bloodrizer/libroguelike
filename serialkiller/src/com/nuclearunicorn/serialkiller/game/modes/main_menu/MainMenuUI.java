@@ -11,6 +11,8 @@ import com.nuclearunicorn.libroguelike.vgui.NE_GUI_FrameModern;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_Label;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_System;
 import com.nuclearunicorn.serialkiller.game.Main;
+import com.nuclearunicorn.serialkiller.game.MainApplet;
+import com.nuclearunicorn.serialkiller.game.SkillerGame;
 import com.nuclearunicorn.serialkiller.utils.pathfinder.adaptive.AdaptivePathfinder;
 import com.nuclearunicorn.serialkiller.vgui.VGUICreateCharacterScreeen;
 import org.newdawn.slick.Color;
@@ -36,7 +38,12 @@ public class MainMenuUI implements IUserInterface, IEventListener {
     public void build_ui() {
         ClientEventManager.eventManager.subscribe(this);
 
-        //System.out.println("building main menu UI");
+        final SkillerGame game;
+        if (Main.game != null){
+            game = Main.game;
+        }else{
+            game = MainApplet.game;
+        }
 
 
         NE_GUI_Label loadingLabel = new NE_GUI_Label();
@@ -53,6 +60,8 @@ public class MainMenuUI implements IUserInterface, IEventListener {
         frame.dragable = false; //don't let show underlying 'loading' lable.
 
         ui.root.add(frame);
+        
+        
 
         NE_GUI_Button newGameButon = new NE_GUI_Button(){
             @Override
@@ -62,12 +71,11 @@ public class MainMenuUI implements IUserInterface, IEventListener {
 
                 ClientGameEnvironment.reset();  //reset env, or wierd shit will happen
                 AdaptivePathfinder.reset();
-                Main.game.resetState("inGame");
 
-                //Main.inGameMode = new InGameMode();
-                //Main.inGameMode.setActive(false);
+                
 
-                Main.game.set_state("inGame");
+                game.resetState("inGame");
+                game.set_state("inGame");
             }
         };
         newGameButon.set_tw(4);
@@ -93,7 +101,7 @@ public class MainMenuUI implements IUserInterface, IEventListener {
         NE_GUI_Button continueButton = new NE_GUI_Button(){
             @Override
             public void e_on_mouse_click(EMouseClick e) {
-                Main.game.set_state("inGame");
+                game.set_state("inGame");
             }
         };
         continueButton.set_tw(4);

@@ -29,6 +29,8 @@ import com.nuclearunicorn.libroguelike.utils.Timer;
 import com.nuclearunicorn.libroguelike.vgui.effects.EffectsSystem;
 import com.nuclearunicorn.serialkiller.game.ItemFactory;
 import com.nuclearunicorn.serialkiller.game.Main;
+import com.nuclearunicorn.serialkiller.game.MainApplet;
+import com.nuclearunicorn.serialkiller.game.SkillerGame;
 import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldModel;
@@ -38,7 +40,6 @@ import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
 import com.nuclearunicorn.serialkiller.render.AsciiWorldView;
 import com.nuclearunicorn.serialkiller.render.ConsoleRenderer;
 import com.nuclearunicorn.serialkiller.render.RLMessages;
-import com.nuclearunicorn.serialkiller.render.overlays.DebugPathfindingGraph;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.Point;
 import rlforj.los.IFovAlgorithm;
@@ -228,8 +229,14 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
 
 
                 case Keyboard.KEY_ESCAPE:
-                    Main.game.set_state("mainMenu");
-                    Main.game.initStateUI();
+                    SkillerGame game;
+                    if (Main.game != null){
+                        game = Main.game;
+                    }else{
+                        game = MainApplet.game;
+                    }
+                    game.set_state("mainMenu");
+                    game.initStateUI();
                 break;
             }
         }

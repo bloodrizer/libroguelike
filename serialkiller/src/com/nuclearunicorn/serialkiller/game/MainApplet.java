@@ -24,12 +24,14 @@ public class MainApplet extends Applet {
     /** is the game loop running */
     boolean running = false;
 
+    public static SkillerGame game;
+    public static InGameMode inGameMode = new InGameMode();
 
     public void startLWJGL() {
         gameThread = new Thread() {
             @Override
             public void run() {
-                SkillerGame game;
+
                 running = true;
 
                 game = new SkillerGame();
@@ -37,7 +39,7 @@ public class MainApplet extends Applet {
 
 
                 game.registerMode("mainMenu", new MainMenuMode());
-                game.registerMode("inGame", new InGameMode());
+                game.registerMode("inGame", inGameMode);
 
                 game.set_state("inGame");
                 game.run();
