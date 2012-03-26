@@ -28,7 +28,7 @@ import java.util.Random;
  */
 public class TownChunkGenerator extends ChunkGenerator {
 
-    private static final int NPC_PER_ROAD_RATE = 10;    //50% is a hell lot of npc , 35 is sorta ok
+    private static final int NPC_PER_ROAD_RATE = 35;    //50% is a hell lot of npc , 35 is sorta ok
     private static final int MAX_POLICEMAN_COUNT = 4;
 
     enum RoomType {

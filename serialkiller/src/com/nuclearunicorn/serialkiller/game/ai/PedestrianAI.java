@@ -17,7 +17,7 @@ import com.nuclearunicorn.serialkiller.game.world.entities.EntFurniture;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
 import com.nuclearunicorn.serialkiller.generators.Apartment;
 import com.nuclearunicorn.serialkiller.render.RLMessages;
-import com.nuclearunicorn.serialkiller.utils.pathfinder.adaptive.AdaptivePathNode;
+import com.nuclearunicorn.serialkiller.utils.pathfinder.adaptive.AdaptiveNode;
 import com.nuclearunicorn.serialkiller.utils.pathfinder.adaptive.AdaptivePathfinder;
 import org.lwjgl.util.Point;
 import org.newdawn.slick.Color;
@@ -151,7 +151,7 @@ public class PedestrianAI extends BasicMobAI {
 
         AdaptivePathfinder.resetState();
         AdaptivePathfinder.calculateAdaptiveRoutes(fromMS);
-        List<AdaptivePathNode> path = AdaptivePathfinder.getShortestPathTo(toMS);
+        List<AdaptiveNode> path = AdaptivePathfinder.getShortestPathTo(toMS);
 
 
         System.out.println("moving from " + owner.origin + " to " + target + " path: " + path);
@@ -163,7 +163,7 @@ public class PedestrianAI extends BasicMobAI {
         debugPath.add(source);
         //debugPath.add(fromMS);
 
-        for (AdaptivePathNode node: path){
+        for (AdaptiveNode node: path){
             debugPath.add(node.point);
         }
         debugPath.add(target);

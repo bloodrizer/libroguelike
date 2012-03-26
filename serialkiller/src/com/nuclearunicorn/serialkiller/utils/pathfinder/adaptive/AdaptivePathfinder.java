@@ -10,26 +10,26 @@ import java.util.*;
  */
 public class AdaptivePathfinder {
     //private static Map<Point, ArrayList<AdaptivePath>> links = new HashMap<Point,ArrayList<Point>>(32);
-    //private static Map<AdaptivePathNode ,ArrayList<AdaptivePath>> linkedNodes = new HashMap<AdaptivePathNode,ArrayList<AdaptivePath>>(32);
-    public static List<AdaptivePathNode> nodes = new ArrayList<AdaptivePathNode>(32);
+    //private static Map<AdaptiveNode ,ArrayList<AdaptivePath>> linkedNodes = new HashMap<AdaptiveNode,ArrayList<AdaptivePath>>(32);
+    public static List<AdaptiveNode> nodes = new ArrayList<AdaptiveNode>(32);
     public static List<AdaptivePath> edges = new ArrayList<AdaptivePath>(16);
 
 
 
-    private static AdaptivePathNode getNode(Point point){
-        for (AdaptivePathNode node : nodes){
+    private static AdaptiveNode getNode(Point point){
+        for (AdaptiveNode node : nodes){
             if (node.isNodeOf(point)){
                 return node;
             }
         }
-        AdaptivePathNode node = new AdaptivePathNode(point);
+        AdaptiveNode node = new AdaptiveNode(point);
         nodes.add(node);
         return node;
     }
     
-    public static void addLink(AdaptivePathNode from, AdaptivePathNode to, int cost){
-        //AdaptivePathNode nodeFrom = getNode(from);
-        //AdaptivePathNode nodeTo = getNode(to);
+    public static void addLink(AdaptiveNode from, AdaptiveNode to, int cost){
+        //AdaptiveNode nodeFrom = getNode(from);
+        //AdaptiveNode nodeTo = getNode(to);
 
 
         AdaptivePath path = new AdaptivePath(
@@ -41,7 +41,7 @@ public class AdaptivePathfinder {
     }
 
     public static void addPoint(RLWorldChunk chunk, Point newNode){
-        //AdaptivePathNode node = new AdaptivePathNode(newNode);
+        //AdaptiveNode node = new AdaptiveNode(newNode);
         //nodes.add(node);
 
 
@@ -56,15 +56,15 @@ public class AdaptivePathfinder {
             if (pathCost > 0){
                 System.out.println("adding links from point " + newNode + " to "+nodes.size()+" nodes");
                 addLink(getNode(registeredNode), getNode(newNode), pathCost);
-                //addLink(point, samplePoint, pathCost);    //?
+                addLink(getNode(newNode), getNode(registeredNode), pathCost);    //?
             }
         }
 
        }
 
     public static void buildGraph(RLWorldChunk chunk){
-        for (AdaptivePathNode node1: nodes){
-            for (AdaptivePathNode node2: nodes){
+        for (AdaptiveNode node1: nodes){
+            for (AdaptiveNode node2: nodes){
                 if (node1.point.equals(node2.point)){
                     return;
                 }
@@ -101,21 +101,54 @@ public class AdaptivePathfinder {
     
     public static void calculateAdaptiveRoutes(Point from){
 
-        AdaptivePathNode source = getNode(from);
+        /*
+        const int INF = 1000000000;
+
+        int main() {
+            int n;
+            ... чтение n ...
+            vector < vector < pair<int,int> > > g (n);
+            ... чтение графа ...
+            int s = ...; // стартовая вершина
+
+            vector<int> d (n, INF),  p (n);
+            d[s] = 0;
+            vector<char> u (n);
+            for (int i=0; i<n; ++i) {
+                int v = -1;
+                for (int j=0; j<n; ++j)
+                    if (!u[j] && (v == -1 || d[j] < d[v]))
+                        v = j;
+                if (d[v] == INF)
+                    break;
+                u[v] = true;
+
+                for (size_t j=0; j<g[v].size(); ++j) {
+                    int to = g[v][j].first,
+                        len = g[v][j].second;
+                    if (d[v] + len < d[to]) {
+                        d[to] = d[v] + len;
+                        p[to] = v;
+                    }
+                }
+            }
+        }*/
+
+        AdaptiveNode source = getNode(from);
         source.minDistance = 0;
 
-        PriorityQueue<AdaptivePathNode> vertexQueue = new PriorityQueue<AdaptivePathNode>();
+        PriorityQueue<AdaptiveNode> vertexQueue = new PriorityQueue<AdaptiveNode>();
         vertexQueue.add(source);
 
         while (!vertexQueue.isEmpty()) {
-            AdaptivePathNode u = vertexQueue.poll();
+            AdaptiveNode u = vertexQueue.poll();
 
             //v?
             //d?
 
             for (AdaptivePath e : u.nb)
             {
-                AdaptivePathNode v = e.to;
+                AdaptiveNode v = e.to;
                 double weight = e.cost;
                 //relax the edge
                 double distanceThroughU = u.minDistance + weight;
@@ -132,12 +165,12 @@ public class AdaptivePathfinder {
         }
     }
 
-    public static List<AdaptivePathNode> getShortestPathTo(Point target){
+    public static List<AdaptiveNode> getShortestPathTo(Point target){
 
-        AdaptivePathNode targetNode = getNode(target);
+        AdaptiveNode targetNode = getNode(target);
 
-        List<AdaptivePathNode> path = new ArrayList<AdaptivePathNode>();
-        for (AdaptivePathNode vertex = targetNode; vertex != null; vertex = vertex.prev){
+        List<AdaptiveNode> path = new ArrayList<AdaptiveNode>();
+        for (AdaptiveNode vertex = targetNode; vertex != null; vertex = vertex.prev){
             path.add(vertex);
         }
         Collections.reverse(path);
@@ -145,7 +178,7 @@ public class AdaptivePathfinder {
     }
 
     public static void resetState() {
-        for (AdaptivePathNode node: nodes){
+        for (AdaptiveNode node: nodes){
             node.minDistance = Double.POSITIVE_INFINITY;
             node.prev = null;
         }

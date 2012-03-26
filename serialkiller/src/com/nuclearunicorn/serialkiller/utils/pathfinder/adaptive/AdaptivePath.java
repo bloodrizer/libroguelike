@@ -4,11 +4,11 @@ package com.nuclearunicorn.serialkiller.utils.pathfinder.adaptive;
 
  */
 public class AdaptivePath {
-    final public AdaptivePathNode from;
-    final public AdaptivePathNode to;
+    final public AdaptiveNode from;
+    final public AdaptiveNode to;
     final public int cost;
 
-    public AdaptivePath(AdaptivePathNode from, AdaptivePathNode to, int cost) {
+    public AdaptivePath(AdaptiveNode from, AdaptiveNode to, int cost) {
         this.from = from;
         this.to = to;
         this.cost = cost;

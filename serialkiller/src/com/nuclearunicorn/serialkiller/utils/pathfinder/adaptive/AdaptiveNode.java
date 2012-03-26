@@ -13,19 +13,19 @@ import java.util.List;
  * Time: 13:28
  * To change this template use File | Settings | File Templates.
  */
-public class AdaptivePathNode implements Comparable<AdaptivePathNode>{
+public class AdaptiveNode implements Comparable<AdaptiveNode>{
     public Point point;
 
     public List<AdaptivePath> nb = new ArrayList<AdaptivePath>(4);
     public double minDistance = Double.POSITIVE_INFINITY;
-    public AdaptivePathNode prev;
+    public AdaptiveNode prev;
 
-    public AdaptivePathNode(Point point){
+    public AdaptiveNode(Point point){
         this.point = point;
     }
 
     @Override
-    public int compareTo(AdaptivePathNode other) {
+    public int compareTo(AdaptiveNode other) {
         return Double.compare(minDistance, other.minDistance);
     }
 

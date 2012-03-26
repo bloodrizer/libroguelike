@@ -26,7 +26,7 @@ import static org.lwjgl.opengl.GL11.*;
  */
 public class ConsoleRenderer extends LayerRenderer{
     
-    public static int TILE_SIZE = 16;
+    public static int TILE_SIZE = 12;
     NLTimer renderTimer = new NLTimer();
     private static final boolean ENABLE_TEXTURE = false;
     private static final boolean DISABLE_TEXTURE = true;
