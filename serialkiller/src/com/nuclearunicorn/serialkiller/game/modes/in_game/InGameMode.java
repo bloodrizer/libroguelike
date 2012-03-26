@@ -165,7 +165,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         get_ui().render();
 
 
-        DebugPathfindingGraph.debugAdaptiveGraph(); //>:3
+        //DebugPathfindingGraph.debugAdaptiveGraph(); //>:3
         DebugOverlay.debugPathfinding();    //heavy, but very useful
         overlay.render();
 
