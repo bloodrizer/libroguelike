@@ -3,6 +3,7 @@ package com.nuclearunicorn.serialkiller.vgui;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_FrameModern;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_Text;
+import com.nuclearunicorn.serialkiller.game.ai.PedestrianAI;
 import com.nuclearunicorn.serialkiller.game.combat.NPCStats;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
 import com.nuclearunicorn.serialkiller.game.social.CrimeRecord;
@@ -71,7 +72,13 @@ public class VGUIDetailedNPCInformation extends NE_GUI_FrameModern{
         }
 
         if (ent.getAI() != null){
-            info.add_line("AI state is '" + ent.getAI().getState()+"'");
+            //info.add_line("AI state is '" + ent.getAI().getState()+"'");
+            if (ent.getAI().getState() == PedestrianAI.AI_STATE_TIRED){
+                info.add_line(prefix + " looks tired");
+            }
+            if (ent.getAI().getState() == PedestrianAI.AI_STATE_SLEEPING){
+                info.add_line(prefix + " is sleeping with a happy smile on a face");    //todo: implement mood
+            }
         }
 
         if (ent.getApartment() == null){
