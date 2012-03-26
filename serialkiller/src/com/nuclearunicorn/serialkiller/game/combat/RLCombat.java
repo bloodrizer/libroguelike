@@ -132,8 +132,12 @@ public class RLCombat extends BasicCombat {
         if (!(owner instanceof EntityRLHuman)){
             return;
         }
-        if ( ((EntityRLHuman)owner).getBodysim() != null ){
-            ((EntityRLHuman)owner).getBodysim().takeDamage(damage);
+        EntityRLHuman rlOwner = (EntityRLHuman)owner;
+        if ( rlOwner.getBodysim() != null ){
+            rlOwner.getBodysim().takeDamage(damage);
+        }
+        if (!rlOwner.get_combat().is_alive()){
+            System.out.println(owner.getName() + "is MURDERED");
         }
     }
 

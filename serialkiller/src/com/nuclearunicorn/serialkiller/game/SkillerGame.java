@@ -1,7 +1,6 @@
 package com.nuclearunicorn.serialkiller.game;
 
 import com.nuclearunicorn.libroguelike.core.Game;
-import com.nuclearunicorn.libroguelike.game.modes.AbstractGameMode;
 
 /**
  * Created by IntelliJ IDEA.
@@ -12,4 +11,7 @@ import com.nuclearunicorn.libroguelike.game.modes.AbstractGameMode;
  */
 public class SkillerGame extends Game {
 
+    public void initStateUI() {
+        activeMode.get_ui().init();
+    }
 }

@@ -29,6 +29,7 @@ import com.nuclearunicorn.libroguelike.utils.Timer;
 import com.nuclearunicorn.libroguelike.vgui.effects.EffectsSystem;
 import com.nuclearunicorn.serialkiller.game.ItemFactory;
 import com.nuclearunicorn.serialkiller.game.Main;
+import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldModel;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntRLPlayer;
@@ -136,14 +137,18 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
 
         get_ui().update();
 
-        boolean playerDead = false;
+        boolean playerSkipTurn = false;
         if (Player.get_ent() != null){
             Combat combat = Player.get_ent().get_combat();
             if (combat != null && !combat.is_alive()){
-                playerDead = true;
+                playerSkipTurn = true;
+            }
+            BodySimulation bodysim = ((EntRLPlayer)Player.get_ent()).getBodysim();
+            if (bodysim != null && bodysim.isStunned()){
+                playerSkipTurn = true;
             }
         }
-        if (Input.key_state_shft || playerDead){
+        if (Input.key_state_shft || playerSkipTurn){
             model.update();
         }
 
@@ -190,6 +195,10 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
             if (combat != null && !combat.is_alive()){
                 return;
             }
+            BodySimulation bodysim = ((EntRLPlayer)Player.get_ent()).getBodysim();
+            if (bodysim != null && bodysim.isStunned()){
+                return;
+            }
         }
 
         if (event instanceof EKeyPress){
@@ -217,6 +226,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
 
                 case Keyboard.KEY_ESCAPE:
                     Main.game.set_state("mainMenu");
+                    Main.game.initStateUI();
                 break;
             }
         }

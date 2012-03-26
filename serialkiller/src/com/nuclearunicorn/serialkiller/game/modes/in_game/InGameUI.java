@@ -187,6 +187,11 @@ public class InGameUI implements IUserInterface, IEventListener {
         ui.render();
     }
 
+    @Override
+    public void init() {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
     private void updateLookAt(){
         Point tile_coord = WorldView.getTileCoord(Input.get_mx(), WindowRender.get_window_h() - Input.get_my());
 

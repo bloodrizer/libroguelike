@@ -168,4 +168,8 @@ public class BodySimulation {
     public void setOwner(EntityRLHuman owner) {
         this.owner = owner;
     }
+
+    public List<Limb> getLimbs() {
+        return limbs;
+    }
 }

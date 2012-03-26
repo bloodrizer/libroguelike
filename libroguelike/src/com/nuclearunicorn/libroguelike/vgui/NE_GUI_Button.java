@@ -19,6 +19,7 @@ import static org.lwjgl.opengl.GL11.*;
 public class NE_GUI_Button extends NE_GUI_Element{
     
     TilesetRenderer gui_tile;
+    public Color color = Color.black;
 
     public String text = "Login";
     //public boolean closable = true;
@@ -55,7 +56,7 @@ public class NE_GUI_Button extends NE_GUI_Element{
         }
         
         //
-        Render.bind_texture("/ui/window_ui_small.png");
+        Render.bind_texture("/resources/ui/window_ui_small.png");
         
 
         int tile_id = 0;
@@ -80,7 +81,7 @@ public class NE_GUI_Button extends NE_GUI_Element{
         OverlaySystem.ttf.drawString(
                 x + w/2 - text.length()*9 /2 ,
                 y + 7
-                , text , Color.black);
+                , text , color);
 
         super.render();
     }

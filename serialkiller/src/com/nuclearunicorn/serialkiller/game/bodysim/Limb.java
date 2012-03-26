@@ -28,4 +28,8 @@ public class Limb {
             RLMessages.message( owner.getName() + "'s" + name + " is damaged", Color.magenta);
         }
     }
+
+    public String getName() {
+        return name;
+    }
 }

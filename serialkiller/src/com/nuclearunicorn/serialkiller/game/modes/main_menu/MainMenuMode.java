@@ -8,11 +8,7 @@ import com.nuclearunicorn.libroguelike.render.overlay.OverlaySystem;
 import com.nuclearunicorn.libroguelike.render.overlay.VersionOverlay;
 
 /**
- * Created by IntelliJ IDEA.
- * User: Administrator
- * Date: 03.03.12
- * Time: 12:27
- * To change this template use File | Settings | File Templates.
+
  */
 public class MainMenuMode extends AbstractGameMode implements IEventListener {
 

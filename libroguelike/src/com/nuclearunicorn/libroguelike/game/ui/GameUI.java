@@ -248,4 +248,9 @@ public class GameUI implements IUserInterface, IEventListener {
         //throw new UnsupportedOperationException("Not supported yet.");
         get_nge_ui().render();
     }
+
+    @Override
+    public void init() {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
 }
