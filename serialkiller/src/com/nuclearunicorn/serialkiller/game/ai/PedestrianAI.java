@@ -20,7 +20,6 @@ import com.nuclearunicorn.serialkiller.render.RLMessages;
 import com.nuclearunicorn.serialkiller.utils.pathfinder.adaptive.AdaptiveNode;
 import com.nuclearunicorn.serialkiller.utils.pathfinder.adaptive.AdaptivePathfinder;
 import com.nuclearunicorn.serialkiller.utils.pathfinder.adaptive.BresinhamLine;
-import com.sun.xml.internal.fastinfoset.util.PrefixArray;
 import org.lwjgl.util.Point;
 import org.newdawn.slick.Color;
 
@@ -86,6 +85,7 @@ public class PedestrianAI extends BasicMobAI {
                     if (target.has_ent(EntBed.class) && !target.has_ent(EntityRLHuman.class)){
                         //do nothing, that's our bed we should move to
                     }else{
+                        System.out.println("no bed in path target or owned bed");
                         npcController.clearPath();  //otherwise, recalculate new path
                     }
 
@@ -120,9 +120,36 @@ public class PedestrianAI extends BasicMobAI {
                 }
 
                 if (bed != null){
-                    //System.out.println("Setting path to bed, halleluyah");
-                    //npcController.calculate_path(bed.origin.getX(), bed.origin.getY());
-                    //npcController.set_destination(bed.origin);
+
+                    //nice, but buggy implementation
+                    /*if (npcController.adaptivePathPool.size() > 0){
+                        //restore original path node and calculate path using astar
+                        Point nextPoolTgt = npcController.adaptivePathPool.get(0);
+
+                        List<Point> pathToNode = npcController.getAstarPath(owner.origin, nextPoolTgt);
+                        if (pathToNode != null){
+                            pathToNode.remove(0);
+                        }else{
+                            //safe switch in case shit got hot
+                            npcController.adaptivePathPool.clear();
+                            return;
+                        }
+
+                        //calculate path from next predicted path node
+                        calculateAdaptivePath(npcController, nextPoolTgt, bed.origin);
+
+                        if (npcController.path == null){
+                            return;
+                        }
+
+                        //concatenate astar path from ent to predicted node,
+                        //and adaptive path from node to target
+                        pathToNode.addAll(npcController.path);
+                        npcController.path = pathToNode;
+
+                    }else{
+                        calculateAdaptivePath(npcController, owner.origin, bed.origin);
+                    }*/
 
                     calculateAdaptivePath(npcController, owner.origin, bed.origin);
                 }
@@ -170,18 +197,41 @@ public class PedestrianAI extends BasicMobAI {
                 npcController.path = setDebugAdaptivePath(adaptivePath, source, target);
                 return;     //fuckup
             }
+            prefixPath.remove(0);
             debugPath.addAll(prefixPath);
         }
+
+        npcController.adaptivePathPool.clear();
 
         //divide adaptive path into small steps based on bresinham algorithm
         AdaptiveNode prevNode = adaptivePath.get(0);
         for (AdaptiveNode node: adaptivePath){
+
+            npcController.adaptivePathPool.add(node.point);
+
             if (prevNode != node){
                 List<Point> tmpPath = BresinhamLine.line(prevNode.point.getX(), prevNode.point.getY(), node.point.getX(), node.point.getY());
+                for(Point point: tmpPath){
+                    if (owner.getLayer().get_tile(point.getX(), point.getY()).isBlocked()){
+                        //if bresinham trace vector detects collision, replace it with accurate astar tracer
+
+                        //TODO: rather than re-calculating WHOLE path, we'd better recalculate part of the path with a some kind of prediction
+                        /*
+                            e.g. :
+                            *-*-*X*-*-* <--obstacle
+                            *
+                            * -*\__/*-*-   <-- re-calculated part
+                         */
+
+                        tmpPath = npcController.getAstarPath(prevNode.point, node.point);
+                        tmpPath.remove(0);
+                    }
+                }
                 debugPath.addAll(tmpPath);
             }
             prevNode = node;
         }
+
         //debugPath.add(target);
 
         if (!toMS.equals(target)){
@@ -190,10 +240,12 @@ public class PedestrianAI extends BasicMobAI {
                 npcController.path = setDebugAdaptivePath(adaptivePath, source, target);
                 return;     //fuckup
             }
+            postfixPath.remove(0);
             debugPath.addAll(postfixPath);
         }
 
         npcController.path = debugPath;
+        npcController.destination = target;
     }
 
     private List<Point> setDebugAdaptivePath(List<AdaptiveNode> adaptivePath, Point source, Point target) {

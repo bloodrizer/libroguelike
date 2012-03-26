@@ -21,6 +21,7 @@ import com.nuclearunicorn.libroguelike.utils.pathfinder.astar.Mover;
 import com.nuclearunicorn.libroguelike.utils.pathfinder.astar.implementation.AStarPathFinder;
 import org.lwjgl.util.Point;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,6 +31,8 @@ import java.util.List;
 public class NpcController extends BaseController implements Mover, IEventListener {
 
     public Point destination = null;
+    public List<Point> adaptivePathPool = new ArrayList<Point>(32);
+    
     public static final int SYNCH_CHUNK_SIZE = 5;
     
     public List<Point> path = null;
@@ -74,15 +77,7 @@ public class NpcController extends BaseController implements Mover, IEventListen
 
     @Override
     public void think() {
-        /*if (destination != null){
 
-            owner.set_next_frame(NEXT_FRAME_DELAY);
-
-            follow_path();
-            return;
-        }
-
-        owner.set_next_frame(200000);*/
     }
 
     public void set_destination(Point destination){
@@ -168,39 +163,6 @@ public class NpcController extends BaseController implements Mover, IEventListen
 
         Point __step = null;
 
-        //------------path synchronisation-----------
-        /*if (path == null){
-            throw new RuntimeException("trying to change tile for an null path object(?)");
-        }*/
-
-        //Path synchronisation is deprecated
-
-        /*System.out.println("changing tile, path_synch_counter is: "+path_synch_counter+", length is: "+path.getLength());
-
-        if (owner.isPlayerEnt() && path != null){
-            if (path_synch_counter == 0){    //we are in the point of
-                
-                
-                System.out.println("synch counter is 0, notifying");
-
-                //we have some trajectory left
-                if (path.getLength()>0){
-                    //extract checkpoint step
-                    if (path.getLength()>SYNCH_CHUNK_SIZE){
-                        __step = path.getStep(SYNCH_CHUNK_SIZE);
-                    }else{
-                        __step = path.getStep(path.getLength()-1);
-                    }
-
-                    notify_path(__step);
-                }
-            }
-            path_synch_counter++;
-            if (path_synch_counter>=SYNCH_CHUNK_SIZE){
-                path_synch_counter = 0;
-            }
-        }*/
-
         owner.dx = 0.0f;
         owner.dy = 0.0f;
         /// owner.origin.setLocation(x, y);
@@ -241,6 +203,17 @@ public class NpcController extends BaseController implements Mover, IEventListen
 
         //wachky-hacky safe switch
         if(tile.isBlocked()){
+
+            System.err.println("Tile is blocked, resetting path for ent #" + owner.get_uid());
+
+            if (owner.tile == tile){
+                step = null;
+                if (path != null){
+                    path.remove(0);
+                }
+                return;
+            }
+
             step = null;
             path = null;
             destination = null;
@@ -249,25 +222,14 @@ public class NpcController extends BaseController implements Mover, IEventListen
             return;
         }
 
-        //owner.move_to(new Point(owner.origin.getX()-1, owner.origin.getY()));
+        //actually change tile
 
-        //displacement = 1.0f / (owner.get_renderer().ANIMATION_LENGTH-2)   //1 start frame + 1 end frame + iterated animation
-        /*float dx = (float)(x-owner.origin.getX())*MOVE_SPEED * tile.get_speed_modifier();
-        float dy = (float)(y-owner.origin.getY())*MOVE_SPEED * tile.get_speed_modifier();
-
-        owner.dx += dx;
-        owner.dy += dy;
-
-        //todo: use single % counter to maisure if to change tile or not
-
-        if (owner.dx > 1.0f || owner.dx < -1.0f || owner.dy > 1.0f || owner.dy < -1.0f){
-            //change_tile(x,y);
-            change_tile(
-                    owner.x()+(int)owner.dx,
-                    owner.y()+(int)owner.dy
-            );
-            return;
-        }*/
+        //erase last visited adaptive path node
+        //so in case of collision we will re-calculate path
+        //using astar to the next node instead of resetting whole path
+        if (adaptivePathPool.contains(step)){
+            adaptivePathPool.remove(step);
+        }
 
         //TODO: implement slow turn-based movement
         //TODO: implement policy settings

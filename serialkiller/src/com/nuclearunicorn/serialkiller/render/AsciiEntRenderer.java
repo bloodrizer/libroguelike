@@ -5,6 +5,7 @@ import com.nuclearunicorn.libroguelike.game.world.WorldViewCamera;
 import com.nuclearunicorn.libroguelike.render.EntityRenderer;
 import com.nuclearunicorn.libroguelike.render.overlay.OverlaySystem;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
 import org.newdawn.slick.Color;
 
 /**
@@ -49,6 +50,10 @@ public class AsciiEntRenderer extends EntityRenderer {
             return;
         }
 
-        OverlaySystem.ttf.drawString(x*w,y*w-2, symbol, color);
+        String sybmolDebug = symbol;
+        if (ent instanceof EntityRLHuman && Input.key_state_alt){
+            sybmolDebug += " ["+ent.get_uid()+"]";
+        }
+        OverlaySystem.ttf.drawString(x*w,y*w-2, sybmolDebug, color);
     }
 }

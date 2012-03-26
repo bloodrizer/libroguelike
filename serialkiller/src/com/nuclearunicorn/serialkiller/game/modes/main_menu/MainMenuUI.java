@@ -11,6 +11,7 @@ import com.nuclearunicorn.libroguelike.vgui.NE_GUI_FrameModern;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_Label;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_System;
 import com.nuclearunicorn.serialkiller.game.Main;
+import com.nuclearunicorn.serialkiller.utils.pathfinder.adaptive.AdaptivePathfinder;
 import com.nuclearunicorn.serialkiller.vgui.VGUICreateCharacterScreeen;
 import org.newdawn.slick.Color;
 
@@ -60,6 +61,7 @@ public class MainMenuUI implements IUserInterface, IEventListener {
                 frame.visible = false;
 
                 ClientGameEnvironment.reset();  //reset env, or wierd shit will happen
+                AdaptivePathfinder.reset();
                 Main.game.resetState("inGame");
 
                 //Main.inGameMode = new InGameMode();

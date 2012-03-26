@@ -10,6 +10,7 @@ import com.nuclearunicorn.libroguelike.utils.pathfinder.astar.Mover;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntDoor;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntFurniture;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntRLActor;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntTree;
 import org.lwjgl.util.Point;
 
 import java.util.Iterator;
@@ -103,15 +104,19 @@ public class RLWorldLayer extends WorldLayer {
         public float getCost(Mover mover, int sx, int sy, int tx, int ty) {
             
             Entity owner = ((BaseController)mover).getOwner();
-            RLTile tile = getTile(sx, sy);
+            RLTile tile = getTile(tx, ty);
 
             EntRLActor actor = (EntRLActor)tile.get_actor();
-            if (actor == null){
+
+            if (actor == null || !actor.is_blocking()){
                 if (tile.owners.contains(owner)){
                     return 1/getScaleFactor();
                 }else{
                     return 4/getScaleFactor();
                 }
+            }
+            if (actor instanceof EntTree){
+                return 1000/getScaleFactor();
             }
             if ( actor instanceof EntDoor ){
                 return 1/getScaleFactor();

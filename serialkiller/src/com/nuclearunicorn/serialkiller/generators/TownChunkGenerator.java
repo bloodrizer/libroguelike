@@ -395,12 +395,13 @@ public class TownChunkGenerator extends ChunkGenerator {
                 if (chunk_random.nextInt(100) < 2){
                     Entity tree = new Entity();
                     placeEntity(block.getX() + i, block.getY() + j, tree, "tree", "T");
+                    //((RLTile)tree.tile).set
                 }
 
                 if (chunk_random.nextInt(100) < 15){
                     Entity grass = new Entity();
-                    grass.set_blocking(false);
                     placeEntity(block.getX() + i, block.getY() + j, grass, "grass", "\"");
+                    grass.set_blocking(false);
                 }
 
             }
@@ -420,6 +421,7 @@ public class TownChunkGenerator extends ChunkGenerator {
         ent.setName(name);
         ent.setEnvironment(environment);
         ent.setRenderer(new AsciiEntRenderer(symbol));
+        ent.set_blocking(true);
 
         ent.setLayerId(z_index);
         ent.spawn(new Point(x,y));
