@@ -23,7 +23,9 @@ public class ClosestHeuristic implements AStarHeuristic {
 		float dx = tx - x;
 		float dy = ty - y;
 
-		float result = (float) (Math.sqrt((dx*dx)+(dy*dy)));
+		//float result = (float) (Math.sqrt((dx*dx)+(dy*dy)));
+        //use Mathattan distance instead of sqrt
+        float result = map.getScaleFactor() * (Math.abs(x-tx) + Math.abs(y-ty));
 
 		return result;
 	}

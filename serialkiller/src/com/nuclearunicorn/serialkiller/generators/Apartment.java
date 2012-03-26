@@ -23,4 +23,6 @@ public class Apartment extends Block {
     public Apartment(Block district) {
         super(district.getX(), district.getY(), district.getW(), district.getH());
     }
+
+
 }

@@ -7,25 +7,29 @@ import com.nuclearunicorn.libroguelike.game.items.BaseItem;
 import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.generators.ChunkGenerator;
+import com.nuclearunicorn.libroguelike.utils.NLTimer;
 import com.nuclearunicorn.serialkiller.game.ai.PedestrianAI;
 import com.nuclearunicorn.serialkiller.game.ai.PoliceAI;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldChunk;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldModel;
-import com.nuclearunicorn.serialkiller.game.world.entities.EntDoor;
-import com.nuclearunicorn.serialkiller.game.world.entities.EntFurniture;
-import com.nuclearunicorn.serialkiller.game.world.entities.EntRLActor;
-import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
+import com.nuclearunicorn.serialkiller.game.world.entities.*;
 import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
+import com.nuclearunicorn.serialkiller.utils.pathfinder.adaptive.AdaptivePathfinder;
 import org.lwjgl.util.Point;
 import org.newdawn.slick.Color;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 /**
  */
 public class TownChunkGenerator extends ChunkGenerator {
+
+    private static final int NPC_PER_ROAD_RATE = 10;    //50% is a hell lot of npc , 35 is sorta ok
+    private static final int MAX_POLICEMAN_COUNT = 4;
 
     enum RoomType {
         KITCHEN,
@@ -47,13 +51,15 @@ public class TownChunkGenerator extends ChunkGenerator {
     //Map<Block,List<Block>> apartmentRooms = new HashMap<Block, List<Block>>();
     //Map<Block,List<Entity>> apartmentBeds = new HashMap<Block, List<Entity>>();
 
-    List<Apartment> apartments = new ArrayList<Apartment>(16);
-
     RLWorldChunk chunk;
 
     /*
         List of Path nodes in the crossroads or corner points of town. Used for generation of patroling routes
     */
+
+    public List<Apartment> getApartments(){
+        return ((RLWorldModel)environment.getWorld()).getApartments();
+    }
 
     public void generate(WorldChunk chunk){
 
@@ -111,8 +117,17 @@ public class TownChunkGenerator extends ChunkGenerator {
             for (Point milestone: ms){
                 if (!this.chunk.hasMilestone(milestone)){
                     this.chunk.addMilestone(milestone);
+
                 }
             }
+
+            //AdaptivePathfinder.addPoint(this.chunk, milestone); //sub-optimal
+            
+            /*for(Point ms1 :this.chunk.getMilestones()){
+                for(Point ms2: this.chunk.getMilestones()){
+
+                }
+            }*/
 
             generateRoads(district);
             district.scale(-ROAD_SIZE,-ROAD_SIZE);
@@ -124,7 +139,7 @@ public class TownChunkGenerator extends ChunkGenerator {
         Block safehouseBlock = districts.get(chunk_random.nextInt(districts.size()));
 
         Apartment safehouseBlockApt = new Apartment(safehouseBlock);
-        apartments.add(safehouseBlockApt);
+        getApartments().add(safehouseBlockApt);
 
         generateSafehouse(safehouseBlockApt);
         districts.remove(safehouseBlock);
@@ -139,9 +154,17 @@ public class TownChunkGenerator extends ChunkGenerator {
 
         populateMap();
 
-        for (Apartment apt : apartments){
+        for (Apartment apt : getApartments()){
             fillApartmentRooms(apt);
         }
+
+        NLTimer graphTimer = new NLTimer();
+        graphTimer.push();
+        for (Point milestone: this.chunk.getMilestones()){
+            AdaptivePathfinder.addPoint(this.chunk, milestone); //sub-optimal
+        }
+        //AdaptivePathfinder.buildGraph(this.chunk);  //finally, build graph
+        graphTimer.pop("Adaptive graph generation");
     }
 
     /*
@@ -166,7 +189,7 @@ public class TownChunkGenerator extends ChunkGenerator {
         /*Point playerPosition = this.blockGetFreeTile(safehouseBlock);
         Player.get_ent().move_to(playerPosition);*/
 
-        apartments.remove(safehouseBlock);  //no one dares to live in my house!
+        getApartments().remove(safehouseBlock);  //no one dares to live in my house!
     }
 
     private void fillApartmentRooms(Apartment apt) {
@@ -212,9 +235,10 @@ public class TownChunkGenerator extends ChunkGenerator {
             case BEDROOM:
                 Point coord = room.getFreeTile(chunk_random, getLayer());
 
-                EntFurniture bed = new EntFurniture();
+                EntBed bed = new EntBed();
                 placeEntity(coord.getX(), coord.getY(), bed, "bed", "B", Color.green);
                 bed.get_combat().set_hp(50);    //good wooden bed, hard to break >:3
+                bed.set_blocking(false);    //npc can stand on the same tile
 
                 /*if (apt.beds == null){
                     apartmentBeds.put(apt, new ArrayList<Entity>(3));
@@ -250,6 +274,7 @@ public class TownChunkGenerator extends ChunkGenerator {
                         //tile.setModel(".");
 
                         tile.setModelColor(new Color(127,127,0));
+                        tile.setTileType(RLTile.TileType.ROAD);
 
                     }
 
@@ -276,7 +301,7 @@ public class TownChunkGenerator extends ChunkGenerator {
 
             int npcCount = 0;
 
-            if (chunk_random.nextInt(100) < 50){
+            if (chunk_random.nextInt(100) < NPC_PER_ROAD_RATE){
                 npcCount = 1;
             }
             for (int i = 0; i< npcCount; i++){
@@ -287,8 +312,10 @@ public class TownChunkGenerator extends ChunkGenerator {
                 npc.set_controller(new MobController());
                 npc.set_combat(new RLCombat());
 
-                int randomApt = chunk_random.nextInt(apartments.size());
-                Block apt = apartments.get(randomApt);
+                int randomApt = chunk_random.nextInt(getApartments().size());
+                Apartment apt = getApartments().get(randomApt);
+                
+                npc.setApartment(apt);
 
                 for (int n = apt.getX(); n < apt.getX()+apt.getW(); n++)
                     for (int m = apt.getY(); m < apt.getY()+apt.getH(); m++){
@@ -300,7 +327,8 @@ public class TownChunkGenerator extends ChunkGenerator {
         }
 
         //police
-        for (int i=0; i<2; i++){    //4 policemans
+        
+        for (int i=0; i<MAX_POLICEMAN_COUNT; i++){    //4 policemans
             Block road = roads.get(chunk_random.nextInt(roads.size()));
             Point coord = road.getFreeTile(chunk_random, getLayer());
 
@@ -344,7 +372,7 @@ public class TownChunkGenerator extends ChunkGenerator {
         if (chance > 20){
 
             Apartment apt = new Apartment(district);
-            apartments.add(apt);
+            getApartments().add(apt);
             generateHousing(apt);
 
         }else{

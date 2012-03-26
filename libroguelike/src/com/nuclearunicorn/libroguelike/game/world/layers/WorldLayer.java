@@ -39,7 +39,7 @@ public class WorldLayer implements Serializable {
     protected int z_index;
 
     static final int MAP_SIZE = WorldCluster.CLUSTER_SIZE*WorldChunk.CHUNK_SIZE;
-    public transient WorldModelTileMap tile_map = new WorldModelTileMap(this);
+    public transient WorldModelTileMap tile_map;
 
 
     
@@ -55,6 +55,11 @@ public class WorldLayer implements Serializable {
     public Map<Point,WorldChunk> chunk_data = new java.util.HashMap<Point,WorldChunk>(100);
     private List<ChunkGenerator> generators = new ArrayList<ChunkGenerator>();
     //public Map<Point,WorldTile> tile_data = new java.util.HashMap<Point,WorldTile>(1000);
+    
+    
+    public WorldLayer(){
+        tile_map = new WorldModelTileMap(this);
+    }
 
     public void registerGenerator(ChunkGenerator generator){
         generators.add(generator);
@@ -442,7 +447,9 @@ public class WorldLayer implements Serializable {
 
     public static class WorldModelTileMap implements TileBasedMap {
 
-        WorldLayer layer = null;
+        protected WorldLayer layer = null;
+        protected Point temp = new Point(0,0);
+
         public WorldModelTileMap(WorldLayer layer){
             this.layer = layer;
         }
@@ -459,8 +466,6 @@ public class WorldLayer implements Serializable {
         public int getHeightInTiles() {
             return MAP_SIZE;
         }
-
-        Point temp = new Point(0,0);
 
         public boolean blocked(Mover mover, int x, int y) {
             //throw new UnsupportedOperationException("Not supported yet.");
@@ -481,6 +486,11 @@ public class WorldLayer implements Serializable {
         public float getCost(Mover mover, int sx, int sy, int tx, int ty) {
             return 1;
             //TODO: calculate different terrain types there
+        }
+
+        @Override
+        public int getScaleFactor() {
+            return 1;
         }
 
         static Point origin = new Point(0,0);

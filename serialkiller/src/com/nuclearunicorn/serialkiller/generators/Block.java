@@ -32,10 +32,10 @@ public class Block {
         return h;
     }
 
-    private int x;
-    private int y;
-    private int w;
-    private int h;
+    protected int x;
+    protected int y;
+    protected int w;
+    protected int h;
     private List<Block> neighbors = new ArrayList<Block>();
 
     public Block(int x, int y, int w, int h){

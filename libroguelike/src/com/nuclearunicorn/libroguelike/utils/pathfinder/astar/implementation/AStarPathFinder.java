@@ -3,31 +3,38 @@
  * and open the template in the editor.
  */
 
-package com.nuclearunicorn.libroguelike.utils.pathfinder.astar;
+package com.nuclearunicorn.libroguelike.utils.pathfinder.astar.implementation;
+
+import com.nuclearunicorn.libroguelike.utils.pathfinder.astar.*;
+import org.lwjgl.util.Point;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  *
  * @author Administrator
  */
 public class AStarPathFinder implements PathFinder {
-	/** The set of nodes that have been searched through */
+
 	private ArrayList closed = new ArrayList();
-	/** The set of nodes that we do not yet consider fully searched */
 	private SortedList open = new SortedList();
+
+    //private BinaryHeap<Node> openHeap = new BinaryHeap<Node>( );
+
 
 	/** The map being searched */
 	private TileBasedMap map;
 	/** The maximum depth of search we're willing to accept before giving up */
 	private int maxSearchDistance;
 
-	/** The complete set of nodes across the map */
+
 	private Node[][] nodes;
+
 	/** True if we allow diaganol movement */
 	private boolean allowDiagMovement;
-	/** The heuristic we're applying to determine which nodes to search first */
+
 	private AStarHeuristic heuristic;
 
 	/**
@@ -67,7 +74,7 @@ public class AStarPathFinder implements PathFinder {
 	/**
 	 * @see PathFinder#findPath(Mover, int, int, int, int)
 	 */
-	public Path findPath(Mover mover, int sx, int sy, int tx, int ty) {
+	public List<Point> findPath(Mover mover, int sx, int sy, int tx, int ty) {
 		// easy first check, if the destination is blocked, we can't get there
 
 		if (map.blocked(mover, tx, ty)) {
@@ -184,13 +191,15 @@ public class AStarPathFinder implements PathFinder {
 
 		// to the start recording the nodes on the way.
 
-		Path path = new Path();
+		List<Point> path = new ArrayList<Point>();
 		Node target = nodes[tx][ty];
 		while (target != nodes[sx][sy]) {
-			path.prependStep(target.x, target.y);
+            path.add(0, new Point(target.x, target.y));
+			//path.prependStep(target.x, target.y);
 			target = target.parent;
 		}
-		path.prependStep(sx,sy);
+        path.add(0, new Point(sx, sy));
+		//path.prependStep(sx,sy);
 
 		// thats it, we have our path
 
@@ -373,66 +382,6 @@ public class AStarPathFinder implements PathFinder {
 		 */
 		public boolean contains(Object o) {
 			return list.contains(o);
-		}
-	}
-
-	/**
-	 * A single node in the search graph
-	 */
-	private class Node implements Comparable {
-		/** The x coordinate of the node */
-		private int x;
-		/** The y coordinate of the node */
-		private int y;
-		/** The path cost for this node */
-		private float cost;
-		/** The parent of this node, how we reached it in the search */
-		private Node parent;
-		/** The heuristic cost of this node */
-		private float heuristic;
-		/** The search depth of this node */
-		private int depth;
-
-		/**
-		 * Create a new node
-		 *
-		 * @param x The x coordinate of the node
-		 * @param y The y coordinate of the node
-		 */
-		public Node(int x, int y) {
-			this.x = x;
-			this.y = y;
-		}
-
-		/**
-		 * Set the parent of this node
-		 *
-		 * @param parent The parent node which lead us to this node
-		 * @return The depth we have no reached in searching
-		 */
-		public int setParent(Node parent) {
-			depth = parent.depth + 1;
-			this.parent = parent;
-
-			return depth;
-		}
-
-		/**
-		 * @see Comparable#compareTo(Object)
-		 */
-		public int compareTo(Object other) {
-			Node o = (Node) other;
-
-			float f = heuristic + cost;
-			float of = o.heuristic + o.cost;
-
-			if (f < of) {
-				return -1;
-			} else if (f > of) {
-				return 1;
-			} else {
-				return 0;
-			}
 		}
 	}
 }

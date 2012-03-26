@@ -14,7 +14,7 @@ import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
 import com.nuclearunicorn.serialkiller.game.bodysim.Limb;
 import com.nuclearunicorn.serialkiller.game.events.ShowDetailedInformationEvent;
 import com.nuclearunicorn.serialkiller.game.social.CrimeRecord;
-import com.nuclearunicorn.serialkiller.generators.Block;
+import com.nuclearunicorn.serialkiller.generators.Apartment;
 import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
 import com.nuclearunicorn.serialkiller.render.RLMessages;
 import org.newdawn.slick.Color;
@@ -83,14 +83,14 @@ public class EntityRLHuman extends EntRLActor {
     }
 
     //TODO: apartment link
-    Block apartment;
+    Apartment apartment;
 
     
-    public Block getApartment(){
+    public Apartment getApartment(){
         return apartment;
     }
 
-    public void setApartment(Block apt){
+    public void setApartment(Apartment apt){
         apartment = apt;
     }
     
@@ -145,6 +145,9 @@ public class EntityRLHuman extends EntRLActor {
             }
             if (ai.getState() == PedestrianAI.AI_STATE_CHASING){
                 renderer.symbol = "!";
+            }
+            if (ai.getState() == PedestrianAI.AI_STATE_SLEEPING){
+                renderer.symbol = "Z";
             }
         }
         if (bodysim.isStunned()){

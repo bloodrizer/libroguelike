@@ -3,14 +3,22 @@ package com.nuclearunicorn.serialkiller.game.ai;
 import com.nuclearunicorn.libroguelike.events.Event;
 import com.nuclearunicorn.libroguelike.game.ai.BasicMobAI;
 import com.nuclearunicorn.libroguelike.game.ai.IAIAction;
+import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.ent.EntityActor;
 import com.nuclearunicorn.libroguelike.game.ent.controller.NpcController;
+import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.WorldTimer;
 import com.nuclearunicorn.serialkiller.game.events.NPCWitnessCrimeEvent;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldChunk;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntBed;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntDoor;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntFurniture;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
+import com.nuclearunicorn.serialkiller.generators.Apartment;
 import com.nuclearunicorn.serialkiller.render.RLMessages;
+import com.nuclearunicorn.serialkiller.utils.pathfinder.adaptive.AdaptivePathNode;
+import com.nuclearunicorn.serialkiller.utils.pathfinder.adaptive.AdaptivePathfinder;
 import org.lwjgl.util.Point;
 import org.newdawn.slick.Color;
 
@@ -50,24 +58,72 @@ public class PedestrianAI extends BasicMobAI {
         });
 
         registerState(AI_STATE_TIRED, new IAIAction() {
+
             @Override
             public void act(NpcController npcController) {
                 if (npcController == null){
                     return;
                 }
+                Apartment apt = ((EntityRLHuman) owner).getApartment();
+                if (apt == null){
+                    if (npcController.hasPath()){
+                        npcController.clearPath();
+                    }
+                    return; //little optimization for homeless npc
+                }
+
+                //slooow
+
+                //force NPC to switch old path and move to bed
+                if (npcController.hasPath()){
+                    WorldTile target = owner.getLayer().get_tile(npcController.destination);
+
+                    /*
+                        If we have path to target and target is not a bed (or it is, but it is occupied bed)
+                     */
+                    if (target.has_ent(EntBed.class) && !target.has_ent(EntityRLHuman.class)){
+                        //do nothing, that's our bed we should move to
+                    }else{
+                        npcController.clearPath();  //otherwise, recalculate new path
+                    }
+
+                }
+
                 if (!npcController.hasPath()){
                     if (isInBed(npcController)){
                         state = AI_STATE_SLEEPING;
                     }else{
                         calculatePath(npcController);
                     }
-                    
+                }
+                //System.out.println("following path to @" + npcController.destination);
+                if ((int)(Math.random()*100) >= 15){
                     npcController.follow_path();
                 }
             }
 
             private void calculatePath(NpcController npcController) {
 
+                Apartment apt = ((EntityRLHuman) owner).getApartment();
+                Entity bed = null;
+
+                if (apt != null && apt.beds != null && apt.beds.size()>0){
+                    for (Entity currBed: apt.beds){
+                        if (!currBed.tile.has_ent(EntityRLHuman.class)){
+                            bed = currBed;
+                            break;
+                        }
+                    }
+                    //System.out.println("Found my bed @" + bed.origin);
+                }
+
+                if (bed != null){
+                    //System.out.println("Setting path to bed, halleluyah");
+                    //npcController.calculate_path(bed.origin.getX(), bed.origin.getY());
+                    //npcController.set_destination(bed.origin);
+
+                    calculateAdaptivePath(npcController, owner.origin, bed.origin);
+                }
             }
 
             private boolean isInBed(NpcController npcController) {
@@ -76,13 +132,43 @@ public class PedestrianAI extends BasicMobAI {
                     return false;
                 }
 
-                //((RLWorldModel)actor.getEnvironment().getWorld());
-
+                if (owner.tile.has_ent(EntBed.class)){
+                    return true;
+                }
                 return false;
             }
 
         });
 
+    }
+
+    /*
+    * Calculate path, using pre-calculated milestone graph as base for pathfinding route
+     */
+    private void calculateAdaptivePath(NpcController npcController, Point source, Point target) {
+        Point fromMS = ((RLWorldChunk)owner.get_chunk()).getNearestMilestone(source);
+        Point toMS =  ((RLWorldChunk)owner.get_chunk()).getNearestMilestone(target);
+
+        AdaptivePathfinder.resetState();
+        AdaptivePathfinder.calculateAdaptiveRoutes(fromMS);
+        List<AdaptivePathNode> path = AdaptivePathfinder.getShortestPathTo(toMS);
+
+
+        System.out.println("moving from " + owner.origin + " to " + target + " path: " + path);
+        System.out.println("(using " + fromMS + " to " + toMS + " as adaptive nodes)");
+        System.out.println("");
+
+        List<Point> debugPath = new ArrayList<Point>();
+
+        debugPath.add(source);
+        //debugPath.add(fromMS);
+
+        for (AdaptivePathNode node: path){
+            debugPath.add(node.point);
+        }
+        debugPath.add(target);
+
+        npcController.path = debugPath;
     }
 
 
@@ -145,13 +231,6 @@ public class PedestrianAI extends BasicMobAI {
         //state = AI_STATE_ROAMING;
 
         /*
-        timer	= self.owner.em.services["sk_time"]
-		if timer.is_night():
-			if not self.state == ai_state_SLEEPING:
-				self.state = ai_state_TIRED
-		else:
-			self.state = None
-        */
 
         /*if self.player_in_fov():
 
@@ -201,6 +280,17 @@ public class PedestrianAI extends BasicMobAI {
 
             //TODO: pass criminal to the AI manager, so state will be reset only if no known criminal is in fov
             knowCriminals.add((EntityActor) e.criminal);
+        }
+    }
+
+    @Override
+    public void e_on_obstacle(int x, int y) {
+        Entity actor = owner.getLayer().get_tile(x, y).get_actor();
+        if (actor instanceof EntDoor){
+            ((EntDoor)actor).unlock();
+        }
+        if (actor instanceof EntFurniture){
+            owner.get_combat().inflict_damage(actor);
         }
     }
 }

@@ -38,6 +38,7 @@ import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
 import com.nuclearunicorn.serialkiller.render.AsciiWorldView;
 import com.nuclearunicorn.serialkiller.render.ConsoleRenderer;
 import com.nuclearunicorn.serialkiller.render.RLMessages;
+import com.nuclearunicorn.serialkiller.render.overlays.DebugPathfindingGraph;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.Point;
 import rlforj.los.IFovAlgorithm;
@@ -163,6 +164,8 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         fx.render();
         get_ui().render();
 
+
+        DebugPathfindingGraph.debugAdaptiveGraph(); //>:3
         DebugOverlay.debugPathfinding();    //heavy, but very useful
         overlay.render();
 
@@ -245,7 +248,9 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
 
         timer.pop("Turn # "+turnNumber);
         System.out.println(NpcController.pathfinderRequests + " astar calls on this turn ");
+        System.out.println("Total pure astar calculation time: " + NpcController.totalAstarCalculationTime + "ms");
         NpcController.pathfinderRequests = 0;
+        NpcController.totalAstarCalculationTime = 0;
     }
 
     void spawn_player(Point location){

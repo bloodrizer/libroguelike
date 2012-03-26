@@ -19,6 +19,10 @@ public class BaseController implements IEntityController {
         this.owner = entity;
     }
 
+    public Entity getOwner(){
+        return owner;
+    }
+
     public void think(){
 
     }

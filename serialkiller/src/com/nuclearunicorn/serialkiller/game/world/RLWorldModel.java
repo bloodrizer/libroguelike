@@ -9,6 +9,7 @@ import com.nuclearunicorn.libroguelike.game.world.layers.WorldLayer;
 import com.nuclearunicorn.serialkiller.game.events.CriminalActionEvent;
 import com.nuclearunicorn.serialkiller.game.events.NPCWitnessCrimeEvent;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntRLActor;
+import com.nuclearunicorn.serialkiller.generators.Apartment;
 import org.lwjgl.util.Point;
 import rlforj.los.ILosBoard;
 
@@ -20,6 +21,9 @@ public class RLWorldModel extends WorldModel implements ILosBoard {
     private List<RLTile> fovTiles = new ArrayList<RLTile>();
     
     public static Point playerSafeHouseLocation;
+
+
+    List<Apartment> apartments = new ArrayList<Apartment>(16);
 
     public RLWorldModel(int layersCount) {
         this.LAYER_COUNT = layersCount;
@@ -132,4 +136,9 @@ public class RLWorldModel extends WorldModel implements ILosBoard {
             }
         }
     }
+
+    public List<Apartment> getApartments() {
+        return apartments;
+    }
+
 }
