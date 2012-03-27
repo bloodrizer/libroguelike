@@ -2,12 +2,19 @@ package com.nuclearunicorn.serialkiller.game.ai;
 
 import com.nuclearunicorn.libroguelike.core.client.ClientGameEnvironment;
 import com.nuclearunicorn.libroguelike.events.Event;
+import com.nuclearunicorn.libroguelike.game.ai.IAIAction;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.ent.EntityActor;
 import com.nuclearunicorn.libroguelike.game.ent.controller.NpcController;
 import com.nuclearunicorn.libroguelike.game.player.Player;
+import com.nuclearunicorn.serialkiller.game.controllers.RLController;
 import com.nuclearunicorn.serialkiller.game.events.NPCReportCrimeEvent;
+import com.nuclearunicorn.serialkiller.game.social.SocialController;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
+import com.nuclearunicorn.serialkiller.utils.RLMath;
+import org.lwjgl.util.Point;
+
+import java.util.List;
 
 /**
  */
@@ -18,6 +25,22 @@ public class PoliceAI extends PedestrianAI {
     public PoliceAI(){
         super();
 
+        registerState(AI_STATE_INVESTIGATING, new IAIAction() {
+            @Override
+            public void act(NpcController npcController) {
+                actionInvestigate(npcController);
+            }
+        });
+    }
+
+    private void actionInvestigate(NpcController npcController) {
+        RLController controller = (RLController)npcController;
+
+        List<Point> crimeplaces = SocialController.getCrimeplaces();
+        Point nearestCrimeplace = RLMath.getNearestPoint(crimeplaces, owner.origin);
+
+        controller.calculateAdaptivePath(owner.origin, nearestCrimeplace);
+        controller.follow_path();
     }
 
     @Override

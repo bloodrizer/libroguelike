@@ -29,6 +29,8 @@ public class NPCGenerator {
 
         entity.setName(namegen.generate(isMale));
         entity.age = 8 + chunk_random.nextInt(87);
+        
+        entity.race = EntityRLHuman.Race.getRandomRace();
 
 
         //generate criminal background

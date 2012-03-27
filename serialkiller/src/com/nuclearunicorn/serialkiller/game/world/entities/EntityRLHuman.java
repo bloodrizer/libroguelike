@@ -19,8 +19,7 @@ import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
 import com.nuclearunicorn.serialkiller.render.RLMessages;
 import org.newdawn.slick.Color;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -36,10 +35,31 @@ public class EntityRLHuman extends EntRLActor {
         FEMALE
     }
 
-    enum Race {
-        WHITE,
-        BLACK,
-        ASIAN
+    public enum Race {
+
+        WHITE("white"),
+        BLACK("black"),
+        ASIAN("asian"),
+        HISPANIC("hispanic");
+
+        String displayName;
+
+        private static final List<Race> VALUES =
+                Collections.unmodifiableList(Arrays.asList(values()));
+        private static final int SIZE = VALUES.size();
+        private static final Random RANDOM = new Random();
+
+        Race(String name) {
+            this.displayName = name;
+        }
+
+        public String diplayName(){
+            return displayName;
+        }
+
+        public static Race getRandomRace()  {
+            return VALUES.get(RANDOM.nextInt(SIZE));
+        }
     }
 
     enum Religion {
@@ -232,6 +252,9 @@ public class EntityRLHuman extends EntRLActor {
             @Override
             public void execute() {
                 List<Limb> limbs = ((EntityRLHuman)owner).bodysim.getLimbs();
+                if (limbs.isEmpty()){
+                    return; //no more limbs to cut
+                }
                 Limb limb = limbs.get((int)(Math.random()*limbs.size()));
                 limbs.remove(limb);
 

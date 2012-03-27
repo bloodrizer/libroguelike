@@ -2,7 +2,6 @@ package com.nuclearunicorn.serialkiller.generators;
 
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.ent.EntityActor;
-import com.nuclearunicorn.libroguelike.game.ent.controller.MobController;
 import com.nuclearunicorn.libroguelike.game.items.BaseItem;
 import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
@@ -11,6 +10,7 @@ import com.nuclearunicorn.libroguelike.utils.NLTimer;
 import com.nuclearunicorn.serialkiller.game.ai.PedestrianAI;
 import com.nuclearunicorn.serialkiller.game.ai.PoliceAI;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
+import com.nuclearunicorn.serialkiller.game.controllers.RLController;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldChunk;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldModel;
@@ -309,7 +309,7 @@ public class TownChunkGenerator extends ChunkGenerator {
 
                 EntityRLHuman npc = (EntityRLHuman)placeNPC(coord.getX(), coord.getY());
                 npc.set_ai(new PedestrianAI());
-                npc.set_controller(new MobController());
+                npc.set_controller(new RLController());
                 npc.set_combat(new RLCombat());
 
                 int randomApt = chunk_random.nextInt(getApartments().size());
@@ -336,7 +336,7 @@ public class TownChunkGenerator extends ChunkGenerator {
             placeEntity(coord.getX(), coord.getY(), police, "Policeman", "P", new Color(127, 127, 255));
 
             police.set_ai(new PoliceAI());
-            police.set_controller(new MobController());
+            police.set_controller(new RLController());
             police.set_combat(new RLCombat());
 
             //TODO: add police equipment
@@ -388,7 +388,7 @@ public class TownChunkGenerator extends ChunkGenerator {
                 if (chunk_random.nextInt(200) < 1){
                     EntityActor npc = placeNPC(block.getX()+i, block.getY()+j);
                     npc.set_ai(new PedestrianAI());
-                    npc.set_controller(new MobController());
+                    npc.set_controller(new RLController());
                     npc.set_combat(new RLCombat());
                 }
 

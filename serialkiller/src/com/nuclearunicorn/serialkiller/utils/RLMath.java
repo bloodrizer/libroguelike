@@ -1,7 +1,11 @@
 package com.nuclearunicorn.serialkiller.utils;
 
+import com.nuclearunicorn.libroguelike.core.client.ClientGameEnvironment;
+import com.nuclearunicorn.libroguelike.game.ent.Entity;
+import com.nuclearunicorn.libroguelike.game.player.Player;
 import org.lwjgl.util.Point;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,5 +25,18 @@ public class RLMath {
         }
 
         return nearestPoint;
+    }
+    
+    public static List<Entity> getEntitiesInRadius(Point center, int radius){
+        List<Entity> entities = new ArrayList<Entity> ();
+        
+        for (Entity ent: ClientGameEnvironment.getEnvironment().getEntityManager().getEntities(Player.get_zindex())){
+            double squareDisst = Math.pow(center.getX() - ent.origin.getX(), 2) + Math.pow(center.getY() - ent.origin.getY(), 2);
+            if (squareDisst <= Math.pow(radius, 2)){
+                entities.add(ent);
+            }
+        }
+
+        return entities;
     }
 }

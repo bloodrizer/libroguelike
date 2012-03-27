@@ -56,7 +56,8 @@ public class VGUIDetailedNPCInformation extends NE_GUI_FrameModern{
         }
         
         info.add_line(ent.getName() + " is "+ent.getSex().name() + ", age " + ent.age);
-        info.add_line(prefix + " is " + ent.race);
+        info.add_line(prefix + " is " + ent.race.diplayName());
+
 
         info.add_line("");
         if (!ent.crimeRecords.isEmpty()){
@@ -70,7 +71,7 @@ public class VGUIDetailedNPCInformation extends NE_GUI_FrameModern{
                 }
             }
         }
-
+        info.add_line("");
         if (ent.getAI() != null){
             //info.add_line("AI state is '" + ent.getAI().getState()+"'");
             if (ent.getAI().getState() == PedestrianAI.AI_STATE_TIRED){
@@ -85,7 +86,11 @@ public class VGUIDetailedNPCInformation extends NE_GUI_FrameModern{
             info.add_line(prefix + " is homeless");
         }else{
             //Entity bed = ent.getApartment().beds.get((int) Math.random() * ent.getApartment().beds.size());
-            info.add_line(prefix + " has " + ent.getApartment().beds.size() + " beds at his apartment" );
+            if (ent.getSex() == EntityRLHuman.Sex.FEMALE){
+                info.add_line(prefix + " has " + ent.getApartment().beds.size() + " beds at his apartment" );
+            }else{
+                info.add_line(prefix + " has " + ent.getApartment().beds.size() + " beds at her apartment" );
+            }
         }
 
     }

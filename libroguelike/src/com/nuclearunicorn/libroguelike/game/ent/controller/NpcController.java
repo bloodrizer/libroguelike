@@ -369,4 +369,6 @@ public class NpcController extends BaseController implements Mover, IEventListen
     public void clearPath() {
         path = null;
     }
+
+
 }

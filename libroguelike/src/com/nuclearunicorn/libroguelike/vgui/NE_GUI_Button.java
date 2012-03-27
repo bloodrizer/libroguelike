@@ -19,7 +19,7 @@ import static org.lwjgl.opengl.GL11.*;
 public class NE_GUI_Button extends NE_GUI_Element{
     
     TilesetRenderer gui_tile;
-    public Color color = Color.black;
+    public Color color = Color.lightGray;
 
     public String text = "Login";
     //public boolean closable = true;
