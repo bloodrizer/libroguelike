@@ -41,7 +41,9 @@ public class SocialController implements IEventListener{
         if (event instanceof SuspiciousSoundEvent){
             List<Entity> ents = RLMath.getEntitiesInRadius(((SuspiciousSoundEvent) event).getOrigin(), ((SuspiciousSoundEvent) event).radius);
             for (Entity ent: ents){
-                ((EntRLActor)ent).e_on_event(event);
+                if (ent instanceof  EntRLActor){
+                    ((EntRLActor)ent).e_on_event(event);
+                }
             }
         }
     }

@@ -8,8 +8,11 @@ import com.nuclearunicorn.libroguelike.game.ent.EntityActor;
 import com.nuclearunicorn.libroguelike.game.ent.controller.NpcController;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.WorldTimer;
+import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
 import com.nuclearunicorn.serialkiller.game.controllers.RLController;
+import com.nuclearunicorn.serialkiller.game.events.NPCReportCrimeEvent;
 import com.nuclearunicorn.serialkiller.game.events.NPCWitnessCrimeEvent;
+import com.nuclearunicorn.serialkiller.game.events.SuspiciousSoundEvent;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldChunk;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntBed;
@@ -18,6 +21,7 @@ import com.nuclearunicorn.serialkiller.game.world.entities.EntFurniture;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
 import com.nuclearunicorn.serialkiller.generators.Apartment;
 import com.nuclearunicorn.serialkiller.render.RLMessages;
+import com.nuclearunicorn.serialkiller.utils.RLMath;
 import org.lwjgl.util.Point;
 import org.newdawn.slick.Color;
 
@@ -277,6 +281,24 @@ public class PedestrianAI extends BasicMobAI {
 
             //TODO: pass criminal to the AI manager, so state will be reset only if no known criminal is in fov
             knowCriminals.add((EntityActor) e.criminal);
+        }
+        if (event instanceof SuspiciousSoundEvent){
+            /*
+                Trace vector. If wee see target, we should not report police,
+                 since we probably see criminal already
+             */
+            if (!RLMath.pointInLOS(
+                    owner.origin,
+                    ((SuspiciousSoundEvent) event).getOrigin(),
+                    ((RLCombat)owner.get_combat()).getFovRadius())
+            ){
+                
+                RLMessages.message(owner.getName() +" has reported to police of suspicious sounds", Color.orange);
+                
+                //TODO: report police
+                NPCReportCrimeEvent reportEvent = new NPCReportCrimeEvent(((SuspiciousSoundEvent) event).getOrigin());
+                reportEvent.post();
+            }
         }
     }
 

@@ -7,6 +7,7 @@ import com.nuclearunicorn.libroguelike.game.ent.EntityActor;
 import com.nuclearunicorn.libroguelike.game.items.BaseItem;
 import com.nuclearunicorn.libroguelike.game.world.WorldTimer;
 import com.nuclearunicorn.serialkiller.game.events.CriminalActionEvent;
+import com.nuclearunicorn.serialkiller.game.events.SuspiciousSoundEvent;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
 import com.nuclearunicorn.serialkiller.render.RLMessages;
 import org.newdawn.slick.Color;
@@ -42,6 +43,10 @@ public class RLCombat extends BasicCombat {
         } */
 
         return fov;
+    }
+    
+    public int getHearRadius(){
+        return  (int)(5 + 1.5*stats.per);   //slightly better than LOS, and date of time does not affect our senses
     }
 
     @Override
@@ -147,6 +152,9 @@ public class RLCombat extends BasicCombat {
 
         CriminalActionEvent event = new CriminalActionEvent(ent.origin, (EntityActor)owner);
         event.post();
+
+        SuspiciousSoundEvent soundEvent = new SuspiciousSoundEvent(ent.origin, 10); //TODO: differend sound modifiers
+        soundEvent.post();
     }
 
     public NPCStats getStats() {
