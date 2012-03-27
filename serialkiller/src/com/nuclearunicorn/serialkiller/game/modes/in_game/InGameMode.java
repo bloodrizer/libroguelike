@@ -33,6 +33,7 @@ import com.nuclearunicorn.serialkiller.game.MainApplet;
 import com.nuclearunicorn.serialkiller.game.SkillerGame;
 import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
+import com.nuclearunicorn.serialkiller.game.social.SocialController;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldModel;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntRLPlayer;
 import com.nuclearunicorn.serialkiller.generators.TownChunkGenerator;
@@ -125,6 +126,9 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
             Player.get_ent().move_to(RLWorldModel.playerSafeHouseLocation);
         }
         //hack end
+
+        //loading misc services
+        SocialController.init();
     }
 
     @Override
