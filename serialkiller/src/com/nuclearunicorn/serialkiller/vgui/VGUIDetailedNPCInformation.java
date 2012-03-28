@@ -1,5 +1,6 @@
 package com.nuclearunicorn.serialkiller.vgui;
 
+import com.nuclearunicorn.libroguelike.core.Input;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_FrameModern;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_Text;
@@ -73,23 +74,27 @@ public class VGUIDetailedNPCInformation extends NE_GUI_FrameModern{
         }
         info.add_line("");
         if (ent.getAI() != null){
-            //info.add_line("AI state is '" + ent.getAI().getState()+"'");
             if (ent.getAI().getState() == PedestrianAI.AI_STATE_TIRED){
                 info.add_line(prefix + " looks tired");
             }
             if (ent.getAI().getState() == PedestrianAI.AI_STATE_SLEEPING){
                 info.add_line(prefix + " is sleeping with a happy smile on a face");    //todo: implement mood
             }
+
+            if (Input.key_state_alt){
+                info.add_line("AI state is '" + ent.getAI().getState()+"'");
+            }
         }
+
 
         if (ent.getApartment() == null){
             info.add_line(prefix + " is homeless");
         }else{
             //Entity bed = ent.getApartment().beds.get((int) Math.random() * ent.getApartment().beds.size());
             if (ent.getSex() == EntityRLHuman.Sex.FEMALE){
-                info.add_line(prefix + " has " + ent.getApartment().beds.size() + " beds at his apartment" );
-            }else{
                 info.add_line(prefix + " has " + ent.getApartment().beds.size() + " beds at her apartment" );
+            }else{
+                info.add_line(prefix + " has " + ent.getApartment().beds.size() + " beds at his apartment" );
             }
         }
 

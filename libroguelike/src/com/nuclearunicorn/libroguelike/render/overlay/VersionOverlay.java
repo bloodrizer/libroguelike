@@ -15,8 +15,8 @@ import org.newdawn.slick.Color;
 public class VersionOverlay {
 
     //to lazy to implement this shit
-    private static final String CLIENT_VER = "0.1.9";
-    private static final String BUILD_NUMBER = "1090";
+    private static final String CLIENT_VER = "0.2.0";
+    private static final String BUILD_NUMBER = "2001";
 
 public static void render(){
         OverlaySystem.ttf.drawString(WindowRender.get_window_w() - 110, 30,

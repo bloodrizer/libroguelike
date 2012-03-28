@@ -451,7 +451,9 @@ public class WorldView implements IEventListener {
                 //camera_x = 0.0f;
                 //camera_y = 0.0f;
                //WorldViewCamera.set(0.0f,0.0f);
-               WorldViewCamera.follow_target = true;
+               if (!Input.key_state_alt){
+                WorldViewCamera.follow_target = true;
+               }
            }
        }
     }

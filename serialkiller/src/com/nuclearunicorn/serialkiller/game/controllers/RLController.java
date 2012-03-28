@@ -71,6 +71,9 @@ public class RLController extends NpcController {
                          */
 
                         tmpPath = this.getAstarPath(prevNode.point, node.point);
+                        if (tmpPath == null){   //safe switch lol
+                            return;
+                        }
                         tmpPath.remove(0);
                     }
                 }

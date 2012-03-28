@@ -36,6 +36,7 @@ public class SocialController implements IEventListener{
             if (crimeplaces.contains(((NPCReportCrimeEvent) event).getOrigin())){
                 return;
             }
+            System.out.println(">>> added crimeplace <<<");
             addCrimeplace(((NPCReportCrimeEvent) event).getOrigin());
         }
         if (event instanceof SuspiciousSoundEvent){
@@ -50,5 +51,10 @@ public class SocialController implements IEventListener{
     
     public void addCrimeplace(Point crimeplace){
         crimeplaces.add(crimeplace);
+    }
+
+
+    public static boolean hasCrimeplace(Point origin) {
+        return crimeplaces.contains(origin);
     }
 }

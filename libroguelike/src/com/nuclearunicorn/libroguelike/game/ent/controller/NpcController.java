@@ -208,7 +208,7 @@ public class NpcController extends BaseController implements Mover, IEventListen
 
             if (owner.tile == tile){
                 step = null;
-                if (path != null){
+                if (path != null && path.size()>0){
                     path.remove(0);
                 }
                 return;

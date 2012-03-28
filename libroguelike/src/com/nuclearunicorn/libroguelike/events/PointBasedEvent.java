@@ -9,7 +9,7 @@ public class PointBasedEvent extends Event {
     protected Point origin;
 
     public PointBasedEvent(Point origin){
-        this.origin = origin;
+        this.origin = new Point(origin);    //defensive copying
     }
     
     public Point getOrigin(){

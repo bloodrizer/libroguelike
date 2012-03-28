@@ -1,18 +1,20 @@
 package com.nuclearunicorn.serialkiller.game.ai;
 
+import com.nuclearunicorn.libroguelike.core.client.ClientGameEnvironment;
 import com.nuclearunicorn.libroguelike.events.Event;
 import com.nuclearunicorn.libroguelike.game.ai.BasicMobAI;
 import com.nuclearunicorn.libroguelike.game.ai.IAIAction;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.ent.EntityActor;
 import com.nuclearunicorn.libroguelike.game.ent.controller.NpcController;
+import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.WorldTimer;
-import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
 import com.nuclearunicorn.serialkiller.game.controllers.RLController;
 import com.nuclearunicorn.serialkiller.game.events.NPCReportCrimeEvent;
 import com.nuclearunicorn.serialkiller.game.events.NPCWitnessCrimeEvent;
 import com.nuclearunicorn.serialkiller.game.events.SuspiciousSoundEvent;
+import com.nuclearunicorn.serialkiller.game.social.SocialController;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldChunk;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntBed;
@@ -21,7 +23,6 @@ import com.nuclearunicorn.serialkiller.game.world.entities.EntFurniture;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
 import com.nuclearunicorn.serialkiller.generators.Apartment;
 import com.nuclearunicorn.serialkiller.render.RLMessages;
-import com.nuclearunicorn.serialkiller.utils.RLMath;
 import org.lwjgl.util.Point;
 import org.newdawn.slick.Color;
 
@@ -276,6 +277,8 @@ public class PedestrianAI extends BasicMobAI {
 
     @Override
     public void e_on_event(Event event) {
+
+
         if (event instanceof NPCWitnessCrimeEvent){
             NPCWitnessCrimeEvent e = (NPCWitnessCrimeEvent)event;
 
@@ -283,11 +286,15 @@ public class PedestrianAI extends BasicMobAI {
             knowCriminals.add((EntityActor) e.criminal);
         }
         if (event instanceof SuspiciousSoundEvent){
+
             /*
                 Trace vector. If wee see target, we should not report police,
                  since we probably see criminal already
              */
-            if (!RLMath.pointInLOS(
+
+            //disregard that
+
+            /*if (!RLMath.pointInLOS(
                     owner.origin,
                     ((SuspiciousSoundEvent) event).getOrigin(),
                     ((RLCombat)owner.get_combat()).getFovRadius())
@@ -298,6 +305,24 @@ public class PedestrianAI extends BasicMobAI {
                 //TODO: report police
                 NPCReportCrimeEvent reportEvent = new NPCReportCrimeEvent(((SuspiciousSoundEvent) event).getOrigin());
                 reportEvent.post();
+            } */
+            if (!SocialController.hasCrimeplace(((SuspiciousSoundEvent) event).getOrigin())){
+                RLMessages.message(owner.getName() +" has reported to police of criminal activity", Color.orange);
+
+                //TODO: report police
+                //System.out.println("reporting to the police:");
+                NPCReportCrimeEvent reportEvent = new NPCReportCrimeEvent(((SuspiciousSoundEvent) event).getOrigin());
+                reportEvent.post();
+
+                //notice police npc directly, since they are not event listeners
+                Entity[] ents = ClientGameEnvironment.getEnvironment().getEntityManager().getEntities(Player.get_zindex());
+                for (Entity ent: ents){
+                    //if (ent.getAI() != null && ent.getAI() instanceof PoliceAI){
+                        if (ent instanceof  EntityRLHuman){
+                            ((EntityRLHuman)ent).e_on_event(reportEvent);
+                        }
+                    //}
+                }
             }
         }
     }
@@ -313,3 +338,4 @@ public class PedestrianAI extends BasicMobAI {
         }
     }
 }
+

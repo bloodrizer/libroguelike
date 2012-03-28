@@ -11,6 +11,7 @@ import com.nuclearunicorn.libroguelike.render.layers.LayerRenderer;
 import com.nuclearunicorn.libroguelike.render.overlay.DebugOverlay;
 import com.nuclearunicorn.libroguelike.render.overlay.OverlaySystem;
 import com.nuclearunicorn.libroguelike.utils.NLTimer;
+import com.nuclearunicorn.serialkiller.game.social.SocialController;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.Color;
@@ -83,6 +84,11 @@ public class ConsoleRenderer extends LayerRenderer{
                 if(rltile.isOwned()){
                     drawChar(tile_x, tile_y, ".", Color.red);
                 }
+           }
+            
+           //crimeplace visualization
+           if (SocialController.hasCrimeplace(tile.origin)){
+               drawChar(tile_x, tile_y, "X", Color.red);
            }
 
            if (!rltile.getTileModel().isEmpty() && rltile.getTileModelColor() != null){

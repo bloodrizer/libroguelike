@@ -153,8 +153,11 @@ public class RLCombat extends BasicCombat {
         CriminalActionEvent event = new CriminalActionEvent(ent.origin, (EntityActor)owner);
         event.post();
 
-        SuspiciousSoundEvent soundEvent = new SuspiciousSoundEvent(ent.origin, 10); //TODO: differend sound modifiers
-        soundEvent.post();
+        //TODO: temporary hack for player ent. TODO: rewrite for support of multiple criminals in town
+        if (owner.isPlayerEnt()){
+            SuspiciousSoundEvent soundEvent = new SuspiciousSoundEvent(ent.origin, 10); //TODO: differend sound modifiers
+            soundEvent.post();
+        }
     }
 
     public NPCStats getStats() {

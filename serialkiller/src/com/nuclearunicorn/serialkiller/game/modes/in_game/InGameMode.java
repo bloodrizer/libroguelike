@@ -198,6 +198,21 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
     public void e_on_event(Event event) {
         boolean isNextTurn = false;
 
+        //allow to press ESC even if player is dead
+        if (event instanceof EKeyPress){
+            if (((EKeyPress) event).key == Keyboard.KEY_ESCAPE){
+                SkillerGame game;
+                if (Main.game != null){
+                    game = Main.game;
+                }else{
+                    game = MainApplet.game;
+                }
+                game.set_state("mainMenu");
+                game.initStateUI();
+                return;
+            }
+        }
+
         if (Player.get_ent() != null){
             Combat combat = Player.get_ent().get_combat();
             if (combat != null && !combat.is_alive()){
@@ -229,18 +244,6 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
                 break;
                 case Keyboard.KEY_SPACE:
                     isNextTurn = true;
-                break;
-
-
-                case Keyboard.KEY_ESCAPE:
-                    SkillerGame game;
-                    if (Main.game != null){
-                        game = Main.game;
-                    }else{
-                        game = MainApplet.game;
-                    }
-                    game.set_state("mainMenu");
-                    game.initStateUI();
                 break;
             }
         }

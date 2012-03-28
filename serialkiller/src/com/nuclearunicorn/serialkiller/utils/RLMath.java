@@ -19,6 +19,9 @@ public class RLMath {
         double min_disst = Double.MAX_VALUE;
         Point nearestPoint = null;
         for (Point node : list){
+            /*if (node == null || anchor == null){
+                return null;    //unexpected behavior, panic flee
+            }*/
             Double disst = Math.pow(anchor.getX()-node.getX(),2) + Math.pow(anchor.getY()-node.getY(),2);
             if (disst < min_disst){
                 min_disst = disst;

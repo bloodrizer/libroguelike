@@ -7,12 +7,17 @@ import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.ent.EntityActor;
 import com.nuclearunicorn.libroguelike.game.ent.controller.NpcController;
 import com.nuclearunicorn.libroguelike.game.player.Player;
+import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
 import com.nuclearunicorn.serialkiller.game.controllers.RLController;
 import com.nuclearunicorn.serialkiller.game.events.NPCReportCrimeEvent;
+import com.nuclearunicorn.serialkiller.game.events.SuspiciousSoundEvent;
 import com.nuclearunicorn.serialkiller.game.social.SocialController;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
+import com.nuclearunicorn.serialkiller.render.RLMessages;
 import com.nuclearunicorn.serialkiller.utils.RLMath;
 import org.lwjgl.util.Point;
+import org.newdawn.slick.Color;
 
 import java.util.List;
 
@@ -39,8 +44,30 @@ public class PoliceAI extends PedestrianAI {
         List<Point> crimeplaces = SocialController.getCrimeplaces();
         Point nearestCrimeplace = RLMath.getNearestPoint(crimeplaces, owner.origin);
 
-        controller.calculateAdaptivePath(owner.origin, nearestCrimeplace);
+        if (nearestCrimeplace == null){
+            System.out.println("Failed to get nearest crimeplace of list"+crimeplaces);
+            state = AI_STATE_PATROLLING;
+            return;
+        }
+
+        if (nearestCrimeplace != null && !npcController.hasPath()){
+            controller.calculateAdaptivePath(owner.origin, nearestCrimeplace);
+        }
         controller.follow_path();
+
+        if (owner.origin.equals(nearestCrimeplace)){
+            crimeplaces.remove(nearestCrimeplace);
+            RLMessages.message("Police has closed the case", Color.cyan);
+        }
+
+        //a little cheaty way to mark player as criminal if cop locate him near the crimeplace
+
+        int fovRadius = ((RLCombat)((EntityRLHuman)owner).get_combat()).getFovRadius();
+        if (RLMath.isPointInRadius(owner.origin, nearestCrimeplace, fovRadius)){
+            if (RLMath.isPointInRadius(owner.origin, Player.get_ent().origin, fovRadius)){
+                knowCriminals.add((EntityActor)Player.get_ent());
+            }
+        }
     }
 
     @Override
@@ -99,12 +126,19 @@ public class PoliceAI extends PedestrianAI {
 
     @Override
     public void e_on_event(Event event) {
-        super.e_on_event(event);
+        System.out.println("Police AI: event handler for "+event);
 
         if (event instanceof NPCReportCrimeEvent){
             System.out.println("Police AI: started investigation");
             
             state = AI_STATE_INVESTIGATING;
+            return;
         }
+
+        if (event instanceof SuspiciousSoundEvent){
+            return;
+        }
+
+        super.e_on_event(event);
     }
 }
