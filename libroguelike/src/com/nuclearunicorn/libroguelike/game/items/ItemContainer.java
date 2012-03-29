@@ -19,7 +19,7 @@ public class ItemContainer {
      //max_item slots
      public int max_items = 10;
 
-     public List<BaseItem> items = new ArrayList<BaseItem>();
+     protected List<BaseItem> items = new ArrayList<BaseItem>();
 
      public void set_max_items(int count){
          max_items = count;
@@ -48,8 +48,9 @@ public class ItemContainer {
 
         //no similar item found, or every stack is full -  adding new stack
         if(!is_full()){
-            items.add(item.getItem());
-            item.set_container(this);   //required to provide contex-popup callback
+            BaseItem clonedItem = item.getItem();
+            items.add(clonedItem);
+            clonedItem.set_container(this);   //required to provide contex-popup callback
 
             on_update();
         }
@@ -118,4 +119,8 @@ public class ItemContainer {
          EContainerUpdate event = new EContainerUpdate(this);
          event.post();
      }
+
+    public List<BaseItem> getItems() {
+        return items;
+    }
 }

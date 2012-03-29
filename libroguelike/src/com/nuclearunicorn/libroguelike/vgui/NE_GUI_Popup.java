@@ -23,6 +23,7 @@ public class NE_GUI_Popup extends NE_GUI_Element {
 
         @Override
         public void e_on_mouse_click(EMouseClick e){
+            //System.out.println("executing action "+action);
             action.execute();
             e.dispatch();
         }

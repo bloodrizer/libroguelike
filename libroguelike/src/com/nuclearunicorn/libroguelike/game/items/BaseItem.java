@@ -5,6 +5,8 @@
 
 package com.nuclearunicorn.libroguelike.game.items;
 
+import com.nuclearunicorn.libroguelike.game.ent.ActionList;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,6 +44,7 @@ public class BaseItem{
     }
 
     public void set_container(ItemContainer container){
+        System.out.println("setted container to '" + container + "' for item" + this);
         this.container = container;
     }
     //debug only, not safe
@@ -152,7 +155,25 @@ public class BaseItem{
     }
 
     public ArrayList get_action_list() {
-        return new ArrayList<BaseItem>(0);
+
+        class DropItemAction extends BaseItemAction {
+
+            @Override
+            public void execute() {
+                System.out.println("dropping item " + owner);
+                this.owner.drop();
+                System.out.println("dropping item " + owner.get_container());
+            }
+
+        }
+
+
+        ActionList<BaseItem> list = new ActionList<BaseItem>();
+        list.set_owner(this);
+        list.add_action(new DropItemAction(),"Drop");
+
+        //list.add()
+        return list.get_action_list();
     }
 
     public void drop() {

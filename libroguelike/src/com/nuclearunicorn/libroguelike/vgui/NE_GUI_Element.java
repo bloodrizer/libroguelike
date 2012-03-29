@@ -9,9 +9,9 @@ import com.nuclearunicorn.libroguelike.core.Input;
 import com.nuclearunicorn.libroguelike.events.*;
 import com.nuclearunicorn.libroguelike.game.ui.IUserInterface;
 import com.nuclearunicorn.libroguelike.render.WindowRender;
+import org.lwjgl.util.Point;
 
 import java.util.ArrayList;
-import org.lwjgl.util.Point;
 
 /**
  *
@@ -307,6 +307,15 @@ public class NE_GUI_Element {
 
     public String get_tooltip_message() {
         return this.toString();
+    }
+
+    //get root gui element in the hierarchical tree of gui nodes
+
+    public NE_GUI_Element getRootElement() {
+        if (this.parent != null){
+            return this.parent.getRootElement();
+        }
+        return this;
     }
 
 }

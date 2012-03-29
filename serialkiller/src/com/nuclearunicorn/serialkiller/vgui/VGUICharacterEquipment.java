@@ -1,5 +1,6 @@
 package com.nuclearunicorn.serialkiller.vgui;
 
+import com.nuclearunicorn.libroguelike.events.EMouseClick;
 import com.nuclearunicorn.libroguelike.game.items.BaseItem;
 import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_FrameModern;
@@ -23,9 +24,9 @@ public class VGUICharacterEquipment extends NE_GUI_FrameModern {
 
         items = new NE_GUI_Text(){
             @Override
-            protected void e_on_line_click(int lineId) {
+            protected void e_on_line_click(int lineId, EMouseClick type) {
 
-                super.e_on_line_click(lineId);
+                super.e_on_line_click(lineId, type);
 
                 List<BaseItem> eqItems = new ArrayList<BaseItem>(Player.get_player_ent().equipment.slots.values());
                 if (lineId < 0 || eqItems.size() <= lineId){

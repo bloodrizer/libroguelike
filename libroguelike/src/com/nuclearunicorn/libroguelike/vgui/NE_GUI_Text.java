@@ -61,10 +61,10 @@ public class NE_GUI_Text extends NE_GUI_Element{
         int lineId = clientY / FONT_SIZE;
         
         System.out.println("Clicked on line #" + lineId);
-        this.e_on_line_click(lineId);
+        this.e_on_line_click(lineId, e);
     }
 
-    protected void e_on_line_click(int lineId) {
+    protected void e_on_line_click(int lineId, EMouseClick event) {
         //override me!
     }
 

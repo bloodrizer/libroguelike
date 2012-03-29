@@ -4,7 +4,7 @@ import com.nuclearunicorn.libroguelike.core.Game;
 import com.nuclearunicorn.libroguelike.events.Event;
 import com.nuclearunicorn.libroguelike.events.IEventListener;
 import com.nuclearunicorn.libroguelike.game.ent.BaseEntityAction;
-import com.nuclearunicorn.libroguelike.game.ent.EntActionList;
+import com.nuclearunicorn.libroguelike.game.ent.ActionList;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.items.BaseItem;
 import com.nuclearunicorn.libroguelike.game.items.EquipContainer;
@@ -276,7 +276,7 @@ public class EntityRLHuman extends EntRLActor {
         }
 
 
-        EntActionList list = new EntActionList();
+        ActionList<Entity> list = new ActionList();
         list.set_owner(this);
         list.add_action(new ActionDetailedInformation(),"Detailed info");
         if (!combat.is_alive()){

@@ -13,15 +13,15 @@ import java.util.ArrayList;
  *
  * @author Administrator
  */
-public class EntActionList {
-    ArrayList<IAction<Entity>> action_list = new ArrayList<IAction<Entity>>(5);
+public class ActionList<T> {
+    ArrayList<IAction<T>> action_list = new ArrayList<IAction<T>>(5);
 
-    Entity owner = null;
-    public void set_owner( Entity owner){
+    T owner = null;
+    public void set_owner( T owner){
         this.owner = owner;
     }
 
-    public void add_action(IAction<Entity> action, String name){
+    public void add_action(IAction<T> action, String name){
         action_list.add(action);
         action.set_name(name);
         action.set_owner(owner);

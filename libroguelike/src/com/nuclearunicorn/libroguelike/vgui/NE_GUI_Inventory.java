@@ -97,7 +97,7 @@ public class NE_GUI_Inventory extends NE_GUI_FrameModern implements IEventListen
 
         inv_layer.clear();
 
-        BaseItem[] items = (BaseItem[]) container.items.toArray(new BaseItem[0]);
+        BaseItem[] items = (BaseItem[]) container.getItems().toArray(new BaseItem[0]);
         for(int i = 0; i< items.length; i++){
 
             BaseItem item = (BaseItem)items[i];

@@ -62,7 +62,7 @@ public class ItemEntity extends Entity{
         }
 
 
-        EntActionList list = new EntActionList();
+        ActionList list = new ActionList();
         list.set_owner(this);
         list.add_action(new ActionPickUp(),"Pick up");
 

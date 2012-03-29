@@ -21,7 +21,7 @@ public class InventoryOverlay {
         }
 
 
-        BaseItem[] items = (BaseItem[]) Player.get_ent().container.items.toArray(new BaseItem[0]);
+        BaseItem[] items = (BaseItem[]) Player.get_ent().container.getItems().toArray(new BaseItem[0]);
 
         OverlaySystem.ttf.drawString(10, 100, "Inventory:", Color.white );
 
