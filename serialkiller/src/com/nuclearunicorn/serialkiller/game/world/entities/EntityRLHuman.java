@@ -263,7 +263,7 @@ public class EntityRLHuman extends EntRLActor {
                 limbItem.setEffect("damage_type","dmg_blunt");
                 limbItem.set_slot("weapon");
                 //todo: replace with action caller
-                ((EntityRLHuman)Player.get_ent()).container.add_item(limbItem);
+                ((EntityRLHuman)Player.get_ent()).getContainer().add_item(limbItem);
 
                 RLMessages.message( Player.get_ent().getName() + " cuts off " + owner.getName() + "'s "+limb.getName(), Color.orange );
 

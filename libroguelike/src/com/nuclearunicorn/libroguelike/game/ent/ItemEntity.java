@@ -56,7 +56,7 @@ public class ItemEntity extends Entity{
                 System.out.println("You got an awesome shit");
 
                 BaseItem item = BaseItem.produce(get_item_type(), 1);
-                Player.get_ent().container.add_item(item);
+                Player.get_ent().getContainer().add_item(item);
             }
 
         }

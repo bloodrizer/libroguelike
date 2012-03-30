@@ -1,6 +1,7 @@
 package com.nuclearunicorn.serialkiller.game;
 
 import com.nuclearunicorn.libroguelike.game.items.BaseItem;
+import com.nuclearunicorn.serialkiller.game.world.RLItem;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +19,7 @@ public class ItemFactory {
 
         BaseItem item;
         
-        item = BaseItem.produce("hammer",1);
+        item = RLItem.produce("hammer", 1);
         item.set_slot(SLOT_WEAPON);
         item.setEffect("damage","2");
         item.setEffect("damage_type","dmg_blunt");
@@ -28,7 +29,7 @@ public class ItemFactory {
         registerItem("hammer", item);
 
 
-        item = BaseItem.produce("knife",1);
+        item = RLItem.produce("knife",1);
         item.set_slot(SLOT_WEAPON);
         item.setEffect("damage","3");
         item.setEffect("damage_type","dmg_cut");

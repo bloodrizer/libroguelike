@@ -35,7 +35,7 @@ public class NE_GUI_CharEquip extends NE_GUI_FrameModern{
                 //assign_item(item_control.item);
                 if(item_control.item.get_slot().equals(slot_type)){
                     assign_item(item_control.item);
-                    Player.get_ent().container.remove_item(item_control.item);
+                    Player.get_ent().getContainer().remove_item(item_control.item);
                 }else{
                     System.err.println("Ent type '"+ item_control.item.get_slot()+ "' not equals '"+ slot_type +"'");
                 }

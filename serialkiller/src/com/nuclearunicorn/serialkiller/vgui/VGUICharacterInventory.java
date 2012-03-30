@@ -43,7 +43,7 @@ public class VGUICharacterInventory extends NE_GUI_FrameModern {
 
                 if (clickEvent.type.equals(Input.MouseInputType.LCLICK)){
 
-                    List<BaseItem> items = Player.get_ent().container.getItems();
+                    List<BaseItem> items = Player.get_ent().getContainer().getItems();
                     if (lineId < 0 || items.size() <= lineId){
                         return;
                     }
@@ -91,7 +91,7 @@ public class VGUICharacterInventory extends NE_GUI_FrameModern {
             return;
         }
 
-        List<BaseItem> items = Player.get_ent().container.getItems();
+        List<BaseItem> items = Player.get_ent().getContainer().getItems();
         if (lineId < 0 || items.size() <= lineId){
             return;
         }
@@ -127,7 +127,7 @@ public class VGUICharacterInventory extends NE_GUI_FrameModern {
         NPCStats npcStats = combat.getStats();
 
         Color color;
-        for(BaseItem item: Player.get_ent().container.getItems()){
+        for(BaseItem item: (List<BaseItem>)Player.get_ent().getContainer().getItems()){
             EquipContainer equipment = ((EntRLPlayer) Player.get_ent()).equipment;
 
             if (equipment != null && equipment.hasItem(item)){

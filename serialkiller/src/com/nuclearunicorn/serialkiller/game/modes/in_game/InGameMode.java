@@ -289,8 +289,8 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
 
         //---------------------------------------------------
         //TODO: use some kind of item factory
-        playerEnt.container.add_item(ItemFactory.produce("hammer"));
-        playerEnt.container.add_item(ItemFactory.produce("knife"));
+        playerEnt.getContainer().add_item(ItemFactory.produce("hammer"));
+        playerEnt.getContainer().add_item(ItemFactory.produce("knife"));
 
         /*for (BaseItem item: playerEnt.container.getItems()){
             System.out.println("Player's item: " + item + " , container:" + item.get_container());

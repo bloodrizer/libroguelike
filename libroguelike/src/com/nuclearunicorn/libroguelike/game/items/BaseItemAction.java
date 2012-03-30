@@ -8,7 +8,7 @@ package com.nuclearunicorn.libroguelike.game.items;
 import com.nuclearunicorn.libroguelike.game.actions.IAction;
 
 public class BaseItemAction implements IAction<BaseItem> {
-    BaseItem owner = null;
+    protected BaseItem owner = null;
     protected String name = "undefined";
 
     public void set_name(String name){

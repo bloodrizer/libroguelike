@@ -15,13 +15,13 @@ import com.nuclearunicorn.libroguelike.game.items.BaseItem;
  */
 public class EntMonster extends EntityNPC {
     public void drop_loot(Entity killer, String item_type, int count, int rate){
-        if(killer==null || killer.container == null){
+        if(killer==null || killer.getContainer() == null){
             return;
         }
         int chance = (int)(Math.random()*100);
 
         if (chance<rate){
-            killer.container.add_item(
+            killer.getContainer().add_item(
                 BaseItem.produce(item_type, count)
             );
         }

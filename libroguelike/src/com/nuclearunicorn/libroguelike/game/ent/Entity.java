@@ -32,7 +32,14 @@ import java.util.UUID;
  */
 public class Entity implements Comparable, Serializable {
 
-    public Point origin;
+    public enum Orientation {
+        ORIENT_N,
+        ORIENT_W,
+        ORIENT_S,
+        ORIENT_E
+    }
+
+    public Point origin = new Point(0, 0);
     public WorldTile tile;  //the tile entity is currently assigned to
     /*
      * Combat handles all in-game combat mechanic, as stats, damage infliction and damage taking
@@ -74,18 +81,19 @@ public class Entity implements Comparable, Serializable {
     //--------------------------------------------------------------------------
     //  inventory
     //--------------------------------------------------------------------------
-    public ItemContainer container = new ItemContainer();
+    private ItemContainer container = new ItemContainer();
+    {
+        container.setOwner(this);
+    }
+
+    public ItemContainer getContainer(){
+        return container;
+    }
 
     public AI getAI() {
         return ai;
     }
 
-    public enum Orientation {
-        ORIENT_N,
-        ORIENT_W,
-        ORIENT_S,
-        ORIENT_E
-    }
     public Orientation orientation = Orientation.ORIENT_N;
 
 
@@ -197,7 +205,7 @@ public class Entity implements Comparable, Serializable {
         env.getEntityManager().add(this, layer_id);
 
         this.uid = uid;
-        this.origin = origin;
+        this.origin.setLocation(origin);
 
 
         EEntitySpawn spawnEvent = new EEntitySpawn(this,origin);

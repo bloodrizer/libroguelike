@@ -6,6 +6,7 @@
 package com.nuclearunicorn.libroguelike.game.items;
 
 import com.nuclearunicorn.libroguelike.game.ent.ActionList;
+import com.nuclearunicorn.libroguelike.game.ent.Entity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,12 +18,12 @@ import java.util.Map;
  */
 public class BaseItem{
 
-    int count = 1;
-    int max_count = 64;
-    String type = "undefined";
-    String slot = "undefined";
-    
-    Map<String,String> effects = new HashMap<String,String>();
+    protected int count = 1;
+    protected int max_count = 64;
+    protected String type = "undefined";
+    protected String slot = "undefined";
+
+    protected Map<String,String> effects = new HashMap<String,String>();
 
     protected ItemContainer container;
     
@@ -55,11 +56,8 @@ public class BaseItem{
     public static BaseItem produce(String type, int count){
         BaseItem item = new BaseItem();
 
-        //TODO: set max count there based on item type
-
         item.set_type(type);
         item.set_count(count);
-        
 
         return item;
     }
@@ -123,7 +121,7 @@ public class BaseItem{
         return item;
     }
 
-    private void setEffects(Map<String, String> effects) {
+    protected void setEffects(Map<String, String> effects) {
         this.effects = effects;
     }
 
@@ -156,24 +154,10 @@ public class BaseItem{
 
     public ArrayList get_action_list() {
 
-        class DropItemAction extends BaseItemAction {
-
-            @Override
-            public void execute() {
-                System.out.println("dropping item " + owner);
-                this.owner.drop();
-                System.out.println("dropping item " + owner.get_container());
-            }
-
-        }
-
-
         ActionList<BaseItem> list = new ActionList<BaseItem>();
         list.set_owner(this);
-        list.add_action(new DropItemAction(),"Drop");
-
-        //list.add()
         return list.get_action_list();
+
     }
 
     public void drop() {
@@ -189,4 +173,6 @@ public class BaseItem{
     public String toString() {
         return "Item["+type+"@"+slot+"("+count+")]";
     }
+
+
 }
