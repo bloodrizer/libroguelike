@@ -31,4 +31,8 @@ public class ActionList<T> {
         //wtf there
         return action_list;
     }
+
+    public void addAll(ArrayList superList) {
+        action_list.addAll(superList);
+    }
 }

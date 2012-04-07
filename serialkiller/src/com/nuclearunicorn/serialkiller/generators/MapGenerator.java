@@ -15,7 +15,7 @@ public class MapGenerator {
 
     private int refSize;
     private int MIN_BLOCK_SIZE = 1800;
-    private boolean MERGE_BLOCKS = true;
+    private boolean MERGE_BLOCKS = false;
 
     private Random random = new Random();
     public int chunkSeed = 123456;
@@ -103,6 +103,7 @@ public class MapGenerator {
             } else {
                 splited = quadSplit(subBlock);
             }
+            //splited = halfSplit(subBlock);
             
             if (splited != null){
                 for (Block block: splited ){
@@ -179,32 +180,49 @@ public class MapGenerator {
 
   
 
-    public List<Block> roomProcess(List<Block> blocks) {
+    public List<Block> roomProcess(List<Block> blocks, int depth) {
         //#some tricky algorythms there
 
         List<Block> rooms = new ArrayList<Block>();
+        List<Block> nullRooms = new ArrayList<Block>();
         List<Block> splited = new ArrayList<Block>();
 
         //#TODO: make me a neat room
         for (Block subBlock : blocks){
-            if (Math.min(subBlock.getW(),subBlock.getH())*2 < Math.max(subBlock.getW(), subBlock.getH())){
+            if (Math.min(subBlock.getW(),subBlock.getH())*1.5f < Math.max(subBlock.getW(), subBlock.getH())){
                 splited = halfSplit(subBlock);    
             } else {
                 splited = quadSplit(subBlock);
             }
-            
+
             if (splited != null){
                 for(Block sb: splited){
                     rooms.add(sb);
                 }
+                splited.clear();
+            }else{
+                //nullRooms.add(subBlock);
+                rooms.add(subBlock);
             }
         }
+
+        /*if (nullRooms.size() == 1){
+            rooms.add(nullRooms.get(0));
+        }else if (nullRooms.size() > 1){
+            Block nullRoomRoot = nullRooms.get(0);
+            for(int i = 1; i < nullRooms.size(); i++){
+                nullRoomRoot.merge(nullRooms.get(i));
+            }
+            rooms.add(nullRoomRoot);
+        }*/
 
         if (rooms.size() <= blocks.size()){
             return blocks;
         }
 
-        rooms = roomProcess(rooms);
+        //if (depth<2){
+            rooms = roomProcess(rooms, depth+1);
+        //}
         return rooms;
     }
 }

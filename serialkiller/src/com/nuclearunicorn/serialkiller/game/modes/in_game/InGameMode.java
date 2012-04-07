@@ -11,6 +11,7 @@ import com.nuclearunicorn.libroguelike.game.GameEnvironment;
 import com.nuclearunicorn.libroguelike.game.combat.Combat;
 import com.nuclearunicorn.libroguelike.game.ent.controller.NpcController;
 import com.nuclearunicorn.libroguelike.game.ent.controller.PlayerController;
+import com.nuclearunicorn.libroguelike.game.items.BaseItem;
 import com.nuclearunicorn.libroguelike.game.modes.AbstractGameMode;
 import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.libroguelike.game.ui.IUserInterface;
@@ -35,7 +36,8 @@ import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
 import com.nuclearunicorn.serialkiller.game.social.SocialController;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldModel;
-import com.nuclearunicorn.serialkiller.game.world.entities.EntRLPlayer;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLPlayer;
+import com.nuclearunicorn.serialkiller.generators.NPCGenerator;
 import com.nuclearunicorn.serialkiller.generators.TownChunkGenerator;
 import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
 import com.nuclearunicorn.serialkiller.render.AsciiWorldView;
@@ -45,6 +47,8 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.Point;
 import rlforj.los.IFovAlgorithm;
 import rlforj.los.PrecisePermissive;
+
+import java.util.Random;
 
 /**
  * Main game mode
@@ -149,7 +153,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
             if (combat != null && !combat.is_alive()){
                 playerSkipTurn = true;
             }
-            BodySimulation bodysim = ((EntRLPlayer)Player.get_ent()).getBodysim();
+            BodySimulation bodysim = ((EntityRLPlayer)Player.get_ent()).getBodysim();
             if (bodysim != null && bodysim.isStunned()){
                 playerSkipTurn = true;
             }
@@ -218,7 +222,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
             if (combat != null && !combat.is_alive()){
                 return;
             }
-            BodySimulation bodysim = ((EntRLPlayer)Player.get_ent()).getBodysim();
+            BodySimulation bodysim = ((EntityRLPlayer)Player.get_ent()).getBodysim();
             if (bodysim != null && bodysim.isStunned()){
                 return;
             }
@@ -269,7 +273,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
 
     void spawn_player(Point location){
 
-        EntRLPlayer playerEnt = new EntRLPlayer();
+        EntityRLPlayer playerEnt = new EntityRLPlayer();
         playerEnt.set_combat(new RLCombat());
 
         playerEnt.setName("Player");
@@ -292,8 +296,14 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         playerEnt.getContainer().add_item(ItemFactory.produce("hammer"));
         playerEnt.getContainer().add_item(ItemFactory.produce("knife"));
 
+        BaseItem food = ItemFactory.produceFood("generic food", 10);
+        food.set_count(5);
+        playerEnt.getContainer().add_item(food);
+
         /*for (BaseItem item: playerEnt.container.getItems()){
             System.out.println("Player's item: " + item + " , container:" + item.get_container());
         }*/
+
+        NPCGenerator.generateNPCStats(new Random(), playerEnt);
     }
 }

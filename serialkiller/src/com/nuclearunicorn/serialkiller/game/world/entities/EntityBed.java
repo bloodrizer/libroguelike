@@ -2,6 +2,5 @@ package com.nuclearunicorn.serialkiller.game.world.entities;
 
 /**
  */
-public class EntTree extends EntRLActor {
-
+public class EntityBed extends EntityFurniture {
 }

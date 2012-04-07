@@ -3,7 +3,7 @@ package com.nuclearunicorn.serialkiller.game.world.entities;
 
 import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
 
-public class EntDoor extends EntFurniture {
+public class EntityDoor extends EntityFurniture {
 
     boolean locked = false;
 

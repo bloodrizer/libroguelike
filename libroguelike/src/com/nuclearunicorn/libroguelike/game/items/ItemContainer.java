@@ -7,7 +7,6 @@ package com.nuclearunicorn.libroguelike.game.items;
 
 import com.nuclearunicorn.libroguelike.events.EContainerUpdate;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
-import org.lwjgl.util.Point;
 
 import java.util.ArrayList;
 import java.util.List;

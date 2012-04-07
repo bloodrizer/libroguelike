@@ -8,7 +8,7 @@ import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.layers.WorldLayer;
 import com.nuclearunicorn.serialkiller.game.events.CriminalActionEvent;
 import com.nuclearunicorn.serialkiller.game.events.NPCWitnessCrimeEvent;
-import com.nuclearunicorn.serialkiller.game.world.entities.EntRLActor;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLActor;
 import com.nuclearunicorn.serialkiller.generators.Apartment;
 import org.lwjgl.util.Point;
 import rlforj.los.ILosBoard;
@@ -78,8 +78,8 @@ public class RLWorldModel extends WorldModel implements ILosBoard {
         }
         if (tile.isBlocked()){
             Entity ent = tile.getEntity();
-            if (ent instanceof EntRLActor){
-                if (!((EntRLActor) ent).isBlockSight()){
+            if (ent instanceof EntityRLActor){
+                if (!((EntityRLActor) ent).isBlockSight()){
                     return false;
                 }
             }
@@ -121,7 +121,7 @@ public class RLWorldModel extends WorldModel implements ILosBoard {
 
             Entity[] entList = getEnvironment().getEntityManager().getList(Player.get_zindex()).toArray(new Entity[0]);
             for (Entity ent : entList){
-                if (ent instanceof EntRLActor){
+                if (ent instanceof EntityRLActor){
 
                     //TODO: replace it with bresinhem line from npc to player
                     /*if ( ((RLTile)ent.tile).isVisible() &&
@@ -130,7 +130,7 @@ public class RLWorldModel extends WorldModel implements ILosBoard {
                     if ( ((RLTile)ent.tile).isVisible() && criminalEvent.criminal.isPlayerEnt()){
                         System.out.println( ent.getName() + " is witnessing crime of " + criminalEvent.criminal.getName()+ "@"+criminalEvent.origin);
                         NPCWitnessCrimeEvent witnessCrimeEvent = new NPCWitnessCrimeEvent(criminalEvent.origin, criminalEvent.criminal);
-                        ((EntRLActor) ent).e_on_event(witnessCrimeEvent);
+                        ((EntityRLActor) ent).e_on_event(witnessCrimeEvent);
                     }
                 }
             }

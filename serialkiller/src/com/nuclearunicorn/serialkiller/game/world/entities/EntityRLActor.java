@@ -7,7 +7,7 @@ import com.nuclearunicorn.serialkiller.render.RLMessages;
 import org.newdawn.slick.Color;
 
 
-public class EntRLActor extends EntityActor implements IEventListener {
+public class EntityRLActor extends EntityActor implements IEventListener {
 
     boolean blockSight = true;
 

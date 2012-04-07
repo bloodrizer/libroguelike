@@ -7,7 +7,7 @@ import com.nuclearunicorn.libroguelike.vgui.NE_GUI_FrameModern;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_Text;
 import com.nuclearunicorn.serialkiller.game.combat.NPCStats;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
-import com.nuclearunicorn.serialkiller.game.world.entities.EntRLPlayer;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLPlayer;
 import org.newdawn.slick.Color;
 
 import java.util.ArrayList;
@@ -55,7 +55,7 @@ public class VGUICharacterEquipment extends NE_GUI_FrameModern {
 
         Color color;
 
-        EntRLPlayer playerEnt = (EntRLPlayer) Player.get_ent();
+        EntityRLPlayer playerEnt = (EntityRLPlayer) Player.get_ent();
         if (playerEnt.equipment == null){
             return;
         }

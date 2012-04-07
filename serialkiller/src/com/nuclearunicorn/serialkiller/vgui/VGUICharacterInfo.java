@@ -3,8 +3,10 @@ package com.nuclearunicorn.serialkiller.vgui;
 import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_FrameModern;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_Text;
+import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
 import com.nuclearunicorn.serialkiller.game.combat.NPCStats;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
 import org.newdawn.slick.Color;
 
 public class VGUICharacterInfo extends NE_GUI_FrameModern{
@@ -49,6 +51,7 @@ public class VGUICharacterInfo extends NE_GUI_FrameModern{
     public void updateInfo(){
         stats.clearLines();
         RLCombat combat = (RLCombat) Player.get_ent().get_combat();
+        BodySimulation bodySimulation = ((EntityRLHuman)Player.get_ent()).getBodysim();
         NPCStats npcStats = combat.getStats();
 
         stats.add_line("HP: " + combat.get_hp() + "/" + combat.get_max_hp() , Color.lightGray);
@@ -61,6 +64,9 @@ public class VGUICharacterInfo extends NE_GUI_FrameModern{
         stats.add_line("Int:" + npcStats.intl, Color.lightGray);
         stats.add_line("Agi:" + npcStats.agi, Color.lightGray);
         stats.add_line("Luk:" + npcStats.luk    , Color.lightGray);
+        stats.add_line("" );
+        stats.add_line("Hunger: " + bodySimulation.getHunger());
+        stats.add_line("Stamina:" + bodySimulation.getStamina() );
     }
 
     @Override

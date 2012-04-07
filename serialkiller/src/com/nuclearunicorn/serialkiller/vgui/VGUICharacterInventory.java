@@ -13,7 +13,7 @@ import com.nuclearunicorn.libroguelike.vgui.NE_GUI_Popup;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_Text;
 import com.nuclearunicorn.serialkiller.game.combat.NPCStats;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
-import com.nuclearunicorn.serialkiller.game.world.entities.EntRLPlayer;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLPlayer;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
 import org.lwjgl.util.Point;
 import org.newdawn.slick.Color;
@@ -128,14 +128,18 @@ public class VGUICharacterInventory extends NE_GUI_FrameModern {
 
         Color color;
         for(BaseItem item: (List<BaseItem>)Player.get_ent().getContainer().getItems()){
-            EquipContainer equipment = ((EntRLPlayer) Player.get_ent()).equipment;
+            EquipContainer equipment = ((EntityRLPlayer) Player.get_ent()).equipment;
 
             if (equipment != null && equipment.hasItem(item)){
                 color = Color.white;
             }else{
                 color = Color.lightGray;
             }
-            items.add_line(item.get_type(), color);
+            String amtPostfix = "";
+            if (item.get_count() > 1){
+                amtPostfix = "("+item.get_count()+")";
+            }
+            items.add_line(item.get_type() + amtPostfix, color);
         }
     }
 

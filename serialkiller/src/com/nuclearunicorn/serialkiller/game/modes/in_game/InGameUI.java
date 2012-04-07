@@ -16,7 +16,7 @@ import com.nuclearunicorn.libroguelike.render.WindowRender;
 import com.nuclearunicorn.libroguelike.vgui.*;
 import com.nuclearunicorn.serialkiller.game.events.ShowDetailedInformationEvent;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
-import com.nuclearunicorn.serialkiller.game.world.entities.EntRLActor;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLActor;
 import com.nuclearunicorn.serialkiller.messages.EConsoleMessage;
 import com.nuclearunicorn.serialkiller.vgui.VGUICharacterInfo;
 import com.nuclearunicorn.serialkiller.vgui.VGUIDetailedNPCInformation;
@@ -61,8 +61,8 @@ public class InGameUI implements IUserInterface, IEventListener {
                 WorldTile tile = Player.get_ent().getLayer().get_tile(tile_coord);
                 if (tile!=null){
                     Entity ent = tile.getEntity();
-                    if (ent instanceof EntRLActor){
-                        ((EntRLActor)ent).describe();
+                    if (ent instanceof EntityRLActor){
+                        ((EntityRLActor)ent).describe();
                     }
 
                     //RLMessages.message("You see", Color.lightGray);

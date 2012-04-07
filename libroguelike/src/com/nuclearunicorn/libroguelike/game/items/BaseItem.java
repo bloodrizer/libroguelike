@@ -6,7 +6,6 @@
 package com.nuclearunicorn.libroguelike.game.items;
 
 import com.nuclearunicorn.libroguelike.game.ent.ActionList;
-import com.nuclearunicorn.libroguelike.game.ent.Entity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,7 +44,7 @@ public class BaseItem{
     }
 
     public void set_container(ItemContainer container){
-        System.out.println("setted container to '" + container + "' for item" + this);
+        //System.out.println("setted container to '" + container + "' for item" + this);
         this.container = container;
     }
     //debug only, not safe
@@ -123,6 +122,11 @@ public class BaseItem{
 
     protected void setEffects(Map<String, String> effects) {
         this.effects = effects;
+    }
+
+
+    public boolean hasEffect(String effectName) {
+        return effects.containsKey(effectName);
     }
 
     /*

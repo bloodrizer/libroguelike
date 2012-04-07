@@ -6,7 +6,7 @@ import com.nuclearunicorn.libroguelike.events.IEventListener;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.serialkiller.game.events.NPCReportCrimeEvent;
 import com.nuclearunicorn.serialkiller.game.events.SuspiciousSoundEvent;
-import com.nuclearunicorn.serialkiller.game.world.entities.EntRLActor;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLActor;
 import com.nuclearunicorn.serialkiller.utils.RLMath;
 import org.lwjgl.util.Point;
 
@@ -42,8 +42,8 @@ public class SocialController implements IEventListener{
         if (event instanceof SuspiciousSoundEvent){
             List<Entity> ents = RLMath.getEntitiesInRadius(((SuspiciousSoundEvent) event).getOrigin(), ((SuspiciousSoundEvent) event).radius);
             for (Entity ent: ents){
-                if (ent instanceof  EntRLActor){
-                    ((EntRLActor)ent).e_on_event(event);
+                if (ent instanceof EntityRLActor){
+                    ((EntityRLActor)ent).e_on_event(event);
                 }
             }
         }

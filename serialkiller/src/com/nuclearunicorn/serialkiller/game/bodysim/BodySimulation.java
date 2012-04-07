@@ -59,6 +59,10 @@ public class BodySimulation {
         }
     }
 
+    public void restoreHunger(float amt){
+        setHunger(hunger + amt);
+    }
+
     public void setStamina(float hunger){
         this.stamina = hunger;
 
@@ -171,5 +175,13 @@ public class BodySimulation {
 
     public List<Limb> getLimbs() {
         return limbs;
+    }
+
+    public float getStamina() {
+        return stamina;
+    }
+
+    public float getHunger() {
+        return hunger;
     }
 }

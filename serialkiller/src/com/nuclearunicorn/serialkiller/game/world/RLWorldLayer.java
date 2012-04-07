@@ -7,10 +7,9 @@ import com.nuclearunicorn.libroguelike.game.world.WorldCluster;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.layers.WorldLayer;
 import com.nuclearunicorn.libroguelike.utils.pathfinder.astar.Mover;
-import com.nuclearunicorn.serialkiller.game.world.entities.EntDoor;
-import com.nuclearunicorn.serialkiller.game.world.entities.EntFurniture;
-import com.nuclearunicorn.serialkiller.game.world.entities.EntRLActor;
-import com.nuclearunicorn.serialkiller.game.world.entities.EntTree;
+import com.nuclearunicorn.serialkiller.game.world.entities.*;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntityFurniture;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLActor;
 import org.lwjgl.util.Point;
 
 import java.util.Iterator;
@@ -106,7 +105,7 @@ public class RLWorldLayer extends WorldLayer {
             Entity owner = ((BaseController)mover).getOwner();
             RLTile tile = getTile(tx, ty);
 
-            EntRLActor actor = (EntRLActor)tile.get_actor();
+            EntityRLActor actor = (EntityRLActor)tile.get_actor();
 
             if (actor == null || !actor.is_blocking()){
                 if (tile.owners.contains(owner)){
@@ -115,13 +114,13 @@ public class RLWorldLayer extends WorldLayer {
                     return 4/getScaleFactor();
                 }
             }
-            if (actor instanceof EntTree){
+            if (actor instanceof EntityTree){
                 return 1000/getScaleFactor();
             }
-            if ( actor instanceof EntDoor ){
+            if ( actor instanceof EntityDoor){
                 return 1/getScaleFactor();
             }
-            if ( actor instanceof EntFurniture){    //TODO: check EntWindow there
+            if ( actor instanceof EntityFurniture){    //TODO: check EntWindow there
                 return 30/getScaleFactor();
             }
 

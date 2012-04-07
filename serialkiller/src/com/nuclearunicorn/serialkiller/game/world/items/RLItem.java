@@ -1,10 +1,11 @@
-package com.nuclearunicorn.serialkiller.game.world;
+package com.nuclearunicorn.serialkiller.game.world.items;
 
 import com.nuclearunicorn.libroguelike.game.ent.ActionList;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.items.BaseItem;
 import com.nuclearunicorn.libroguelike.game.items.BaseItemAction;
 import com.nuclearunicorn.libroguelike.game.items.ItemEnt;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
 import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
 import org.newdawn.slick.Color;
 
@@ -41,13 +42,35 @@ public class RLItem extends BaseItem{
 
         }
 
+        //eat food action
+
+        class EatItemAction extends BaseItemAction {
+
+            @Override
+            public void execute() {
+                EntityRLHuman humanOwner = ((EntityRLHuman)owner.get_container().getOwner());
+
+                this.owner.del_count(1);
+                if (this.owner.hasEffect("restore_hunger")){
+                    int hungerAmt = Integer.parseInt(owner.getEffect("restore_hunger"));
+                    humanOwner.getBodysim().restoreHunger(hungerAmt);
+                }
+            }
+
+        }
+
 
         ActionList<BaseItem> list = new ActionList<BaseItem>();
         list.set_owner(this);
+
+        if (hasEffect("restore_hunger") || hasEffect("restore_hp")){
+            list.add_action(new EatItemAction(),"eat");
+        }
         list.add_action(new DropItemAction(),"Drop");
 
         return list.get_action_list();
     }
+
 
     public static RLItem produce(String type, int count){
         RLItem item = new RLItem();

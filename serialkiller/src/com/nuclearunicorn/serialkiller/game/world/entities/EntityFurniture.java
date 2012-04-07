@@ -10,9 +10,9 @@ import org.newdawn.slick.Color;
 /**
  * Basic furniture entity for tables, doors, etc
  */
-public class EntFurniture extends EntRLActor {
+public class EntityFurniture extends EntityRLActor {
     
-    public EntFurniture(){
+    public EntityFurniture(){
         Combat combat = new RLCombat();
         set_combat(combat);    
     }

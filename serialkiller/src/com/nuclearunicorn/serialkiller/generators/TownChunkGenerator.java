@@ -235,7 +235,7 @@ public class TownChunkGenerator extends ChunkGenerator {
             case BEDROOM:
                 Point coord = room.getFreeTile(chunk_random, getLayer());
 
-                EntBed bed = new EntBed();
+                EntityBed bed = new EntityBed();
                 placeEntity(coord.getX(), coord.getY(), bed, "bed", "B", Color.green);
                 bed.get_combat().set_hp(50);    //good wooden bed, hard to break >:3
                 bed.set_blocking(false);    //npc can stand on the same tile
@@ -362,9 +362,9 @@ public class TownChunkGenerator extends ChunkGenerator {
         }
     }
 
-    void placeEntity(int x, int y, EntRLActor ent, String symbol, String name, Color color) {
-        placeEntity(x, y, ent, symbol, name);
-        ((AsciiEntRenderer)ent.get_render()).setColor(color);
+    void placeEntity(int x, int y, EntityRLActor entity, String symbol, String name, Color color) {
+        placeEntity(x, y, entity, symbol, name);
+        ((AsciiEntRenderer) entity.get_render()).setColor(color);
     }
 
     private void fillBlock(Block district){
@@ -438,7 +438,9 @@ public class TownChunkGenerator extends ChunkGenerator {
         List<Block> housePrefab = new ArrayList<Block>();
         housePrefab.add(block);
 
-        List<Block> rooms = gen.roomProcess(housePrefab);
+        List<Block> rooms = gen.roomProcess(housePrefab,1);
+
+
 
         //TODO: extract method traceBlock
         for(Block room: rooms){
@@ -459,6 +461,8 @@ public class TownChunkGenerator extends ChunkGenerator {
             Altho this bug is invisible, we should probably assimilate smaller room by larger one
          */
 
+        System.err.println("checking intersections from apartment " + block + ": iterating " + rooms.size() + " rooms");
+
         for (Block room : rooms){
             for(Block room2 : rooms){
                 if(room != room2 && room.intersect(room2)){
@@ -469,23 +473,23 @@ public class TownChunkGenerator extends ChunkGenerator {
 
                             //------------room intersection debug start-------------
                             /*for(Point debug: intrs.getTiles()){
-                                Entity playerEnt = new EntityRLHuman();
+                                Entity debugActor = new EntityRLActor();
 
-                                playerEnt.setName("NPC");
-                                playerEnt.setEnvironment(environment);
-                                playerEnt.setRenderer(new AsciiEntRenderer("X"));
+                                debugActor.setName("Room intersection");
+                                debugActor.setEnvironment(environment);
+                                debugActor.setRenderer(new AsciiEntRenderer("X", Color.red));
 
-                                playerEnt.setLayerId(z_index);
-                                playerEnt.spawn(12345, new Point(debug.getX(),debug.getY()));
+                                debugActor.setLayerId(z_index);
+                                debugActor.spawn(new Point(debug.getX(),debug.getY()));
                             }*/
-
                             //------------debug end---------------
+
                             List<Point> wall = intrs.getTiles();
                             if (wall.size() > 0){
                                 Point door_coord = wall.get(chunk_random.nextInt(wall.size()));
                                 clearWall(door_coord.getX(), door_coord.getY());
 
-                                EntDoor door = new EntDoor();
+                                EntityDoor door = new EntityDoor();
                                 placeEntity(door_coord.getX(), door_coord.getY(), door, "door", "+", Color.green);
                                 door.get_combat().set_hp(5);
 
@@ -507,7 +511,7 @@ public class TownChunkGenerator extends ChunkGenerator {
 
                         //Window
 
-                        EntFurniture window = new EntFurniture();
+                        EntityFurniture window = new EntityFurniture();
                         placeEntity(windowCoord.getX(), windowCoord.getY(), window, "window", "=", Color.green);
                         window.get_combat().set_hp(1);
                         window.setBlockSight(false);
@@ -518,7 +522,7 @@ public class TownChunkGenerator extends ChunkGenerator {
 
                         //Door
 
-                        EntDoor door = new EntDoor();
+                        EntityDoor door = new EntityDoor();
                         placeEntity(windowCoord.getX(), windowCoord.getY(), door, "door", "+", Color.green);
                         door.get_combat().set_hp(5);
                         door.lock();

@@ -71,8 +71,12 @@ public class NameGenerator {
         }else{
             name = female.get(namesRandom.nextInt(female.size()));
         }
-        String surname = surnames.get(namesRandom.nextInt(surnames.size()));
+        String surname = generateSurname();
         
         return name + " " + surname;
+    }
+
+    public String generateSurname() {
+        return surnames.get(namesRandom.nextInt(surnames.size()));
     }
 }

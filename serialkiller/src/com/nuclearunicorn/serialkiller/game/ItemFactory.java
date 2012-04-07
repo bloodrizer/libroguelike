@@ -1,7 +1,7 @@
 package com.nuclearunicorn.serialkiller.game;
 
 import com.nuclearunicorn.libroguelike.game.items.BaseItem;
-import com.nuclearunicorn.serialkiller.game.world.RLItem;
+import com.nuclearunicorn.serialkiller.game.world.items.RLItem;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,5 +43,12 @@ public class ItemFactory {
 
     public static BaseItem produce(String itemId) {
         return itemMap.get(itemId).getItem();
+    }
+
+    public static BaseItem produceFood(String name, int restoreHungerAmt){
+        BaseItem food = RLItem.produce(name,1);
+        food.setEffect("restore_hunger",String.valueOf(restoreHungerAmt));
+
+        return food;
     }
 }

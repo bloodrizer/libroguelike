@@ -9,9 +9,9 @@ import com.nuclearunicorn.libroguelike.render.NPCRenderer;
 
 /**
  */
-public class EntRLPlayer extends EntityRLHuman {
+public class EntityRLPlayer extends EntityRLHuman {
 
-    public EntRLPlayer(){
+    public EntityRLPlayer(){
 
         Combat __combat = new BasicCombat();
         __combat.set_hp(500);

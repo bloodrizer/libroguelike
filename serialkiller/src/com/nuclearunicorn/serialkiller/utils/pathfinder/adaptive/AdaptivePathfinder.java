@@ -2,7 +2,7 @@ package com.nuclearunicorn.serialkiller.utils.pathfinder.adaptive;
 
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldChunk;
-import com.nuclearunicorn.serialkiller.game.world.entities.EntTree;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntityTree;
 import org.lwjgl.util.Point;
 
 import java.util.*;
@@ -65,7 +65,7 @@ public class AdaptivePathfinder {
         for (Point step: line){
             i++;
             RLTile rlTile = (RLTile)chunk.tile_data.get(step);
-            if (rlTile.isWall() || rlTile.has_ent(EntTree.class)){
+            if (rlTile.isWall() || rlTile.has_ent(EntityTree.class)){
                 //System.out.println("debug: bresinham collision on step #"+i);
                 return -1;
             }

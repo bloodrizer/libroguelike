@@ -28,7 +28,7 @@ import java.util.*;
  * Time: 15:10
  * To change this template use File | Settings | File Templates.
  */
-public class EntityRLHuman extends EntRLActor {
+public class EntityRLHuman extends EntityRLActor {
 
     public enum Sex {
         MALE,
@@ -173,7 +173,7 @@ public class EntityRLHuman extends EntRLActor {
         if (bodysim.isStunned()){
             renderer.symbol = "?";
         }
-        if (!combat.is_alive()){
+        if (combat != null && !combat.is_alive()){
             renderer.symbol = "%";
         }
     }

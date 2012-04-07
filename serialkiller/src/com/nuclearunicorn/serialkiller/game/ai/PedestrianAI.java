@@ -17,9 +17,9 @@ import com.nuclearunicorn.serialkiller.game.events.SuspiciousSoundEvent;
 import com.nuclearunicorn.serialkiller.game.social.SocialController;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldChunk;
-import com.nuclearunicorn.serialkiller.game.world.entities.EntBed;
-import com.nuclearunicorn.serialkiller.game.world.entities.EntDoor;
-import com.nuclearunicorn.serialkiller.game.world.entities.EntFurniture;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntityBed;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntityDoor;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntityFurniture;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
 import com.nuclearunicorn.serialkiller.generators.Apartment;
 import com.nuclearunicorn.serialkiller.render.RLMessages;
@@ -85,7 +85,7 @@ public class PedestrianAI extends BasicMobAI {
                     /*
                         If we have path to target and target is not a bed (or it is, but it is occupied bed)
                      */
-                    if (target.has_ent(EntBed.class) && !target.has_ent(EntityRLHuman.class)){
+                    if (target.has_ent(EntityBed.class) && !target.has_ent(EntityRLHuman.class)){
                         //do nothing, that's our bed we should move to
                     }else{
                         System.out.println("no bed in path target or owned bed");
@@ -164,7 +164,7 @@ public class PedestrianAI extends BasicMobAI {
                     return false;
                 }
 
-                if (owner.tile.has_ent(EntBed.class)){
+                if (owner.tile.has_ent(EntityBed.class)){
                     return true;
                 }
                 return false;
@@ -330,10 +330,10 @@ public class PedestrianAI extends BasicMobAI {
     @Override
     public void e_on_obstacle(int x, int y) {
         Entity actor = owner.getLayer().get_tile(x, y).get_actor();
-        if (actor instanceof EntDoor){
-            ((EntDoor)actor).unlock();
+        if (actor instanceof EntityDoor){
+            ((EntityDoor)actor).unlock();
         }
-        if (actor instanceof EntFurniture){
+        if (actor instanceof EntityFurniture){
             owner.get_combat().inflict_damage(actor);
         }
     }

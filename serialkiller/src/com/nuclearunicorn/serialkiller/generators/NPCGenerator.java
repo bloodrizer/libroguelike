@@ -16,7 +16,11 @@ public class NPCGenerator {
         EntityRLHuman entity = new EntityRLHuman();
         generator.placeEntity(x, y, entity, "NPC", "@", new Color(150,250,150));
 
+        entity = generateNPCStats(chunk_random, entity);
+        return entity;
+    }
 
+    public static EntityRLHuman generateNPCStats(Random chunk_random, EntityRLHuman entity ){
         NameGenerator namegen = new NameGenerator();
 
         boolean isMale = false;
@@ -29,7 +33,7 @@ public class NPCGenerator {
 
         entity.setName(namegen.generate(isMale));
         entity.age = 8 + chunk_random.nextInt(87);
-        
+
         entity.race = EntityRLHuman.Race.getRandomRace();
 
 
