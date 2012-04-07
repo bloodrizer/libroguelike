@@ -66,7 +66,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
     IFovAlgorithm fov = new PrecisePermissive();
 
 
-    private GameEnvironment clientGameEnvironment;
+    private static GameEnvironment clientGameEnvironment;
     private int turnNumber = 0;
 
     @Override
@@ -112,7 +112,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
 
         WorldChunk.CHUNK_SIZE = 128;
         
-        spawn_player(new Point(0,0));
+        //spawn_player(new Point(0,0));
 
         
         //hack begin
@@ -271,7 +271,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         NpcController.totalAstarCalculationTime = 0;
     }
 
-    void spawn_player(Point location){
+    public static void spawn_player(Point location){
 
         EntityRLPlayer playerEnt = new EntityRLPlayer();
         playerEnt.set_combat(new RLCombat());
@@ -305,5 +305,6 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         }*/
 
         NPCGenerator.generateNPCStats(new Random(), playerEnt);
+        playerEnt.setName("Player");
     }
 }

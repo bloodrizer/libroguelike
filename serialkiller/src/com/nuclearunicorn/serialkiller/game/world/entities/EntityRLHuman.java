@@ -80,7 +80,7 @@ public class EntityRLHuman extends EntityRLActor {
     List<EntityRLHuman> siblings = new ArrayList<EntityRLHuman>();
 
     public void setMate(EntityRLHuman mate){
-        if (this.mate != null){ //inf cycle safe switch
+        if (this.mate == null){ //inf cycle safe switch
             this.mate = mate;
             mate.setMate(this);
         }

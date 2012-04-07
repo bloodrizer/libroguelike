@@ -13,7 +13,7 @@ public class FamilyGenerator extends NPCGenerator{
     }
 
     public String generateName(boolean isMale){
-        name = namegen.generate(isMale);
+        name = namegen.generateName(isMale);
 
         return name + " " + surname;
     }

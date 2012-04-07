@@ -65,15 +65,21 @@ public class NameGenerator {
     }
     
     public String generate( boolean isMale ){
+        String name = generateName(isMale);
+        String surname = generateSurname();
+        
+        return name + " " + surname;
+    }
+
+    public String generateName( boolean isMale ) {
         String name = "";
         if (isMale){
             name = male.get(namesRandom.nextInt(male.size()));
         }else{
             name = female.get(namesRandom.nextInt(female.size()));
         }
-        String surname = generateSurname();
-        
-        return name + " " + surname;
+
+        return name;
     }
 
     public String generateSurname() {

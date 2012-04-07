@@ -3,6 +3,7 @@ package com.nuclearunicorn.serialkiller.generators;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.ent.EntityActor;
 import com.nuclearunicorn.libroguelike.game.items.BaseItem;
+import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.generators.ChunkGenerator;
@@ -12,6 +13,7 @@ import com.nuclearunicorn.serialkiller.game.ai.PoliceAI;
 import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
 import com.nuclearunicorn.serialkiller.game.controllers.RLController;
+import com.nuclearunicorn.serialkiller.game.modes.in_game.InGameMode;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldChunk;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldModel;
@@ -181,23 +183,50 @@ public class TownChunkGenerator extends ChunkGenerator {
             }
         //TODO: save safehouse
 
+        //PLACE PLAYER
+        InGameMode.spawn_player(new Point(0,0));
+
         //add family members
         FamilyGenerator familyGen = new FamilyGenerator();
-        if (chunk_random.nextInt(100) <= 100){    //60% you have a mate
+        if (chunk_random.nextInt(100) <= 60){    //60% you have a mate
+
+            //TODO: change family layout if you are a child
+
+            //TODO: move to the separate generator
+
             Point origin = safehouseBlock.getFreeTile(chunk_random, getLayer());
             EntityRLHuman mate = NPCGenerator.generateNPC(chunk_random, this, origin.getX(), origin.getY());
             mate.age = NPCGenerator.generateAge(chunk_random, true);  //adult age
 
+            //set correct mate sex
+            if (((EntityRLHuman) Player.get_ent()).getSex() == EntityRLHuman.Sex.MALE){
+                mate.setSex(EntityRLHuman.Sex.FEMALE);
+            }else{
+                mate.setSex(EntityRLHuman.Sex.MALE);
+            }
+
+            //set family surname & name
             Boolean isMale = mate.getSex() == EntityRLHuman.Sex.MALE;
             mate.setName(familyGen.generateName(isMale));
 
-            //fkng npe  >__<
-            //((EntityRLHuman)Player.get_ent()).setMate(mate);    //TODO: possible family relationship for monsters, etc. Inherite them from RLHuman?
+            ((EntityRLHuman) Player.get_ent()).setMate(mate);    //TODO: possible family relationship for monsters, etc. Inherite them from RLHuman?
 
             mate.set_combat(new RLCombat());
             mate.setBodysim(new BodySimulation());
         }
 
+        //===========================
+        //  children
+        //===========================
+
+        if (chunk_random.nextInt(100) <= 30){    //30% you have a one child
+            Point origin = safehouseBlock.getFreeTile(chunk_random, getLayer());
+            EntityRLHuman child = NPCGenerator.generateNPC(chunk_random, this, origin.getX(), origin.getY());
+            child.age = NPCGenerator.generateAge(chunk_random, false);  //young age
+
+            child.set_combat(new RLCombat());
+            child.setBodysim(new BodySimulation());
+        }
 
         fillApartmentRooms(safehouseBlock);
 
