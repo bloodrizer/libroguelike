@@ -76,13 +76,38 @@ public class EntityRLHuman extends EntityRLActor {
 
     //social stuff like family
     EntityRLHuman mate;
+    EntityRLHuman parent;
     List<EntityRLHuman> children = new ArrayList<EntityRLHuman>();
     List<EntityRLHuman> siblings = new ArrayList<EntityRLHuman>();
+
+    public Entity getParent() {
+        return parent;
+    }
 
     public void setMate(EntityRLHuman mate){
         if (this.mate == null){ //inf cycle safe switch
             this.mate = mate;
             mate.setMate(this);
+        }
+    }
+
+    public void addChild(EntityRLHuman child) {
+        for(EntityRLHuman otherChild:children){
+            otherChild.addSibling(child);
+        }
+
+        children.add(child);
+        child.setParent(this);
+    }
+
+    private void setParent(EntityRLHuman parent) {
+        this.parent = parent;
+    }
+
+    private void addSibling(EntityRLHuman child) {
+        if (!siblings.contains(child)){
+            siblings.add(child);
+            child.addSibling(this);
         }
     }
 

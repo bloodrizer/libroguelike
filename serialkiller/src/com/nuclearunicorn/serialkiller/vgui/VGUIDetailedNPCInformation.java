@@ -107,6 +107,14 @@ public class VGUIDetailedNPCInformation extends NE_GUI_FrameModern{
             }
         }
 
+        if (ent.getParent() != null && ent.getParent() == Player.get_ent()){
+            if (ent.getSex() == EntityRLHuman.Sex.FEMALE){
+                info.add_line("She is your daughter" );
+            }else{
+                info.add_line("He is your son" );
+            }
+        }
+
     }
 
 

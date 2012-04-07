@@ -8,6 +8,7 @@ import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.generators.ChunkGenerator;
 import com.nuclearunicorn.libroguelike.utils.NLTimer;
+import com.nuclearunicorn.serialkiller.game.ItemFactory;
 import com.nuclearunicorn.serialkiller.game.ai.PedestrianAI;
 import com.nuclearunicorn.serialkiller.game.ai.PoliceAI;
 import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
@@ -37,7 +38,8 @@ public class TownChunkGenerator extends ChunkGenerator {
     enum RoomType {
         KITCHEN,
         BEDROOM,
-        BATHROOM
+        BATHROOM,
+        STOREROOM
     }
 
 
@@ -185,6 +187,7 @@ public class TownChunkGenerator extends ChunkGenerator {
 
         //PLACE PLAYER
         InGameMode.spawn_player(new Point(0,0));
+        EntityRLHuman playerEnt = ((EntityRLHuman) Player.get_ent());
 
         //add family members
         FamilyGenerator familyGen = new FamilyGenerator();
@@ -199,7 +202,7 @@ public class TownChunkGenerator extends ChunkGenerator {
             mate.age = NPCGenerator.generateAge(chunk_random, true);  //adult age
 
             //set correct mate sex
-            if (((EntityRLHuman) Player.get_ent()).getSex() == EntityRLHuman.Sex.MALE){
+            if (playerEnt.getSex() == EntityRLHuman.Sex.MALE){
                 mate.setSex(EntityRLHuman.Sex.FEMALE);
             }else{
                 mate.setSex(EntityRLHuman.Sex.MALE);
@@ -209,7 +212,7 @@ public class TownChunkGenerator extends ChunkGenerator {
             Boolean isMale = mate.getSex() == EntityRLHuman.Sex.MALE;
             mate.setName(familyGen.generateName(isMale));
 
-            ((EntityRLHuman) Player.get_ent()).setMate(mate);    //TODO: possible family relationship for monsters, etc. Inherite them from RLHuman?
+            playerEnt.setMate(mate);    //TODO: possible family relationship for monsters, etc. Inherite them from RLHuman?
 
             mate.set_combat(new RLCombat());
             mate.setBodysim(new BodySimulation());
@@ -219,13 +222,26 @@ public class TownChunkGenerator extends ChunkGenerator {
         //  children
         //===========================
 
-        if (chunk_random.nextInt(100) <= 30){    //30% you have a one child
+        if (chunk_random.nextInt(100) <= 40){    //40% you have a one child
             Point origin = safehouseBlock.getFreeTile(chunk_random, getLayer());
             EntityRLHuman child = NPCGenerator.generateNPC(chunk_random, this, origin.getX(), origin.getY());
             child.age = NPCGenerator.generateAge(chunk_random, false);  //young age
 
             child.set_combat(new RLCombat());
             child.setBodysim(new BodySimulation());
+
+            playerEnt.addChild(child);
+        }
+
+        if (chunk_random.nextInt(100) <= 15){    //15% you have a second child
+            Point origin = safehouseBlock.getFreeTile(chunk_random, getLayer());
+            EntityRLHuman child = NPCGenerator.generateNPC(chunk_random, this, origin.getX(), origin.getY());
+            child.age = NPCGenerator.generateAge(chunk_random, false);  //young age
+
+            child.set_combat(new RLCombat());
+            child.setBodysim(new BodySimulation());
+
+            playerEnt.addChild(child);
         }
 
         fillApartmentRooms(safehouseBlock);
@@ -247,6 +263,10 @@ public class TownChunkGenerator extends ChunkGenerator {
     }
 
     private void fillApartmentRooms(Apartment apt) {
+        fillApartmentRooms(apt, false);
+    }
+
+    private void fillApartmentRooms(Apartment apt, boolean isSafehouse) {
 
         List<Block> rooms = apt.rooms;
         if (rooms == null || rooms.isEmpty()){
@@ -260,6 +280,16 @@ public class TownChunkGenerator extends ChunkGenerator {
         rooms.remove(kitchen);
 
         //one bathroom
+
+        //one storeroom for safehouse and optional for other apt
+        int chance = 40;    //40% to spawn ladder to the basement ?
+        if (isSafehouse){
+            chance = 100;
+        }
+
+        Block storeroom = rooms.get(chunk_random.nextInt(rooms.size()));
+        fillRoom(apt, storeroom, RoomType.STOREROOM);
+        rooms.remove(storeroom);
 
         //multiple bedrooms
 
@@ -282,12 +312,25 @@ public class TownChunkGenerator extends ChunkGenerator {
     }
 
     private void fillRoom(Apartment apt, Block room, RoomType type) {
+
+        Point coord;
+
         switch (type) {
             case KITCHEN:
+                coord = room.getFreeTile(chunk_random, getLayer());
+
+                EntityFurniture fridge = new EntityFurniture();
+                placeEntity(coord.getX(), coord.getY(), fridge, "Fridge", "F", Color.green);
+                fridge.get_combat().set_hp(20);
+
+                BaseItem food = ItemFactory.produceFood("generic food", 10);
+                food.set_count(10);
+
+                fridge.getContainer().add_item(food);
 
                 break;
             case BEDROOM:
-                Point coord = room.getFreeTile(chunk_random, getLayer());
+                coord = room.getFreeTile(chunk_random, getLayer());
 
                 EntityBed bed = new EntityBed();
                 placeEntity(coord.getX(), coord.getY(), bed, "bed", "B", Color.green);
@@ -301,6 +344,16 @@ public class TownChunkGenerator extends ChunkGenerator {
 
                 break;
             case BATHROOM:
+
+                break;
+
+
+            case STOREROOM:
+                coord = room.getFreeTile(chunk_random, getLayer());
+
+                EntLadder ladder = new EntLadder(); //desc ladder
+                placeEntity(coord.getX(), coord.getY(), ladder, "ladder", ">", Color.green);
+                ladder.setDescending(true);
 
                 break;
         }
