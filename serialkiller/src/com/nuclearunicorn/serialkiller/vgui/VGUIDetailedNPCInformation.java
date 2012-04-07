@@ -2,6 +2,7 @@ package com.nuclearunicorn.serialkiller.vgui;
 
 import com.nuclearunicorn.libroguelike.core.Input;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
+import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_FrameModern;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_Text;
 import com.nuclearunicorn.serialkiller.game.ai.PedestrianAI;
@@ -95,6 +96,14 @@ public class VGUIDetailedNPCInformation extends NE_GUI_FrameModern{
                 info.add_line(prefix + " has " + ent.getApartment().beds.size() + " beds at her apartment" );
             }else{
                 info.add_line(prefix + " has " + ent.getApartment().beds.size() + " beds at his apartment" );
+            }
+        }
+
+        if (ent.getMate() != null && ent.getMate() == Player.get_ent()){
+            if (ent.getSex() == EntityRLHuman.Sex.FEMALE){
+                info.add_line("She is your lovely wife" );
+            }else{
+                info.add_line("He is your husband" );
             }
         }
 

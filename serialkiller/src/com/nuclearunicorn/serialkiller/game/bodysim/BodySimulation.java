@@ -17,6 +17,8 @@ import java.util.List;
 public class BodySimulation {
     boolean bleeding = false;
     boolean stunned = false;
+    boolean fainted = false;
+
     int stun_duration = 0;
 
     int bloodLevel = 100;
@@ -159,14 +161,41 @@ public class BodySimulation {
             }
         }
         if (stunned) {
+
+            //lying unconcious will restore a bit of stamina
+            setStamina(stamina + 2.5f);
+
             stun_duration -= 1;
 
             if (stun_duration <= 0){
                 stunned = false;
             }
         }
+
+        if (fainted) {
+            fainted = false;
+        }
+
         setHunger(hunger-0.05f);
-        setStamina(stamina - 0.1f);
+        //setStamina(stamina - 0.1f);
+        setStamina(stamina - 1.5f);
+
+        if (stamina <= 20){         //stamina < 20% - you start skipping turns
+            if ( (int)(Math.random()*100) <= 10 ){        //10% chance to skip turn
+                setFainted(true);
+                if (owner.isPlayerEnt()){
+                    RLMessages.message("You feel tired", Color.orange);
+                }
+            }
+        }
+        if (stamina == 0){
+            stunned = true;
+            stun_duration = 10;
+
+            if (owner.isPlayerEnt()){
+                RLMessages.message("You are unconscious", Color.orange);
+            }
+        }
     }
 
     public void setOwner(EntityRLHuman owner) {
@@ -183,5 +212,13 @@ public class BodySimulation {
 
     public float getHunger() {
         return hunger;
+    }
+
+    public boolean isFainted() {
+        return fainted;
+    }
+
+    public void setFainted(boolean fainted) {
+        this.fainted = fainted;
     }
 }

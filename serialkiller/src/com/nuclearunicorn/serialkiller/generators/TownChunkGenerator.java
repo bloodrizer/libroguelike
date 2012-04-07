@@ -9,6 +9,7 @@ import com.nuclearunicorn.libroguelike.game.world.generators.ChunkGenerator;
 import com.nuclearunicorn.libroguelike.utils.NLTimer;
 import com.nuclearunicorn.serialkiller.game.ai.PedestrianAI;
 import com.nuclearunicorn.serialkiller.game.ai.PoliceAI;
+import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
 import com.nuclearunicorn.serialkiller.game.controllers.RLController;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
@@ -180,6 +181,24 @@ public class TownChunkGenerator extends ChunkGenerator {
             }
         //TODO: save safehouse
 
+        //add family members
+        FamilyGenerator familyGen = new FamilyGenerator();
+        if (chunk_random.nextInt(100) <= 100){    //60% you have a mate
+            Point origin = safehouseBlock.getFreeTile(chunk_random, getLayer());
+            EntityRLHuman mate = NPCGenerator.generateNPC(chunk_random, this, origin.getX(), origin.getY());
+            mate.age = NPCGenerator.generateAge(chunk_random, true);  //adult age
+
+            Boolean isMale = mate.getSex() == EntityRLHuman.Sex.MALE;
+            mate.setName(familyGen.generateName(isMale));
+
+            //fkng npe  >__<
+            //((EntityRLHuman)Player.get_ent()).setMate(mate);    //TODO: possible family relationship for monsters, etc. Inherite them from RLHuman?
+
+            mate.set_combat(new RLCombat());
+            mate.setBodysim(new BodySimulation());
+        }
+
+
         fillApartmentRooms(safehouseBlock);
 
         //store safehouse to place player there later
@@ -189,7 +208,13 @@ public class TownChunkGenerator extends ChunkGenerator {
         /*Point playerPosition = this.blockGetFreeTile(safehouseBlock);
         Player.get_ent().move_to(playerPosition);*/
 
+
+
+
         getApartments().remove(safehouseBlock);  //no one dares to live in my house!
+
+
+
     }
 
     private void fillApartmentRooms(Apartment apt) {

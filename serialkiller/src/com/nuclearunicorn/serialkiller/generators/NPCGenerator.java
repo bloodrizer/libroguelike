@@ -48,4 +48,12 @@ public class NPCGenerator {
 
         return entity;
     }
+
+    public static int generateAge(Random chunk_random, boolean isAdult) {
+        if (isAdult){
+            return 24 + chunk_random.nextInt(40);
+        }else{
+            return 8 + chunk_random.nextInt(16);
+        }
+    }
 }

@@ -74,6 +74,22 @@ public class EntityRLHuman extends EntityRLActor {
     BodySimulation bodysim;
     public List<CrimeRecord> crimeRecords = new ArrayList<CrimeRecord>();
 
+    //social stuff like family
+    EntityRLHuman mate;
+    List<EntityRLHuman> children = new ArrayList<EntityRLHuman>();
+    List<EntityRLHuman> siblings = new ArrayList<EntityRLHuman>();
+
+    public void setMate(EntityRLHuman mate){
+        if (this.mate != null){ //inf cycle safe switch
+            this.mate = mate;
+            mate.setMate(this);
+        }
+    }
+
+    public EntityRLHuman getMate(){
+        return mate;
+    }
+
     public void addCrimeRecord(CrimeRecord crimeRecord) {
         for (CrimeRecord crime: crimeRecords){
             if (crime.crimeType == crimeRecord.crimeType){
@@ -279,8 +295,10 @@ public class EntityRLHuman extends EntityRLActor {
         ActionList<Entity> list = new ActionList();
         list.set_owner(this);
         list.add_action(new ActionDetailedInformation(),"Detailed info");
-        if (!combat.is_alive()){
+        if (combat != null && !combat.is_alive()){
             list.add_action(new ActionDismember(),"Dismember");
+        }else{
+            System.err.println("Warning: RL Human without combat simulation");
         }
 
         return list.get_action_list();

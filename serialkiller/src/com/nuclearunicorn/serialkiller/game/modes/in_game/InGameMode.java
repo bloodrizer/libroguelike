@@ -154,7 +154,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
                 playerSkipTurn = true;
             }
             BodySimulation bodysim = ((EntityRLPlayer)Player.get_ent()).getBodysim();
-            if (bodysim != null && bodysim.isStunned()){
+            if (bodysim != null && ( bodysim.isStunned() || bodysim.isFainted() ) ){
                 playerSkipTurn = true;
             }
         }
