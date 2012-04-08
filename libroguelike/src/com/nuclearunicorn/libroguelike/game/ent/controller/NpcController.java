@@ -196,7 +196,8 @@ public class NpcController extends BaseController implements Mover, IEventListen
 
     public void move_ent(int x, int y){
 
-        WorldTile tile = ClientGameEnvironment.getWorldLayer(Player.get_zindex()).get_tile(x, y);
+        //WorldTile tile = ClientGameEnvironment.getWorldLayer(Player.get_zindex()).get_tile(x, y);
+        WorldTile tile = owner.getLayer().get_tile(x, y);
         if (tile == null){
             return;
         }

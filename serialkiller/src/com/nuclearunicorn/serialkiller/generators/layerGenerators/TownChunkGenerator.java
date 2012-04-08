@@ -1,4 +1,4 @@
-package com.nuclearunicorn.serialkiller.generators;
+package com.nuclearunicorn.serialkiller.generators.layerGenerators;
 
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.ent.EntityActor;
@@ -11,7 +11,6 @@ import com.nuclearunicorn.libroguelike.utils.NLTimer;
 import com.nuclearunicorn.serialkiller.game.ItemFactory;
 import com.nuclearunicorn.serialkiller.game.ai.PedestrianAI;
 import com.nuclearunicorn.serialkiller.game.ai.PoliceAI;
-import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
 import com.nuclearunicorn.serialkiller.game.controllers.RLController;
 import com.nuclearunicorn.serialkiller.game.modes.in_game.InGameMode;
@@ -19,6 +18,7 @@ import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldChunk;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldModel;
 import com.nuclearunicorn.serialkiller.game.world.entities.*;
+import com.nuclearunicorn.serialkiller.generators.*;
 import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
 import com.nuclearunicorn.serialkiller.utils.pathfinder.adaptive.AdaptivePathfinder;
 import org.lwjgl.util.Point;
@@ -215,7 +215,7 @@ public class TownChunkGenerator extends ChunkGenerator {
             playerEnt.setMate(mate);    //TODO: possible family relationship for monsters, etc. Inherite them from RLHuman?
 
             mate.set_combat(new RLCombat());
-            mate.setBodysim(new BodySimulation());
+            //mate.setBodysim(new BodySimulation());
         }
 
         //===========================
@@ -228,7 +228,7 @@ public class TownChunkGenerator extends ChunkGenerator {
             child.age = NPCGenerator.generateAge(chunk_random, false);  //young age
 
             child.set_combat(new RLCombat());
-            child.setBodysim(new BodySimulation());
+            //child.setBodysim(new BodySimulation());
 
             playerEnt.addChild(child);
         }
@@ -239,7 +239,7 @@ public class TownChunkGenerator extends ChunkGenerator {
             child.age = NPCGenerator.generateAge(chunk_random, false);  //young age
 
             child.set_combat(new RLCombat());
-            child.setBodysim(new BodySimulation());
+            //child.setBodysim(new BodySimulation());
 
             playerEnt.addChild(child);
         }
@@ -355,6 +355,10 @@ public class TownChunkGenerator extends ChunkGenerator {
                 placeEntity(coord.getX(), coord.getY(), ladder, "ladder", ">", Color.green);
                 ladder.setDescending(true);
 
+                //save ladder position to generate underlaying rooms later
+                System.out.println("adding ladder position for layer #"+getLayer().get_zindex());
+                BasementGenerator.addLadder(getLayer().get_zindex(), coord);
+
                 break;
         }
     }
@@ -469,7 +473,7 @@ public class TownChunkGenerator extends ChunkGenerator {
         }
     }
 
-    void placeEntity(int x, int y, EntityRLActor entity, String symbol, String name, Color color) {
+    public void placeEntity(int x, int y, EntityRLActor entity, String symbol, String name, Color color) {
         placeEntity(x, y, entity, symbol, name);
         ((AsciiEntRenderer) entity.get_render()).setColor(color);
     }

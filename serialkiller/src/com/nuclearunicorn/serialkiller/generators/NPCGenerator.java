@@ -3,6 +3,7 @@ package com.nuclearunicorn.serialkiller.generators;
 import com.nuclearunicorn.serialkiller.game.social.CrimeRecord;
 import com.nuclearunicorn.serialkiller.game.social.CrimeType;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
+import com.nuclearunicorn.serialkiller.generators.layerGenerators.TownChunkGenerator;
 import org.newdawn.slick.Color;
 
 import java.util.Random;
@@ -44,6 +45,14 @@ public class NPCGenerator {
             for (int i = 0; i< crimeTypes; i++){
                 entity.addCrimeRecord(new CrimeRecord(CrimeType.getRandomCrime()));
             }
+        }
+
+        if (entity.getBodysim() != null){
+            if (chunk_random.nextInt(100) <= 25){
+                entity.getBodysim().setInfected(true);
+            }
+        }else{
+            throw new RuntimeException("no bodysim");
         }
 
         return entity;

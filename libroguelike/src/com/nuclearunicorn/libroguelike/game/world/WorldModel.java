@@ -115,7 +115,7 @@ public class WorldModel implements IEventListener {
            e_change_chunk.post();
 
            Point ent_origin = spawn_event.ent.origin;
-           WorldTile spawn_tile = getLayer().get_tile(ent_origin.getX(), ent_origin.getY());
+           WorldTile spawn_tile = spawn_event.ent.getLayer().get_tile(ent_origin.getX(), ent_origin.getY());
 
            /* Some ents are prohabited from spawning. Normaly, that should be checked at the server side
             *

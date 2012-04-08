@@ -302,6 +302,13 @@ public class EntityRLHuman extends EntityRLActor {
                 BaseItem limbItem = BaseItem.produce(owner.getName() + "'s "+limb.getName(),1);
                 limbItem.setEffect("damage","1");
                 limbItem.setEffect("damage_type","dmg_blunt");
+                limbItem.setEffect("restore_hunger","20");
+                limbItem.setEffect("restore_hp","2");
+
+                if (((EntityRLHuman)owner).bodysim.isInfected()){
+                    limbItem.setEffect("infected","true");
+                }
+
                 limbItem.set_slot("weapon");
                 //todo: replace with action caller
                 ((EntityRLHuman)Player.get_ent()).getContainer().add_item(limbItem);

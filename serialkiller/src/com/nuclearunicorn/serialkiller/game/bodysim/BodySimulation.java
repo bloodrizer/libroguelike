@@ -30,6 +30,8 @@ public class BodySimulation {
     
     float stamina = 100;
     float hunger = 100;
+    
+    boolean infected = false;
 
     public BodySimulation(){
         limbs.add(new Limb("head",3));
@@ -220,5 +222,13 @@ public class BodySimulation {
 
     public void setFainted(boolean fainted) {
         this.fainted = fainted;
+    }
+
+    public void setInfected(boolean infected) {
+        this.infected = infected;
+    }
+
+    public boolean isInfected() {
+        return infected;
     }
 }

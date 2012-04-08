@@ -19,7 +19,6 @@ import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
 import com.nuclearunicorn.libroguelike.game.world.WorldCluster;
 import com.nuclearunicorn.libroguelike.game.world.WorldView;
 import com.nuclearunicorn.libroguelike.game.world.WorldViewCamera;
-import com.nuclearunicorn.libroguelike.game.world.generators.ChunkGenerator;
 import com.nuclearunicorn.libroguelike.game.world.layers.WorldLayer;
 import com.nuclearunicorn.libroguelike.render.TilesetRenderer;
 import com.nuclearunicorn.libroguelike.render.layers.LayerRenderer;
@@ -38,7 +37,8 @@ import com.nuclearunicorn.serialkiller.game.social.SocialController;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldModel;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLPlayer;
 import com.nuclearunicorn.serialkiller.generators.NPCGenerator;
-import com.nuclearunicorn.serialkiller.generators.TownChunkGenerator;
+import com.nuclearunicorn.serialkiller.generators.layerGenerators.BasementGenerator;
+import com.nuclearunicorn.serialkiller.generators.layerGenerators.TownChunkGenerator;
 import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
 import com.nuclearunicorn.serialkiller.render.AsciiWorldView;
 import com.nuclearunicorn.serialkiller.render.ConsoleRenderer;
@@ -48,6 +48,7 @@ import org.lwjgl.util.Point;
 import rlforj.los.IFovAlgorithm;
 import rlforj.los.PrecisePermissive;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 /**
@@ -83,16 +84,23 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         ClientGameEnvironment.setEnvironment(clientGameEnvironment);
         RLMessages.setEventManager(clientGameEnvironment.getEventManager());
 
-        model = new RLWorldModel(1);
+        model = new RLWorldModel(5);
         clientGameEnvironment.setWorld(model);
 
         WorldCluster.CLUSTER_SIZE = 1;
 
+        //ChunkGenerator townGenerator = new TownChunkGenerator();
+        ArrayList<WorldLayer> layers = new ArrayList<WorldLayer>(model.getLayers());
 
-        ChunkGenerator townGenerator = new TownChunkGenerator();
-        for(WorldLayer layer : model.getLayers()){
-            layer.registerGenerator(townGenerator);
+        layers.get(0).registerGenerator(new TownChunkGenerator());
+        for (int i = 1; i<5; i++){
+            layers.get(i).registerGenerator(new BasementGenerator());
         }
+        //layers.get(1).registerGenerator(new BasementGenerator());
+
+        /*for(WorldLayer layer : model.getLayers()){
+            layer.registerGenerator(townGenerator);
+        }*/
 
         Timer.init();
 

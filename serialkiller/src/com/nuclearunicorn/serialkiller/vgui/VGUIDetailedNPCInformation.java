@@ -6,6 +6,7 @@ import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_FrameModern;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_Text;
 import com.nuclearunicorn.serialkiller.game.ai.PedestrianAI;
+import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
 import com.nuclearunicorn.serialkiller.game.combat.NPCStats;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
 import com.nuclearunicorn.serialkiller.game.social.CrimeRecord;
@@ -112,6 +113,14 @@ public class VGUIDetailedNPCInformation extends NE_GUI_FrameModern{
                 info.add_line("She is your daughter" );
             }else{
                 info.add_line("He is your son" );
+            }
+        }
+
+        //bodysim part
+        BodySimulation bodysim = ent.getBodysim();
+        if (bodysim != null){
+            if (bodysim.isInfected()){
+                info.add_line(prefix + " looks sick" );
             }
         }
 

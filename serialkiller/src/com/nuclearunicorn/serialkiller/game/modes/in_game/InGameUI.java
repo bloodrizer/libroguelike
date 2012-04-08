@@ -195,12 +195,14 @@ public class InGameUI implements IUserInterface, IEventListener {
     private void updateLookAt(){
         Point tile_coord = WorldView.getTileCoord(Input.get_mx(), WindowRender.get_window_h() - Input.get_my());
 
+        int layerID = Player.get_ent().getLayer().get_zindex();
+
         WorldTile tile = Player.get_ent().getLayer().get_tile(tile_coord);
         if (tile!=null && ((RLTile)tile).isExplored()){         //isVisible()
             Entity ent = tile.getEntity();
 
             if (ent != null){
-                lookAtObject.text = ent.getName();
+                lookAtObject.text = "layer #"+layerID+": "+ent.getName();
             }else{
                 lookAtObject.text = "";
             }
