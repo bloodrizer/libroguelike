@@ -221,7 +221,7 @@ public class EntityRLHuman extends EntityRLActor {
 
     @Override
     public void die(Entity killer){
-        //super.die(killer);
+        super.die(killer);
 
         ((AsciiEntRenderer)this.render).symbol = "%";
         RLMessages.message(name + " has died", Color.red);

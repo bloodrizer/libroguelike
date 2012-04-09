@@ -19,7 +19,7 @@ public class EntityFurniture extends EntityRLActor {
 
     @Override
     public void die(Entity killer) {
-        //super.die(killer);
+        super.die(killer);
 
         ((AsciiEntRenderer)this.render).symbol = "X";
         RLMessages.message(name + " is broken", Color.lightGray);

@@ -1,7 +1,9 @@
 package com.nuclearunicorn.serialkiller.game.world;
 
+import com.nuclearunicorn.libroguelike.core.client.ClientGameEnvironment;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.ent.controller.BaseController;
+import com.nuclearunicorn.libroguelike.game.items.ItemEnt;
 import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
 import com.nuclearunicorn.libroguelike.game.world.WorldCluster;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
@@ -10,7 +12,9 @@ import com.nuclearunicorn.libroguelike.utils.pathfinder.astar.Mover;
 import com.nuclearunicorn.serialkiller.game.world.entities.*;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityFurniture;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLActor;
+import com.nuclearunicorn.serialkiller.render.RLMessages;
 import org.lwjgl.util.Point;
+import org.newdawn.slick.Color;
 
 import java.util.Iterator;
 
@@ -72,6 +76,29 @@ public class RLWorldLayer extends WorldLayer {
                     tile.update();
                 }
             }
+    }
+
+    @Override
+    public void move_entity(Entity entity, Point coord_dest) {
+        super.move_entity(entity, coord_dest);
+        RLTile rlTile = (RLTile)get_tile(coord_dest);
+        
+        if (rlTile.has_ent(ItemEnt.class)){
+            ItemEnt itemEnt = (ItemEnt)rlTile.getEntity(ItemEnt.class);
+
+            entity.getContainer().add_item(itemEnt.get_item());
+            rlTile.remove_entity(itemEnt);
+            ClientGameEnvironment.getEntityManager().remove_entity(itemEnt);
+            
+            String countPostfix = "";
+            if (itemEnt.get_item().get_count() > 1){
+                countPostfix = "("+itemEnt.get_item().get_count()+")";
+            }
+
+            if (entity.isPlayerEnt()){
+                RLMessages.message("Player has picked up " + itemEnt.get_item().get_type() + " " + countPostfix , Color.lightGray);
+            }
+        }
     }
 
     //------------------------- pathfinding -----------------------------

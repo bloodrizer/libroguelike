@@ -5,8 +5,10 @@
 
 package com.nuclearunicorn.libroguelike.game.world;
 
+import com.nuclearunicorn.libroguelike.core.client.ClientGameEnvironment;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.ent.EntityActor;
+import com.nuclearunicorn.libroguelike.game.ent.EntityManager;
 import org.lwjgl.util.Point;
 
 import java.io.Serializable;
@@ -138,7 +140,7 @@ public class WorldTile implements Serializable {
         return false;
     }
 
-    Entity getEntity(Class/*<EntDecalBlood>*/ ent_class) {          //wtf?
+    public Entity getEntity(Class ent_class) {          //wtf?
         Object[] list = ent_list.toArray();
         for(int i=ent_list.size()-1; i>=0; i--){
             Entity ent = (Entity)list[i];

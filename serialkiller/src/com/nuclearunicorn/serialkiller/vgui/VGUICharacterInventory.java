@@ -38,34 +38,11 @@ public class VGUICharacterInventory extends NE_GUI_FrameModern {
 
             @Override
             protected void e_on_line_click(int lineId, EMouseClick clickEvent) {
-
                 super.e_on_line_click(lineId, clickEvent);
 
                 if (clickEvent.type.equals(Input.MouseInputType.LCLICK)){
-
-                    List<BaseItem> items = Player.get_ent().getContainer().getItems();
-                    if (lineId < 0 || items.size() <= lineId){
-                        return;
-                    }
-
-                    BaseItem item = items.get(lineId);
-                    System.out.println(item);
-
-
-                    EntityRLHuman ent = (EntityRLHuman) Player.get_ent();
-                    if (ent.equipment == null){
-                        System.err.println("Player's entity equipment is null!");
-                        return;
-                    }
-
-                    if (ent.equipment.hasItem(item)){
-                        ent.equipment.unequip(item);
-                    }else{
-                        ent.equipment.unequipSlot(item.get_slot());
-                        ent.equipment.equip_item(item);
-                    }
-                }
-                if (clickEvent.type.equals(Input.MouseInputType.RCLICK)){
+                    onLeftClick(lineId, clickEvent);
+                }else{
                     contextPopup(lineId, clickEvent);
                 }
             }
@@ -78,6 +55,30 @@ public class VGUICharacterInventory extends NE_GUI_FrameModern {
 
         add(items);
 
+    }
+
+    protected void onLeftClick(int lineId, EMouseClick clickEvent) {
+        List<BaseItem> items = Player.get_ent().getContainer().getItems();
+        if (lineId < 0 || items.size() <= lineId) {
+            return;
+        }
+
+        BaseItem item = items.get(lineId);
+        System.out.println(item);
+
+
+        EntityRLHuman ent = (EntityRLHuman) Player.get_ent();
+        if (ent.equipment == null) {
+            System.err.println("Player's entity equipment is null!");
+            return;
+        }
+
+        if (ent.equipment.hasItem(item)) {
+            ent.equipment.unequip(item);
+        } else {
+            ent.equipment.unequipSlot(item.get_slot());
+            ent.equipment.equip_item(item);
+        }
     }
 
     private void contextPopup(int lineId, EMouseClick clickEvent) {

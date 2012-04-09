@@ -25,14 +25,14 @@ public class ItemContainer<T extends BaseItem> {
 
     public void set_max_items(int count){
          max_items = count;
-     }
+    }
 
      /*
       * Add item stack to inventory
       *
       */
 
-     public void add_item(T item){
+    public void add_item(T item){
         //int count = item.get_count();
 
         Object[] elem =  items.toArray();
@@ -47,6 +47,8 @@ public class ItemContainer<T extends BaseItem> {
                 return;
             }
         }
+         
+        List<T> itemStacks = generateStackList(item); 
 
         //no similar item found, or every stack is full -  adding new stack
         if(!is_full()){
@@ -56,7 +58,16 @@ public class ItemContainer<T extends BaseItem> {
 
             on_update();
         }
-     }
+    }
+
+    //TODO: implement stackification
+    public List<T> generateStackList(T item){
+         List<T> stackList = new ArrayList<T>();
+         int stackCount = item.get_count() / item.get_max_count();
+
+
+         return stackList;
+    }
 
      public boolean is_full(){
          return ( items.size() >= max_items );
