@@ -15,7 +15,7 @@ import org.newdawn.slick.Color;
 public class VersionOverlay {
 
     //to lazy to implement this shit
-    private static final String CLIENT_VER = "0.2.0";
+    private static final String CLIENT_VER = "0.2.2";
     private static final String BUILD_NUMBER = "2001";
 
 public static void render(){

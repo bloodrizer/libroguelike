@@ -35,14 +35,16 @@ public class ItemContainer<T extends BaseItem> {
     public void add_item(T item){
         //int count = item.get_count();
 
+        BaseItem defCopyItem = item.getItem();
+
         Object[] elem =  items.toArray();
         for(int i = 0; i<elem.length; i++){
-            BaseItem tgt = (T)elem[i];
-            if ( tgt.get_type().equals(item.get_type()) ){  //compair types
-                tgt.put_from(item);
+            T tgt = (T)elem[i];
+            if ( tgt.get_type().equals(defCopyItem.get_type()) ){  //compair types
+                tgt.put_from(defCopyItem);
             }
             
-            if (item.is_empty()){
+            if (defCopyItem.is_empty()){
                 on_update();
                 return;
             }
@@ -92,9 +94,13 @@ public class ItemContainer<T extends BaseItem> {
 
              if (elem[i].type.equals(item.type)){
                  if(elem[i].count <= remove_count){
+
                      remove_count -= elem[i].count;
+                     System.out.println("removing "+elem[i].count+"from stack "+i);
                      items.remove(elem[i]); //erase this item stack completely
+                     System.out.println("also, stack is erased, move on");
                  }else{
+                     System.out.println("removing "+remove_count+"from stack "+i);
                      elem[i].del_count(remove_count);
                      remove_count = 0;
                  }

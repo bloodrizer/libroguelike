@@ -1,5 +1,6 @@
 package com.nuclearunicorn.serialkiller.vgui;
 
+import com.nuclearunicorn.libroguelike.core.Input;
 import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_FrameModern;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_Text;
@@ -14,6 +15,7 @@ public class VGUICharacterInfo extends NE_GUI_FrameModern{
     NE_GUI_Text stats;
     VGUICharacterInventory inventory;
     VGUICharacterEquipment equipment;
+    Color bloodlustColor;// = new Color(150,150,150);
 
     public VGUICharacterInfo(){
         super(true);    //close button
@@ -65,8 +67,16 @@ public class VGUICharacterInfo extends NE_GUI_FrameModern{
         stats.add_line("Agi:" + npcStats.agi, Color.lightGray);
         stats.add_line("Luk:" + npcStats.luk    , Color.lightGray);
         stats.add_line("" );
-        stats.add_line("Hunger: " + bodySimulation.getHunger());
-        stats.add_line("Stamina:" + bodySimulation.getStamina() );
+        if (!Input.key_state_alt){
+            stats.add_line("Hunger: " + (int)bodySimulation.getHunger() + "%");
+            stats.add_line("Stamina:" + (int)bodySimulation.getStamina()+ "%" );
+        }else{
+            stats.add_line("Hunger: " + bodySimulation.getHunger());
+            stats.add_line("Stamina:" + bodySimulation.getStamina());
+        }
+
+        bloodlustColor = new Color((int)(150 + bodySimulation.getBloodlust()), 150, 150);  //kinda shitty but ok
+        stats.add_line("Bloodlust:" + bodySimulation.getBloodlust(), bloodlustColor);
     }
 
     @Override

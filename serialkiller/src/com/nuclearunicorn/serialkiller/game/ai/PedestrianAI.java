@@ -296,14 +296,14 @@ public class PedestrianAI extends BasicMobAI {
 
             /*if (!RLMath.pointInLOS(
                     owner.origin,
-                    ((SuspiciousSoundEvent) event).getOrigin(),
+                    ((SuspiciousSoundEvent) event).getEntity(),
                     ((RLCombat)owner.get_combat()).getFovRadius())
             ){
                 
                 RLMessages.message(owner.getName() +" has reported to police of suspicious sounds", Color.orange);
                 
                 //TODO: report police
-                NPCReportCrimeEvent reportEvent = new NPCReportCrimeEvent(((SuspiciousSoundEvent) event).getOrigin());
+                NPCReportCrimeEvent reportEvent = new NPCReportCrimeEvent(((SuspiciousSoundEvent) event).getEntity());
                 reportEvent.post();
             } */
             if (!SocialController.hasCrimeplace(((SuspiciousSoundEvent) event).getOrigin())){

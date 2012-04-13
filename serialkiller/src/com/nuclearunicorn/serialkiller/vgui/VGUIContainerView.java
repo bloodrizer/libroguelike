@@ -48,6 +48,7 @@ public class VGUIContainerView extends NE_GUI_FrameModern{
                 }
 
                 containerEnt.getContainer().add_item(item);
+                ent.getContainer().remove_item(item);
             }
         };
 
@@ -81,12 +82,18 @@ public class VGUIContainerView extends NE_GUI_FrameModern{
                 }
 
                 ent.getContainer().add_item(item);
+                containerEnt.getContainer().remove_item(item);
+            }
+
+            @Override
+            protected List<BaseItem> getItems() {
+                return (List<BaseItem>)containerEnt.getContainer().getItems();
             }
         };
 
         containerInv.set_tw(7);
         containerInv.set_th(9);
-        containerInv.x = 20;
+        containerInv.x = 320;
         containerInv.y = 20;
         containerInv.dragable = false;
 
@@ -94,4 +101,7 @@ public class VGUIContainerView extends NE_GUI_FrameModern{
 
     }
 
+    public void setEntity(Entity entity) {
+        this.containerEnt = entity;
+    }
 }

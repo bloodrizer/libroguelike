@@ -144,7 +144,7 @@ public class BaseItem{
         System.out.println("to remove:" + Integer.toString(to_remove));
         System.out.println("removing from src:" + Integer.toString(src.count));
 
-        //src.del_count(to_remove); <hell no
+        src.del_count(to_remove); //<hell no
 
         System.out.println("and now it is:" + Integer.toString(src.count));
         this.add_count(to_remove);

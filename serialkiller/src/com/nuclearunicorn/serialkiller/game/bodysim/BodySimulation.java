@@ -28,8 +28,9 @@ public class BodySimulation {
 
     List<Limb> limbs = new ArrayList<Limb>();
     
-    float stamina = 100;
-    float hunger = 100;
+    float stamina = 100f;
+    float hunger = 100f;
+    float bloodlust = 0f;
     
     boolean infected = false;
 
@@ -179,8 +180,8 @@ public class BodySimulation {
         }
 
         setHunger(hunger-0.05f);
-        //setStamina(stamina - 0.1f);
-        setStamina(stamina - 1.5f);
+        setStamina(stamina - 0.1f);
+        setBloodlust(bloodlust + 0.05f);
 
         if (stamina <= 20){         //stamina < 20% - you start skipping turns
             if ( (int)(Math.random()*100) <= 10 ){        //10% chance to skip turn
@@ -230,5 +231,23 @@ public class BodySimulation {
 
     public boolean isInfected() {
         return infected;
+    }
+
+    public float getBloodlust() {
+        return bloodlust;
+    }
+
+    public void setBloodlust(float bloodlust) {
+        this.bloodlust = bloodlust;
+        if (this.bloodlust > 100f){
+            this.bloodlust = 100f;
+        }
+        if (this.bloodlust < 0f){
+            this.bloodlust = 0f;
+        }
+    }
+
+    public void depleteBloodlust(float amt) {
+        this.setBloodlust(bloodlust - amt);
     }
 }

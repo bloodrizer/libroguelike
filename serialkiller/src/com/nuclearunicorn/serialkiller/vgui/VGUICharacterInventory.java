@@ -121,6 +121,11 @@ public class VGUICharacterInventory extends NE_GUI_FrameModern {
 
     }
 
+    protected List<BaseItem> getItems(){
+        //override me!
+        return (List<BaseItem>)Player.get_ent().getContainer().getItems();
+    }
+
 
     public void updateInfo(){
         items.clearLines();
@@ -128,7 +133,7 @@ public class VGUICharacterInventory extends NE_GUI_FrameModern {
         NPCStats npcStats = combat.getStats();
 
         Color color;
-        for(BaseItem item: (List<BaseItem>)Player.get_ent().getContainer().getItems()){
+        for(BaseItem item: getItems()){
             EquipContainer equipment = ((EntityRLPlayer) Player.get_ent()).equipment;
 
             if (equipment != null && equipment.hasItem(item)){

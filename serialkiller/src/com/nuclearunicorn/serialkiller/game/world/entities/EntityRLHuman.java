@@ -3,8 +3,8 @@ package com.nuclearunicorn.serialkiller.game.world.entities;
 import com.nuclearunicorn.libroguelike.core.Game;
 import com.nuclearunicorn.libroguelike.events.Event;
 import com.nuclearunicorn.libroguelike.events.IEventListener;
-import com.nuclearunicorn.libroguelike.game.ent.BaseEntityAction;
 import com.nuclearunicorn.libroguelike.game.ent.ActionList;
+import com.nuclearunicorn.libroguelike.game.ent.BaseEntityAction;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.items.BaseItem;
 import com.nuclearunicorn.libroguelike.game.items.EquipContainer;
@@ -22,11 +22,6 @@ import org.newdawn.slick.Color;
 import java.util.*;
 
 /**
- * Created by IntelliJ IDEA.
- * User: dpopov
- * Date: 07.03.12
- * Time: 15:10
- * To change this template use File | Settings | File Templates.
  */
 public class EntityRLHuman extends EntityRLActor {
 
@@ -80,6 +75,11 @@ public class EntityRLHuman extends EntityRLActor {
     List<EntityRLHuman> children = new ArrayList<EntityRLHuman>();
     List<EntityRLHuman> siblings = new ArrayList<EntityRLHuman>();
 
+    public EquipContainer equipment = new EquipContainer();
+
+    //TODO: apartment link
+    Apartment apartment;
+
     public Entity getParent() {
         return parent;
     }
@@ -125,10 +125,6 @@ public class EntityRLHuman extends EntityRLActor {
         crimeRecords.add(crimeRecord);
     }
 
-    public EquipContainer equipment = new EquipContainer();
-    //public EquipContainer inventory;  use container instead
-
-
     public void setSex(Sex sex){
         this.sex = sex;
     }
@@ -143,10 +139,6 @@ public class EntityRLHuman extends EntityRLActor {
         setBodysim(new BodySimulation());
     }
 
-    //TODO: apartment link
-    Apartment apartment;
-
-    
     public Apartment getApartment(){
         return apartment;
     }
@@ -276,6 +268,12 @@ public class EntityRLHuman extends EntityRLActor {
         }
     }
 
+    @Override
+    public void kill(EntityRLActor rlOwner) {
+        if (this.bodysim != null){
+            this.bodysim.depleteBloodlust(20f); //TODO: alter me
+        }
+    }
 
     @Override
     public ArrayList get_action_list() {

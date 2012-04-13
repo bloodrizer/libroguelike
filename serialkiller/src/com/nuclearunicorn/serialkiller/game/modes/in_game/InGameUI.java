@@ -14,11 +14,13 @@ import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.WorldView;
 import com.nuclearunicorn.libroguelike.render.WindowRender;
 import com.nuclearunicorn.libroguelike.vgui.*;
+import com.nuclearunicorn.serialkiller.game.events.ShowContainerViewEvent;
 import com.nuclearunicorn.serialkiller.game.events.ShowDetailedInformationEvent;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLActor;
 import com.nuclearunicorn.serialkiller.messages.EConsoleMessage;
 import com.nuclearunicorn.serialkiller.vgui.VGUICharacterInfo;
+import com.nuclearunicorn.serialkiller.vgui.VGUIContainerView;
 import com.nuclearunicorn.serialkiller.vgui.VGUIDetailedNPCInformation;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.Point;
@@ -44,6 +46,7 @@ public class InGameUI implements IUserInterface, IEventListener {
     private NE_GUI_Label lookAtLabel;
     private NE_GUI_Label lookAtObject;
     private VGUIDetailedNPCInformation npcInfo;
+    private VGUIContainerView containerView;
 
     public InGameUI(){
         ui = new NE_GUI_System();
@@ -88,6 +91,13 @@ public class InGameUI implements IUserInterface, IEventListener {
             npcInfo.visible = true;
 
             npcInfo.setNPC(e.ent);
+        }
+        if (event instanceof ShowContainerViewEvent){
+            ShowContainerViewEvent e = (ShowContainerViewEvent)event;
+            containerView.center();
+            containerView.visible = true;
+
+            containerView.setEntity(e.getEntity());
         }
     }
 
@@ -170,6 +180,14 @@ public class InGameUI implements IUserInterface, IEventListener {
         npcInfo.center();
         npcInfo.visible = false;
         ui.root.add(npcInfo);
+
+        //Container view window
+        containerView = new VGUIContainerView();
+        containerView.set_th(10);
+        containerView.set_tw(18);
+        containerView.center();
+        containerView.visible = false;
+        ui.root.add(containerView);
     }
 
     @Override

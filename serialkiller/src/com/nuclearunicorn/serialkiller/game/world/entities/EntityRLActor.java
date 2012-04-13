@@ -55,4 +55,8 @@ public class EntityRLActor extends EntityActor implements IEventListener {
 
         itemEnt.spawn( this.origin );        
     }
+
+
+    public void kill(EntityRLActor rlOwner) {
+    }
 }
