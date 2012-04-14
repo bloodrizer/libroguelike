@@ -181,7 +181,7 @@ public class BodySimulation {
 
         setHunger(hunger-0.05f);
         setStamina(stamina - 0.1f);
-        setBloodlust(bloodlust + 0.05f);
+        setBloodlust(bloodlust + 1.05f);
 
         if (stamina <= 20){         //stamina < 20% - you start skipping turns
             if ( (int)(Math.random()*100) <= 10 ){        //10% chance to skip turn

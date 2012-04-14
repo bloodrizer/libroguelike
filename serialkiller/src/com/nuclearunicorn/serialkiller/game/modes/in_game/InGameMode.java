@@ -10,7 +10,6 @@ import com.nuclearunicorn.libroguelike.events.IEventListener;
 import com.nuclearunicorn.libroguelike.game.GameEnvironment;
 import com.nuclearunicorn.libroguelike.game.combat.Combat;
 import com.nuclearunicorn.libroguelike.game.ent.controller.NpcController;
-import com.nuclearunicorn.libroguelike.game.ent.controller.PlayerController;
 import com.nuclearunicorn.libroguelike.game.items.BaseItem;
 import com.nuclearunicorn.libroguelike.game.modes.AbstractGameMode;
 import com.nuclearunicorn.libroguelike.game.player.Player;
@@ -31,8 +30,10 @@ import com.nuclearunicorn.serialkiller.game.ItemFactory;
 import com.nuclearunicorn.serialkiller.game.Main;
 import com.nuclearunicorn.serialkiller.game.MainApplet;
 import com.nuclearunicorn.serialkiller.game.SkillerGame;
+import com.nuclearunicorn.serialkiller.game.ai.PlayerAI;
 import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
+import com.nuclearunicorn.serialkiller.game.controllers.RLPlayerController;
 import com.nuclearunicorn.serialkiller.game.social.SocialController;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldModel;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLPlayer;
@@ -163,6 +164,10 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
             }
             BodySimulation bodysim = ((EntityRLPlayer)Player.get_ent()).getBodysim();
             if (bodysim != null && ( bodysim.isStunned() || bodysim.isFainted() ) ){
+                playerSkipTurn = true;
+            }
+            PlayerAI ai = (PlayerAI) Player.get_ent().getAI();
+            if (ai.isOutOfControl()){
                 playerSkipTurn = true;
             }
         }
@@ -296,7 +301,8 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
 
         WorldViewCamera.target.setLocation(location);
 
-        playerEnt.set_controller(new PlayerController());
+        playerEnt.set_controller(new RLPlayerController());
+        playerEnt.set_ai(new PlayerAI());
         Player.set_ent(playerEnt);
 
         //---------------------------------------------------

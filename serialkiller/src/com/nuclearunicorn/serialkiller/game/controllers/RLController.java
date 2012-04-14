@@ -19,12 +19,28 @@ import java.util.List;
 public class RLController extends NpcController {
 
     /*
+        Calculate normal a-star path.
+        If failed to find optimal route, use adaptive pathfinding, which works better on longer routes
+     */
+    @Override
+    public void set_destination(Point destination) {
+        super.set_destination(destination);
+
+        /*if (!this.hasPath()){
+            calculateAdaptivePath(owner.origin, destination);
+        }*/
+    }
+
+    /*
     * Calculate path, using pre-calculated milestone graph as base for pathfinding route
     */
     public void calculateAdaptivePath(Point source, Point target) {
 
-        Point fromMS = ((RLWorldChunk)owner.get_chunk()).getNearestMilestone(source);
-        Point toMS =  ((RLWorldChunk)owner.get_chunk()).getNearestMilestone(target);
+        source = new Point(source);
+        target = new Point(target);
+
+        Point fromMS = new Point(((RLWorldChunk)owner.get_chunk()).getNearestMilestone(source));
+        Point toMS =   new Point(((RLWorldChunk)owner.get_chunk()).getNearestMilestone(target));
 
         AdaptivePathfinder.resetState();
         AdaptivePathfinder.calculateAdaptiveRoutes(fromMS);

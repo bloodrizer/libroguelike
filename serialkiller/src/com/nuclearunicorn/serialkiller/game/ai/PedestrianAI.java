@@ -224,7 +224,8 @@ public class PedestrianAI extends BasicMobAI {
                 rndMilestone.getY() + (int)Math.random()*4-2
         );
 
-        npcController.set_destination(point);
+        //((RLController)npcController).calculateAdaptivePath(owner.origin, point);
+        npcController.set_destination(point);     //<-slow but more natural
     }
 
 

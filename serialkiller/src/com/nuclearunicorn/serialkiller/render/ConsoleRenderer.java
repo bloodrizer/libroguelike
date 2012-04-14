@@ -13,6 +13,7 @@ import com.nuclearunicorn.libroguelike.render.overlay.OverlaySystem;
 import com.nuclearunicorn.libroguelike.utils.NLTimer;
 import com.nuclearunicorn.serialkiller.game.social.SocialController;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.Color;
 
@@ -57,6 +58,14 @@ public class ConsoleRenderer extends LayerRenderer{
                int r = (int)lerp(60, 50 , WorldTimer.get_light_amt());
                int g = (int)lerp(60, 50 , WorldTimer.get_light_amt());
                int b = (int)lerp(60, 150 , WorldTimer.get_light_amt());
+
+               //-------------bloodlust shader------------
+               float bloodlustAmt = ((EntityRLHuman)Player.get_ent()).getBodysim().getBloodlust()/400f;
+               r = (int)lerp(r+rBlood, 200, bloodlustAmt);
+               g = (int)lerp(g, 50, bloodlustAmt);
+               b = (int)lerp(b, 50, bloodlustAmt);
+               //-----------------------------------------
+
                setBgColor(r + rBlood, g - rBlood/2, b - rBlood/2);
            }
 
@@ -124,6 +133,13 @@ public class ConsoleRenderer extends LayerRenderer{
         float r = lerp(50, 200, amt);
         float g = lerp(50, 180, amt);
         float b = lerp(150, 50, amt);
+
+        //-------------bloodlust shader------------
+        float bloodlustAmt = ((EntityRLHuman)Player.get_ent()).getBodysim().getBloodlust()/400f;
+        r = (int)lerp(r, 200, bloodlustAmt);
+        g = (int)lerp(g, 50, bloodlustAmt);
+        b = (int)lerp(b, 50, bloodlustAmt);
+        //-----------------------------------------
 
 
         glColor3f(

@@ -65,4 +65,18 @@ public class RLMath {
         
         return true;
     }
+
+    public static <T extends Entity> T getNearestEntity(List<T> entList, Point anchor) {
+        double min_disst = Double.MAX_VALUE;
+        T nearestNode = null;
+        for (T node : entList){
+            Double disst = Math.pow(anchor.getX()-node.origin.getX(),2) + Math.pow(anchor.getY()-node.origin.getY(),2);
+            if (disst < min_disst){
+                min_disst = disst;
+                nearestNode = node;
+            }
+        }
+
+        return nearestNode;
+    }
 }
