@@ -306,9 +306,11 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         Player.set_ent(playerEnt);
 
         //---------------------------------------------------
-        //TODO: use some kind of item factory
         playerEnt.getContainer().add_item(ItemFactory.produce("hammer"));
         playerEnt.getContainer().add_item(ItemFactory.produce("knife"));
+        playerEnt.getContainer().add_item(ItemFactory.produce("taser"));
+
+        playerEnt.getContainer().add_item(ItemFactory.produce("suppressive pills"));
 
         BaseItem food = ItemFactory.produceFood("generic food", 10);
         food.set_count(5);

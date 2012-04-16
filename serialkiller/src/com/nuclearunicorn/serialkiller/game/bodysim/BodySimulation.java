@@ -9,7 +9,9 @@ import com.nuclearunicorn.serialkiller.render.RLMessages;
 import org.newdawn.slick.Color;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * simple body simulation. Bleeding, limb loss, etcetra
@@ -27,10 +29,15 @@ public class BodySimulation {
     EntityRLHuman owner = null;
 
     List<Limb> limbs = new ArrayList<Limb>();
-    
-    float stamina = 100f;
-    float hunger = 100f;
-    float bloodlust = 0f;
+
+    //TODO: replace with a list of uniform float attributes
+    Map<String, Float> attributes = new HashMap<String, Float>(4);
+    {
+        attributes.put("stamina",100f);
+        attributes.put("hunger",100f);
+        attributes.put("bloodlust",0.0f);
+        attributes.put("libido",0f);
+    }
     
     boolean infected = false;
 
@@ -52,32 +59,26 @@ public class BodySimulation {
         return stunned;
     }
 
-    public void setHunger(float hunger){
-        this.hunger = hunger;
+    public void setAttribute(String attr, float value){
 
-        if (this.hunger<0){
-            this.hunger = 0;
+        if (value<0){
+            value = 0;
         }
 
-        if (this.hunger>100){
-            this.hunger = 100;
+        if (value>100){
+            value = 100;
         }
+
+        attributes.put(attr, value);
+    }
+
+    public void adjustAttribute(String key, float amt){
+        Float attrVal = attributes.get(key);
+        setAttribute(key, attrVal + amt);
     }
 
     public void restoreHunger(float amt){
-        setHunger(hunger + amt);
-    }
-
-    public void setStamina(float hunger){
-        this.stamina = hunger;
-
-        if (this.stamina<0){
-            this.stamina = 0;
-        }
-
-        if (this.stamina>100){
-            this.stamina = 100;
-        }
+        adjustAttribute("hunger", amt);
     }
 
     public void takeDamage(Damage damage){
@@ -97,7 +98,9 @@ public class BodySimulation {
             break;
             case DMG_GENERIC:
             break;
+
             case DMG_BLUNT:
+            case DMG_NONLETHAL:
 
                 RLTile tile = (RLTile)owner.tile;
                 float bloodAmt = tile.getBloodAmt();
@@ -166,7 +169,7 @@ public class BodySimulation {
         if (stunned) {
 
             //lying unconcious will restore a bit of stamina
-            setStamina(stamina + 2.5f);
+            adjustAttribute("stamina", 2.5f);
 
             stun_duration -= 1;
 
@@ -179,11 +182,12 @@ public class BodySimulation {
             fainted = false;
         }
 
-        setHunger(hunger-0.05f);
-        setStamina(stamina - 0.1f);
-        setBloodlust(bloodlust + 1.05f);
+        adjustAttribute("hunger",-0.05f);
+        adjustAttribute("stamina", -0.1f);
+        adjustAttribute("bloodlust", 0.05f);
+        adjustAttribute("libido", 0.5f);
 
-        if (stamina <= 20){         //stamina < 20% - you start skipping turns
+        if (getStamina() <= 20){         //stamina < 20% - you start skipping turns
             if ( (int)(Math.random()*100) <= 10 ){        //10% chance to skip turn
                 setFainted(true);
                 if (owner.isPlayerEnt()){
@@ -191,7 +195,7 @@ public class BodySimulation {
                 }
             }
         }
-        if (stamina == 0){
+        if (getStamina() == 0){
             stunned = true;
             stun_duration = 10;
 
@@ -199,6 +203,10 @@ public class BodySimulation {
                 RLMessages.message("You are unconscious", Color.orange);
             }
         }
+    }
+
+    public float getAttribute(String attr) {
+        return attributes.get(attr);
     }
 
     public void setOwner(EntityRLHuman owner) {
@@ -210,11 +218,11 @@ public class BodySimulation {
     }
 
     public float getStamina() {
-        return stamina;
+        return getAttribute("stamina");
     }
 
     public float getHunger() {
-        return hunger;
+        return getAttribute("hunger");
     }
 
     public boolean isFainted() {
@@ -234,20 +242,11 @@ public class BodySimulation {
     }
 
     public float getBloodlust() {
-        return bloodlust;
+        return getAttribute("bloodlust");
     }
 
-    public void setBloodlust(float bloodlust) {
-        this.bloodlust = bloodlust;
-        if (this.bloodlust > 100f){
-            this.bloodlust = 100f;
-        }
-        if (this.bloodlust < 0f){
-            this.bloodlust = 0f;
-        }
-    }
 
     public void depleteBloodlust(float amt) {
-        this.setBloodlust(bloodlust - amt);
+        this.adjustAttribute("bloodlust", - amt);
     }
 }

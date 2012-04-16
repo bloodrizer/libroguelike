@@ -65,7 +65,7 @@ public class VGUICharacterInfo extends NE_GUI_FrameModern{
         stats.add_line("Chr:" + npcStats.chr, Color.lightGray);
         stats.add_line("Int:" + npcStats.intl, Color.lightGray);
         stats.add_line("Agi:" + npcStats.agi, Color.lightGray);
-        stats.add_line("Luk:" + npcStats.luk    , Color.lightGray);
+        stats.add_line("Luk:" + npcStats.luk, Color.lightGray);
         stats.add_line("" );
         if (!Input.key_state_alt){
             stats.add_line("Hunger: " + (int)bodySimulation.getHunger() + "%");
@@ -76,7 +76,10 @@ public class VGUICharacterInfo extends NE_GUI_FrameModern{
         }
 
         bloodlustColor = new Color((int)(150 + bodySimulation.getBloodlust()), 150, 150);  //kinda shitty but ok
-        stats.add_line("Bloodlust:" + bodySimulation.getBloodlust(), bloodlustColor);
+        stats.add_line("Bloodlust:" + (int)bodySimulation.getBloodlust() + "%", bloodlustColor);
+        if (Input.key_state_alt){
+            stats.add_line("Libido:" + bodySimulation.getAttribute("libido"), Color.lightGray);
+        }
     }
 
     @Override

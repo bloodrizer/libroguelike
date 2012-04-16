@@ -18,6 +18,8 @@ public class ItemFactory {
     static {
 
         BaseItem item;
+
+        //TODO: move to xml or what?
         
         item = RLItem.produce("hammer", 1);
         item.set_slot(SLOT_WEAPON);
@@ -35,6 +37,21 @@ public class ItemFactory {
         item.setEffect("damage_type","dmg_cut");
 
         registerItem("knife", item);
+
+        item = RLItem.produce("taser",1);
+        item.set_slot(SLOT_WEAPON);
+        item.setEffect("damage","0");
+        item.setEffect("stun_chance","80");
+        item.setEffect("stun_duration","5");
+        item.setEffect("damage_type","dmg_nonlethal");
+
+        registerItem("taser", item);
+
+        item = RLItem.produce("suppressive pills",1);
+        item.setEffect("restore_hunger","0");
+        item.setEffect("restore_bloodlust","-10");
+
+        registerItem("suppressive pills", item);
     }
     
     private static void registerItem(String key, BaseItem item){

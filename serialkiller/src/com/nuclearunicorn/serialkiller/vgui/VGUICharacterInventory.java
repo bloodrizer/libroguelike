@@ -141,11 +141,17 @@ public class VGUICharacterInventory extends NE_GUI_FrameModern {
             }else{
                 color = Color.lightGray;
             }
-            String amtPostfix = "";
+
+            String entPrefix = "";
+            String entPostfix = "";
+
             if (item.get_count() > 1){
-                amtPostfix = "("+item.get_count()+")";
+                entPostfix = "("+item.get_count()+")";
             }
-            items.add_line(item.get_type() + amtPostfix, color);
+            if (item.get_slot() == null || item.get_slot().isEmpty()){
+                entPrefix = "*";
+            }
+            items.add_line(entPrefix + item.get_type() + entPostfix, color);
         }
     }
 

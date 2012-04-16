@@ -82,6 +82,9 @@ public class RLCombat extends BasicCombat {
         if (dmgTypeId == "dmg_blunt"){
             return Damage.DamageType.DMG_BLUNT;
         }
+        if (dmgTypeId == "dmg_nonlethal"){
+            return Damage.DamageType.DMG_NONLETHAL;
+        }
 
         return super.getDamageType();
     }

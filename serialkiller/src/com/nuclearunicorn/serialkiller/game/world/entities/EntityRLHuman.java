@@ -13,6 +13,7 @@ import com.nuclearunicorn.serialkiller.game.ai.PedestrianAI;
 import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
 import com.nuclearunicorn.serialkiller.game.bodysim.Limb;
 import com.nuclearunicorn.serialkiller.game.events.ShowDetailedInformationEvent;
+import com.nuclearunicorn.serialkiller.game.personality.BasePersonality;
 import com.nuclearunicorn.serialkiller.game.social.CrimeRecord;
 import com.nuclearunicorn.serialkiller.generators.Apartment;
 import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
@@ -24,7 +25,6 @@ import java.util.*;
 /**
  */
 public class EntityRLHuman extends EntityRLActor {
-
     public enum Sex {
         MALE,
         FEMALE
@@ -57,16 +57,39 @@ public class EntityRLHuman extends EntityRLActor {
         }
     }
 
-    enum Religion {
-        ATHEIST
+    public enum Religion {
+        ATHEIST("not religious"),
+        CHRISTIAN("christian"),
+        JEWISH("jewish"),
+        MUSLIM("muslim");
+
+        String displayName;
+
+        private static final List<Religion> VALUES =
+                Collections.unmodifiableList(Arrays.asList(values()));
+        private static final int SIZE = VALUES.size();
+        private static final Random RANDOM = new Random();
+
+        Religion(String name) {
+            this.displayName = name;
+        }
+
+        public String diplayName(){
+            return displayName;
+        }
+
+        public static Religion getRandomReligion()  {
+            return VALUES.get(RANDOM.nextInt(SIZE));
+        }
     }
 
     Sex sex = Sex.MALE;
     public int age = 30;
     public Race race = Race.WHITE;
-    Religion religion = Religion.ATHEIST;
+    public Religion religion = Religion.ATHEIST;
 
     BodySimulation bodysim;
+    BasePersonality personality;
     public List<CrimeRecord> crimeRecords = new ArrayList<CrimeRecord>();
 
     //social stuff like family
@@ -80,8 +103,23 @@ public class EntityRLHuman extends EntityRLActor {
     //TODO: apartment link
     Apartment apartment;
 
+    public EntityRLHuman(){
+        super();
+
+        setBodysim(new BodySimulation());
+        setPersonality(new BasePersonality());
+    }
+
+    private void setPersonality(BasePersonality personality) {
+        this.personality = personality;
+    }
+
     public Entity getParent() {
         return parent;
+    }
+
+    public boolean isAdult() {
+        return age >= 18;
     }
 
     public void setMate(EntityRLHuman mate){
@@ -131,12 +169,6 @@ public class EntityRLHuman extends EntityRLActor {
 
     public Sex getSex(){
         return sex;
-    }
-
-    public EntityRLHuman(){
-        super();
-
-        setBodysim(new BodySimulation());
     }
 
     public Apartment getApartment(){
@@ -269,9 +301,24 @@ public class EntityRLHuman extends EntityRLActor {
     }
 
     @Override
-    public void kill(EntityRLActor rlOwner) {
+    public void kill(EntityRLActor victim) {
+        if (!(victim instanceof EntityRLHuman)){
+            return;
+        }
+
         if (this.bodysim != null){
-            this.bodysim.depleteBloodlust(20f); //TODO: alter me
+            float bloodlustAmt = 20f;
+
+            if (this.personality != null){
+                personality.registerVictim((EntityRLHuman) victim);
+                bloodlustAmt = personality.getVictimModifier((EntityRLHuman) victim);
+
+                if (bloodlustAmt <= 5f){
+                    bloodlustAmt = 5f;
+                }
+            }
+            System.err.println("lowering bloodlust by "+bloodlustAmt);
+            this.bodysim.depleteBloodlust(bloodlustAmt);
         }
     }
 
@@ -318,17 +365,51 @@ public class EntityRLHuman extends EntityRLActor {
                 #limb loss should ALLWAYS result in blodloss, so - dmg_cut
                 self.owner.take_damage(bodysim.Damage(20*limb.dmg_multiply,"dmg_cut",caller))*/
             }
+        }
+
+        class ActionRape extends BaseEntityAction {
+            @Override
+            public void execute() {
+                BodySimulation bodysim =((EntityRLHuman)owner).bodysim;
+                if (bodysim.getAttribute("libido") < 20f){
+                    RLMessages.message("You are not in the mood", Color.orange);
+                    return;
+                }
+                bodysim.setAttribute("libido", 0f);
+
+                bodysim.depleteBloodlust(10f);
+
+                RLMessages.message( Player.get_ent().getName() + " rapes " + owner.getName(), Color.orange );
+                if (bodysim.isInfected()){
+                    //~50% chance to catch STD
+                    if (new Random().nextInt(100) <= 50){
+                        ((EntityRLHuman)Player.get_ent()).bodysim.setInfected(true);
+                    }
+                }
+            }
 
         }
 
+        boolean isAlive = true;
+        boolean isStunned = false;
+        if (combat != null && !combat.is_alive()){
+            isAlive = false;
+        }
+        if (bodysim != null && bodysim.isStunned()){
+            isStunned = true;
+        }
 
         ActionList<Entity> list = new ActionList();
         list.set_owner(this);
         list.add_action(new ActionDetailedInformation(),"Detailed info");
-        if (combat != null && !combat.is_alive()){
+        if (!isAlive){
             list.add_action(new ActionDismember(),"Dismember");
-        }else{
-            System.err.println("Warning: RL Human without combat simulation");
+        }
+        if (!isAlive || isStunned){
+            EntityRLHuman playerEnt = ((EntityRLHuman)Player.get_ent());
+            if (playerEnt.getSex().equals(Sex.MALE) && playerEnt.isAdult()){
+                list.add_action(new ActionRape(),"Rape");
+            }
         }
 
         return list.get_action_list();

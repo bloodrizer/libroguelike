@@ -18,6 +18,7 @@ public class Damage {
         DMG_CUT,        //inflicts bleading
         DMG_BLUNT,      //inflicts stun
         DMG_FIRE,       //inflicts continous burning
+        DMG_NONLETHAL,  //does no damage at all
         DMG_BLOODLOSS, DMG_MAGIC       //reserved
     };
 

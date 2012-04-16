@@ -65,7 +65,15 @@ public class BasicCombat extends Combat{
         Combat ent_combat = ent.get_combat();
         if (ent_combat != null){
             //do something there
-            Damage dmg = new Damage(get_damage_amt(), getDamageType());
+            Damage.DamageType type = getDamageType();
+            int amt = get_damage_amt();
+
+            //non-lethal weapons ignore all damage including stat bonuses
+            if (type.equals(Damage.DamageType.DMG_NONLETHAL)){
+                amt = 0;
+            }
+
+            Damage dmg = new Damage(amt, type);
             dmg.set_inflictor(this.owner);
 
 
