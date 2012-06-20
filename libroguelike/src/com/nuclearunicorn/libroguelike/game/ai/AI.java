@@ -64,4 +64,8 @@ public class AI implements Serializable, IEventListener{
     public String getState() {
         return state;
     }
+
+    public void setState(String state) {
+        this.state = state;
+    }
 }

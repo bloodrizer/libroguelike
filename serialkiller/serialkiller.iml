@@ -7,9 +7,10 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="libroguelike" />
-    <orderEntry type="library" name="lwjgl" level="project" />
+    <orderEntry type="module" module-name="Libroguelike" />
+    <orderEntry type="library" name="jinput" level="project" />
     <orderEntry type="library" name="slick-util" level="project" />
+    <orderEntry type="library" name="rlforj.0.2" level="project" />
   </component>
 </module>
 

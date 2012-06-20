@@ -148,7 +148,7 @@ public class VGUICharacterInventory extends NE_GUI_FrameModern {
             if (item.get_count() > 1){
                 entPostfix = "("+item.get_count()+")";
             }
-            if (item.get_slot() == null || item.get_slot().isEmpty()){
+            if (item.get_slot() == null || item.get_slot().isEmpty() || item.get_slot().equals("undefined")){
                 entPrefix = "*";
             }
             items.add_line(entPrefix + item.get_type() + entPostfix, color);

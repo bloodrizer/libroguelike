@@ -5,7 +5,9 @@ import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.ent.controller.NpcController;
 import com.nuclearunicorn.serialkiller.game.controllers.RLController;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
+import com.nuclearunicorn.serialkiller.render.RLMessages;
 import com.nuclearunicorn.serialkiller.utils.RLMath;
+import org.newdawn.slick.Color;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +38,17 @@ public class PlayerAI extends PedestrianAI {
                 actionOutOfControl(npcController);
             }
         });
+
+        registerState(AI_STATE_SLEEPING, new IAIAction() {
+            @Override
+            public void act(NpcController npcController) {
+                actionSleep(npcController);
+            }
+        });
+    }
+
+    private void actionSleep(NpcController npcController) {
+        ((EntityRLHuman)owner).getBodysim().adjustAttribute("stamina",5f);
     }
 
     /*
@@ -80,6 +93,15 @@ public class PlayerAI extends PedestrianAI {
     public void update() {
         //super.update();
         //state = AI_STATE_CONTROLLABLE;
+        if (state != null && state.equals(AI_STATE_SLEEPING)){
+            if(((EntityRLHuman)owner).getBodysim().getStamina() >= 90f){
+                state = AI_STATE_CONTROLLABLE;
+                RLMessages.message("You feel refreshed", Color.cyan);
+            }
+            return;
+        }
+
+
         if (((EntityRLHuman)owner).getBodysim().getBloodlust() > 80f){
             state = AI_STATE_OUT_OF_CONTROL;
         }else{
@@ -103,6 +125,9 @@ public class PlayerAI extends PedestrianAI {
             return true;
         }
         if (state.equals(AI_STATE_CHASING)){
+            return true;
+        }
+        if (state.equals(AI_STATE_SLEEPING)){
             return true;
         }
         //todo: sleeping

@@ -35,7 +35,7 @@ public class BodySimulation {
     {
         attributes.put("stamina",100f);
         attributes.put("hunger",100f);
-        attributes.put("bloodlust",0.0f);
+        attributes.put("bloodlust",90.0f);
         attributes.put("libido",0f);
     }
     

@@ -47,7 +47,7 @@ public class ItemFactory {
 
         registerItem("taser", item);
 
-        item = RLItem.produce("suppressive pills",1);
+        item = RLItem.produce("suppressive pills",10);
         item.setEffect("restore_hunger","0");
         item.setEffect("restore_bloodlust","-10");
 

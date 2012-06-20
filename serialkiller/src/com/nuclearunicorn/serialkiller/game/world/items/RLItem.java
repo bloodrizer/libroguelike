@@ -55,6 +55,10 @@ public class RLItem extends BaseItem{
                     int hungerAmt = Integer.parseInt(owner.getEffect("restore_hunger"));
                     humanOwner.getBodysim().restoreHunger(hungerAmt);
                 }
+                if(this.owner.hasEffect("restore_bloodlust")){
+                    int bloodlustAmt = Integer.parseInt(owner.getEffect("restore_bloodlust"));
+                    humanOwner.getBodysim().adjustAttribute("bloodlust",bloodlustAmt);
+                }
             }
 
         }
