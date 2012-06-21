@@ -33,7 +33,7 @@ public class Voxel {
         init();
     }
 
-    public void set_origin(int x, int y, int z){
+    public void set_origin(float x, float y, float z){
         origin.set(x,y,z);
     }
 

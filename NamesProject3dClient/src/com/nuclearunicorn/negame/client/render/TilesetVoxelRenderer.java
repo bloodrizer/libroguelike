@@ -30,7 +30,10 @@ public class TilesetVoxelRenderer extends LayerRenderer {
     @Override
     public void render_tile(WorldTile tile, int tile_x, int tile_y) {
         //TODO: render voxel tile
-        voxelRenderer.set_origin(tile_x, 0, tile_y);
+
+        int height = tile.get_height();
+
+        voxelRenderer.set_origin(tile_x*1.1f, 0, tile_y*1.1f);
         voxelRenderer.render();
     }
 
