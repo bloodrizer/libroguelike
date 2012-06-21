@@ -230,37 +230,22 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
             }
         }
 
-        if (Player.get_ent() != null){
-            Combat combat = Player.get_ent().get_combat();
-            if (combat != null && !combat.is_alive()){
-                return;
-            }
-            BodySimulation bodysim = ((EntityRLPlayer)Player.get_ent()).getBodysim();
-            if (bodysim != null && bodysim.isStunned()){
-                return;
-            }
-        }
-
         if (event instanceof EKeyPress){
             switch(((EKeyPress) event).key){
                 case Keyboard.KEY_UP: case Keyboard.KEY_W:
-                    Player.move(Player.get_ent().x(),Player.get_ent().y()-1);
-                    isNextTurn = true;
+                    TilesetVoxelRenderer.camera.lift(1.0f);
                 break;
                 case Keyboard.KEY_DOWN: case Keyboard.KEY_S:
-                    Player.move(Player.get_ent().x(),Player.get_ent().y()+1);
-                    isNextTurn = true;
+                    TilesetVoxelRenderer.camera.dive(1.0f);
                 break;
                 case Keyboard.KEY_LEFT: case Keyboard.KEY_A:
-                    Player.move(Player.get_ent().x()-1,Player.get_ent().y());
-                    isNextTurn = true;
+                    TilesetVoxelRenderer.camera.strafeLeft(1.0f);
                 break;
                 case Keyboard.KEY_RIGHT: case Keyboard.KEY_D:
-                    Player.move(Player.get_ent().x()+1,Player.get_ent().y());
-                    isNextTurn = true;
+                    TilesetVoxelRenderer.camera.strafeRight(1.0f);
                 break;
                 case Keyboard.KEY_SPACE:
-                    isNextTurn = true;
+
                 break;
             }
         }

@@ -6,6 +6,7 @@
 package com.nuclearunicorn.negame.client.render;
 
 import com.nuclearunicorn.negame.client.render.math.Vector3;
+import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -13,13 +14,15 @@ import org.lwjgl.util.vector.Vector3f;
  *
  * @author red
  */
-public class Camera {
+public class Camera3D {
     public Vector3f    position    = null;
     private float       yaw         = 120.0f;
     private float       pitch       = 0.0f;
 
+    float mouseSensitivity = 0.05f;
 
-    public Camera(float x, float y, float z)
+
+    public Camera3D(float x, float y, float z)
     {
         position = new Vector3f(x, y, z);
     }
@@ -87,6 +90,19 @@ public class Camera {
         GL11.glRotatef(yaw, 0.0f, 1.0f, 0.0f);
         //translate to the position vector's location
         GL11.glTranslatef(position.x, position.y, position.z);
+    }
+
+    public void update(){
+
+        //distance in mouse movement from the last getDX() call.
+        float dx = Mouse.getDX();
+        //distance in mouse movement from the last getDY() call.
+        float dy = -Mouse.getDY();
+
+        //controll camera yaw from x movement fromt the mouse
+        this.yaw(dx * mouseSensitivity);
+        //controll camera pitch from y movement fromt the mouse
+        this.pitch(dy * mouseSensitivity);
     }
 
 }

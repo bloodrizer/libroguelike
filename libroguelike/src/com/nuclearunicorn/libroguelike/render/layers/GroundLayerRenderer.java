@@ -49,7 +49,17 @@ public class GroundLayerRenderer extends LayerRenderer{
             render_bg_tile(tile_x, tile_y, tile);
        }
     }
-    
+
+    @Override
+    public void beforeRender() {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void afterRender() {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
     static Vector3f utl_tile_color = new Vector3f();
     public static Vector3f get_tile_color(WorldTile tile){
 

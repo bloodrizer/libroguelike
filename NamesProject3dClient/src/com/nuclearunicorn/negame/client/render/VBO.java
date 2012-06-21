@@ -6,28 +6,16 @@
 package com.nuclearunicorn.negame.client.render;
 
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
-import java.nio.FloatBuffer;
 
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
-import org.lwjgl.opengl.GL13;
-import org.lwjgl.opengl.GL15;
-import org.lwjgl.opengl.GLContext;
 import org.lwjgl.opengl.ARBVertexBufferObject;
-import org.lwjgl.BufferUtils;
-
-import nordland.world.map.Tile;
-import nordland.world.map.Map;
-import nordland.world.World;
 
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteOrder;
-import nordland.util.NLTimer;
-import org.lwjgl.opengl.GL20;
+
 /**
  *
  * @author Red
@@ -42,29 +30,29 @@ public class VBO {
     int vertexIndexSize = 4;
     int totalVertecies = 4;
 
-    public static final int vbo_framebuffer_size = 2;
-    public static volatile int framebuffer_id = 0;
+    public static final int vboFramebufferSize = 2;
+    public static volatile int framebufferId = 0;
 
-    static int[] vboid_data  = new int[vbo_framebuffer_size];
-    static int[] vboid_index = new int[vbo_framebuffer_size];
+    static int[] vboidData = new int[vboFramebufferSize];
+    static int[] vboidIndex = new int[vboFramebufferSize];
 
-    public static int[] VBO_buffer_size = new int[vbo_framebuffer_size];
+    public static int[] VBO_buffer_size = new int[vboFramebufferSize];
 
-    public static volatile ByteBuffer[] vertexPositionAttributes    = new ByteBuffer[vbo_framebuffer_size];
-    public static volatile ByteBuffer[] vertexIndecies              = new ByteBuffer[vbo_framebuffer_size];
+    public static volatile ByteBuffer[] vertexPositionAttributes    = new ByteBuffer[vboFramebufferSize];
+    public static volatile ByteBuffer[] vertexIndecies              = new ByteBuffer[vboFramebufferSize];
 
     public int vertex_index = 0;
 
     public Texture texture;
 
     public static int get_framebuffer_inactive(){
-        int id = framebuffer_id + 1;
-        if (id >= vbo_framebuffer_size){
+        int id = framebufferId + 1;
+        if (id >= vboFramebufferSize){
             id = 0;
         }
 
         return id;
-        //return framebuffer_id;
+        //return framebufferId;
     }
 
     public ByteBuffer get_vpa(){
@@ -129,29 +117,26 @@ public class VBO {
 
         
 
-        if (vboid_data[ifb_id] == 0){
-            vboid_data[ifb_id]  =   createVBOID();
+        if (vboidData[ifb_id] == 0){
+            vboidData[ifb_id]  =   createVBOID();
         }
-        if (vboid_index[ifb_id] == 0){
-            vboid_index[ifb_id]  =   createVBOID();
+        if (vboidIndex[ifb_id] == 0){
+            vboidIndex[ifb_id]  =   createVBOID();
         }
 
         //NLTimer.push();
-        process_bufferData(vboid_index[ifb_id], ARBVertexBufferObject.GL_ELEMENT_ARRAY_BUFFER_ARB, vertexIndecies[ifb_id]);
-        //NLTimer.pop("streamed vboid_index");
+        process_bufferData(vboidIndex[ifb_id], ARBVertexBufferObject.GL_ELEMENT_ARRAY_BUFFER_ARB, vertexIndecies[ifb_id]);
+        //NLTimer.pop("streamed vboidIndex");
 
-        process_bufferData(vboid_data[ifb_id],  ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB, vertexPositionAttributes[ifb_id]);
-        //NLTimer.pop("streamed vboid_data");
+        process_bufferData(vboidData[ifb_id],  ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB, vertexPositionAttributes[ifb_id]);
+        //NLTimer.pop("streamed vboidData");
 
 
 
-        framebuffer_id = get_framebuffer_inactive();    //<<< swap buffer
+        framebufferId = get_framebuffer_inactive();    //<<< swap buffer
         vbo_invalidate = false;
         //Render.vbo_locked = false;
     }
-
-
-    static Voxel voxel_render = new Voxel(0,0,0);
 
     //rebuild VBO data based on current visible area
 
@@ -171,17 +156,17 @@ public class VBO {
         
         VBO_buffer_size[get_framebuffer_inactive()] = 0;
 
-        for (int x = Map.cluster_x; x< Map.cluster_x+Map.cluster_size; x++)
+        /*for (int x = Map.cluster_x; x< Map.cluster_x+Map.cluster_size; x++)
         for (int y = Map.cluster_y; y< Map.cluster_y+Map.cluster_size; y++)
         for (int z = Map.cluster_z; z< Map.cluster_z+Map.cluster_size; z++)
         {
             build_chunk(x,y,z);
-        }
+        }*/
     }
 
 
     public void build_chunk(int chunk_x, int chunk_y, int chunk_z){
-        Tile __tile = null;
+        /*Tile __tile = null;
         Tile __nb = null;
 
         Map __map = World.game_map;
@@ -230,10 +215,10 @@ public class VBO {
 
 
                         voxel_render.set_origin(x, y, z);
-                        voxel_render.tile_id = __tile.tile_type;
+                        voxel_render.textureTileId = __tile.tile_type;
                         voxel_render.build_vbo(this, __tile);
                     }
-        }
+        }*/
     }
 
     public void render(){
@@ -241,18 +226,17 @@ public class VBO {
             texture.bind();
         }
         
-        if (vboid_data[framebuffer_id] == 0 || vboid_index[framebuffer_id] == 0){
+        if (vboidData[framebufferId] == 0 || vboidIndex[framebufferId] == 0){
             return;
         }
 
-        
-        
+
         GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
         GL11.glEnableClientState(GL11.GL_NORMAL_ARRAY);
         GL11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
 
-        ARBVertexBufferObject.glBindBufferARB(ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB, vboid_data[framebuffer_id]);
-        ARBVertexBufferObject.glBindBufferARB(ARBVertexBufferObject.GL_ELEMENT_ARRAY_BUFFER_ARB, vboid_index[framebuffer_id]);
+        ARBVertexBufferObject.glBindBufferARB(ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB, vboidData[framebufferId]);
+        ARBVertexBufferObject.glBindBufferARB(ARBVertexBufferObject.GL_ELEMENT_ARRAY_BUFFER_ARB, vboidIndex[framebufferId]);
 
         int stride = (3+3+2) * 4;   //3 vertex + 2 texture
 
@@ -265,7 +249,7 @@ public class VBO {
         // 3 vertex coord + 3 normal coord * size of float
         offset = (3+3) * 4;
         GL11.glTexCoordPointer(2, GL11.GL_FLOAT, stride, offset);
-        GL11.glDrawElements(GL11.GL_QUADS, VBO_buffer_size[framebuffer_id], GL11.GL_UNSIGNED_INT,0);
+        GL11.glDrawElements(GL11.GL_QUADS, VBO_buffer_size[framebufferId], GL11.GL_UNSIGNED_INT,0);
 
         ARBVertexBufferObject.glBindBufferARB(ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB, 0);
 	ARBVertexBufferObject.glBindBufferARB(ARBVertexBufferObject.GL_ELEMENT_ARRAY_BUFFER_ARB, 0);

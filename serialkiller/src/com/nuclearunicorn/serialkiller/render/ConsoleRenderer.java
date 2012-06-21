@@ -106,6 +106,16 @@ public class ConsoleRenderer extends LayerRenderer{
         }
     }
 
+    @Override
+    public void beforeRender() {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void afterRender() {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
     static public final float lerp(float start, float stop, float amt) {
         return start + (stop-start) * amt;
     }

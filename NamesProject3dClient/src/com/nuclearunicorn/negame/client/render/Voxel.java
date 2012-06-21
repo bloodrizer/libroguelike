@@ -6,24 +6,22 @@
 package com.nuclearunicorn.negame.client.render;
 
 import com.nuclearunicorn.negame.client.render.math.Vector3;
-import nordland.world.map.Tile;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 import org.newdawn.slick.opengl.Texture;
 
 /**
- *
+ * Class that supports basic block rendering
  * @author red
  */
 public class Voxel {
 
     public static final float VOXEL_SIZE = 1.0f;
-
     public Texture texture;
-
     private Vector3f origin = new Vector3f(0,0,0);
+    public int textureTileId = 1;
 
-    public int tile_id = 1;
+    boolean fv, kv, lv, rv, tv, bv; //side visiblility flags
 
     public Voxel(float x, float y, float z){
         origin = new Vector3f(x,y,z);
@@ -40,6 +38,7 @@ public class Voxel {
     }
 
     public void init(){
+        fv = kv = lv = rv = tv = bv = true;
         /*try {
             texture = TextureLoader.getTexture("PNG", new FileInputStream("Data/terrain.png"));
         }
@@ -54,11 +53,11 @@ public class Voxel {
     }
 
     public float get_texture_x(){
-        return 1.0f / 16 * tile_id-1;
+        return 1.0f / 16 * textureTileId -1;
     }
 
     public float get_texture_y(){
-        return 1.0f / 16 * (tile_id % 16 );
+        return 1.0f / 16 * (textureTileId % 16 );
     }
 
 
@@ -66,7 +65,7 @@ public class Voxel {
     //fill vbo buffer with voxel coord data
     public static VBO _vbo = null;
 
-    public void build_vbo(VBO vbo, Tile tile){
+    public void build_vbo(VBO vbo ){
          float tx = get_texture_x();
          float ty = get_texture_y();
          float ts = get_texture_size();
@@ -85,7 +84,7 @@ public class Voxel {
 
         //f k l r t b
          //front
-         if (tile.fv) {
+         if (fv) {
              put_normal(0.0f, 0.0f, 0.5f);
 
              put_vertex(-vo + x, -vo + y, vo + z, tx, ty);
@@ -94,7 +93,7 @@ public class Voxel {
              put_vertex(-vo + x, vo + y,  vo + z, tx, ty + ts);
         }
          //back
-         if (tile.kv) {
+         if (kv) {
              put_normal(0.0f, 0.0f, -0.5f);
 
              put_vertex(-vo + x, -vo + y,  -vo + z, tx+ts, ty);
@@ -104,7 +103,7 @@ public class Voxel {
         }
 
           //left?
-         if (tile.lv) {
+         if (lv) {
             put_normal(-0.5f, 0.0f, 0.0f);
 
             put_vertex(-vo + x, -vo + y, -vo + z,    tx, ty);
@@ -114,7 +113,7 @@ public class Voxel {
         }
 
          //*top*
-         if (tile.tv) {
+         if (tv) {
              put_normal(0.0f, 0.5f, 0.0f);
 
              put_vertex(-vo + x, vo + y,  -vo + z, tx , ty+ts);
@@ -125,7 +124,7 @@ public class Voxel {
 
             
          //*bottom*
-         if (tile.bv) {
+         if (bv) {
             put_normal(0.0f, -0.5f, 0.0f);
 
             put_vertex(-vo + x, -vo + y,  -vo + z, tx+ts, ty+ts);
@@ -136,7 +135,7 @@ public class Voxel {
 
          
          //right
-         if (tile.rv) {
+         if (rv) {
             put_normal(0.5f, 0.0f, 0.0f);
 
             put_vertex(vo + x, -vo + y, -vo + z, tx+ts, ty);

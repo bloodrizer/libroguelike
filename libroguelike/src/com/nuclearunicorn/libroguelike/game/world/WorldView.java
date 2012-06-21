@@ -93,6 +93,8 @@ public class WorldView implements IEventListener {
 
         renderer = getLayerRenderer();
 
+        renderer.beforeRender();
+
         int x = WorldCluster.origin.getX()*WorldChunk.CHUNK_SIZE;
         int y = WorldCluster.origin.getY()*WorldChunk.CHUNK_SIZE;
         int size = WorldCluster.CLUSTER_SIZE*WorldChunk.CHUNK_SIZE;
@@ -132,6 +134,8 @@ public class WorldView implements IEventListener {
                 }
 
             }
+
+        renderer.afterRender();
     }
 
     public void render_entities(){
