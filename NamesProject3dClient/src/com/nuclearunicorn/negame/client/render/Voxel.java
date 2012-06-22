@@ -7,6 +7,7 @@ package com.nuclearunicorn.negame.client.render;
 
 import com.nuclearunicorn.negame.client.render.math.Vector3;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.glu.GLU;
 import org.lwjgl.util.vector.Vector3f;
 import org.newdawn.slick.opengl.Texture;
 
@@ -76,7 +77,7 @@ public class Voxel {
          float  y = origin.y*VOXEL_SIZE;
          float  z = origin.z*VOXEL_SIZE;
 
-         
+
          _vbo = vbo;
 
         //put_vertex(-1.0f + x, -1.0f + y, 1.0f + z, tx, ty);
@@ -192,71 +193,129 @@ public class Voxel {
         GL11.glPushMatrix();    //save for the fuck's safe
 
         GL11.glTranslatef(origin.x,origin.y,origin.z);
-        GL11.glScalef(0.5f,0.5f,0.5f);
+        //GL11.glScalef(0.5f,0.5f,0.5f);
 
-        GL11.glBegin(GL11.GL_QUADS);
-        //texture.bind(); // or GL11.glBind(texture.getTextureID());
-        
+        float x = origin.x;
+        float y = origin.z;
+        float z = origin.z;
+
+        float vo = VOXEL_SIZE/2;
+
+         GL11.glBegin(GL11.GL_QUADS);
+
          float tx = get_texture_x();
          float ty = get_texture_y();
          float ts = get_texture_size();
 
+
          // Front Face
- 
 
+         GL11.glNormal3f(0, 0, 0.5f);
          GL11.glTexCoord2f(tx, ty);
-         GL11.glVertex3f(-1.0f, -1.0f,  1.0f);   // Bottom Left Of The Texture and Quad
-         GL11.glTexCoord2f(tx+ts, ty);
-         GL11.glVertex3f( 1.0f, -1.0f,  1.0f);   // Bottom Right Of The Texture and Quad
-         GL11.glTexCoord2f(tx+ts, ty+ts);
-         GL11.glVertex3f( 1.0f,  1.0f,  1.0f);   // Top Right Of The Texture and Quad
-         GL11.glTexCoord2f(tx, ty+ts);
-         GL11.glVertex3f(-1.0f,  1.0f,  1.0f);   // Top Left Of The Texture and Quad                // Back Face
+         GL11.glVertex3f(-vo, -vo,  vo);   // Bottom Left Of The Texture and Quad
 
+         GL11.glNormal3f(0, 0, 0.5f);
          GL11.glTexCoord2f(tx+ts, ty);
-         GL11.glVertex3f(-1.0f, -1.0f, -1.0f);   // Bottom Right Of The Texture and Quad
-         GL11.glTexCoord2f(tx+ts, ty+ts);
-         GL11.glVertex3f(-1.0f,  1.0f, -1.0f);   // Top Right Of The Texture and Quad
-         GL11.glTexCoord2f(tx, ty+ts);
-         GL11.glVertex3f( 1.0f,  1.0f, -1.0f);   // Top Left Of The Texture and Quad
-         GL11.glTexCoord2f(tx, ty);
-         GL11.glVertex3f( 1.0f, -1.0f, -1.0f);   // Bottom Left Of The Texture and Quad                // Top Face
+         GL11.glVertex3f( vo, -vo,  vo);   // Bottom Right Of The Texture and Quad
 
-         GL11.glTexCoord2f(tx, ty+ts);
-         GL11.glVertex3f(-1.0f,  1.0f, -1.0f);   // Top Left Of The Texture and Quad
-         GL11.glTexCoord2f(tx, ty);
-         GL11.glVertex3f(-1.0f,  1.0f,  1.0f);   // Bottom Left Of The Texture and Quad
-         GL11.glTexCoord2f(tx+ts, ty);
-         GL11.glVertex3f( 1.0f,  1.0f,  1.0f);   // Bottom Right Of The Texture and Quad
+         GL11.glNormal3f(0, 0, 0.5f);
          GL11.glTexCoord2f(tx+ts, ty+ts);
-         GL11.glVertex3f( 1.0f,  1.0f, -1.0f);   // Top Right Of The Texture and Quad                // Bottom Face
+         GL11.glVertex3f( vo,  vo,  vo);   // Top Right Of The Texture and Quad
 
-         GL11.glTexCoord2f(tx+ts, ty+ts);
-         GL11.glVertex3f(-1.0f, -1.0f, -1.0f);   // Top Right Of The Texture and Quad
+         GL11.glNormal3f(0, 0, 0.5f);
          GL11.glTexCoord2f(tx, ty+ts);
-         GL11.glVertex3f( 1.0f, -1.0f, -1.0f);   // Top Left Of The Texture and Quad
-         GL11.glTexCoord2f(tx, ty);
-         GL11.glVertex3f( 1.0f, -1.0f,  1.0f);   // Bottom Left Of The Texture and Quad
+         GL11.glVertex3f(-vo,  vo,  vo);   // Top Left Of The Texture and Quad
+
+        // Right face
+        GL11.glNormal3f(0.5f, 0, 0);
+        GL11.glTexCoord2f(tx+ts, ty);
+        GL11.glVertex3f( vo, -vo, -vo);   // Bottom Right Of The Texture and Quad
+
+        GL11.glNormal3f(0.5f, 0, 0);
+        GL11.glTexCoord2f(tx+ts, ty+ts);
+        GL11.glVertex3f( vo,  vo, -vo);   // Top Right Of The Texture and Quad
+
+        GL11.glNormal3f(0.5f, 0, 0);
+        GL11.glTexCoord2f(tx, ty+ts);
+        GL11.glVertex3f( vo,  vo,  vo);   // Top Left Of The Texture and Quad
+
+        GL11.glNormal3f(0.5f, 0, 0);
+        GL11.glTexCoord2f(tx, ty);
+        GL11.glVertex3f( vo, -vo,  vo);   // Bottom Left Of The Texture and Quad
+
+
+        // Top Face
+        GL11.glNormal3f(0, 0.5f, 0);
+        GL11.glTexCoord2f(tx, ty+ts);
+        GL11.glVertex3f(-vo,  vo, -vo);   // Top Left Of The Texture and Quad
+
+        GL11.glNormal3f(0, 0.5f, 0);
+        GL11.glTexCoord2f(tx, ty);
+        GL11.glVertex3f(-vo,  vo,  vo);   // Bottom Left Of The Texture and Quad
+
+        GL11.glNormal3f(0, 0.5f, 0);
+        GL11.glTexCoord2f(tx+ts, ty);
+        GL11.glVertex3f( vo,  vo,  vo);   // Bottom Right Of The Texture and Quad
+
+        GL11.glNormal3f(0, 0.5f, 0);
+        GL11.glTexCoord2f(tx+ts, ty+ts);
+        GL11.glVertex3f( vo,  vo, -vo);   // Top Right Of The Texture and Quad
+
+         // Back Face
+
+
+         GL11.glNormal3f(0, 0, -0.5f);
          GL11.glTexCoord2f(tx+ts, ty);
-         
-         GL11.glVertex3f(-1.0f, -1.0f,  1.0f);   // Bottom Right Of The Texture and Quad                // Right face
-         GL11.glTexCoord2f(tx+ts, ty);
-         GL11.glVertex3f( 1.0f, -1.0f, -1.0f);   // Bottom Right Of The Texture and Quad
+         GL11.glVertex3f(-vo, -vo, -vo);   // Bottom Right Of The Texture and Quad
+
+         GL11.glNormal3f(0, 0, -0.5f);
          GL11.glTexCoord2f(tx+ts, ty+ts);
-         GL11.glVertex3f( 1.0f,  1.0f, -1.0f);   // Top Right Of The Texture and Quad
+         GL11.glVertex3f(-vo,  vo, -vo);   // Top Right Of The Texture and Quad
+
+         GL11.glNormal3f(0, 0, -0.5f);
          GL11.glTexCoord2f(tx, ty+ts);
-         GL11.glVertex3f( 1.0f,  1.0f,  1.0f);   // Top Left Of The Texture and Quad
+         GL11.glVertex3f( vo,  vo, -vo);   // Top Left Of The Texture and Quad
+
+         GL11.glNormal3f(0, 0, -0.5f);
          GL11.glTexCoord2f(tx, ty);
-         
-         GL11.glVertex3f( 1.0f, -1.0f,  1.0f);   // Bottom Left Of The Texture and Quad                // Left Face
-         GL11.glTexCoord2f(tx, ty);
-         GL11.glVertex3f(-1.0f, -1.0f, -1.0f);   // Bottom Left Of The Texture and Quad
-         GL11.glTexCoord2f(tx+ts, ty);
-         GL11.glVertex3f(-1.0f, -1.0f,  1.0f);   // Bottom Right Of The Texture and Quad
+         GL11.glVertex3f( vo, -vo, -vo);   // Bottom Left Of The Texture and Quad
+
+        // Left Face
+
+        GL11.glNormal3f(-0.5f, 0, 0);
+        GL11.glVertex3f(-vo, -vo, -vo);   // Bottom Left Of The Texture and Quad
+        GL11.glTexCoord2f(tx+ts, ty);
+
+        GL11.glNormal3f(-0.5f, 0, 0);
+        GL11.glVertex3f(-vo, -vo,  vo);   // Bottom Right Of The Texture and Quad
+        GL11.glTexCoord2f(tx+ts, ty+ts);
+
+        GL11.glNormal3f(-0.5f, 0, 0);
+        GL11.glVertex3f(-vo,  vo,  vo);   // Top Right Of The Texture and Quad
+        GL11.glTexCoord2f(tx, ty+ts);
+        GL11.glVertex3f(-vo,  vo, -vo);   // Top Left Of The Texture and Quad
+
+         // Bottom Face
+
+         GL11.glNormal3f(0, -0.5f, 0);
          GL11.glTexCoord2f(tx+ts, ty+ts);
-         GL11.glVertex3f(-1.0f,  1.0f,  1.0f);   // Top Right Of The Texture and Quad
+         GL11.glVertex3f(-vo, -vo, -vo);   // Top Right Of The Texture and Quad
+
+         GL11.glNormal3f(0, -0.5f, 0);
          GL11.glTexCoord2f(tx, ty+ts);
-         GL11.glVertex3f(-1.0f,  1.0f, -1.0f);   // Top Left Of The Texture and Quad
+         GL11.glVertex3f( vo, -vo, -vo);   // Top Left Of The Texture and Quad
+
+         GL11.glNormal3f(0, -0.5f, 0);
+         GL11.glTexCoord2f(tx, ty);
+         GL11.glVertex3f( vo, -vo,  vo);   // Bottom Left Of The Texture and Quad
+
+         GL11.glNormal3f(0, -0.5f, 0);
+         GL11.glTexCoord2f(tx+ts, ty);
+         GL11.glVertex3f(-vo, -vo,  vo);   // Bottom Right Of The Texture and Quad  */
+
+
+
+
 
          GL11.glEnd();
 

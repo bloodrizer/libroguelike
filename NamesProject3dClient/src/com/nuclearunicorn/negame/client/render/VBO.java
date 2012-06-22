@@ -43,6 +43,11 @@ public class VBO {
 
     public int vertex_index = 0;
 
+    //32*32*32 * 4 * 6
+    public static final  int VBO_max_buffer_size = 32000 * 4 * 6;
+
+    public static boolean vbo_invalidate = false;
+
     public Texture texture;
 
     public static int get_framebuffer_inactive(){
@@ -75,10 +80,6 @@ public class VBO {
         }
     }
 
-    //32*32*32 * 4 * 6
-    public static final  int VBO_max_buffer_size = 32000 * 4 * 6;
-    
-
     public static int createVBOID() {
         return ARBVertexBufferObject.glGenBuffersARB();
     }
@@ -101,8 +102,6 @@ public class VBO {
     /*ByteBuffer buff_data    = ByteBuffer.allocate(vertexPositionAttributeSize *VBO_max_buffer_size);
     ByteBuffer buff_index   = ByteBuffer.allocate(vertexIndexSize * VBO_max_buffer_size);*/
 
-    public static boolean vbo_invalidate = false;
-
     public void update_vbo_buffer(){
 
         int ifb_id = get_framebuffer_inactive();
@@ -114,8 +113,6 @@ public class VBO {
         }
         
         //if new buffer generated
-
-        
 
         if (vboidData[ifb_id] == 0){
             vboidData[ifb_id]  =   createVBOID();
@@ -252,7 +249,7 @@ public class VBO {
         GL11.glDrawElements(GL11.GL_QUADS, VBO_buffer_size[framebufferId], GL11.GL_UNSIGNED_INT,0);
 
         ARBVertexBufferObject.glBindBufferARB(ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB, 0);
-	ARBVertexBufferObject.glBindBufferARB(ARBVertexBufferObject.GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+	    ARBVertexBufferObject.glBindBufferARB(ARBVertexBufferObject.GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 
         
        

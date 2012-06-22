@@ -28,6 +28,7 @@ import com.nuclearunicorn.libroguelike.utils.NLTimer;
 import com.nuclearunicorn.libroguelike.utils.Timer;
 import com.nuclearunicorn.libroguelike.vgui.effects.EffectsSystem;
 import com.nuclearunicorn.negame.client.game.world.NEWorldModel;
+import com.nuclearunicorn.negame.client.generators.NEGroundChunkGenerator;
 import com.nuclearunicorn.negame.client.render.TilesetVoxelRenderer;
 import com.nuclearunicorn.serialkiller.game.ItemFactory;
 import com.nuclearunicorn.serialkiller.game.Main;
@@ -93,7 +94,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         //ChunkGenerator townGenerator = new TownChunkGenerator();
         ArrayList<WorldLayer> layers = new ArrayList<WorldLayer>(model.getLayers());
 
-        layers.get(0).registerGenerator(new ChunkGroundGenerator());
+        layers.get(0).registerGenerator(new NEGroundChunkGenerator());
         /*for (int i = 1; i<5; i++){
             layers.get(i).registerGenerator(new BasementGenerator());
         }*/

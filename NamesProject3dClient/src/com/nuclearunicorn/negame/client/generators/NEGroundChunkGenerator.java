@@ -23,12 +23,11 @@ public class NEGroundChunkGenerator extends ChunkGenerator {
         //StoneGenerator stoneGenerator;
         //GrassGenerator grassGenerator;
 
-
         public NEGroundChunkGenerator(){
             //treeGenerator = new TreeGenerator();
             //stoneGenerator = new StoneGenerator();
             //grassGenerator = new GrassGenerator();
-    }
+        }
 
         @Override
         public void setEnvironment(GameEnvironment environment){
@@ -46,35 +45,11 @@ public class NEGroundChunkGenerator extends ChunkGenerator {
             NLTimer timer = new NLTimer();
             timer.push();
 
-            Random chunk_random = new Random();
-            chunk_random.setSeed(chunk.origin.getX()*10000+chunk.origin.getY());    //set chunk-specific seed
+            Point origin = chunk.origin;
 
-            //Thread.currentThread().dumpStack();
-            //System.out.println("building data chunk @"+origin.toString());
-
-            int x = chunk.origin.getX()* WorldChunk.CHUNK_SIZE;
-            int y = chunk.origin.getY()*WorldChunk.CHUNK_SIZE;
-            int size = WorldChunk.CHUNK_SIZE;
-
-            final int OFFSET = WorldChunk.CHUNK_SIZE;
-
-            for (int i = x - OFFSET; i<x+size+OFFSET; i++ ){
-                for (int j = y - OFFSET; j<y+size+OFFSET; j++){
-                    if ( i>= x && i<x+size && j >=y && j < y+size){
-                        build_chunk_tile(i,j, chunk_random);
-                    }
-                }
-            }
-
-            //todo:generate objects
-
-            timer.pop("chunk @"+chunk.origin.getX()+","+chunk.origin.getY());
-        }
-
-        public void build_chunk_tile(Point origin){
             Terrain.aquatic_tiles.clear();
 
-            //NLTimer.push();
+            timer.push();
 
             Random chunk_random = new Random();
             chunk_random.setSeed(origin.getX()*10000+origin.getY());    //set chunk-specific seed
@@ -82,8 +57,8 @@ public class NEGroundChunkGenerator extends ChunkGenerator {
             //Thread.currentThread().dumpStack();
             //System.out.println("building data chunk @"+origin.toString());
 
-            int x = origin.getX()* WorldChunk.CHUNK_SIZE;
-            int y = origin.getY()*WorldChunk.CHUNK_SIZE;
+            int x = chunk.origin.getX()* WorldChunk.CHUNK_SIZE;
+            int y = chunk.origin.getY()*WorldChunk.CHUNK_SIZE;
             int size = WorldChunk.CHUNK_SIZE;
 
             final int OFFSET = WorldChunk.CHUNK_SIZE;
@@ -153,7 +128,7 @@ public class NEGroundChunkGenerator extends ChunkGenerator {
 
 
 
-            //NLTimer.pop("chunk @" + origin.getX() + "," + origin.getY());
+            timer.pop("chunk @" + origin.getX() + "," + origin.getY());
             //System.out.println("HM Size:" + Terrain.heightmap_cached.size());
 
             //Step 3. Generate transition map for smooth biomes borders
@@ -199,6 +174,7 @@ public class NEGroundChunkGenerator extends ChunkGenerator {
 
             int tile_id = 0;
             int height = Terrain.get_height(i,j);
+            //System.out.println("HEIGHT@" + i + "," + j + ":" + height);
 
             if (height > 120){
                 tile_id = 25;
