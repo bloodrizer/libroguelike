@@ -7,6 +7,7 @@ import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.generators.ChunkGenerator;
 import com.nuclearunicorn.libroguelike.game.world.layers.WorldLayer;
 import com.nuclearunicorn.libroguelike.utils.NLTimer;
+import com.nuclearunicorn.negame.client.game.world.NEVoxelTile;
 import org.lwjgl.util.Point;
 
 import java.util.Random;
@@ -103,12 +104,7 @@ public class NEGroundChunkGenerator extends ChunkGenerator {
                     tile.moisture = Terrain.getHumidity(i, j);
                     //tile.moisture = Terrain.get_moisture(i, j);
 
-
-
-
                     //Do not calculate actual humidity. Get random perlin2d value instead
-
-
                     tile.update_biome_type();
 
                     if (tile.terrain_type != WorldTile.TerrainType.TERRAIN_WATER){
@@ -129,39 +125,6 @@ public class NEGroundChunkGenerator extends ChunkGenerator {
 
 
             timer.pop("chunk @" + origin.getX() + "," + origin.getY());
-            //System.out.println("HM Size:" + Terrain.heightmap_cached.size());
-
-            //Step 3. Generate transition map for smooth biomes borders
-            //---------------------------------------------------------------------
-
-            //82k iterations
-            for (int i = x+1; i<x+size-1; i++){
-                for (int j = y+1; j<y+size-1; j++)
-                {
-                    WorldTile ref_tile = getLayer().get_tile(i, j);
-
-                    for (int k = i-1; k<i+1; k++){
-                        for (int l = j-1; l<j+1; k++){
-                            if(k==i||l==j){ return; }
-
-                            WorldTile nb_tile = getLayer().get_tile(k, l);
-                            if (ref_tile.biome_type.get_zindex() > nb_tile.biome_type.get_zindex()){
-                                ///save this shit
-                            }
-                        }
-                    }
-                    //generate shit there
-                }
-            }
-            /*
-            * pseudocode:
-            *
-            * get n,s,w,e,ns,ne,ws,we
-            * calculate transition type index based on tile z-order and biome z-order
-            * todo: implement BiomeType.get_zindex();
-            *
-            * assign index, so we could apply mask later
-            */
         }
 
         //TODO: use environment.getWorldLayer there
@@ -180,7 +143,7 @@ public class NEGroundChunkGenerator extends ChunkGenerator {
                 tile_id = 25;
             }
 
-            WorldTile tile = new WorldTile();
+            NEVoxelTile tile = new NEVoxelTile();
             Point origin = new Point(i,j);
             tile.origin = origin;
             //important!
@@ -191,6 +154,19 @@ public class NEGroundChunkGenerator extends ChunkGenerator {
             if (Terrain.is_lake(tile)){
                 tile.set_tile_id(1);
                 tile.terrain_type = WorldTile.TerrainType.TERRAIN_WATER;
+            }
+
+            //Voxel side visibility calculation
+            NEVoxelTile leftTile = (NEVoxelTile) getLayer().get_tile(i-1, j);
+            if (leftTile != null && leftTile.get_height() == tile.get_height()){
+                leftTile.rv = false;
+                tile.lv = false;
+            }
+
+            NEVoxelTile topTile = (NEVoxelTile) getLayer().get_tile(i-1, j);
+            if (topTile != null && topTile.get_height() == tile.get_height()){
+                topTile.fv = false;
+                tile.kv = false;
             }
 
             return tile;

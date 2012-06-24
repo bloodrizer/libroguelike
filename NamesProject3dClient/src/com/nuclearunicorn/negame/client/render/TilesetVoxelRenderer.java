@@ -1,5 +1,6 @@
 package com.nuclearunicorn.negame.client.render;
 
+import com.nuclearunicorn.libroguelike.core.Input;
 import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.WorldView;
@@ -7,6 +8,13 @@ import com.nuclearunicorn.libroguelike.game.world.layers.WorldLayer;
 import com.nuclearunicorn.libroguelike.render.Render;
 import com.nuclearunicorn.libroguelike.render.WindowRender;
 import com.nuclearunicorn.libroguelike.render.layers.LayerChunkRenderer;
+import com.nuclearunicorn.negame.client.game.world.NEVoxelTile;
+import com.nuclearunicorn.negame.client.game.world.NEWorldView;
+import com.nuclearunicorn.negame.client.render.overlays.NEDebugOverlay;
+import com.nuclearunicorn.negame.client.render.utils.Raycast;
+import org.lwjgl.util.Point;
+
+import java.nio.FloatBuffer;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -38,6 +46,10 @@ public class TilesetVoxelRenderer extends LayerChunkRenderer {
         lightEnv = new LightEnvironment();
     }
 
+    public static Camera3D getCamera() {
+        return camera;
+    }
+
     @Override
     public void renderChunk(WorldLayer layer, WorldChunk chunk, int i, int j) {
         super.renderChunk(layer, chunk, i, j);    //To change body of overridden methods use File | Settings | File Templates.
@@ -51,8 +63,17 @@ public class TilesetVoxelRenderer extends LayerChunkRenderer {
 
         //glColor3f(0.3f, 0.8f, 0.3f);
 
-        vaVoxel.setOrigin(tile_x * 1.1f, height * 0.05f, tile_y * 1.1f);
-        vaVoxel.renderIntoVA(vaRenderer);
+
+        //SELECTION DEBUG START
+        Point selectedTileCoord = NEWorldView.getSelectedTileCoord();
+        if (selectedTileCoord.getX() == tile_x && selectedTileCoord.getY() == tile_y){
+            vaVoxel.topTileId = 7;
+        }else{
+            vaVoxel.topTileId = 1;
+        }
+
+        vaVoxel.setOrigin(tile_x * 1.000005f, height * 0.05f, tile_y * 1.000005f);
+        vaVoxel.renderIntoVA(vaRenderer, (NEVoxelTile)tile);
 
 
         //voxelRenderer.set_origin(tile_x * 1.1f, height * 0.05f, tile_y * 1.1f);
@@ -86,6 +107,24 @@ public class TilesetVoxelRenderer extends LayerChunkRenderer {
 
         vaRenderer.flushBuffers();
         vaRenderer.render();
+
+        FloatBuffer World_Ray = Raycast.getMousePosition(Input.get_mx(), Input.get_my());
+        /*NEDebugOverlay.wx = World_Ray.get(0);
+        NEDebugOverlay.wy = World_Ray.get(1);
+        NEDebugOverlay.wz = World_Ray.get(2);*/
+        float wx = World_Ray.get(0);
+        float wy = World_Ray.get(1);
+        float wz = World_Ray.get(2);
+
+        NEDebugOverlay.wx = wx;
+        NEDebugOverlay.wy = wy;
+        NEDebugOverlay.wz = wz;
+
+        /*
+            Voxel render uses half voxel offset from 0,0 origin, so mouse coords actually start at -0.5f, -0.5f
+         */
+        NEWorldView.setMouseXWorld(wx+VAVoxel.VOXEL_SIZE/2f);
+        NEWorldView.setMouseYWorld(wz+VAVoxel.VOXEL_SIZE/2f);
 
         //reset from 3d mode back to 2d
         //TODO: move to WindowRender.switch2d() / switch3d()

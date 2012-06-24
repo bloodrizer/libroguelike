@@ -27,8 +27,10 @@ import com.nuclearunicorn.libroguelike.utils.NLTimer;
 import com.nuclearunicorn.libroguelike.utils.Timer;
 import com.nuclearunicorn.libroguelike.vgui.effects.EffectsSystem;
 import com.nuclearunicorn.negame.client.game.world.NEWorldModel;
+import com.nuclearunicorn.negame.client.game.world.NEWorldView;
 import com.nuclearunicorn.negame.client.generators.NEGroundChunkGenerator;
 import com.nuclearunicorn.negame.client.render.TilesetVoxelRenderer;
+import com.nuclearunicorn.negame.client.render.overlays.NEDebugOverlay;
 import com.nuclearunicorn.serialkiller.game.ItemFactory;
 import com.nuclearunicorn.serialkiller.game.Main;
 import com.nuclearunicorn.serialkiller.game.MainApplet;
@@ -42,7 +44,6 @@ import com.nuclearunicorn.serialkiller.game.world.RLWorldModel;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLPlayer;
 import com.nuclearunicorn.serialkiller.generators.NPCGenerator;
 import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
-import com.nuclearunicorn.serialkiller.render.AsciiWorldView;
 import com.nuclearunicorn.serialkiller.render.ConsoleRenderer;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.Point;
@@ -110,7 +111,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         WorldView.ISOMETRY_ANGLE = 0.0f;
         WorldView.ISOMETRY_Y_SCALE = 1.0f;
 
-        view  = new AsciiWorldView(model){
+        view  = new NEWorldView(model){
             public AbstractLayerRenderer getLayerRenderer(){
                 return renderer;
             }
@@ -190,6 +191,8 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         //DebugPathfindingGraph.debugAdaptiveGraph(); //>:3
         DebugOverlay.debugPathfinding();    //heavy, but very useful
         overlay.render();
+
+        NEDebugOverlay.render();
 
         DebugOverlay.frameTime = timer.popDiff();
 

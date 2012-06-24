@@ -326,7 +326,7 @@ public class WorldView implements IEventListener {
      *  Cast (mx,my) screen coords, given in the NE coord system
      *  without checking tile height modifiers
      */
-    private static Point getTileCoordPlain(int mx, int my){
+    protected static Point getTileCoordPlain(int mx, int my){
             int local_x = local2world_x(mx, my);
             int local_y = local2world_y(mx, my);
             //point = local2world(point);

@@ -1,5 +1,6 @@
 package com.nuclearunicorn.negame.client.render;
 
+import com.nuclearunicorn.negame.client.game.world.NEVoxelTile;
 import org.lwjgl.util.vector.Vector3f;
 
 /**
@@ -12,9 +13,14 @@ import org.lwjgl.util.vector.Vector3f;
 public class VAVoxel {
 
     private Vector3f origin = new Vector3f(0,0,0);
+
     Vector3f vertexVec = new Vector3f(0,0,0);
     Vector3f textureVec = new Vector3f(0,0,0);
     Vector3f normalVec = new Vector3f(0,0,0);
+
+    public int topTileId = 1;
+    public int sideTileId = 4;
+    public static final float VOXEL_SIZE = 1;
 
     //int textureTileId = 1;
 
@@ -33,25 +39,23 @@ public class VAVoxel {
         //return 0.0f;
     }
 
-    public void renderIntoVA(VAVoxelRenderer renderer){
+    public void renderIntoVA(VAVoxelRenderer renderer, NEVoxelTile tileData){
 
         //implement some storage-retrival mechanism for voxel
-        int topTileId = 1;
-        int sideTileId = 4;
 
         float tx = get_texture_x(topTileId);
         float ty = get_texture_y(topTileId);
         float ts = get_texture_size();
 
-        float vo = 0.5f;
+        float vo = VOXEL_SIZE/2.0f;
 
         float  x = origin.x*vo*2;
         float  y = origin.y*vo*2;
         float  z = origin.z*vo*2;
 
+        //SELECTION DEBUG END
 
         //TOP
-
         normalVec.set(0, 0.5f, 0);
         textureVec.set(tx, ty+ts);
         vertexVec.set(-vo+x, vo+y, -vo+z);
@@ -74,36 +78,37 @@ public class VAVoxel {
 
 
         //FRONT
+        if (tileData.fv){
+            normalVec.set(0, 0, 0.5f);
+            textureVec.set(tx, ty+ts);
+            vertexVec.set(-vo+x, -vo+y, vo+z);        //bl
+            renderer.addVoxedData(vertexVec, normalVec, textureVec);
 
-        normalVec.set(0, 0, 0.5f);
-        textureVec.set(tx, ty);
-        vertexVec.set(-vo+x, -vo+y, vo+z);
-        renderer.addVoxedData(vertexVec, normalVec, textureVec);
+            textureVec.set(tx+ts, ty+ts);
+            vertexVec.set(vo+x, -vo+y, vo+z);         //br
+            renderer.addVoxedData(vertexVec, normalVec, textureVec);
 
-        textureVec.set(tx+ts, ty);
-        vertexVec.set(vo+x, -vo+y, vo+z);
-        renderer.addVoxedData(vertexVec, normalVec, textureVec);
+            textureVec.set(tx+ts, ty);
+            vertexVec.set(vo+x, vo+y, vo+z);          //tr
+            renderer.addVoxedData(vertexVec, normalVec, textureVec);
 
-        textureVec.set(tx+ts, ty+ts);
-        vertexVec.set(vo+x, vo+y, vo+z);
-        renderer.addVoxedData(vertexVec, normalVec, textureVec);
-
-        textureVec.set(tx, ty+ts);
-        vertexVec.set(-vo+x, vo+y, vo+z);
-        renderer.addVoxedData(vertexVec, normalVec, textureVec);
-
+            textureVec.set(tx, ty);
+            vertexVec.set(-vo+x, vo+y, vo+z);         //tl
+            renderer.addVoxedData(vertexVec, normalVec, textureVec);
+        }
         //RIGHT
 
         normalVec.set(0.5f, 0, 0);
-        textureVec.set(tx+ts, ty);
+
+        textureVec.set(tx, ty);
         vertexVec.set(vo+x, -vo+y, -vo+z);
         renderer.addVoxedData(vertexVec, normalVec, textureVec);
 
-        textureVec.set(tx+ts, ty+ts);
+        textureVec.set(tx+ts, ty);
         vertexVec.set(vo+x, vo+y, -vo+z);
         renderer.addVoxedData(vertexVec, normalVec, textureVec);
 
-        textureVec.set(tx, ty+ts);
+        textureVec.set(tx+ts, ty+ts);
         vertexVec.set(vo+x, vo+y, vo+z);
         renderer.addVoxedData(vertexVec, normalVec, textureVec);
 
@@ -114,20 +119,20 @@ public class VAVoxel {
         //BACK
 
         normalVec.set(0, 0, -0.5f);
-        textureVec.set(tx+ts, ty);
-        vertexVec.set(-vo+x, -vo+y, -vo+z);
-        renderer.addVoxedData(vertexVec, normalVec, textureVec);
-
         textureVec.set(tx+ts, ty+ts);
-        vertexVec.set(-vo+x, vo+y, -vo+z);
+        vertexVec.set(-vo+x, -vo+y, -vo+z);         //br
         renderer.addVoxedData(vertexVec, normalVec, textureVec);
 
-        textureVec.set(tx, ty+ts);
-        vertexVec.set(vo+x, vo+y, -vo+z);
+        textureVec.set(tx+ts, ty);
+        vertexVec.set(-vo+x, vo+y, -vo+z);          //tr
         renderer.addVoxedData(vertexVec, normalVec, textureVec);
 
         textureVec.set(tx, ty);
-        vertexVec.set(vo+x, -vo+y, -vo+z);
+        vertexVec.set(vo+x, vo+y, -vo+z);           //tl
+        renderer.addVoxedData(vertexVec, normalVec, textureVec);
+
+        textureVec.set(tx, ty+ts);
+        vertexVec.set(vo+x, -vo+y, -vo+z);          //bl
         renderer.addVoxedData(vertexVec, normalVec, textureVec);
 
         //LEFT
@@ -135,20 +140,20 @@ public class VAVoxel {
         // Left Face
 
         normalVec.set(-0.5f, 0, 0);
-        textureVec.set(tx, ty);
-        vertexVec.set(-vo+x, -vo+y, -vo+z);
-        renderer.addVoxedData(vertexVec, normalVec, textureVec);
-
-        textureVec.set(tx+ts, ty);
-        vertexVec.set(-vo+x, -vo+y, vo+z);
+        textureVec.set(tx, ty+ts);
+        vertexVec.set(-vo+x, -vo+y, -vo+z);                        //bl
         renderer.addVoxedData(vertexVec, normalVec, textureVec);
 
         textureVec.set(tx+ts, ty+ts);
-        vertexVec.set(-vo+x, vo+y, vo+z);
+        vertexVec.set(-vo+x, -vo+y, vo+z);                         //br
         renderer.addVoxedData(vertexVec, normalVec, textureVec);
 
-        textureVec.set(tx, ty+ts);
-        vertexVec.set(vo+x, -vo+y, -vo+z);
+        textureVec.set(tx+ts, ty);
+        vertexVec.set(-vo+x, vo+y, vo+z);                         //tr
+        renderer.addVoxedData(vertexVec, normalVec, textureVec);
+
+        textureVec.set(tx, ty);
+        vertexVec.set(-vo+x, vo+y, -vo+z);                        //tl
         renderer.addVoxedData(vertexVec, normalVec, textureVec);
 
         //We don't render bottom side of the tile.
