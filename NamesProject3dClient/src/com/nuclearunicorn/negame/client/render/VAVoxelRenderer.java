@@ -16,7 +16,12 @@ import static org.lwjgl.opengl.GL11.*;
  */
 public class VAVoxelRenderer {
 
-    int maxBufferSize = 1240000;
+    static final int vertexSize = (3 + 3 + 2) * 4;
+    static final int faceSize =  vertexSize * 4;
+    static final int voxelSize = faceSize * 6;
+    //int maxBufferSize = voxelSize * (int)Math.pow(WorldChunk.CHUNK_SIZE,2) * (int)Math.pow(WorldCluster.CLUSTER_SIZE,2);
+    int maxBufferSize = voxelSize * 32 * 32 * 9;
+
     int vertexCount = 0;
 
     FloatBuffer vertexBuffer;
@@ -24,6 +29,9 @@ public class VAVoxelRenderer {
     FloatBuffer normalBuffer;
 
     public VAVoxelRenderer(){
+        //maxBufferSize = 1900000;
+
+        System.out.println("creating VA buffer of size "+ maxBufferSize);
         vertexBuffer = BufferUtils.createFloatBuffer(maxBufferSize);
         textureBuffer = BufferUtils.createFloatBuffer(maxBufferSize);
         normalBuffer = BufferUtils.createFloatBuffer(maxBufferSize);
@@ -55,19 +63,21 @@ public class VAVoxelRenderer {
         vertexBuffer.flip();
         textureBuffer.flip();
         normalBuffer.flip();
+
+        //System.out.println("flushed " + vertexCount + "vertex data");
     }
 
     void render(){
 
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_NORMAL_ARRAY);
-        //glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
         //int stride = (3+3+2) * 4;   //3 vertex + 2 texture
 
         glVertexPointer(3, 0, vertexBuffer); //block size = 3, e.g 3 float coord per vertex
         glNormalPointer(0, normalBuffer);
-        glTexCoordPointer(2, 0, textureBuffer);
+        glTexCoordPointer(3, 0, textureBuffer);
 
         glDrawArrays(GL_QUADS, 0, /* elements */vertexCount);
 

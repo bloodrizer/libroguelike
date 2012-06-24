@@ -16,8 +16,6 @@ import org.lwjgl.util.glu.GLU;
 import java.awt.*;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL11.glColor3f;
-import static org.lwjgl.opengl.GL11.glDisable;
 
 /**
  *
@@ -97,9 +95,6 @@ public class WindowRender {
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
 
-        glDisable(GL11.GL_TEXTURE_2D);
-        glColor3f(0.3f, 0.8f, 0.3f);
-
         GL11.glClearDepth(1.0f);
         GL11.glEnable(GL11.GL_DEPTH_TEST);
         GL11.glDepthFunc(GL11.GL_LEQUAL);
@@ -107,7 +102,7 @@ public class WindowRender {
 
     public static void set2DMode(){
 
-        glEnable(GL11.GL_TEXTURE_2D);
+        //glEnable(GL11.GL_TEXTURE_2D);
 
 
         GL11.glLoadIdentity();

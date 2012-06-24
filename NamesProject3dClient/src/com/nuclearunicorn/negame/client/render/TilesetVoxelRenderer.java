@@ -4,11 +4,11 @@ import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.WorldView;
 import com.nuclearunicorn.libroguelike.game.world.layers.WorldLayer;
+import com.nuclearunicorn.libroguelike.render.Render;
 import com.nuclearunicorn.libroguelike.render.WindowRender;
 import com.nuclearunicorn.libroguelike.render.layers.LayerChunkRenderer;
-import org.lwjgl.opengl.GL11;
 
-import static org.lwjgl.opengl.GL11.glColor3f;
+import static org.lwjgl.opengl.GL11.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -30,6 +30,7 @@ public class TilesetVoxelRenderer extends LayerChunkRenderer {
     VAVoxel vaVoxel;
     VAVoxelRenderer vaRenderer;
     LightEnvironment lightEnv;
+    private Voxel voxelRenderer = new Voxel(0,0,0);
 
     public TilesetVoxelRenderer(){
         vaVoxel = new VAVoxel();
@@ -48,10 +49,11 @@ public class TilesetVoxelRenderer extends LayerChunkRenderer {
 
         int height = WorldView.getYOffset(tile);
 
-        glColor3f(0.3f, 0.8f, 0.3f);
+        //glColor3f(0.3f, 0.8f, 0.3f);
 
         vaVoxel.setOrigin(tile_x * 1.1f, height * 0.05f, tile_y * 1.1f);
         vaVoxel.renderIntoVA(vaRenderer);
+
 
         //voxelRenderer.set_origin(tile_x * 1.1f, height * 0.05f, tile_y * 1.1f);
         //voxelRenderer.render();
@@ -63,8 +65,9 @@ public class TilesetVoxelRenderer extends LayerChunkRenderer {
     @Override
     public void beforeRender() {
         WindowRender.set3DMode();
-        //camera.update();
 
+
+        //camera.update();
         camera.setMatrix();
 
         /*  SET LIGHTING TO THE SCENE */
@@ -73,6 +76,8 @@ public class TilesetVoxelRenderer extends LayerChunkRenderer {
         //GL11.glPolygonMode( GL11.GL_FRONT_AND_BACK, GL11.GL_LINE );
 
         vaRenderer.clearBuffers();
+
+        Render.bind_texture("/resources/terrain.png");
     }
 
 
@@ -98,9 +103,9 @@ public class TilesetVoxelRenderer extends LayerChunkRenderer {
 
         lightEnv.setSceneLighting();
 
-        GL11.glEnable(GL11.GL_COLOR_MATERIAL);
-        GL11.glColorMaterial ( GL11.GL_FRONT, GL11.GL_AMBIENT_AND_DIFFUSE ) ;
-        GL11.glMaterialf( GL11.GL_FRONT, GL11.GL_SHININESS, 100.0f);
+        glEnable(GL_COLOR_MATERIAL);
+        glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE) ;
+        glMaterialf(GL_FRONT, GL_SHININESS, 100.0f);
     }
 
 }

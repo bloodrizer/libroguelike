@@ -55,7 +55,7 @@ public class Voxel {
     }
 
     public float get_texture_x(){
-        return 1.0f / 16 * textureTileId -1;
+        return 1.0f / 16 * (textureTileId -1);
     }
 
     public float get_texture_y(){
@@ -290,6 +290,7 @@ public class Voxel {
 
         GL11.glNormal3f(-0.5f, 0, 0);
         GL11.glVertex3f(-vo,  vo,  vo);   // Top Right Of The Texture and Quad
+
         GL11.glTexCoord2f(tx, ty+ts);
         GL11.glVertex3f(-vo,  vo, -vo);   // Top Left Of The Texture and Quad
 
