@@ -177,11 +177,11 @@ public class WorldView implements IEventListener {
 
     public void render(){
 
-        WorldViewCamera.update();
+        //WorldViewCamera.update();
 
         glLoadIdentity();
     
-        WorldViewCamera.setMatrix();
+        //WorldViewCamera.setMatrix();
   
         render_layer();
         render_entities();

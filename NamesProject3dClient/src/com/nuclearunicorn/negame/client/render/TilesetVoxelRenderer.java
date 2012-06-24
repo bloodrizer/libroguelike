@@ -65,7 +65,7 @@ public class TilesetVoxelRenderer extends LayerChunkRenderer {
 
 
         //SELECTION DEBUG START
-        Point selectedTileCoord = NEWorldView.getSelectedTileCoord();
+        Point selectedTileCoord = NEWorldView.getSelectedTileCoord();        //<-- ~8-9 fps
         if (selectedTileCoord.getX() == tile_x && selectedTileCoord.getY() == tile_y){
             vaVoxel.topTileId = 7;
         }else{
@@ -109,9 +109,7 @@ public class TilesetVoxelRenderer extends LayerChunkRenderer {
         vaRenderer.render();
 
         FloatBuffer World_Ray = Raycast.getMousePosition(Input.get_mx(), Input.get_my());
-        /*NEDebugOverlay.wx = World_Ray.get(0);
-        NEDebugOverlay.wy = World_Ray.get(1);
-        NEDebugOverlay.wz = World_Ray.get(2);*/
+
         float wx = World_Ray.get(0);
         float wy = World_Ray.get(1);
         float wz = World_Ray.get(2);
@@ -120,11 +118,12 @@ public class TilesetVoxelRenderer extends LayerChunkRenderer {
         NEDebugOverlay.wy = wy;
         NEDebugOverlay.wz = wz;
 
-        /*
-            Voxel render uses half voxel offset from 0,0 origin, so mouse coords actually start at -0.5f, -0.5f
-         */
-        NEWorldView.setMouseXWorld(wx+VAVoxel.VOXEL_SIZE/2f);
+
+        NEWorldView.setMouseXWorld(wx + VAVoxel.VOXEL_SIZE / 2f);
         NEWorldView.setMouseYWorld(wz+VAVoxel.VOXEL_SIZE/2f);
+        /*
+           Voxel render uses half voxel offset from 0,0 origin, so mouse coords actually start at -0.5f, -0.5f
+        */
 
         //reset from 3d mode back to 2d
         //TODO: move to WindowRender.switch2d() / switch3d()

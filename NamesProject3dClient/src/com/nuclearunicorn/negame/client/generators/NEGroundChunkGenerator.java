@@ -160,6 +160,9 @@ public class NEGroundChunkGenerator extends ChunkGenerator {
 
 
             //Voxel side visibility calculation
+
+            //todo: fix invisible parts of the tile of leftTile offset>tile offset
+
             NEVoxelTile leftTile = (NEVoxelTile) getLayer().get_tile(i-1, j);
             if (leftTile != null && WorldView.getYOffset(leftTile) == WorldView.getYOffset(tile)){
                 leftTile.rv = false;

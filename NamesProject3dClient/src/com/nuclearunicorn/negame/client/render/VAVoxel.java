@@ -12,7 +12,11 @@ import org.lwjgl.util.vector.Vector3f;
  */
 public class VAVoxel {
 
-    private Vector3f origin = new Vector3f(0,0,0);
+    //private Vector3f origin = new Vector3f(0,0,0);
+
+    float x;
+    float y;
+    float z;
 
     Vector3f vertexVec = new Vector3f(0,0,0);
     Vector3f textureVec = new Vector3f(0,0,0);
@@ -49,9 +53,9 @@ public class VAVoxel {
 
         float vo = VOXEL_SIZE/2.0f;
 
-        float  x = origin.x*vo*2;
-        float  y = origin.y*vo*2;
-        float  z = origin.z*vo*2;
+        float  x = this.x*vo*2;
+        float  y = this.y*vo*2;
+        float  z = this.z*vo*2;
 
         //SELECTION DEBUG END
 
@@ -165,6 +169,9 @@ public class VAVoxel {
     }
 
     public void setOrigin(float x, float y, float z) {
-        origin.set(x, y, z);
+        //origin.set(x, y, z);
+        this.x = x;
+        this.y = y;
+        this.z = z;
     }
 }
