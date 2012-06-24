@@ -18,10 +18,9 @@ import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
 import com.nuclearunicorn.libroguelike.game.world.WorldCluster;
 import com.nuclearunicorn.libroguelike.game.world.WorldView;
 import com.nuclearunicorn.libroguelike.game.world.WorldViewCamera;
-import com.nuclearunicorn.libroguelike.game.world.generators.ChunkGroundGenerator;
 import com.nuclearunicorn.libroguelike.game.world.layers.WorldLayer;
 import com.nuclearunicorn.libroguelike.render.TilesetRenderer;
-import com.nuclearunicorn.libroguelike.render.layers.LayerRenderer;
+import com.nuclearunicorn.libroguelike.render.layers.AbstractLayerRenderer;
 import com.nuclearunicorn.libroguelike.render.overlay.DebugOverlay;
 import com.nuclearunicorn.libroguelike.render.overlay.OverlaySystem;
 import com.nuclearunicorn.libroguelike.utils.NLTimer;
@@ -106,13 +105,13 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
 
         Timer.init();
 
-        final LayerRenderer renderer = new TilesetVoxelRenderer();
+        final AbstractLayerRenderer renderer = new TilesetVoxelRenderer();
         WorldView.ISOMETRY_MODE = false;
         WorldView.ISOMETRY_ANGLE = 0.0f;
         WorldView.ISOMETRY_Y_SCALE = 1.0f;
 
         view  = new AsciiWorldView(model){
-            public LayerRenderer getLayerRenderer(){
+            public AbstractLayerRenderer getLayerRenderer(){
                 return renderer;
             }
         };

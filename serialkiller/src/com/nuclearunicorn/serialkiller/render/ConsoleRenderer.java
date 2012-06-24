@@ -7,7 +7,7 @@ import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.WorldTimer;
 import com.nuclearunicorn.libroguelike.game.world.WorldViewCamera;
 import com.nuclearunicorn.libroguelike.render.Render;
-import com.nuclearunicorn.libroguelike.render.layers.LayerRenderer;
+import com.nuclearunicorn.libroguelike.render.layers.LayerChunkRenderer;
 import com.nuclearunicorn.libroguelike.render.overlay.DebugOverlay;
 import com.nuclearunicorn.libroguelike.render.overlay.OverlaySystem;
 import com.nuclearunicorn.libroguelike.utils.NLTimer;
@@ -26,7 +26,7 @@ import static org.lwjgl.opengl.GL11.*;
  * Time: 20:35
  * To change this template use File | Settings | File Templates.
  */
-public class ConsoleRenderer extends LayerRenderer{
+public class ConsoleRenderer extends LayerChunkRenderer {
     
     public static int TILE_SIZE = 16;
     NLTimer renderTimer = new NLTimer();

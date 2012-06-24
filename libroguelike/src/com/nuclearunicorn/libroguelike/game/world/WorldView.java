@@ -17,8 +17,8 @@ import com.nuclearunicorn.libroguelike.game.world.layers.WorldLayer;
 import com.nuclearunicorn.libroguelike.render.EntityRenderer;
 import com.nuclearunicorn.libroguelike.render.TilesetRenderer;
 import com.nuclearunicorn.libroguelike.render.WindowRender;
+import com.nuclearunicorn.libroguelike.render.layers.AbstractLayerRenderer;
 import com.nuclearunicorn.libroguelike.render.layers.GroundLayerRenderer;
-import com.nuclearunicorn.libroguelike.render.layers.LayerRenderer;
 import com.nuclearunicorn.libroguelike.utils.Noise;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
@@ -75,7 +75,7 @@ public class WorldView implements IEventListener {
     }
 
 
-    public LayerRenderer getLayerRenderer(){
+    public AbstractLayerRenderer getLayerRenderer(){
         return null;
     }
 
@@ -89,48 +89,35 @@ public class WorldView implements IEventListener {
      */
     public void render_layer(){
         
-        LayerRenderer renderer = null;
+        AbstractLayerRenderer renderer = null;
 
         renderer = getLayerRenderer();
 
         renderer.beforeRender();
 
-        int x = WorldCluster.origin.getX()*WorldChunk.CHUNK_SIZE;
-        int y = WorldCluster.origin.getY()*WorldChunk.CHUNK_SIZE;
-        int size = WorldCluster.CLUSTER_SIZE*WorldChunk.CHUNK_SIZE;
-        
-        WorldChunk currentChunk = new WorldChunk(0, 0);
+        int x = WorldCluster.origin.getX();
+        int y = WorldCluster.origin.getY();
+        int size = WorldCluster.CLUSTER_SIZE;
 
-        for (int i = x; i<x+size; i++)
-        for (int j = y; j<y+size; j++)
+        WorldChunk currentChunk;
+
+        for (int chunk_x = x; chunk_x<x+size; chunk_x++)
+        for (int chunk_y = y; chunk_y<y+size; chunk_y++)
             {
 
-                if (!WorldViewCamera.tile_in_fov(i,j)){
+                //TODO: move checking to the child class
+                /*if (!WorldViewCamera.tile_in_fov(i,j)){
                     continue;
-                }
+                }*/
+
                 //NOTE: get_cached_chink is now deprecated function, as it can load random chunk data without checking, if it's inside
                 //of world cluster
                 //world cluster should cache it instead
 
-                //serious debug problems othervise
-                int chunk_x = (int)Math.floor((float)i / WorldChunk.CHUNK_SIZE);
-                int chunk_y = (int)Math.floor((float)j / WorldChunk.CHUNK_SIZE);
-
-                //sunce chunk retrival is heavy operation, we will request it only if coords are changed
-                if (currentChunk.origin.getX() != chunk_x && currentChunk.origin.getY() != chunk_y){
-                    currentChunk = getLayer().get_cached_chunk(
-                        chunk_x,
-                        chunk_y);   //<---slooow
-                }
-
+                //not chunk retrival is heavy operation, we will request it only if coords are changed
+                currentChunk = getLayer().get_cached_chunk(chunk_x, chunk_y);   //<---slooow
                 if ( currentChunk != null){
-                    //WorldTile tile = getLayer().getTile(currentChunk, i,j);
-                    WorldTile tile = getLayer().get_tile(i,j);
-
-                    //render tile
-                    if (renderer != null){
-                        renderer.render_tile(tile, i, j);
-                    }
+                    renderer.renderChunk(getLayer(), currentChunk, chunk_x, chunk_y);
                 }
 
             }

@@ -7,7 +7,6 @@ package com.nuclearunicorn.negame.client.render;
 
 import com.nuclearunicorn.negame.client.render.math.Vector3;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.glu.GLU;
 import org.lwjgl.util.vector.Vector3f;
 import org.newdawn.slick.opengl.Texture;
 
@@ -23,6 +22,8 @@ public class Voxel {
     public int textureTileId = 1;
 
     boolean fv, kv, lv, rv, tv, bv; //side visiblility flags
+
+    static Vector3f vertex_normal = new Vector3f(0.0f, 0.0f, 0.0f);
 
     public Voxel(float x, float y, float z){
         origin = new Vector3f(x,y,z);
@@ -151,7 +152,7 @@ public class Voxel {
 
     public void put_vertex(float x, float y, float z, float tx, float ty){
 
-        if (_vbo.VBO_buffer_size[_vbo.get_framebuffer_inactive()] >= _vbo.VBO_max_buffer_size){
+        if (_vbo.VBO_buffer_size >= _vbo.VBO_max_buffer_size){
             return; //safe switch
         }
 
@@ -178,11 +179,8 @@ public class Voxel {
 
          _vbo.get_vi().putInt(_vbo.vertex_index++);
 
-         _vbo.VBO_buffer_size[_vbo.get_framebuffer_inactive()]++;
+         _vbo.VBO_buffer_size++;
     }
-
-
-    static Vector3f vertex_normal = new Vector3f(0.0f, 0.0f, 0.0f);
 
     public void put_normal(float nx, float ny, float nz){
         vertex_normal.set(nx, ny, nz);

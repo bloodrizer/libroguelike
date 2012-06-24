@@ -4,14 +4,15 @@
  */
 package com.nuclearunicorn.libroguelike.render.layers;
 
-import com.nuclearunicorn.libroguelike.game.world.WorldTile;
+import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
+import com.nuclearunicorn.libroguelike.game.world.layers.WorldLayer;
 
 /**
  *
  * @author bloodrizer
  */
-public abstract class LayerRenderer {
-    public abstract void render_tile(WorldTile tile, int tile_x, int tile_y);
+public abstract class AbstractLayerRenderer {
+    public abstract void renderChunk(WorldLayer layer, WorldChunk chunk, int i, int j);
 
     public abstract void beforeRender();
     public abstract void afterRender();

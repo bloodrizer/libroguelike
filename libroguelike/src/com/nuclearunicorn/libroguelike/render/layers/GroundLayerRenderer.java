@@ -15,7 +15,7 @@ import org.lwjgl.util.vector.Vector3f;
  *
  * @author bloodrizer
  */
-public class GroundLayerRenderer extends LayerRenderer{
+public class GroundLayerRenderer extends LayerChunkRenderer {
     
     public TilesetRenderer bg_tileset_renderer;
     TilesetRenderer tileSprite;
