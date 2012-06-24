@@ -96,65 +96,68 @@ public class VAVoxel {
             vertexVec.set(-vo+x, vo+y, vo+z);         //tl
             renderer.addVoxedData(vertexVec, normalVec, textureVec);
         }
+
         //RIGHT
+        if (tileData.rv){
+            normalVec.set(0.5f, 0, 0);
 
-        normalVec.set(0.5f, 0, 0);
+            textureVec.set(tx, ty);
+            vertexVec.set(vo+x, -vo+y, -vo+z);
+            renderer.addVoxedData(vertexVec, normalVec, textureVec);
 
-        textureVec.set(tx, ty);
-        vertexVec.set(vo+x, -vo+y, -vo+z);
-        renderer.addVoxedData(vertexVec, normalVec, textureVec);
+            textureVec.set(tx+ts, ty);
+            vertexVec.set(vo+x, vo+y, -vo+z);
+            renderer.addVoxedData(vertexVec, normalVec, textureVec);
 
-        textureVec.set(tx+ts, ty);
-        vertexVec.set(vo+x, vo+y, -vo+z);
-        renderer.addVoxedData(vertexVec, normalVec, textureVec);
+            textureVec.set(tx+ts, ty+ts);
+            vertexVec.set(vo+x, vo+y, vo+z);
+            renderer.addVoxedData(vertexVec, normalVec, textureVec);
 
-        textureVec.set(tx+ts, ty+ts);
-        vertexVec.set(vo+x, vo+y, vo+z);
-        renderer.addVoxedData(vertexVec, normalVec, textureVec);
-
-        textureVec.set(tx, ty);
-        vertexVec.set(vo+x, -vo+y, vo+z);
-        renderer.addVoxedData(vertexVec, normalVec, textureVec);
+            textureVec.set(tx, ty);
+            vertexVec.set(vo+x, -vo+y, vo+z);
+            renderer.addVoxedData(vertexVec, normalVec, textureVec);
+        }
 
         //BACK
+        if (tileData.kv){
+            normalVec.set(0, 0, -0.5f);
+            textureVec.set(tx+ts, ty+ts);
+            vertexVec.set(-vo+x, -vo+y, -vo+z);         //br
+            renderer.addVoxedData(vertexVec, normalVec, textureVec);
 
-        normalVec.set(0, 0, -0.5f);
-        textureVec.set(tx+ts, ty+ts);
-        vertexVec.set(-vo+x, -vo+y, -vo+z);         //br
-        renderer.addVoxedData(vertexVec, normalVec, textureVec);
+            textureVec.set(tx+ts, ty);
+            vertexVec.set(-vo+x, vo+y, -vo+z);          //tr
+            renderer.addVoxedData(vertexVec, normalVec, textureVec);
 
-        textureVec.set(tx+ts, ty);
-        vertexVec.set(-vo+x, vo+y, -vo+z);          //tr
-        renderer.addVoxedData(vertexVec, normalVec, textureVec);
+            textureVec.set(tx, ty);
+            vertexVec.set(vo+x, vo+y, -vo+z);           //tl
+            renderer.addVoxedData(vertexVec, normalVec, textureVec);
 
-        textureVec.set(tx, ty);
-        vertexVec.set(vo+x, vo+y, -vo+z);           //tl
-        renderer.addVoxedData(vertexVec, normalVec, textureVec);
-
-        textureVec.set(tx, ty+ts);
-        vertexVec.set(vo+x, -vo+y, -vo+z);          //bl
-        renderer.addVoxedData(vertexVec, normalVec, textureVec);
-
+            textureVec.set(tx, ty+ts);
+            vertexVec.set(vo+x, -vo+y, -vo+z);          //bl
+            renderer.addVoxedData(vertexVec, normalVec, textureVec);
+        }
         //LEFT
 
         // Left Face
+        if (tileData.lv){
+            normalVec.set(-0.5f, 0, 0);
+            textureVec.set(tx, ty+ts);
+            vertexVec.set(-vo+x, -vo+y, -vo+z);                        //bl
+            renderer.addVoxedData(vertexVec, normalVec, textureVec);
 
-        normalVec.set(-0.5f, 0, 0);
-        textureVec.set(tx, ty+ts);
-        vertexVec.set(-vo+x, -vo+y, -vo+z);                        //bl
-        renderer.addVoxedData(vertexVec, normalVec, textureVec);
+            textureVec.set(tx+ts, ty+ts);
+            vertexVec.set(-vo+x, -vo+y, vo+z);                         //br
+            renderer.addVoxedData(vertexVec, normalVec, textureVec);
 
-        textureVec.set(tx+ts, ty+ts);
-        vertexVec.set(-vo+x, -vo+y, vo+z);                         //br
-        renderer.addVoxedData(vertexVec, normalVec, textureVec);
+            textureVec.set(tx+ts, ty);
+            vertexVec.set(-vo+x, vo+y, vo+z);                         //tr
+            renderer.addVoxedData(vertexVec, normalVec, textureVec);
 
-        textureVec.set(tx+ts, ty);
-        vertexVec.set(-vo+x, vo+y, vo+z);                         //tr
-        renderer.addVoxedData(vertexVec, normalVec, textureVec);
-
-        textureVec.set(tx, ty);
-        vertexVec.set(-vo+x, vo+y, -vo+z);                        //tl
-        renderer.addVoxedData(vertexVec, normalVec, textureVec);
+            textureVec.set(tx, ty);
+            vertexVec.set(-vo+x, vo+y, -vo+z);                        //tl
+            renderer.addVoxedData(vertexVec, normalVec, textureVec);
+        }
 
         //We don't render bottom side of the tile.
         //For reference look at the Voxel.java#render method

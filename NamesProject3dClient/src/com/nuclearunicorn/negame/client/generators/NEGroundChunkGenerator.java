@@ -4,6 +4,7 @@ import com.nuclearunicorn.libroguelike.game.GameEnvironment;
 import com.nuclearunicorn.libroguelike.game.world.Terrain;
 import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
+import com.nuclearunicorn.libroguelike.game.world.WorldView;
 import com.nuclearunicorn.libroguelike.game.world.generators.ChunkGenerator;
 import com.nuclearunicorn.libroguelike.game.world.layers.WorldLayer;
 import com.nuclearunicorn.libroguelike.utils.NLTimer;
@@ -77,7 +78,7 @@ public class NEGroundChunkGenerator extends ChunkGenerator {
             for (int i = x - OFFSET; i<x+size+OFFSET; i++ ){
                 for (int j = y - OFFSET; j<y+size+OFFSET; j++){
                     if ( i>= x && i<x+size && j >=y && j < y+size){
-                        build_chunk_tile(i,j, chunk_random);
+                        build_chunk_tile(i, j, chunk_random);
                     }
 
                     if (Terrain.is_lake(Terrain.get_height(i, j))){
@@ -156,15 +157,17 @@ public class NEGroundChunkGenerator extends ChunkGenerator {
                 tile.terrain_type = WorldTile.TerrainType.TERRAIN_WATER;
             }
 
+
+
             //Voxel side visibility calculation
             NEVoxelTile leftTile = (NEVoxelTile) getLayer().get_tile(i-1, j);
-            if (leftTile != null && leftTile.get_height() == tile.get_height()){
+            if (leftTile != null && WorldView.getYOffset(leftTile) == WorldView.getYOffset(tile)){
                 leftTile.rv = false;
                 tile.lv = false;
             }
 
-            NEVoxelTile topTile = (NEVoxelTile) getLayer().get_tile(i-1, j);
-            if (topTile != null && topTile.get_height() == tile.get_height()){
+            NEVoxelTile topTile = (NEVoxelTile) getLayer().get_tile(i, j-1);
+            if (topTile != null && WorldView.getYOffset(topTile) == WorldView.getYOffset(tile)){
                 topTile.fv = false;
                 tile.kv = false;
             }
