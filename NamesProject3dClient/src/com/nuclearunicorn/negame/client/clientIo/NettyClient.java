@@ -32,7 +32,7 @@ public class NettyClient {
     public static void connect(){
         //return;
         
-        System.out.println("Connecting to the character server...");
+        System.out.println("NEClient:>> Connecting to the character server...");
         
 
         ClientEventManager.eventManager.subscribe(charServClient);
@@ -43,9 +43,9 @@ public class NettyClient {
         try {
             charServClient.connect(
             );
-         System.out.println("connected successfuly");
+         System.out.println("NEClient:>> Connected successfully");
                             
-         System.out.println("sending message");
+         System.out.println("NEClient:>> Sending login command");
          charServClient.sendMsg("EPlayerLogin Red True");    
             
             
@@ -58,7 +58,7 @@ public class NettyClient {
 
     public static void gameServConnect(String host, int port){
         
-        System.out.println("Starting gameServListening thread @"+host+":"+port+" (kinda)");
+        System.out.println("NEClient:>> Starting gameServListening thread @"+host+":"+port+" (kinda)");
 
 
         Thread chrSrvThread = new Thread(new GameServConnectionThread(host, port));

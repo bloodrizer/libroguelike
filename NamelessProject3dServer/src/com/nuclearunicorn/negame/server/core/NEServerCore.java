@@ -5,6 +5,7 @@
 package com.nuclearunicorn.negame.server.core;
 
 import com.nuclearunicorn.libroguelike.game.GameEnvironment;
+import com.nuclearunicorn.negame.common.IServer;
 import com.nuclearunicorn.negame.server.charserv.CharServer;
 import com.nuclearunicorn.negame.server.gameserver.GameServer;
 
@@ -12,7 +13,7 @@ import com.nuclearunicorn.negame.server.gameserver.GameServer;
  *
  * @author bloodrizer
  */
-public class NEServerCore {
+public class NEServerCore implements IServer {
     CharServer charServer;
     GameServer gameServer;
     

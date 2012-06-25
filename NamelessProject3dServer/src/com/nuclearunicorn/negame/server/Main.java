@@ -25,6 +25,7 @@ public class Main {
         /* Run Client in the same session and connect it to the server */
 
         game = new NEGame();
+        game.attachServerSession(serverCore);
 
         game.registerMode("mainMenu", new MainMenuMode());
         game.registerMode("inGame", inGameMode);

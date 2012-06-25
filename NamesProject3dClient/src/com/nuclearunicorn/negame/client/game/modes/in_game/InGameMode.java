@@ -1,6 +1,5 @@
 package com.nuclearunicorn.negame.client.game.modes.in_game;
 
-import com.nuclearunicorn.libroguelike.core.Input;
 import com.nuclearunicorn.libroguelike.core.client.ClientEventManager;
 import com.nuclearunicorn.libroguelike.core.client.ClientGameEnvironment;
 import com.nuclearunicorn.libroguelike.events.EKeyPress;
@@ -8,7 +7,6 @@ import com.nuclearunicorn.libroguelike.events.Event;
 import com.nuclearunicorn.libroguelike.events.EventManager;
 import com.nuclearunicorn.libroguelike.events.IEventListener;
 import com.nuclearunicorn.libroguelike.game.GameEnvironment;
-import com.nuclearunicorn.libroguelike.game.combat.Combat;
 import com.nuclearunicorn.libroguelike.game.ent.controller.NpcController;
 import com.nuclearunicorn.libroguelike.game.items.BaseItem;
 import com.nuclearunicorn.libroguelike.game.modes.AbstractGameMode;
@@ -26,17 +24,20 @@ import com.nuclearunicorn.libroguelike.render.overlay.OverlaySystem;
 import com.nuclearunicorn.libroguelike.utils.NLTimer;
 import com.nuclearunicorn.libroguelike.utils.Timer;
 import com.nuclearunicorn.libroguelike.vgui.effects.EffectsSystem;
+
+import com.nuclearunicorn.negame.client.Main;
+import com.nuclearunicorn.negame.client.NEGame;
+import com.nuclearunicorn.negame.client.clientIo.NettyClient;
 import com.nuclearunicorn.negame.client.game.world.NEWorldModel;
 import com.nuclearunicorn.negame.client.game.world.NEWorldView;
 import com.nuclearunicorn.negame.client.generators.NEGroundChunkGenerator;
 import com.nuclearunicorn.negame.client.render.TilesetVoxelRenderer;
 import com.nuclearunicorn.negame.client.render.overlays.NEDebugOverlay;
+
 import com.nuclearunicorn.serialkiller.game.ItemFactory;
-import com.nuclearunicorn.serialkiller.game.Main;
 import com.nuclearunicorn.serialkiller.game.MainApplet;
 import com.nuclearunicorn.serialkiller.game.SkillerGame;
 import com.nuclearunicorn.serialkiller.game.ai.PlayerAI;
-import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
 import com.nuclearunicorn.serialkiller.game.controllers.RLPlayerController;
 import com.nuclearunicorn.serialkiller.game.social.SocialController;
@@ -45,6 +46,8 @@ import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLPlayer;
 import com.nuclearunicorn.serialkiller.generators.NPCGenerator;
 import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
 import com.nuclearunicorn.serialkiller.render.ConsoleRenderer;
+
+import com.sun.xml.internal.bind.v2.TODO;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.Point;
 import rlforj.los.IFovAlgorithm;
@@ -68,9 +71,13 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
     //IFovAlgorithm fov = new ShadowCasting();
     IFovAlgorithm fov = new PrecisePermissive();
 
-
     private static GameEnvironment clientGameEnvironment;
     private int turnNumber = 0;
+
+    /*
+     * Is game in client-server mode or offline single player, etc
+     */
+    public static final boolean NETWORK_MODE = true;
 
     @Override
     public void run() {
@@ -93,8 +100,8 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
 
         //ChunkGenerator townGenerator = new TownChunkGenerator();
         ArrayList<WorldLayer> layers = new ArrayList<WorldLayer>(model.getLayers());
-
         layers.get(0).registerGenerator(new NEGroundChunkGenerator());
+
         /*for (int i = 1; i<5; i++){
             layers.get(i).registerGenerator(new BasementGenerator());
         }*/
@@ -143,41 +150,24 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
 
         //loading misc services
         SocialController.init();
+
+        //Init client layer
+        if (NETWORK_MODE){
+            NettyClient.connect();
+        }
     }
 
     @Override
     public void update() {
-
         DebugOverlay.renderTime = 0;
-
         NLTimer timer = new NLTimer();
         timer.push();
 
         super.update();
 
         get_ui().update();
-
-        boolean playerSkipTurn = false;
-        if (Player.get_ent() != null){
-            Combat combat = Player.get_ent().get_combat();
-            if (combat != null && !combat.is_alive()){
-                playerSkipTurn = true;
-            }
-            BodySimulation bodysim = ((EntityRLPlayer)Player.get_ent()).getBodysim();
-            if (bodysim != null && ( bodysim.isStunned() || bodysim.isFainted() ) ){
-                playerSkipTurn = true;
-            }
-            PlayerAI ai = (PlayerAI) Player.get_ent().getAI();
-            if (ai.isOutOfControl()){
-                playerSkipTurn = true;
-            }
-        }
-        if (Input.key_state_shft || playerSkipTurn){
-            model.update();
-        }
-
+        model.update();
         fx.update();
-
         fovUpdate();
 
         DebugOverlay.updateTime = timer.popDiff();
@@ -188,14 +178,20 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         get_ui().render();
 
 
-        //DebugPathfindingGraph.debugAdaptiveGraph(); //>:3
         DebugOverlay.debugPathfinding();    //heavy, but very useful
         overlay.render();
 
         NEDebugOverlay.render();
-
         DebugOverlay.frameTime = timer.popDiff();
 
+        if (NETWORK_MODE){
+            NEGame neGame = (NEGame)this.getGameManager();
+            if (neGame != null){
+                neGame.updateServerSession();
+            }else{
+                System.err.println("failed to update server session, Main.game is null");
+            }
+        }
     }
 
     private void fovUpdate() {
@@ -221,11 +217,12 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         //allow to press ESC even if player is dead
         if (event instanceof EKeyPress){
             if (((EKeyPress) event).key == Keyboard.KEY_ESCAPE){
-                SkillerGame game;
+                NEGame game;
                 if (Main.game != null){
                     game = Main.game;
                 }else{
-                    game = MainApplet.game;
+                    //game = MainApplet.game;
+                    game = Main.game;   //TODO: fix me!
                 }
                 game.set_state("mainMenu");
                 game.initStateUI();

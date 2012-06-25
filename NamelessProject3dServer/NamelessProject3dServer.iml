@@ -11,6 +11,7 @@
     <orderEntry type="module" module-name="libroguelike" />
     <orderEntry type="library" name="lwjgl" level="project" />
     <orderEntry type="module" module-name="NamesProject3dClient" />
+    <orderEntry type="module" module-name="NamelessProjectCommon" />
   </component>
 </module>
 

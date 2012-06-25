@@ -52,6 +52,7 @@ public class Game {
 
     public void registerMode(String name, AbstractGameMode mode) {
         gameStates.put(name, mode);
+        mode.setGameManager(this);
     }
 
     public static AbstractGameMode get_game_mode(){

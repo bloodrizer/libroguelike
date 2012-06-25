@@ -18,6 +18,8 @@ public class Main {
 
     public static void main(String[] args) {
 
+        System.out.println("------- starting game client ---------");
+
         game = new NEGame();
 
         game.registerMode("mainMenu", new MainMenuMode());
