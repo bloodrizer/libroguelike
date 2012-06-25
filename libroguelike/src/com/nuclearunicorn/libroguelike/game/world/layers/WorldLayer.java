@@ -68,7 +68,7 @@ public class WorldLayer implements Serializable {
     public Map<Point,WorldTile> getTileData(Point tileOrigin){
         push_point(util_point);
         util_point.setLocation(tileOrigin);
-        
+
         Point chunkOrigin = WorldChunk.get_chunk_coord(tileOrigin);      
 
         WorldChunk chunk = get_cached_chunk(chunkOrigin);

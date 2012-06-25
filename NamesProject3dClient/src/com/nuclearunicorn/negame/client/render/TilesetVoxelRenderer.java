@@ -40,6 +40,8 @@ public class TilesetVoxelRenderer extends LayerChunkRenderer {
     LightEnvironment lightEnv;
     private Voxel voxelRenderer = new Voxel(0,0,0);
 
+    boolean isGeometryOutdated = true;
+
     public TilesetVoxelRenderer(){
         vaVoxel = new VAVoxel();
         vaRenderer = new VAVoxelRenderer();
@@ -65,15 +67,17 @@ public class TilesetVoxelRenderer extends LayerChunkRenderer {
 
 
         //SELECTION DEBUG START
-        Point selectedTileCoord = NEWorldView.getSelectedTileCoord();        //<-- ~8-9 fps
+        /*Point selectedTileCoord = NEWorldView.getSelectedTileCoord();        //<-- ~8-9 fps
         if (selectedTileCoord.getX() == tile_x && selectedTileCoord.getY() == tile_y){
             vaVoxel.topTileId = 7;
         }else{
             vaVoxel.topTileId = 1;
-        }
+        }*/
 
-        vaVoxel.setOrigin(tile_x * 1.000005f, height * 0.05f, tile_y * 1.000005f);
-        vaVoxel.renderIntoVA(vaRenderer, (NEVoxelTile)tile);
+        if (isGeometryOutdated){
+            vaVoxel.setOrigin(tile_x * 1.000005f, height * 0.05f, tile_y * 1.000005f);
+            vaVoxel.renderIntoVA(vaRenderer, (NEVoxelTile)tile);
+        }
 
 
         //voxelRenderer.set_origin(tile_x * 1.1f, height * 0.05f, tile_y * 1.1f);
@@ -96,7 +100,9 @@ public class TilesetVoxelRenderer extends LayerChunkRenderer {
 
         //GL11.glPolygonMode( GL11.GL_FRONT_AND_BACK, GL11.GL_LINE );
 
-        vaRenderer.clearBuffers();
+        if (isGeometryOutdated){
+            vaRenderer.clearBuffers();
+        }
 
         Render.bind_texture("/resources/terrain.png");
     }
@@ -105,7 +111,10 @@ public class TilesetVoxelRenderer extends LayerChunkRenderer {
     @Override
     public void afterRender() {
 
-        vaRenderer.flushBuffers();
+        if (isGeometryOutdated){
+            vaRenderer.flushBuffers();
+            isGeometryOutdated = false;
+        }
         vaRenderer.render();
 
         FloatBuffer World_Ray = Raycast.getMousePosition(Input.get_mx(), Input.get_my());

@@ -7,9 +7,9 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="slick-util" level="project" />
-    <orderEntry type="library" name="lwjgl" level="project" />
     <orderEntry type="library" name="netty-3.2.5.Final" level="project" />
+    <orderEntry type="module" module-name="libroguelike" />
+    <orderEntry type="library" name="lwjgl" level="project" />
   </component>
 </module>
 

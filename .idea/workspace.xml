@@ -7,16 +7,34 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b3076201-3a43-47eb-81c1-0e49dabcf6c8" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/render/Camera.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/render/VBO.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/render/Voxel.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/render/math/FastMath.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/render/math/Vector3.java" />
-      <change type="DELETED" beforePath="D:\DEV\jskiller\.idea\libraries\lwjgl.xml" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/netty_3_2_5_Final.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/Main.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/cache/BaseNECache.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/cache/INECache.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/charserv/CharServer.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/charserv/CharServerHandler.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/charserv/PlayerData.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/core/AServerHandler.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/core/AServerIoLayer.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/core/IoCommon.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/core/NEDataPacket.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/core/NEServerCore.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/core/ServerUserPool.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/core/User.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/gameserver/GameServer.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/gameserver/GameServerHandler.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/world/ServerWorldLayer.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/world/ServerWorldModel.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/NamelessProjectCommon/NamelessProjectCommon.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/libraries/lwjgl.xml" afterPath="$PROJECT_DIR$/.idea/libraries/lwjgl.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules.xml" afterPath="$PROJECT_DIR$/.idea/modules.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/vcs.xml" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/render/TilesetVoxelRenderer.java" afterPath="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/render/TilesetVoxelRenderer.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/render/VAVoxelRenderer.java" afterPath="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/render/VAVoxelRenderer.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/libroguelike/libroguelike.iml" afterPath="$PROJECT_DIR$/libroguelike/libroguelike.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/game/ui/MainMenuUI.java" afterPath="$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/game/ui/MainMenuUI.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/game/world/layers/WorldLayer.java" afterPath="$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/game/world/layers/WorldLayer.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/serialkiller/serialkiller.iml" afterPath="$PROJECT_DIR$/serialkiller/serialkiller.iml" />
     </list>
     <ignored path="jskiller.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -74,10 +92,28 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="InGameMode.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/game/modes/in_game/InGameMode.java">
+      <file leaf-file-name="Main.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/Main.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="107" column="48" selection-start="4690" selection-end="4690" vertical-scroll-proportion="0.0">
+            <state line="16" column="29" selection-start="433" selection-end="433" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="BaseNECache.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/cache/BaseNECache.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="17" column="8" selection-start="495" selection-end="572" vertical-scroll-proportion="0.5734127">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CharServer.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/charserv/CharServer.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="6" column="0" selection-start="152" selection-end="152" vertical-scroll-proportion="0.0">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -85,10 +121,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="TilesetVoxelRenderer.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/render/TilesetVoxelRenderer.java">
+      <file leaf-file-name="NEServerCore.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/core/NEServerCore.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="16" column="39" selection-start="520" selection-end="520" vertical-scroll-proportion="0.52545154">
+            <state line="23" column="19" selection-start="586" selection-end="589" vertical-scroll-proportion="0.0">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -104,35 +140,35 @@
     </FindUsagesManager>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="CHECKOUT_INCLUDE_TAGS" value="false" />
+    <option name="UPDATE_CHANGES_POLICY" value="STASH" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/NEGame.java" />
-        <option value="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/modes/main_menu/MainMenuUI.java" />
-        <option value="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/game/modes/main_menu/MainMenuUI.java" />
-        <option value="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/Main.java" />
-        <option value="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/game/world/NEWorldModel.java" />
-        <option value="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/game/modes/in_game/InGameUI.java" />
-        <option value="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/game/modes/in_game/InGameMode.java" />
         <option value="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/render/TilesetVoxelRenderer.java" />
-        <option value="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/render/terasology/math/Vector3i.java" />
-        <option value="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/render/terasology/math/Side.java" />
-        <option value="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/render/terasology/math/terasology/rendering/primitives/ChunkMesh.java" />
-        <option value="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/render/terasology/math/TeraMath.java" />
-        <option value="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/render/Camera.java" />
-        <option value="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/render/math/FastMath.java" />
-        <option value="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/render/VBO.java" />
-        <option value="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/render/Voxel.java" />
+        <option value="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/render/VAVoxelRenderer.java" />
+        <option value="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/AServerHandler.java" />
+        <option value="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/io/User.java" />
+        <option value="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/charserv/CharServerHandler.java" />
+        <option value="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/cache/INECache.java" />
+        <option value="$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/game/world/layers/WorldLayer.java" />
+        <option value="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/world/ServerWorldLayer.java" />
+        <option value="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/world/ServerWorldModel.java" />
+        <option value="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/io/IoCommon.java" />
+        <option value="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/charserv/CharServer.java" />
+        <option value="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/gameserver/GameServerHandler.java" />
+        <option value="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/gameserver/GameServer.java" />
+        <option value="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/io/NEServerCore.java" />
+        <option value="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/Main.java" />
+        <option value="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/cache/BaseNECache.java" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="-4" />
-    <option name="y" value="-4" />
-    <option name="width" value="1928" />
-    <option name="height" value="1088" />
+    <option name="x" value="-2" />
+    <option name="width" value="1608" />
+    <option name="height" value="861" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <OptionsSetting value="true" id="Add" />
@@ -147,8 +183,19 @@
   <component name="ProjectReloadState">
     <option name="STATE" value="0" />
   </component>
+  <component name="ProjectStructureProblems">
+    <ignored-problems>
+      <problem id="invalid-module-dependency(module:libroguelike,jinput)" />
+      <problem id="invalid-module-dependency(module:libroguelike,rlforj.0.2)" />
+      <problem id="invalid-module-dependency(module:serialkiller,jinput)" />
+      <problem id="invalid-module-dependency(module:serialkiller,Libroguelike)" />
+      <problem id="invalid-module-dependency(module:serialkiller,rlforj.0.2)" />
+      <problem id="library-invalid-classes-path(library:project:lwjgl)" />
+      <problem id="unused-library(library:project:lwjgl)" />
+    </ignored-problems>
+  </component>
   <component name="ProjectView">
-    <navigator currentView="ProjectPane" proportions="" version="1" splitterProportion="0.5">
+    <navigator currentView="PackagesPane" proportions="" version="1" splitterProportion="0.5">
       <flattenPackages />
       <showMembers />
       <showModules />
@@ -160,6 +207,16 @@
       <sortByType />
     </navigator>
     <panes>
+      <pane id="Scope">
+        <subPane subId="Project Files">
+          <PATH>
+            <PATH_ELEMENT USER_OBJECT="Root">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
       <pane id="PackagesPane">
         <subPane>
           <PATH>
@@ -168,14 +225,64 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
             </PATH_ELEMENT>
           </PATH>
-        </subPane>
-      </pane>
-      <pane id="Scope">
-        <subPane subId="Project Files">
           <PATH>
-            <PATH_ELEMENT USER_OBJECT="Root">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
+            <PATH_ELEMENT>
+              <option name="myItemId" value="jskiller" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="NamelessProject3dServer" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="jskiller" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="NamelessProject3dServer" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="com.nuclearunicorn.negame.server" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="jskiller" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="NamelessProject3dServer" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="com.nuclearunicorn.negame.server" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="core" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="jskiller" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="NamelessProject3dServer" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="com.nuclearunicorn.negame.server" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="charserv" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
             </PATH_ELEMENT>
           </PATH>
         </subPane>
@@ -194,118 +301,6 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="serialkiller" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jskiller" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="serialkiller" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="resources" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jskiller" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="serialkiller" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="serialkiller" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jskiller" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="serialkiller" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="serialkiller" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="utils" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jskiller" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="serialkiller" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="serialkiller" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="render" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jskiller" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="serialkiller" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="serialkiller" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jskiller" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
               <option name="myItemId" value="NamesProject3dClient" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
@@ -361,144 +356,6 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="render" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jskiller" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="NamesProject3dClient" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="client" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="render" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="math" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jskiller" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="NamesProject3dClient" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="client" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="world" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jskiller" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="NamesProject3dClient" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="client" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jskiller" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="libroguelike" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jskiller" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="libroguelike" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jskiller" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="libroguelike" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="libroguelike" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jskiller" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="libroguelike" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="libroguelike" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -508,7 +365,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="GoToFile.includeJavaFiles" value="false" />
-    <property name="project.structure.last.edited" value="Artifacts" />
+    <property name="project.structure.last.edited" value="Modules" />
     <property name="OverrideImplement.combined" value="true" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="options.splitter.main.proportions" value="0.3" />
@@ -521,24 +378,24 @@
     <property name="GoToClass.toSaveIncludeLibraries" value="false" />
     <property name="MemberChooser.showClasses" value="true" />
     <property name="GoToClass.includeLibraries" value="false" />
-    <property name="dynamic.classpath" value="false" />
-    <property name="options.splitter.details.proportions" value="0.2" />
     <property name="options.searchVisible" value="true" />
+    <property name="options.splitter.details.proportions" value="0.2" />
+    <property name="dynamic.classpath" value="false" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\dp\jskiller\libroguelike\NamelessProject3dServer\src\com\nuclearunicorn\negame\server" />
       <recent name="D:\DEV\jskiller\NamesProject3dClient\src\com\nuclearunicorn\negame\client\render\math" />
       <recent name="D:\DEV\jskiller\NamesProject3dClient\src\com\nuclearunicorn\negame\client\render\terasology\math\terasology\rendering\primitives" />
       <recent name="D:\DEV\jskiller\NamesProject3dClient\src\com\nuclearunicorn\negame\client\render\terasology\math" />
       <recent name="D:\DEV\jskiller\NamesProject3dClient\src\com\nuclearunicorn\negame\client" />
-      <recent name="D:\DEV\jskiller\NamesProject3dClient\src" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\DEV\jskiller\NamesProject3dClient\src\com\nuclearunicorn\negame\client\render" />
       <recent name="D:\DEV\jskiller\NamesProject3dClient\src\com\nuclearunicorn\negame\client\render\terasology\math" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.NamelessGameClient">
+  <component name="RunManager" selected="Application.NamelessGameServer">
     <configuration default="true" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType" factoryName="Plugin">
       <module name="" />
       <option name="VM_PARAMETERS" value="-Xmx512m -Xms256m -XX:MaxPermSize=250m" />
@@ -559,24 +416,6 @@
       <method>
         <option name="AntTarget" enabled="false" />
         <option name="BuildArtifacts" enabled="false" />
-        <option name="Maven.BeforeRunTask" enabled="false" />
-      </method>
-    </configuration>
-    <configuration default="true" type="Applet" factoryName="Applet">
-      <module name="" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="HTML_FILE_NAME" />
-      <option name="HTML_USED" value="false" />
-      <option name="WIDTH" value="400" />
-      <option name="HEIGHT" value="300" />
-      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <option name="VM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <method>
-        <option name="AntTarget" enabled="false" />
-        <option name="BuildArtifacts" enabled="false" />
-        <option name="Make" enabled="true" />
         <option name="Maven.BeforeRunTask" enabled="false" />
       </method>
     </configuration>
@@ -605,6 +444,24 @@
       <envs />
       <properties />
       <listeners />
+      <method>
+        <option name="AntTarget" enabled="false" />
+        <option name="BuildArtifacts" enabled="false" />
+        <option name="Make" enabled="true" />
+        <option name="Maven.BeforeRunTask" enabled="false" />
+      </method>
+    </configuration>
+    <configuration default="true" type="Applet" factoryName="Applet">
+      <module name="" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="HTML_FILE_NAME" />
+      <option name="HTML_USED" value="false" />
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <option name="VM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
       <method>
         <option name="AntTarget" enabled="false" />
         <option name="BuildArtifacts" enabled="false" />
@@ -694,9 +551,26 @@
       <ConfigurationWrapper RunnerId="Run" />
       <method />
     </configuration>
-    <list size="2">
+    <configuration default="false" name="NamelessGameServer" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="com.nuclearunicorn.negame.server.Main" />
+      <option name="VM_PARAMETERS" value="-Djava.library.path=./libroguelike/lib/lwjgl-2.7.1/native/windows" />
+      <option name="PROGRAM_PARAMETERS" value="" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" value="" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <module name="NamelessProject3dServer" />
+      <envs />
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method />
+    </configuration>
+    <list size="3">
       <item index="0" class="java.lang.String" itemvalue="Application.Main" />
       <item index="1" class="java.lang.String" itemvalue="Application.NamelessGameClient" />
+      <item index="2" class="java.lang.String" itemvalue="Application.NamelessGameServer" />
     </list>
     <configuration name="&lt;template&gt;" type="WebApp" default="true" selected="false">
       <Host>localhost</Host>
@@ -704,7 +578,7 @@
     </configuration>
   </component>
   <component name="ShelveChangesManager" show_recycled="false" />
-  <component name="SvnConfiguration" maxAnnotateRevisions="500" myUseAcceleration="nothing" myAutoUpdateAfterCommit="false" cleanupOnStartRun="false">
+  <component name="SvnConfiguration" maxAnnotateRevisions="500">
     <option name="USER" value="" />
     <option name="PASSWORD" value="" />
     <option name="mySSHConnectionTimeout" value="30000" />
@@ -731,27 +605,27 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-4" y="-4" width="1928" height="1088" extended-state="0" />
-    <editor active="true" />
+    <frame x="-2" y="0" width="1608" height="861" extended-state="0" />
+    <editor active="false" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32913166" sideWeight="0.48711342" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3995749" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2577031" sideWeight="0.5238402" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32943678" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32913166" sideWeight="0.45876288" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2497332" sideWeight="0.49628055" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.18910256" sideWeight="0.67375135" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32624868" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.18878865" sideWeight="0.74229693" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2577031" sideWeight="0.4716495" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32943678" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
@@ -789,10 +663,7 @@
     <option name="INCLUDE_TEXT_INTO_PATCH" value="false" />
     <option name="INCLUDE_TEXT_INTO_SHELF" value="false" />
     <option name="CREATE_PATCH_EXPAND_DETAILS_DEFAULT" value="true" />
-    <option name="SHOW_FILE_HISTORY_DETAILS" value="true" />
-    <option name="SHOW_VCS_ERROR_NOTIFICATIONS" value="true" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="false" />
     <option name="LAST_COMMIT_MESSAGE" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="false" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
@@ -815,119 +686,127 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/vgui/NE_GUI_Element.java">
+    <entry file="file://$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/Main.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="78" column="0" selection-start="1763" selection-end="1763" vertical-scroll-proportion="0.0">
+        <state line="19" column="0" selection-start="463" selection-end="507" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/vgui/NE_GUI_System.java">
+    <entry file="file://$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/core/User.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="84" column="0" selection-start="2630" selection-end="2630" vertical-scroll-proportion="0.0">
+        <state line="6" column="55" selection-start="201" selection-end="201" vertical-scroll-proportion="0.08928572">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/game/modes/AbstractGameMode.java">
+    <entry file="file://$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/game/ent/controller/NpcController.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="22" column="66" selection-start="670" selection-end="670" vertical-scroll-proportion="0.0">
+        <state line="82" column="16" selection-start="2690" selection-end="2690" vertical-scroll-proportion="0.33333334">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/game/modes/in_game/InGameUI.java">
+    <entry file="file://$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/charserv/CharServerHandler.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="160" column="41" selection-start="5284" selection-end="5284" vertical-scroll-proportion="0.0">
+        <state line="9" column="56" selection-start="394" selection-end="394" vertical-scroll-proportion="0.20238096">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/game/world/NEWorldModel.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="13" column="13" selection-start="387" selection-end="387" vertical-scroll-proportion="0.37103173">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/cache/INECache.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="13" column="30" selection-start="366" selection-end="366" vertical-scroll-proportion="0.4047619">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/game/world/layers/WorldLayer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="333" column="0" selection-start="10321" selection-end="10321" vertical-scroll-proportion="0.33333334">
+        <state line="301" column="40" selection-start="9218" selection-end="9218" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/serialkiller/src/com/nuclearunicorn/serialkiller/generators/layerGenerators/TownChunkGenerator.java">
+    <entry file="file://$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/world/ServerWorldLayer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="73" column="0" selection-start="2691" selection-end="2691" vertical-scroll-proportion="0.33333334">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/game/world/generators/ChunkGroundGenerator.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="19" column="13" selection-start="573" selection-end="573" vertical-scroll-proportion="-0.14778325">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/game/world/WorldView.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="129" column="0" selection-start="4444" selection-end="4444" vertical-scroll-proportion="0.33333334">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/game/modes/in_game/InGameMode.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="107" column="48" selection-start="4690" selection-end="4690" vertical-scroll-proportion="0.0">
+        <state line="71" column="29" selection-start="1922" selection-end="1922" vertical-scroll-proportion="0.7043651">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/serialkiller/src/com/nuclearunicorn/serialkiller/render/ConsoleRenderer.java">
+    <entry file="file://$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/core/IoCommon.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="38" column="33" selection-start="1601" selection-end="1601" vertical-scroll-proportion="0.0">
+        <state line="7" column="42" selection-start="170" selection-end="170" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/render/Camera.java">
+    <entry file="file://$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/gameserver/GameServerHandler.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="26" column="14" selection-start="579" selection-end="579" vertical-scroll-proportion="0.6896552">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/render/math/FastMath.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="521" column="62" selection-start="17283" selection-end="17283" vertical-scroll-proportion="0.52052546">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/utils/NLTimer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="11" column="13" selection-start="198" selection-end="198" vertical-scroll-proportion="0.26272577">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/render/Voxel.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="68" column="35" selection-start="1494" selection-end="1494" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/render/VBO.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="149" column="10" selection-start="4404" selection-end="4404" vertical-scroll-proportion="4.0722494">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/render/TilesetVoxelRenderer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="16" column="39" selection-start="520" selection-end="520" vertical-scroll-proportion="0.52545154">
+        <state line="15" column="0" selection-start="552" selection-end="552" vertical-scroll-proportion="0.0">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/gameserver/GameServer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="204" column="54" selection-start="5919" selection-end="5919" vertical-scroll-proportion="0.1904762">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/world/ServerWorldModel.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="26" column="49" selection-start="571" selection-end="571" vertical-scroll-proportion="0.4265873">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/charserv/CharServer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="6" column="0" selection-start="152" selection-end="152" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/core/NEServerCore.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="23" column="19" selection-start="586" selection-end="589" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/Main.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="16" column="29" selection-start="433" selection-end="433" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/cache/BaseNECache.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="17" column="8" selection-start="495" selection-end="572" vertical-scroll-proportion="0.5734127">
+          <folding />
         </state>
       </provider>
     </entry>
@@ -942,7 +821,6 @@
             <option name="proportions">
               <list>
                 <option value="0.2" />
-                <option value="0.5" />
               </list>
             </option>
           </splitter-proportions>
@@ -985,12 +863,11 @@
       </state>
       <state key="ModuleStructureConfigurable.UI">
         <settings>
-          <last-edited>Serialkiller</last-edited>
+          <last-edited>NamelessProject3dServer</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>
                 <option value="0.2" />
-                <option value="0.5" />
               </list>
             </option>
           </splitter-proportions>
@@ -1010,7 +887,7 @@
       </state>
       <state key="ProjectLibrariesConfigurable.UI">
         <settings>
-          <last-edited>rlforj.0.2</last-edited>
+          <last-edited>lwjgl</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>

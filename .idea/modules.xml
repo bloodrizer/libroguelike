@@ -2,9 +2,11 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/libroguelike/Libroguelike.iml" filepath="$PROJECT_DIR$/libroguelike/Libroguelike.iml" />
+      <module fileurl="file://$PROJECT_DIR$/NamelessProject3dServer/NamelessProject3dServer.iml" filepath="$PROJECT_DIR$/NamelessProject3dServer/NamelessProject3dServer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/NamelessProjectCommon/NamelessProjectCommon.iml" filepath="$PROJECT_DIR$/NamelessProjectCommon/NamelessProjectCommon.iml" />
       <module fileurl="file://$PROJECT_DIR$/NamesProject3dClient/NamesProject3dClient.iml" filepath="$PROJECT_DIR$/NamesProject3dClient/NamesProject3dClient.iml" />
-      <module fileurl="file://$PROJECT_DIR$/serialkiller/Serialkiller.iml" filepath="$PROJECT_DIR$/serialkiller/Serialkiller.iml" />
+      <module fileurl="file://$PROJECT_DIR$/libroguelike/libroguelike.iml" filepath="$PROJECT_DIR$/libroguelike/libroguelike.iml" />
+      <module fileurl="file://$PROJECT_DIR$/serialkiller/serialkiller.iml" filepath="$PROJECT_DIR$/serialkiller/serialkiller.iml" />
     </modules>
   </component>
 </project>

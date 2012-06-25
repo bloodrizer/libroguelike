@@ -64,7 +64,7 @@ public class VAVoxelRenderer {
         textureBuffer.flip();
         normalBuffer.flip();
 
-        //System.out.println("flushed " + vertexCount + "vertex data");
+        System.out.println("flushed " + vertexCount + "vertex data");
     }
 
     void render(){

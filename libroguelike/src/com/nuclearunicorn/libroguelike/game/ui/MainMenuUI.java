@@ -121,7 +121,7 @@ public class MainMenuUI implements IUserInterface, IEventListener {
             public void e_on_mouse_click(EMouseClick e){
                 try{
                     //NettyClient.connect();
-                    //uncomment me, I'm old io code
+                    //uncomment me, I'm old core code
                     /*
                     Io.reset();
                     Io.connect();
