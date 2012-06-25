@@ -1,5 +1,9 @@
 package com.nuclearunicorn.negame.server.cache;
 
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by IntelliJ IDEA.
  * User: bloodrizer
@@ -7,14 +11,21 @@ package com.nuclearunicorn.negame.server.cache;
  * Time: 12:26
  * To change this template use File | Settings | File Templates.
  */
-public class BaseNECache<Key, Value> implements INECache<Key, Value>{
+public class BaseNECache<Key, Value extends Serializable> implements INECache<Key, Value>{
+    
+    private Map<Key, Value> hashMapInternal;
+
+    public BaseNECache(){
+        hashMapInternal = new HashMap<Key, Value>();
+    }
+    
     @Override
     public Value get(Key key) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return hashMapInternal.get(key);
     }
 
     @Override
-    public void put(Key point, Value chunk) {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public void put(Key key, Value value) {
+        hashMapInternal.put(key, value);
     }
 }

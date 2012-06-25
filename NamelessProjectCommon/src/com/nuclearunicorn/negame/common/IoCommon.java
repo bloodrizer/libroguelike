@@ -1,4 +1,4 @@
-package com.nuclearunicorn.negame.server.core;
+package com.nuclearunicorn.negame.common;
 
 /**
  * Created by IntelliJ IDEA.
