@@ -146,7 +146,7 @@ public class WorldView implements IEventListener {
 
         //IGenericRender render = Render.get_render(entity);
         //render.render(entity);
-        GL11.glColor3f(1.0f,1.0f,1.0f);
+        /*GL11.glColor3f(1.0f,1.0f,1.0f);
 
         WorldTile tile = getLayer().get_tile(
             entity.origin.getX(),
@@ -167,7 +167,7 @@ public class WorldView implements IEventListener {
             b
         );
 
-        final int y_offset = WorldView.getYOffset(tile);
+        final int y_offset = WorldView.getYOffset(tile);*/
 
         EntityRenderer renderer = entity.get_render();
         renderer.render();  //render, lol

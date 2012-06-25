@@ -11,8 +11,7 @@ import com.nuclearunicorn.libroguelike.render.layers.LayerChunkRenderer;
 import com.nuclearunicorn.negame.client.game.world.NEVoxelTile;
 import com.nuclearunicorn.negame.client.game.world.NEWorldView;
 import com.nuclearunicorn.negame.client.render.overlays.NEDebugOverlay;
-import com.nuclearunicorn.negame.client.render.utils.Raycast;
-import org.lwjgl.util.Point;
+import com.nuclearunicorn.negame.client.render.utils.*;
 
 import java.nio.FloatBuffer;
 
@@ -79,6 +78,9 @@ public class TilesetVoxelRenderer extends LayerChunkRenderer {
             vaVoxel.renderIntoVA(vaRenderer, (NEVoxelTile)tile);
         }
 
+        //voxelRenderer.set_origin(5 * 1.00005f, (height + 128) * 0.05f, 5 * 1.00005f);
+        //voxelRenderer.render();
+
 
         //voxelRenderer.set_origin(tile_x * 1.1f, height * 0.05f, tile_y * 1.1f);
         //voxelRenderer.render();
@@ -129,7 +131,7 @@ public class TilesetVoxelRenderer extends LayerChunkRenderer {
 
 
         NEWorldView.setMouseXWorld(wx + VAVoxel.VOXEL_SIZE / 2f);
-        NEWorldView.setMouseYWorld(wz+VAVoxel.VOXEL_SIZE/2f);
+        NEWorldView.setMouseYWorld(wz+ VAVoxel.VOXEL_SIZE/2f);
         /*
            Voxel render uses half voxel offset from 0,0 origin, so mouse coords actually start at -0.5f, -0.5f
         */

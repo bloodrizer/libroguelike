@@ -31,10 +31,14 @@ public class Main {
         game.registerMode("inGame", inGameMode);
 
         game.set_state("inGame");
-        game.run();
 
-        //when client is done, terminate server
-
-        serverCore.destroy();
+        try {
+            game.run();
+        }
+        finally{
+            //when client is done, terminate server
+            game.running = false;
+            serverCore.destroy();
+        }
     }
 }

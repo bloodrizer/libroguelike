@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package com.nuclearunicorn.negame.client.render;
+package com.nuclearunicorn.negame.client.render.utils;
 
 import com.nuclearunicorn.libroguelike.utils.NLTimer;
 import org.lwjgl.opengl.ARBVertexBufferObject;

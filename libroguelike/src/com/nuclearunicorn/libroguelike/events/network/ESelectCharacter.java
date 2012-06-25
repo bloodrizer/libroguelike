@@ -16,7 +16,7 @@ public class ESelectCharacter extends NetworkEvent{
 
     @Override
     public String get_id(){
-        return "0x0026";
+        return "events.network.ESelectCharacter";
     }
 
     int char_id = 123;

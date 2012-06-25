@@ -1,4 +1,4 @@
-package com.nuclearunicorn.negame.client.render;
+package com.nuclearunicorn.negame.client.render.utils;
 
 import com.nuclearunicorn.negame.client.game.world.NEVoxelTile;
 import org.lwjgl.util.vector.Vector3f;

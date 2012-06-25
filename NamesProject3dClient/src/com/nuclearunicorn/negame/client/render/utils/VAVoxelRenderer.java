@@ -1,4 +1,4 @@
-package com.nuclearunicorn.negame.client.render;
+package com.nuclearunicorn.negame.client.render.utils;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.util.vector.Vector3f;
@@ -67,7 +67,7 @@ public class VAVoxelRenderer {
         System.out.println("flushed " + vertexCount + "vertex data");
     }
 
-    void render(){
+    public void render(){
 
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_NORMAL_ARRAY);

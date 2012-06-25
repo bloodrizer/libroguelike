@@ -13,6 +13,7 @@ import com.nuclearunicorn.libroguelike.events.EPlayerAuthorise;
 import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.negame.client.Main;
 import com.nuclearunicorn.negame.client.clientIo.NettyClient;
+import com.nuclearunicorn.negame.client.game.modes.in_game.InGameMode;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
@@ -20,6 +21,7 @@ import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelHandler;
+import org.lwjgl.util.Point;
 
 
 /**
@@ -89,7 +91,6 @@ class CharClientHandler extends SimpleChannelHandler {
                  * Character server accepted our connection, so we could
                  * connect to game server
                  */
-                
                 //TODO: move to the NEClient
                 
                 String host = packet[1];
@@ -102,11 +103,13 @@ class CharClientHandler extends SimpleChannelHandler {
                 //Meanwhile...
                 
                 //Enter InGame mode
-                Main.game.set_state("inGame");
+                //Main.game.set_state("inGame");
 
                 //set correct player id
                 Player.character_id = userId;
+                //some vague shit there
 
+                ((InGameMode)(Main.inGameMode)).spawnPlayer(new Point(5, 5));
                 
                 
                 //------------------------------------------------------------------

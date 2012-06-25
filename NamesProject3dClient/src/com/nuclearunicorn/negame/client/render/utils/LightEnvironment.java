@@ -1,4 +1,4 @@
-package com.nuclearunicorn.negame.client.render;
+package com.nuclearunicorn.negame.client.render.utils;
 
 import org.lwjgl.opengl.GL11;
 
@@ -29,7 +29,7 @@ public class LightEnvironment {
     public void setSceneLighting(){
 
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT|GL11.GL_DEPTH_BUFFER_BIT);
-        GL11.glTranslatef(0.0f,-2.0f,0.0f); // Move Into The Screen 5 Units
+        //GL11.glTranslatef(0.0f,-2.0f,0.0f); // Move Into The Screen 5 Units
 
         temp.clear();
         temp.order(ByteOrder.nativeOrder());

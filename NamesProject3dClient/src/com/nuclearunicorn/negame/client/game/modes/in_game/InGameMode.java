@@ -2,14 +2,14 @@ package com.nuclearunicorn.negame.client.game.modes.in_game;
 
 import com.nuclearunicorn.libroguelike.core.client.ClientEventManager;
 import com.nuclearunicorn.libroguelike.core.client.ClientGameEnvironment;
-import com.nuclearunicorn.libroguelike.events.EKeyPress;
-import com.nuclearunicorn.libroguelike.events.Event;
-import com.nuclearunicorn.libroguelike.events.EventManager;
-import com.nuclearunicorn.libroguelike.events.IEventListener;
+import com.nuclearunicorn.libroguelike.events.*;
+import com.nuclearunicorn.libroguelike.events.network.ESelectCharacter;
 import com.nuclearunicorn.libroguelike.game.GameEnvironment;
+import com.nuclearunicorn.libroguelike.game.ent.EntityPlayer;
 import com.nuclearunicorn.libroguelike.game.ent.controller.NpcController;
 import com.nuclearunicorn.libroguelike.game.items.BaseItem;
 import com.nuclearunicorn.libroguelike.game.modes.AbstractGameMode;
+import com.nuclearunicorn.libroguelike.game.player.CharacterInfo;
 import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.libroguelike.game.ui.IUserInterface;
 import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
@@ -32,6 +32,7 @@ import com.nuclearunicorn.negame.client.game.world.NEWorldModel;
 import com.nuclearunicorn.negame.client.game.world.NEWorldView;
 import com.nuclearunicorn.negame.client.generators.NEGroundChunkGenerator;
 import com.nuclearunicorn.negame.client.render.TilesetVoxelRenderer;
+import com.nuclearunicorn.negame.client.render.VoxelEntityRenderer;
 import com.nuclearunicorn.negame.client.render.overlays.NEDebugOverlay;
 
 import com.nuclearunicorn.serialkiller.game.ItemFactory;
@@ -250,33 +251,24 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
             }
         }
 
-        if (isNextTurn){
-            makeTurn();
+        if (event instanceof EPlayerAuthorise){
+            //logon
+            CharacterInfo chrInfo = new CharacterInfo();
+            chrInfo.name = "Red";
+
+            ESelectCharacter selectChrEvent = new ESelectCharacter(chrInfo);
+            selectChrEvent.post();
         }
     }
 
-    void makeTurn(){
-        turnNumber++;
-        NLTimer timer = new NLTimer();
-        timer.push();
+    public static void spawnPlayer(Point location){
 
-        model.update();
-
-        timer.pop("Turn # "+turnNumber);
-        System.out.println(NpcController.pathfinderRequests + " astar calls on this turn ");
-        System.out.println("Total pure astar calculation time: " + NpcController.totalAstarCalculationTime + "ms");
-        NpcController.pathfinderRequests = 0;
-        NpcController.totalAstarCalculationTime = 0;
-    }
-
-    public static void spawn_player(Point location){
-
-        EntityRLPlayer playerEnt = new EntityRLPlayer();
-        playerEnt.set_combat(new RLCombat());
+        EntityPlayer playerEnt = new EntityPlayer();
+        //playerEnt.set_combat(new RLCombat());
 
         playerEnt.setName("Player");
         playerEnt.setEnvironment(clientGameEnvironment);
-        playerEnt.setRenderer(new AsciiEntRenderer("@"));
+        playerEnt.setRenderer(new VoxelEntityRenderer());
 
         //TODO: extract player information from the event
         //clientGameEnvironment.getEntityManager().add(player_ent, Player.get_zindex());
@@ -286,8 +278,8 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
 
         WorldViewCamera.target.setLocation(location);
 
-        playerEnt.set_controller(new RLPlayerController());
-        playerEnt.set_ai(new PlayerAI());
+        //playerEnt.set_controller(new RLPlayerController());
+        //playerEnt.set_ai(new PlayerAI());
         Player.set_ent(playerEnt);
 
         //---------------------------------------------------
@@ -305,7 +297,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
             System.out.println("Player's item: " + item + " , container:" + item.get_container());
         }*/
 
-        NPCGenerator.generateNPCStats(new Random(), playerEnt);
+        //NPCGenerator.generateNPCStats(new Random(), playerEnt);
         playerEnt.setName("Player");
     }
 }

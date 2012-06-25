@@ -8,7 +8,7 @@ import com.nuclearunicorn.libroguelike.game.world.WorldModel;
 import com.nuclearunicorn.libroguelike.game.world.WorldView;
 import com.nuclearunicorn.libroguelike.render.TilesetRenderer;
 import com.nuclearunicorn.negame.client.render.TilesetVoxelRenderer;
-import com.nuclearunicorn.negame.client.render.VAVoxel;
+import com.nuclearunicorn.negame.client.render.utils.VAVoxel;
 import org.lwjgl.util.Point;
 
 /**

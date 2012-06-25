@@ -8,6 +8,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
 
+import com.nuclearunicorn.negame.common.EventConstants;
 import com.nuclearunicorn.negame.common.IoCommon;
 import com.nuclearunicorn.negame.server.core.*;
 import org.jboss.netty.bootstrap.ServerBootstrap;
@@ -108,7 +109,7 @@ public class CharServer extends AServerIoLayer {
 
             handler.sendMsg("EPlayerAuthorize", ioChannel);
         }
-        if (eventType.equals("events.network.ESelectCharacter")){
+        if (eventType.equals(EventConstants.E_SELECT_CHARACTER)){
 
             /*
              * Player selected his player character.

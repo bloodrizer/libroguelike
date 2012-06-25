@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package com.nuclearunicorn.negame.client.render;
+package com.nuclearunicorn.negame.client.render.utils;
 
 import com.nuclearunicorn.negame.client.render.math.Vector3;
 import org.lwjgl.input.Mouse;

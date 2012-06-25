@@ -8,6 +8,7 @@ package com.nuclearunicorn.negame.client.clientIo;
 import com.nuclearunicorn.libroguelike.core.client.ClientEventManager;
 import com.nuclearunicorn.negame.client.clientIo.charclient.CharClientPipelineFactory;
 import com.nuclearunicorn.negame.client.clientIo.gameclient.GameClientPipelineFactory;
+import com.nuclearunicorn.negame.common.EventConstants;
 import com.nuclearunicorn.negame.common.IoCommon;
 
 import java.util.logging.Level;
@@ -25,7 +26,8 @@ public class NettyClient {
     static final int port = IoCommon.CHAR_SERVER_PORT;
         
     final static NettyClientLayer charServClient = new NettyClientLayer(host,port) {{
-        packetFilter.add("events.network.ESelectCharacter");
+        packetFilter.add(EventConstants.E_SELECT_CHARACTER);
+        //packetFilter.add(EventConstants.E_PLAYER_LOGON);
     }};
 
 
