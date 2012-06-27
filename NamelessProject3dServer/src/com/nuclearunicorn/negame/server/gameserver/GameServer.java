@@ -7,13 +7,23 @@ package com.nuclearunicorn.negame.server.gameserver;
 
 import com.nuclearunicorn.libroguelike.events.EventManager;
 import com.nuclearunicorn.libroguelike.game.GameEnvironment;
+import com.nuclearunicorn.libroguelike.game.ent.Entity;
+import com.nuclearunicorn.libroguelike.game.ent.EntityNPC;
+import com.nuclearunicorn.libroguelike.game.ent.controller.NpcController;
+import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
 import com.nuclearunicorn.libroguelike.game.world.WorldModel;
+import com.nuclearunicorn.libroguelike.game.world.layers.WorldLayer;
+import com.nuclearunicorn.negame.client.generators.NEGroundChunkGenerator;
+import com.nuclearunicorn.negame.common.EventConstants;
+import com.nuclearunicorn.negame.common.IoCommon;
 import com.nuclearunicorn.negame.server.core.*;
-import com.nuclearunicorn.negame.server.world.ServerWorldModel;
+import com.nuclearunicorn.negame.server.game.world.ServerWorldModel;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.concurrent.Executors;
 
+import com.nuclearunicorn.negame.server.generators.NEServerGroundChunkGenerator;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelPipeline;
@@ -24,6 +34,7 @@ import org.jboss.netty.handler.codec.frame.DelimiterBasedFrameDecoder;
 import org.jboss.netty.handler.codec.frame.Delimiters;
 import org.jboss.netty.handler.codec.string.StringDecoder;
 import org.jboss.netty.handler.codec.string.StringEncoder;
+import org.lwjgl.util.Point;
 
 
 /**
@@ -63,6 +74,9 @@ public class GameServer extends AServerIoLayer {
 
         WorldModel model = gameEnv.getWorld();
         model.setName("server-world");
+
+        ArrayList<WorldLayer> layers = new ArrayList<WorldLayer>(model.getLayers());
+        layers.get(0).registerGenerator(new NEServerGroundChunkGenerator());
 
     }
 
@@ -151,7 +165,7 @@ public class GameServer extends AServerIoLayer {
 
         System.err.println("handling event '"+eventType+"'");
 
-        if (eventType.equals("events.network.EEntitySetPath")){
+        if (eventType.equals(EventConstants.E_ENTITY_SET_PATH)){
             int x = Integer.parseInt(data[1]);
             int y = Integer.parseInt(data[2]);
 
@@ -166,7 +180,7 @@ public class GameServer extends AServerIoLayer {
 
 
     private void moveUser(User user, int x, int y) {
-        /*Entity ent = user.getEntity();
+        Entity ent = user.getEntity();
 
         if(ent == null){
             throw new RuntimeException("trying to move NULL user entity");
@@ -178,7 +192,7 @@ public class GameServer extends AServerIoLayer {
 
         //ent.move_to(new Point(x, y));
         Point chunkCoord = WorldChunk.get_chunk_coord(destCoord);
-        worldUpdateLazyLoad(chunkCoord.getX(),chunkCoord.getY());*/
+        worldUpdateLazyLoad(chunkCoord.getX(),chunkCoord.getY());
     }
 
      /**
@@ -189,7 +203,7 @@ public class GameServer extends AServerIoLayer {
         //This shit loads resources for whatever reason.
         //TODO: solve this
 
-        /*GameEnvironment env = getEnv();
+        GameEnvironment env = getEnv();
 
         Entity mplayer_ent = new EntityNPC();
         mplayer_ent.setEnvironment(env);
@@ -203,7 +217,7 @@ public class GameServer extends AServerIoLayer {
         mplayer_ent.spawn(user.getId(), new Point(10,10));
 
         user.setEntity(mplayer_ent);
-        worldUpdateLazyLoad(0,0);*/
+        worldUpdateLazyLoad(0,0);
     }
 
 
@@ -212,11 +226,11 @@ public class GameServer extends AServerIoLayer {
      * Preloads 3x3 chunk cluster so pathfinding could work correctly near the chunk border
      */
     private void worldUpdateLazyLoad(int x, int y){
-        /*WorldLayer serverGroundLayer = getEnv().getWorldLayer(WorldLayer.GROUND_LAYER);
+        WorldLayer serverGroundLayer = getEnv().getWorldLayer(WorldLayer.GROUND_LAYER);
         for (int i = x-1; i<= x+1; i++){
             for (int j = y-1; j<= y+1; j++){
                 serverGroundLayer.get_cached_chunk(i, j);
             }
-        }*/
+        }
     }
 }

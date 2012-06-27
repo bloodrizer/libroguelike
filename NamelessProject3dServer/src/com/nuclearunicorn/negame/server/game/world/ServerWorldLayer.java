@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package com.nuclearunicorn.negame.server.world;
+package com.nuclearunicorn.negame.server.game.world;
 
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
@@ -21,7 +21,6 @@ import java.util.List;
 public class ServerWorldLayer extends WorldLayer {
 
     INECache<Point, WorldChunk> neCache = null;
-
 
     @Override
     public synchronized WorldChunk get_cached_chunk(int chunk_x, int chunk_y){
@@ -69,6 +68,14 @@ public class ServerWorldLayer extends WorldLayer {
         process_chunk(chunk, z_index);
 
         return chunk;
+    }
+
+    public INECache<Point, WorldChunk> getNeCache() {
+        return neCache;
+    }
+
+    public void setNeCache(INECache<Point, WorldChunk> neCache) {
+        this.neCache = neCache;
     }
 
 }
