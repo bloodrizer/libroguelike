@@ -21,8 +21,7 @@ public class WorldCluster {
 
     public static void locate(Point target){
 
-        System.out.println("changing location of world cluster:");
-        System.out.println(target);
+        System.out.println("changing location of world cluster to @:"+ target.getX() + "," + target.getY());
 
         origin.setLocation(
                 target.getX()-
@@ -30,7 +29,7 @@ public class WorldCluster {
                 target.getY()-
                     ((CLUSTER_SIZE-1)/2)
         );
-        System.out.println(origin);
+        System.out.println("new cluster (0,0) location is @:"+ origin.getX() + "," + origin.getY());
 
         //GameUI ui = (GameUI)(Game.get_game_mode().get_ui());
 

@@ -39,7 +39,7 @@ public class TilesetVoxelRenderer extends LayerChunkRenderer {
     LightEnvironment lightEnv;
     private Voxel voxelRenderer = new Voxel(0,0,0);
 
-    boolean isGeometryOutdated = true;
+    static boolean isGeometryOutdated = true;
 
     public TilesetVoxelRenderer(){
         vaVoxel = new VAVoxel();
@@ -72,6 +72,12 @@ public class TilesetVoxelRenderer extends LayerChunkRenderer {
         }else{
             vaVoxel.topTileId = 1;
         }*/
+
+        if (tile_x % WorldChunk.CHUNK_SIZE == 0 || tile_y % WorldChunk.CHUNK_SIZE == 0){
+            vaVoxel.topTileId = 7;
+        }else{
+            vaVoxel.topTileId = 1;
+        }
 
         if (isGeometryOutdated){
             vaVoxel.setOrigin(tile_x * 1.000005f, height * 0.05f, tile_y * 1.000005f);
@@ -157,4 +163,7 @@ public class TilesetVoxelRenderer extends LayerChunkRenderer {
         glMaterialf(GL_FRONT, GL_SHININESS, 100.0f);
     }
 
+    public static void invalidateGeometry() {
+        isGeometryOutdated = true;
+    }
 }
