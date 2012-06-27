@@ -157,7 +157,6 @@ public class GameServer extends AServerIoLayer {
         String[] data = packet.getData();
         Channel ioChannel = packet.getChannel();
 
-        //throw new UnsupportedOperationException("Not yet implemented");
         if (data.length == 0){
             return;
         }
@@ -199,9 +198,6 @@ public class GameServer extends AServerIoLayer {
      * Spawns player character binded to the connection channel
      */
     public void spawnPlayerCharacter(User user) {
-
-        //This shit loads resources for whatever reason.
-        //TODO: solve this
 
         GameEnvironment env = getEnv();
 
