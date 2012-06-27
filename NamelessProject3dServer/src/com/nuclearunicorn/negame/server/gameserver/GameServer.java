@@ -8,12 +8,12 @@ package com.nuclearunicorn.negame.server.gameserver;
 import com.nuclearunicorn.libroguelike.events.EventManager;
 import com.nuclearunicorn.libroguelike.game.GameEnvironment;
 import com.nuclearunicorn.libroguelike.game.world.WorldModel;
-import com.nuclearunicorn.negame.server.core.*;
+import com.nuclearunicorn.negame.common.IoCommon;
+import com.nuclearunicorn.negame.server.core.AServerIoLayer;
+import com.nuclearunicorn.negame.server.core.NEDataPacket;
+import com.nuclearunicorn.negame.server.core.ServerUserPool;
+import com.nuclearunicorn.negame.server.core.User;
 import com.nuclearunicorn.negame.server.world.ServerWorldModel;
-
-import java.net.InetSocketAddress;
-import java.util.concurrent.Executors;
-
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelPipeline;
@@ -24,6 +24,9 @@ import org.jboss.netty.handler.codec.frame.DelimiterBasedFrameDecoder;
 import org.jboss.netty.handler.codec.frame.Delimiters;
 import org.jboss.netty.handler.codec.string.StringDecoder;
 import org.jboss.netty.handler.codec.string.StringEncoder;
+
+import java.net.InetSocketAddress;
+import java.util.concurrent.Executors;
 
 
 /**
