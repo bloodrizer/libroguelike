@@ -56,8 +56,8 @@ class CharClientHandler extends SimpleChannelHandler {
      }
      
      //-------------------------------------------------------------------------
-     
-     private void sendMsg(String msg, Channel ioChannel){
+
+     private static void sendMsg(String msg, Channel ioChannel){
         ioChannel.write(msg+"\r\n");
      }
      

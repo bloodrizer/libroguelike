@@ -38,6 +38,7 @@ import java.util.concurrent.Executors;
  */
 public class CharServer extends AServerIoLayer {
     NioServerSocketChannelFactory nio_factory;
+
     ArrayList<PlayerData> playerData = new ArrayList<PlayerData>();
     ChannelPipelineFactory factory;
 
@@ -127,6 +128,10 @@ public class CharServer extends AServerIoLayer {
 
             handler.sendMsg("EPlayerAccepted "+gameServerHost+" "+gameServerPort+" "+user_id, ioChannel);
         }
+    }
+
+    public ArrayList<PlayerData> getPlayerData() {
+        return playerData;
     }
 
 }

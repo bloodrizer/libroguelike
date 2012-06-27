@@ -50,7 +50,11 @@ public class GameServerHandler extends AServerHandler {
 
 
         //spawn player entity on server side
-        getServer().spawnPlayerCharacter(user);
+        try{
+            getServer().spawnPlayerCharacter(user);
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
 
         //get entity parameters and push them back to the client since we need to keep channel context
         int x = user.getEntity().x();

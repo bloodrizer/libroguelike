@@ -5,10 +5,14 @@
 
 package com.nuclearunicorn.negame.server.gameserver;
 
+import com.nuclearunicorn.libroguelike.events.EEntitySpawn;
+import com.nuclearunicorn.libroguelike.events.Event;
 import com.nuclearunicorn.libroguelike.events.EventManager;
+import com.nuclearunicorn.libroguelike.events.IEventListener;
+import com.nuclearunicorn.libroguelike.events.network.EEntitySpawnNetwork;
+import com.nuclearunicorn.libroguelike.events.network.NetworkEvent;
 import com.nuclearunicorn.libroguelike.game.GameEnvironment;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
-import com.nuclearunicorn.libroguelike.game.ent.EntityNPC;
 import com.nuclearunicorn.libroguelike.game.ent.controller.NpcController;
 import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
 import com.nuclearunicorn.libroguelike.game.world.WorldModel;
@@ -20,6 +24,7 @@ import com.nuclearunicorn.negame.server.core.NEDataPacket;
 import com.nuclearunicorn.negame.server.core.ServerUserPool;
 import com.nuclearunicorn.negame.server.core.User;
 import com.nuclearunicorn.negame.server.game.world.ServerWorldModel;
+import com.nuclearunicorn.negame.server.game.world.entities.EntityPlayerNPC;
 import com.nuclearunicorn.negame.server.generators.NEServerGroundChunkGenerator;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
@@ -35,6 +40,8 @@ import org.lwjgl.util.Point;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executors;
 
 
@@ -42,7 +49,7 @@ import java.util.concurrent.Executors;
  *
  * @author Administrator
  */
-public class GameServer extends AServerIoLayer {
+public class GameServer extends AServerIoLayer implements IEventListener {
     NioServerSocketChannelFactory nio_factory;
 
 
@@ -79,6 +86,7 @@ public class GameServer extends AServerIoLayer {
         ArrayList<WorldLayer> layers = new ArrayList<WorldLayer>(model.getLayers());
         layers.get(0).registerGenerator(new NEServerGroundChunkGenerator());
 
+        gameEnv.getEventManager().subscribe(this);
     }
 
 
@@ -202,7 +210,7 @@ public class GameServer extends AServerIoLayer {
 
         GameEnvironment env = getEnv();
 
-        Entity mplayer_ent = new EntityNPC();
+        Entity mplayer_ent = new EntityPlayerNPC(user);
         mplayer_ent.setEnvironment(env);
         mplayer_ent.set_controller(new NpcController(env));
 
@@ -215,7 +223,19 @@ public class GameServer extends AServerIoLayer {
         mplayer_ent.spawn(getUserLocation(user));
 
         user.setEntity(mplayer_ent);
-        worldUpdateLazyLoad(0,0);
+        //worldUpdateLazyLoad(0,0);
+
+        //stream 3x3 chunk data
+        WorldChunk chunk = mplayer_ent.get_chunk();
+        //notifyChunkData(user);
+
+        WorldLayer serverGroundLayer = getEnv().getWorldLayer(WorldLayer.GROUND_LAYER);
+        for (int i = chunk.origin.getX()-1; i<=chunk.origin.getX(); i++)
+            for (int j = chunk.origin.getY()-1; j<=chunk.origin.getY(); j++){
+                //if chunk doest not exist, it will be generated and populated with game objects
+                WorldChunk cachedChunk = serverGroundLayer.get_cached_chunk(i, j);
+                notifyChunkData(user, cachedChunk);
+            }
     }
 
     /**
@@ -240,5 +260,86 @@ public class GameServer extends AServerIoLayer {
                 serverGroundLayer.get_cached_chunk(i, j);
             }
         }
+    }
+
+
+    @Override
+    public void e_on_event(Event event) {
+        if (event instanceof EEntitySpawn){
+            if (((EEntitySpawn) event).ent instanceof EntityPlayerNPC){
+                EntityPlayerNPC entPlayerNpc = (EntityPlayerNPC)((EEntitySpawn) event).ent;
+
+                //if player is spawned on server, notify every other player of this event
+                User npcUser = entPlayerNpc.getUser();
+                broadcostUserEvent(event, npcUser);
+            }
+        }
+    }
+
+    /*
+        This method takes all entities in the chunk and stream them to the player
+        TODO: introduce some compact bundle format a-la json
+        Note that this method passes simple data only, i.e. coords, uid and simple ent type
+        Client responsibility is to request additional information about given entity
+     */
+    public void notifyChunkData(User observer, WorldChunk chunk){
+        Entity userEnt = observer.getEntity();
+        Channel userChannel = ServerUserPool.getUserChannel(observer);
+        //userEnt.origin;
+        //Point chunkCoord = WorldChunk.get_chunk_coord(userEnt.origin);
+        //WorldChunk chunk = userEnt.get_chunk();
+        List<Entity> entityList = chunk.getEntList();
+
+        System.err.println("Sending chunk data to user #"+observer.getId() + "(" + entityList.size() + " entities total)");
+        for (Entity chunkEnt: entityList){
+            if (!chunkEnt.equals(userEnt)){
+                EEntitySpawnNetwork spawnEvent = new EEntitySpawnNetwork(userEnt, userEnt.origin);
+                sendEvent(spawnEvent, userChannel);
+            }
+        }
+    }
+
+    /**
+        Broadcost user-triggered event to every user except observer
+        Typical situation is player spawn, when everyone should be aware of this event except user itself
+     */
+    private void broadcostUserEvent(Event event, User observer){
+        if (event.is_local()){
+            return;
+        }
+
+        Set<Channel> activeChannels = ServerUserPool.getActiveChannels();
+        for(Channel channel: activeChannels){
+            if (!ServerUserPool.isUserChannel(observer, channel)){
+                sendEvent(event, channel);
+            }
+        }
+    }
+
+    private void broadcostEvent(Event event){
+        if (event.is_local()){
+            return;
+        }
+
+        Set<Channel> activeChannels = ServerUserPool.getActiveChannels();
+        for(Channel channel: activeChannels){
+            sendEvent(event, channel);
+        }
+    }
+    /*
+    Todo: this method looks similar to the client logic, probably need to extract as EventDispatcher class
+     */
+    private void sendEvent(Event event, Channel channel) {
+        NetworkEvent networkEvent = (NetworkEvent)event;
+
+        String[] tokens = networkEvent.serialize();
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(event.classname().concat(" "));
+
+        for (int i = 1; i<tokens.length; i++){
+            sb.append(tokens[i].concat(" "));
+        }
+        sendMsg(sb.toString(), channel);
     }
 }

@@ -4,9 +4,11 @@
  */
 package com.nuclearunicorn.negame.server.core;
 
+import org.jboss.netty.channel.Channel;
+
 import java.net.InetSocketAddress;
 import java.util.HashMap;
-import org.jboss.netty.channel.Channel;
+import java.util.Set;
 
 /**
  *
@@ -59,5 +61,28 @@ public class ServerUserPool {
         }else{
             throw new RuntimeException("Trying to attach channel to unregistered user ip");
         }
+    }
+
+    public static Set<Channel> getActiveChannels() {
+        return channel2user.keySet();
+    }
+
+    /*
+        Returns io channel session assigned to current user, null otherwise
+     */
+    public static Channel getUserChannel(User observer) {
+        for (Channel channel : channel2user.keySet()){
+            if(channel2user.get(channel).equals(observer)){
+                return channel;
+            }
+        }
+        return null;
+    }
+
+    /*
+        Check if given channel session is assigned to user
+     */
+    public static boolean isUserChannel(User observer, Channel channel) {
+        return channel2user.get(channel).equals(observer);
     }
 }

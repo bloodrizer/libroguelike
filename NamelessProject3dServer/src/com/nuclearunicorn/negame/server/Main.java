@@ -1,7 +1,6 @@
 package com.nuclearunicorn.negame.server;
 
 import com.nuclearunicorn.negame.client.NEGame;
-import com.nuclearunicorn.negame.client.clientIo.NettyClient;
 import com.nuclearunicorn.negame.client.game.modes.in_game.InGameMode;
 import com.nuclearunicorn.negame.client.game.modes.main_menu.MainMenuMode;
 import com.nuclearunicorn.negame.server.core.NEServerCore;
@@ -17,10 +16,11 @@ public class Main {
 
     public static NEGame game;
     public static InGameMode inGameMode = new InGameMode();
+    public static NEServerCore serverCore;
 
     public static void main(String[] args) {
         /* Run NE Server */
-        NEServerCore serverCore = new NEServerCore();
+        serverCore = new NEServerCore();
         serverCore.run();
 
         /* Run Client in the same session and connect it to the server */
@@ -39,7 +39,7 @@ public class Main {
         finally{
             //when client is done, terminate server
             game.running = false;
-            NettyClient.destroy();
+            //NettyClient.destroy();
             serverCore.destroy();
         }
     }

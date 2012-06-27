@@ -11,12 +11,9 @@ import com.nuclearunicorn.libroguelike.game.combat.BasicCombat;
 import com.nuclearunicorn.libroguelike.game.ent.buildings.BuildManager;
 import com.nuclearunicorn.libroguelike.game.ent.buildings.EntBuilding;
 import com.nuclearunicorn.libroguelike.game.player.Player;
+import com.nuclearunicorn.negame.common.EventConstants;
 import org.jboss.netty.bootstrap.ClientBootstrap;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelHandler;
+import org.jboss.netty.channel.*;
 import org.lwjgl.util.Point;
 
 /**
@@ -96,7 +93,17 @@ public class GameServClientHandler extends SimpleChannelHandler {
                 break;
 
             }
+        }
 
+        if (eventType.equals(EventConstants.E_ENTITY_SPAWN_NETWORK)){
+            //TODO: implement deserialize
+            String uid = packet[1];
+            int x = Integer.parseInt(packet[2]);
+            int y = Integer.parseInt(packet[3]);
+
+            //EPlayerSpawn event = new EPlayerSpawn(new Point(x,y), uid);
+            //ClientEventManager.addEvent(event);
+            //TODO: spawn entity placeholder
         }
     }
 
