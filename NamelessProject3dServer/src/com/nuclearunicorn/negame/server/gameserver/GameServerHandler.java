@@ -7,12 +7,9 @@ package com.nuclearunicorn.negame.server.gameserver;
 
 import com.nuclearunicorn.libroguelike.events.network.NetworkEvent;
 import com.nuclearunicorn.negame.server.core.*;
+import org.jboss.netty.channel.*;
+
 import java.util.concurrent.atomic.AtomicLong;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.channel.MessageEvent;
 
 
 
@@ -51,12 +48,16 @@ public class GameServerHandler extends AServerHandler {
         ((GameServer)server).registerUser(user);
         server.allChannels.add(channel);
 
-        //load player coords and shit
-        sendMsg("EPlayerSpawn 10 10", channel);
 
+        //spawn player entity on server side
         getServer().spawnPlayerCharacter(user);
 
-        //WorldModel model = getServer().getEnv().getWorld();
+        //get entity parameters and push them back to the client since we need to keep channel context
+        int x = user.getEntity().x();
+        int y = user.getEntity().y();
+
+        String uid = user.getEntity().get_uid();
+        sendMsg("EPlayerSpawn "+x+" "+y+" "+uid, channel);
     }
 
     @Override

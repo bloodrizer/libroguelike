@@ -12,9 +12,10 @@ import com.nuclearunicorn.libroguelike.game.ent.Entity;
 public class User {
 
     Entity playerEnt;
+    int userId = 123456;
 
-    public String getId() {
-        return "123456789";
+    public int getId() {
+        return userId;
     }
 
     public void setEntity(Entity ent){

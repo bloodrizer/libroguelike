@@ -13,16 +13,13 @@ import com.nuclearunicorn.libroguelike.game.ent.controller.NpcController;
 import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
 import com.nuclearunicorn.libroguelike.game.world.WorldModel;
 import com.nuclearunicorn.libroguelike.game.world.layers.WorldLayer;
-import com.nuclearunicorn.negame.client.generators.NEGroundChunkGenerator;
 import com.nuclearunicorn.negame.common.EventConstants;
 import com.nuclearunicorn.negame.common.IoCommon;
-import com.nuclearunicorn.negame.server.core.*;
+import com.nuclearunicorn.negame.server.core.AServerIoLayer;
+import com.nuclearunicorn.negame.server.core.NEDataPacket;
+import com.nuclearunicorn.negame.server.core.ServerUserPool;
+import com.nuclearunicorn.negame.server.core.User;
 import com.nuclearunicorn.negame.server.game.world.ServerWorldModel;
-
-import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.concurrent.Executors;
-
 import com.nuclearunicorn.negame.server.generators.NEServerGroundChunkGenerator;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
@@ -35,6 +32,10 @@ import org.jboss.netty.handler.codec.frame.Delimiters;
 import org.jboss.netty.handler.codec.string.StringDecoder;
 import org.jboss.netty.handler.codec.string.StringEncoder;
 import org.lwjgl.util.Point;
+
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.concurrent.Executors;
 
 
 /**
@@ -210,12 +211,23 @@ public class GameServer extends AServerIoLayer {
         mplayer_ent.setEnvironment(env);
 
         //EntityManager.add(mplayer_ent);       ?
-        mplayer_ent.spawn(user.getId(), new Point(10,10));
+        //TODO: get player locat
+        mplayer_ent.spawn(getUserLocation(user));
 
         user.setEntity(mplayer_ent);
         worldUpdateLazyLoad(0,0);
     }
 
+    /**
+       Return player position based on saved user data
+     */
+    private Point getUserLocation(User user) {
+
+        int rndX = (int)(Math.random()*32.0f);
+        int rndY = (int)(Math.random()*32.0f);
+        Point playerOrigin = new Point(rndX, rndY);
+        return playerOrigin;
+    }
 
 
     /**

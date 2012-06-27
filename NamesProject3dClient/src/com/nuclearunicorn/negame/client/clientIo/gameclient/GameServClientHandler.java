@@ -6,7 +6,7 @@ package com.nuclearunicorn.negame.client.clientIo.gameclient;
 
 import com.nuclearunicorn.libroguelike.core.client.ClientEventManager;
 import com.nuclearunicorn.libroguelike.core.client.ClientGameEnvironment;
-import com.nuclearunicorn.libroguelike.events.network.EPlayerLogon;
+import com.nuclearunicorn.libroguelike.events.network.EPlayerSpawn;
 import com.nuclearunicorn.libroguelike.game.combat.BasicCombat;
 import com.nuclearunicorn.libroguelike.game.ent.buildings.BuildManager;
 import com.nuclearunicorn.libroguelike.game.ent.buildings.EntBuilding;
@@ -61,9 +61,10 @@ public class GameServClientHandler extends SimpleChannelHandler {
         if (eventType.equals("EPlayerSpawn")){
             int x = Integer.parseInt(packet[1]);
             int y = Integer.parseInt(packet[2]);
+            String uid = packet[3];
 
 
-            EPlayerLogon event = new EPlayerLogon(new Point(x,y));
+            EPlayerSpawn event = new EPlayerSpawn(new Point(x,y), uid);
             ClientEventManager.addEvent(event);
             //event.post();
         }

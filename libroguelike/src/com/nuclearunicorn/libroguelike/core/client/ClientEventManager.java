@@ -56,6 +56,7 @@ public class ClientEventManager {
 
     public static void update(){
         for (Event event: scheduledEvents){
+            System.out.println("posting scheduled event of type "+event.classname());
             event.post();
         }
 

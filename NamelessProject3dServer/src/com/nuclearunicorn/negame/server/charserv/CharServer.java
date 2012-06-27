@@ -4,13 +4,12 @@
  */
 package com.nuclearunicorn.negame.server.charserv;
 
-import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.concurrent.Executors;
-
 import com.nuclearunicorn.negame.common.EventConstants;
 import com.nuclearunicorn.negame.common.IoCommon;
-import com.nuclearunicorn.negame.server.core.*;
+import com.nuclearunicorn.negame.server.core.AServerIoLayer;
+import com.nuclearunicorn.negame.server.core.NEDataPacket;
+import com.nuclearunicorn.negame.server.core.ServerUserPool;
+import com.nuclearunicorn.negame.server.core.User;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelPipeline;
@@ -21,6 +20,10 @@ import org.jboss.netty.handler.codec.frame.DelimiterBasedFrameDecoder;
 import org.jboss.netty.handler.codec.frame.Delimiters;
 import org.jboss.netty.handler.codec.string.StringDecoder;
 import org.jboss.netty.handler.codec.string.StringEncoder;
+
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.concurrent.Executors;
 
 
 /**
@@ -120,9 +123,9 @@ public class CharServer extends AServerIoLayer {
             int gameServerPort = IoCommon.GAME_SERVER_PORT;
 
             User user = ServerUserPool.getUser(ioChannel);
-            String user_id = user.getId();
+            int user_id = user.getId();
 
-            handler.sendMsg("EPlayerLogon "+gameServerHost+" "+gameServerPort+" "+user_id, ioChannel);
+            handler.sendMsg("EPlayerAccepted "+gameServerHost+" "+gameServerPort+" "+user_id, ioChannel);
         }
     }
 
