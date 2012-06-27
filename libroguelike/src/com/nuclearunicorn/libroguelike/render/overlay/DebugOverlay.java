@@ -51,14 +51,16 @@ public class DebugOverlay {
         
         //-----------------------------------
 
-        OverlaySystem.ttf.drawString(10, 70, "FPS: " + Integer.toString( Timer.get_fps() ), Color.white);
+        int yOffset = 130;
+
+        OverlaySystem.ttf.drawString(10, yOffset, "FPS: " + Integer.toString( Timer.get_fps() ), Color.white);
 
 
         if (Input.key_state_alt) {
 
         //debug camera shit
 
-            OverlaySystem.ttf.drawString(10, 90, "Camera @: " +
+            OverlaySystem.ttf.drawString(10, yOffset+20, "Camera @: " +
                 (int) WorldViewCamera.camera_x +
                 "," + 
                 (int)WorldViewCamera.camera_y +
@@ -68,10 +70,10 @@ public class DebugOverlay {
         
         //debug render shit
 
-            OverlaySystem.ttf.drawString(10, 110, "Render profile:");
-            OverlaySystem.ttf.drawString(10, 130, "Avg frame:    " + frameTime + "ms");
-            OverlaySystem.ttf.drawString(10, 150, "Update calls: " + updateTime + "ms");
-            OverlaySystem.ttf.drawString(10, 170, "Render calls: " + renderTime + "ms");
+            OverlaySystem.ttf.drawString(10, yOffset+40, "Render profile:");
+            OverlaySystem.ttf.drawString(10, yOffset+60, "Avg frame:    " + frameTime + "ms");
+            OverlaySystem.ttf.drawString(10, yOffset+80, "Update calls: " + updateTime + "ms");
+            OverlaySystem.ttf.drawString(10, yOffset+100, "Render calls: " + renderTime + "ms");
 
             OverlaySystem.ttf.drawString(WindowRender.get_window_w()-100 , 10, "z-index: " + WorldView.get_zindex(), Color.white);
         }

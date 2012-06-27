@@ -1,5 +1,6 @@
 package com.nuclearunicorn.negame.client.game.world;
 
+import com.nuclearunicorn.libroguelike.events.Event;
 import com.nuclearunicorn.libroguelike.game.world.WorldModel;
 import com.nuclearunicorn.libroguelike.game.world.layers.WorldLayer;
 import rlforj.los.ILosBoard;
@@ -17,7 +18,7 @@ public class NEWorldModel extends WorldModel implements ILosBoard {
         this.LAYER_COUNT = layersCount;
 
         for (int i = 0; i< LAYER_COUNT; i++ ){
-            WorldLayer layer = new WorldLayer();    //TODO: use NEWorldLayer
+            WorldLayer layer = new NEWorldLayer();    //TODO: use NEWorldLayer
             layer.set_zindex(i);
             layer.setModel(this);
             worldLayers.put(i, layer);
@@ -41,5 +42,10 @@ public class NEWorldModel extends WorldModel implements ILosBoard {
 
     public void resetFov() {
         //To change body of created methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void e_on_event(Event event) {
+        super.e_on_event(event);    //To change body of overridden methods use File | Settings | File Templates.
     }
 }

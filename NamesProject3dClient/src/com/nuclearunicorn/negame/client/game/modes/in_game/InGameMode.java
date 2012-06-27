@@ -28,6 +28,7 @@ import com.nuclearunicorn.libroguelike.vgui.effects.EffectsSystem;
 import com.nuclearunicorn.negame.client.Main;
 import com.nuclearunicorn.negame.client.NEGame;
 import com.nuclearunicorn.negame.client.clientIo.NettyClient;
+import com.nuclearunicorn.negame.client.game.controllers.NetworkPlayerController;
 import com.nuclearunicorn.negame.client.game.world.NEWorldModel;
 import com.nuclearunicorn.negame.client.game.world.NEWorldView;
 import com.nuclearunicorn.negame.client.generators.NEGroundChunkGenerator;
@@ -96,8 +97,10 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
 
         model = new NEWorldModel(5);
         clientGameEnvironment.setWorld(model);
+        model.setName("client world");
 
-        WorldCluster.CLUSTER_SIZE = 1;
+        //WorldCluster.CLUSTER_SIZE = 1;
+        WorldCluster.CLUSTER_SIZE = 3;
 
         //ChunkGenerator townGenerator = new TownChunkGenerator();
         ArrayList<WorldLayer> layers = new ArrayList<WorldLayer>(model.getLayers());
@@ -128,7 +131,8 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         //tileset render affects camera positioning. Todo:fix this shit
         TilesetRenderer.TILE_SIZE = ConsoleRenderer.TILE_SIZE;
 
-        WorldChunk.CHUNK_SIZE = 128;
+        //WorldChunk.CHUNK_SIZE = 128;
+        WorldChunk.CHUNK_SIZE = 32;
         
         //spawn_player(new Point(0,0));
 
@@ -278,7 +282,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
 
         WorldViewCamera.target.setLocation(location);
 
-        //playerEnt.set_controller(new RLPlayerController());
+        playerEnt.set_controller(new NetworkPlayerController());
         //playerEnt.set_ai(new PlayerAI());
         Player.set_ent(playerEnt);
 

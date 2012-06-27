@@ -1,6 +1,7 @@
 package com.nuclearunicorn.negame.server;
 
 import com.nuclearunicorn.negame.client.NEGame;
+import com.nuclearunicorn.negame.client.clientIo.NettyClient;
 import com.nuclearunicorn.negame.client.game.modes.in_game.InGameMode;
 import com.nuclearunicorn.negame.client.game.modes.main_menu.MainMenuMode;
 import com.nuclearunicorn.negame.server.core.NEServerCore;
@@ -38,6 +39,7 @@ public class Main {
         finally{
             //when client is done, terminate server
             game.running = false;
+            NettyClient.destroy();
             serverCore.destroy();
         }
     }

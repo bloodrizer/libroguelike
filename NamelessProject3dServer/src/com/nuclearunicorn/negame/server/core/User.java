@@ -13,8 +13,8 @@ public class User {
 
     Entity playerEnt;
 
-    public int getId() {
-        return 123456789;
+    public String getId() {
+        return "123456789";
     }
 
     public void setEntity(Entity ent){

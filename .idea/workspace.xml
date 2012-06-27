@@ -7,18 +7,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b3076201-3a43-47eb-81c1-0e49dabcf6c8" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/NamelessProjectCommon/src/com/nuclearunicorn/negame/common/IServer.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/NamelessProject3dServer/NamelessProject3dServer.iml" afterPath="$PROJECT_DIR$/NamelessProject3dServer/NamelessProject3dServer.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/Main.java" afterPath="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/Main.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/charserv/CharServer.java" afterPath="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/charserv/CharServer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/core/NEServerCore.java" afterPath="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/core/NEServerCore.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/Main.java" afterPath="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/Main.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/NEGame.java" afterPath="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/NEGame.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/clientIo/NettyClient.java" afterPath="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/clientIo/NettyClient.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/game/modes/in_game/InGameMode.java" afterPath="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/game/modes/in_game/InGameMode.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/core/Game.java" afterPath="$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/core/Game.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/game/modes/AbstractGameMode.java" afterPath="$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/game/modes/AbstractGameMode.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/gameserver/GameServer.java" afterPath="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/gameserver/GameServer.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/NamelessProjectCommon/NamelessProjectCommon.iml" afterPath="$PROJECT_DIR$/NamelessProjectCommon/NamelessProjectCommon.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/NamesProject3dClient/NamesProject3dClient.iml" afterPath="$PROJECT_DIR$/NamesProject3dClient/NamesProject3dClient.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/libroguelike/libroguelike.iml" afterPath="$PROJECT_DIR$/libroguelike/libroguelike.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/serialkiller/serialkiller.iml" afterPath="$PROJECT_DIR$/serialkiller/serialkiller.iml" />
     </list>
     <ignored path="jskiller.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -76,10 +71,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="Main.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/Main.java">
+      <file leaf-file-name="ItemFactory.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/serialkiller/src/com/nuclearunicorn/serialkiller/game/ItemFactory.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="16" column="19" selection-start="492" selection-end="492" vertical-scroll-proportion="0.0">
+            <state line="13" column="26" selection-start="340" selection-end="340" vertical-scroll-proportion="0.0">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -87,53 +82,19 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="NEGame.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/NEGame.java">
+      <file leaf-file-name="GameServer.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/gameserver/GameServer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="12" column="13" selection-start="314" selection-end="314" vertical-scroll-proportion="0.0">
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Game.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/core/Game.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="54" column="20" selection-start="1615" selection-end="1615" vertical-scroll-proportion="0.0">
-              <folding>
-                <element signature="e#829#854#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="InGameMode.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/game/modes/in_game/InGameMode.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="194" column="103" selection-start="7136" selection-end="7136" vertical-scroll-proportion="0.78968257">
-              <folding>
-                <element signature="imports" expanded="true" />
-                <element signature="e#4392#4404#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="AbstractGameMode.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/game/modes/AbstractGameMode.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="16" column="21" selection-start="583" selection-end="583" vertical-scroll-proportion="0.0">
+            <state line="73" column="64" selection-start="2279" selection-end="2279" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Main.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/Main.java">
+      <file leaf-file-name="TilesetVoxelRenderer.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/render/TilesetVoxelRenderer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="12" column="13" selection-start="361" selection-end="361" vertical-scroll-proportion="0.0">
+            <state line="33" column="36" selection-start="1269" selection-end="1269" vertical-scroll-proportion="0.41925925">
               <folding />
             </state>
           </provider>
@@ -147,13 +108,11 @@
     </FindUsagesManager>
   </component>
   <component name="Git.Settings">
-    <option name="CHECKOUT_INCLUDE_TAGS" value="false" />
-    <option name="UPDATE_CHANGES_POLICY" value="STASH" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/cache/BaseNECache.java" />
         <option value="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/clientIo/ClientGameEnvironment.java" />
         <option value="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/clientIo/NEClientGameEnvironment.java" />
         <option value="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/clientIo/charclient/CharClientHandler.java" />
@@ -169,13 +128,15 @@
         <option value="$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/game/modes/AbstractGameMode.java" />
         <option value="$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/core/Game.java" />
         <option value="$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/game/modes/in_game/InGameMode.java" />
+        <option value="$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/gameserver/GameServer.java" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="-2" />
-    <option name="width" value="1608" />
-    <option name="height" value="861" />
+    <option name="x" value="-4" />
+    <option name="y" value="-4" />
+    <option name="width" value="1928" />
+    <option name="height" value="1088" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <OptionsSetting value="true" id="Add" />
@@ -202,7 +163,7 @@
     </ignored-problems>
   </component>
   <component name="ProjectView">
-    <navigator currentView="PackagesPane" proportions="" version="1" splitterProportion="0.5">
+    <navigator currentView="ProjectPane" proportions="" version="1" splitterProportion="0.5">
       <flattenPackages />
       <showMembers />
       <showModules />
@@ -230,114 +191,6 @@
             <PATH_ELEMENT>
               <option name="myItemId" value="jskiller" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jskiller" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="NamesProject3dClient" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jskiller" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="NamesProject3dClient" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="com.nuclearunicorn.negame.client" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jskiller" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="NamesProject3dClient" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="com.nuclearunicorn.negame.client" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="clientIo" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jskiller" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="NamelessProjectCommon" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jskiller" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="NamelessProjectCommon" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="com.nuclearunicorn.negame.common" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jskiller" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="NamelessProject3dServer" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jskiller" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="NamelessProject3dServer" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="com.nuclearunicorn.negame.server" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jskiller" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="NamelessProject3dServer" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="com.nuclearunicorn.negame.server" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="core" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
             </PATH_ELEMENT>
           </PATH>
         </subPane>
@@ -660,27 +513,27 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-2" y="0" width="1608" height="861" extended-state="0" />
+    <frame x="-4" y="-4" width="1928" height="1088" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32913166" sideWeight="0.48711342" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3995749" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2577031" sideWeight="0.53930414" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25611052" sideWeight="0.54220086" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32913166" sideWeight="0.44072166" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32837406" sideWeight="0.43643162" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2497332" sideWeight="0.49628055" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.18878865" sideWeight="0.74229693" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2577031" sideWeight="0.45618558" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.18856838" sideWeight="0.74388945" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25611052" sideWeight="0.45405984" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32913166" sideWeight="0.48711342" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
@@ -718,7 +571,10 @@
     <option name="INCLUDE_TEXT_INTO_PATCH" value="false" />
     <option name="INCLUDE_TEXT_INTO_SHELF" value="false" />
     <option name="CREATE_PATCH_EXPAND_DETAILS_DEFAULT" value="true" />
+    <option name="SHOW_FILE_HISTORY_DETAILS" value="true" />
+    <option name="SHOW_VCS_ERROR_NOTIFICATIONS" value="true" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
+    <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="false" />
     <option name="LAST_COMMIT_MESSAGE" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="false" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
@@ -741,134 +597,91 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/clientIo/NettyClientLayer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="8" column="67" selection-start="334" selection-end="334" vertical-scroll-proportion="0.18763797">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/game/ent/Entity.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="195" column="16" selection-start="5102" selection-end="5102" vertical-scroll-proportion="0.33333334">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/clientIo/gameclient/GameServClientHandler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="93" column="24" selection-start="3454" selection-end="3454" vertical-scroll-proportion="0.78807944">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/game/modes/main_menu/MainMenuMode.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="12" column="45" selection-start="504" selection-end="504" vertical-scroll-proportion="-0.37103173">
-          <folding />
-        </state>
+        <state line="12" column="45" selection-start="504" selection-end="504" vertical-scroll-proportion="-0.37103173" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/clientIo/NEClientGameEnvironment.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="7" column="0" selection-start="153" selection-end="153" vertical-scroll-proportion="0.03373016">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
+        <state line="7" column="0" selection-start="153" selection-end="153" vertical-scroll-proportion="0.03373016" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/clientIo/NettyClient.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="47" column="62" selection-start="1392" selection-end="1392" vertical-scroll-proportion="0.62896824">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
+        <state line="47" column="62" selection-start="1392" selection-end="1392" vertical-scroll-proportion="0.62896824" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/NamelessProjectCommon/src/com/nuclearunicorn/negame/common/IServer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="13" column="24" selection-start="288" selection-end="295" vertical-scroll-proportion="0.43849206">
-          <folding />
-        </state>
+        <state line="13" column="24" selection-start="288" selection-end="295" vertical-scroll-proportion="0.43849206" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/charserv/CharServer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="77" column="71" selection-start="2487" selection-end="2487" vertical-scroll-proportion="0.6706349">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
+        <state line="77" column="71" selection-start="2487" selection-end="2487" vertical-scroll-proportion="0.6706349" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/core/NEServerCore.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="25" column="21" selection-start="682" selection-end="682" vertical-scroll-proportion="0.46031746">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
+        <state line="25" column="21" selection-start="682" selection-end="682" vertical-scroll-proportion="0.46031746" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/serialkiller/src/com/nuclearunicorn/serialkiller/game/Main.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="12" column="13" selection-start="363" selection-end="363" vertical-scroll-proportion="0.29166666">
-          <folding />
-        </state>
+        <state line="12" column="13" selection-start="363" selection-end="363" vertical-scroll-proportion="0.29166666" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/Main.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="12" column="13" selection-start="361" selection-end="361" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
+        <state line="12" column="13" selection-start="361" selection-end="361" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/game/modes/AbstractGameMode.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="16" column="21" selection-start="583" selection-end="583" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/Main.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="16" column="19" selection-start="492" selection-end="492" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/NEGame.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="12" column="13" selection-start="314" selection-end="314" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/core/Game.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="54" column="20" selection-start="1615" selection-end="1615" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="e#829#854#0" expanded="true" />
-          </folding>
-        </state>
+        <state line="16" column="21" selection-start="583" selection-end="583" vertical-scroll-proportion="0.029673591" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/game/modes/in_game/InGameMode.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="194" column="103" selection-start="7136" selection-end="7136" vertical-scroll-proportion="0.78968257">
+        <state line="201" column="80" selection-start="7463" selection-end="7463" vertical-scroll-proportion="0.23738873" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/libroguelike/src/com/nuclearunicorn/libroguelike/core/Game.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="54" column="20" selection-start="1615" selection-end="1615" vertical-scroll-proportion="0.029673591" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/NEGame.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="12" column="13" selection-start="314" selection-end="314" vertical-scroll-proportion="0.22848664" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/Main.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="16" column="19" selection-start="492" selection-end="492" vertical-scroll-proportion="0.029673591" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/serialkiller/src/com/nuclearunicorn/serialkiller/game/ItemFactory.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="13" column="26" selection-start="340" selection-end="340" vertical-scroll-proportion="0.0">
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#4392#4404#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NamelessProject3dServer/src/com/nuclearunicorn/negame/server/gameserver/GameServer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="73" column="64" selection-start="2279" selection-end="2279" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NamesProject3dClient/src/com/nuclearunicorn/negame/client/render/TilesetVoxelRenderer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="33" column="36" selection-start="1269" selection-end="1269" vertical-scroll-proportion="0.41925925">
+          <folding />
         </state>
       </provider>
     </entry>
@@ -883,6 +696,7 @@
             <option name="proportions">
               <list>
                 <option value="0.2" />
+                <option value="0.5" />
               </list>
             </option>
           </splitter-proportions>
@@ -925,7 +739,7 @@
       </state>
       <state key="ModuleStructureConfigurable.UI">
         <settings>
-          <last-edited>NamelessProject3dServer</last-edited>
+          <last-edited>serialkiller</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>

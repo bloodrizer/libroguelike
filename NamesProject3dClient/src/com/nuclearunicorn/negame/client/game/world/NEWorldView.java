@@ -7,6 +7,8 @@ import com.nuclearunicorn.libroguelike.events.Event;
 import com.nuclearunicorn.libroguelike.game.world.WorldModel;
 import com.nuclearunicorn.libroguelike.game.world.WorldView;
 import com.nuclearunicorn.libroguelike.render.TilesetRenderer;
+import com.nuclearunicorn.libroguelike.render.overlay.DebugOverlay;
+import com.nuclearunicorn.libroguelike.utils.NLTimer;
 import com.nuclearunicorn.negame.client.render.TilesetVoxelRenderer;
 import com.nuclearunicorn.negame.client.render.utils.VAVoxel;
 import org.lwjgl.util.Point;
@@ -64,9 +66,23 @@ public class NEWorldView extends WorldView {
         NEWorldView.mouseYWorld = mouseYWorld;
     }
 
-    public static Point getSelectedTileCoord(){
-        int mx = (int) (mouseXWorld / VAVoxel.VOXEL_SIZE * TilesetRenderer.TILE_SIZE);
-        int my = (int) (mouseYWorld / VAVoxel.VOXEL_SIZE * TilesetRenderer.TILE_SIZE);
+    public static Point getSelectedTileCoord(int xWorld, int yWorld){
+        int mx = (int) (xWorld / VAVoxel.VOXEL_SIZE * TilesetRenderer.TILE_SIZE);
+        int my = (int) (yWorld / VAVoxel.VOXEL_SIZE * TilesetRenderer.TILE_SIZE);
         return WorldView.getTileCoordPlain(mx, my);
+    }
+
+    public static Point getSelectedTileCoord(){
+        return getSelectedTileCoord((int)mouseXWorld, (int)mouseYWorld);
+    }
+
+    @Override
+    public void render() {
+        NLTimer timer = new NLTimer();
+        timer.push();
+
+        super.render();    //To change body of overridden methods use File | Settings | File Templates.
+
+        DebugOverlay.renderTime = timer.popDiff();
     }
 }

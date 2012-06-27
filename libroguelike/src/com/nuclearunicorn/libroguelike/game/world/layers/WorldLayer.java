@@ -375,7 +375,7 @@ public class WorldLayer implements Serializable {
         WorldChunk new_chunk = get_cached_chunk(WorldChunk.get_chunk_coord(coord_dest));
         if (new_chunk != null && !entity.in_chunk(new_chunk)){
 
-            System.err.println(model.getName()+" is changing chunk for entity "+entity.getName());
+            System.err.println("World model '" + model.getName() + "' is changing chunk for entity "+entity.getName());
 
             WorldChunk ent_chunk = entity.get_chunk();
             //todo: move to event dispatcher?

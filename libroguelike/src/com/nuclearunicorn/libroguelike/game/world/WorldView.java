@@ -109,6 +109,8 @@ public class WorldView implements IEventListener {
                 /*if (!WorldViewCamera.tile_in_fov(i,j)){
                     continue;
                 }*/
+                
+                //System.out.println("rendering chunk @"+chunk_x + "," + chunk_y);
 
                 //NOTE: get_cached_chink is now deprecated function, as it can load random chunk data without checking, if it's inside
                 //of world cluster

@@ -29,6 +29,9 @@ public class NettyClient {
         packetFilter.add(EventConstants.E_SELECT_CHARACTER);
         //packetFilter.add(EventConstants.E_PLAYER_LOGON);
     }};
+    static {
+        charServClient.name = "charserv client";
+    }
 
 
     public static void connect(){
@@ -84,9 +87,10 @@ public class NettyClient {
 
         public void run() {
             gameServClient = new NettyClientLayer(host,port) {{
-                packetFilter.add("events.network.EEntitySetPath");
+                packetFilter.add(EventConstants.E_ENTITY_SET_PATH);
                 packetFilter.add("events.network.EBuildStructure");
             }};
+            gameServClient.name = "gameserv client";
             ClientEventManager.eventManager.subscribe(gameServClient);
 
 

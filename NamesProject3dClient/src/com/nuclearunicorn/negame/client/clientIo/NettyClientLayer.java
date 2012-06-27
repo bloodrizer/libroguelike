@@ -32,7 +32,7 @@ public abstract class NettyClientLayer implements IEventListener {
     String host;
     int port;
 
-    String name = "neClient";
+    String name = "undefinded client layer";
 
     //the thransport channel we use to write into/read from
     ChannelFuture future;

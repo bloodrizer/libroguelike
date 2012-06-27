@@ -120,7 +120,7 @@ public class CharServer extends AServerIoLayer {
             int gameServerPort = IoCommon.GAME_SERVER_PORT;
 
             User user = ServerUserPool.getUser(ioChannel);
-            int user_id = user.getId();
+            String user_id = user.getId();
 
             handler.sendMsg("EPlayerLogon "+gameServerHost+" "+gameServerPort+" "+user_id, ioChannel);
         }

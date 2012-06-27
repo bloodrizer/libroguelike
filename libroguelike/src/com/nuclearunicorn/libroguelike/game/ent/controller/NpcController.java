@@ -180,7 +180,7 @@ public class NpcController extends BaseController implements Mover, IEventListen
 
     }
 
-    private void notify_path(Point __dest){
+    protected void notify_path(Point __dest){
 
         System.out.println("Sending path notification");
 
