@@ -9,7 +9,7 @@ import com.nuclearunicorn.libroguelike.events.EEntitySpawn;
 import com.nuclearunicorn.libroguelike.events.Event;
 import com.nuclearunicorn.libroguelike.events.EventManager;
 import com.nuclearunicorn.libroguelike.events.IEventListener;
-import com.nuclearunicorn.libroguelike.events.network.EEntitySpawnNetwork;
+import com.nuclearunicorn.negame.common.events.EEntitySpawnNetwork;
 import com.nuclearunicorn.libroguelike.events.network.NetworkEvent;
 import com.nuclearunicorn.libroguelike.game.GameEnvironment;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
@@ -177,7 +177,7 @@ public class GameServer extends AServerIoLayer implements IEventListener {
             int x = Integer.parseInt(data[1]);
             int y = Integer.parseInt(data[2]);
 
-            User user = ServerUserPool.getUser(ioChannel);
+            User user = ServerUserPool.getUser(ioChannel, ServerUserPool.CHANNEL_TYPE.CHANNEL_GAMESERV);
             moveUser(user, x, y);
         }
     }
@@ -284,7 +284,7 @@ public class GameServer extends AServerIoLayer implements IEventListener {
      */
     public void notifyChunkData(User observer, WorldChunk chunk){
         Entity userEnt = observer.getEntity();
-        Channel userChannel = ServerUserPool.getUserChannel(observer);
+        Channel userChannel = observer.getGameChannel();
         //userEnt.origin;
         //Point chunkCoord = WorldChunk.get_chunk_coord(userEnt.origin);
         //WorldChunk chunk = userEnt.get_chunk();
@@ -308,10 +308,10 @@ public class GameServer extends AServerIoLayer implements IEventListener {
             return;
         }
 
-        Set<Channel> activeChannels = ServerUserPool.getActiveChannels();
-        for(Channel channel: activeChannels){
-            if (!ServerUserPool.isUserChannel(observer, channel)){
-                sendEvent(event, channel);
+        List<User> users = ServerUserPool.getActiveUsers();
+        for(User user : users){
+            if (user.getGameChannel() != observer.getGameChannel()){
+                sendEvent(event, user.getGameChannel());
             }
         }
     }
@@ -320,10 +320,10 @@ public class GameServer extends AServerIoLayer implements IEventListener {
         if (event.is_local()){
             return;
         }
-
-        Set<Channel> activeChannels = ServerUserPool.getActiveChannels();
-        for(Channel channel: activeChannels){
-            sendEvent(event, channel);
+        
+        List<User> users = ServerUserPool.getActiveUsers();
+        for(User user : users){
+            sendEvent(event, user.getGameChannel());
         }
     }
     /*

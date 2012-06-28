@@ -7,7 +7,9 @@ package com.nuclearunicorn.negame.server.core;
 import org.jboss.netty.channel.Channel;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -20,7 +22,12 @@ import java.util.Set;
  */
 public class ServerUserPool {
     public static HashMap<String, User> ip2user         = new HashMap<String, User>(32);
-    public static HashMap<Channel, User> channel2user   = new HashMap<Channel, User>(32);
+    public static List<User> activeUsers = new ArrayList<User>();
+    
+    public enum CHANNEL_TYPE {
+        CHANNEL_CHARSERV,
+        CHANNEL_GAMESERV
+    }
 
     public static void registerUser(Channel channel, String username) {
 
@@ -41,48 +48,48 @@ public class ServerUserPool {
      * 
      */
     
-    public static User getUser(Channel channel){
-         User user = channel2user.get(channel);
-         if (user != null){
-             return user;
-         }else{
-             return attachChannel(channel);
+    public static User getUser(Channel channel, CHANNEL_TYPE channelType){
+
+         for (User activeUser: activeUsers){
+            if (channelType == CHANNEL_TYPE.CHANNEL_CHARSERV){
+                if (activeUser.charChannel == channel){
+                    return activeUser;
+                }
+            }
+
+            if (channelType == CHANNEL_TYPE.CHANNEL_GAMESERV){
+                 if (activeUser.gameChannel == channel){
+                     return activeUser;
+                 }
+            }
          }
+
+         return attachChannel(channel, channelType);
     }
-    
-    private static User attachChannel(Channel channel){
+
+    /*
+        This method resolves channel to the user ip and attach channel to it
+     */
+    private static User attachChannel(Channel channel, CHANNEL_TYPE channelType){
         InetSocketAddress isa = (InetSocketAddress) channel.getRemoteAddress();
         String ip = isa.getAddress().getHostAddress();
         
         User user = ip2user.get(ip);
         if (user != null){
-            channel2user.put(channel, user);
+            if (channelType == CHANNEL_TYPE.CHANNEL_CHARSERV){
+                user.setCharChannel(channel);
+            }
+            if (channelType == CHANNEL_TYPE.CHANNEL_GAMESERV){
+                user.setGameChannel(channel);
+            }
             return user;
         }else{
             throw new RuntimeException("Trying to attach channel to unregistered user ip");
         }
     }
 
-    public static Set<Channel> getActiveChannels() {
-        return channel2user.keySet();
+    public static List<User> getActiveUsers(){
+        return activeUsers;
     }
 
-    /*
-        Returns io channel session assigned to current user, null otherwise
-     */
-    public static Channel getUserChannel(User observer) {
-        for (Channel channel : channel2user.keySet()){
-            if(channel2user.get(channel).equals(observer)){
-                return channel;
-            }
-        }
-        return null;
-    }
-
-    /*
-        Check if given channel session is assigned to user
-     */
-    public static boolean isUserChannel(User observer, Channel channel) {
-        return channel2user.get(channel).equals(observer);
-    }
 }

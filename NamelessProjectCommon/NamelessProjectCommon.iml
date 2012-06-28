@@ -9,6 +9,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="libroguelike" />
     <orderEntry type="library" name="lwjgl" level="project" />
+    <orderEntry type="library" name="gson-2.2.1" level="project" />
   </component>
 </module>
 

@@ -39,7 +39,7 @@ public class GameServClientHandler extends SimpleChannelHandler {
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
         String request = (String) e.getMessage();
-        System.err.println("char client: recieved msg: ["+request+"]");
+        System.err.println("game client: recieved msg: ["+request+"]");
 
         String[] packet = null;
         if (request != null){
@@ -66,7 +66,7 @@ public class GameServClientHandler extends SimpleChannelHandler {
             //event.post();
         }
 
-        if (eventType.equals("EEntitySpawn")){
+        /*if (eventType.equals("EEntitySpawn")){
             int spawnType = Integer.parseInt(packet[1]);
 
             String entType = packet[2];
@@ -93,13 +93,15 @@ public class GameServClientHandler extends SimpleChannelHandler {
                 break;
 
             }
-        }
+        }*/
 
         if (eventType.equals(EventConstants.E_ENTITY_SPAWN_NETWORK)){
             //TODO: implement deserialize
             String uid = packet[1];
             int x = Integer.parseInt(packet[2]);
             int y = Integer.parseInt(packet[3]);
+            
+            System.out.println("spawning entity #"+uid+" @"+x+","+y);
 
             //EPlayerSpawn event = new EPlayerSpawn(new Point(x,y), uid);
             //ClientEventManager.addEvent(event);

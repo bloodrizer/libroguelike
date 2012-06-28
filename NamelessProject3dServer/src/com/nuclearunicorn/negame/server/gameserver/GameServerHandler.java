@@ -38,7 +38,7 @@ public class GameServerHandler extends AServerHandler {
     public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) {
         
         Channel channel = e.getChannel();
-        User user = ServerUserPool.getUser(channel);
+        User user = ServerUserPool.getUser(channel, ServerUserPool.CHANNEL_TYPE.CHANNEL_GAMESERV);
         
         //Remote user connected to the game server
         if(user == null){

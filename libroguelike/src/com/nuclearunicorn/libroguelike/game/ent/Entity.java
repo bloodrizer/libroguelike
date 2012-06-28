@@ -23,6 +23,8 @@ import org.lwjgl.util.Point;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 
@@ -367,4 +369,14 @@ public class Entity implements Comparable, Serializable {
     public ArrayList get_action_list(){
         return new ArrayList<Entity>(0);
     }
+
+    /*
+        Returns serialied data about entity (type, some info, etc)
+     */
+    public Map<String,String> serialize() {
+        Map data = new HashMap<String, String>();
+        data.put("classname", this.getClass().getName());
+        return data;
+    }
+
 }
