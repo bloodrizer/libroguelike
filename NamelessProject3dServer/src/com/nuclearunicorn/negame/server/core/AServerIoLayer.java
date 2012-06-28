@@ -5,11 +5,13 @@
 
 package com.nuclearunicorn.negame.server.core;
 
-import java.util.ArrayList;
 import org.jboss.netty.bootstrap.ServerBootstrap;
+import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.ChannelGroupFuture;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
+
+import java.util.ArrayList;
 
 /**
  *
@@ -51,9 +53,18 @@ public abstract class AServerIoLayer {
 
         for (NEDataPacket packet: packets){
             //System.out.println(name+":handling packet #");
-            handlePacket(packet);
+            try{
+                handlePacket(packet);
+            }catch(Exception ex){
+                ex.printStackTrace();
+            }
         }
         packets.clear();
+    }
+
+    protected static void sendMsg(String msg, Channel ioChannel){
+        System.err.println("IO layer>: sending message '"+msg+"");
+        ioChannel.write(msg+"\r\n");
     }
 
     protected abstract void handlePacket(NEDataPacket packet);

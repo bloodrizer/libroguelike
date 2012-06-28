@@ -12,10 +12,12 @@ import org.lwjgl.util.Point;
  *
  * @author Administrator
  */
-@NetID(id="0x0000")
-public class EPlayerLogon extends NetworkEvent{
-    public Point origin = null;
-    public EPlayerLogon(Point origin){
+public class EPlayerSpawn extends NetworkEvent{
+    public Point origin;
+    public String uid;
+
+    public EPlayerSpawn(Point origin, String uid){
         this.origin = origin;
+        this.uid = uid;
     }
 }

@@ -18,17 +18,18 @@ import com.nuclearunicorn.libroguelike.events.Event;
 
 public class NetworkEvent extends Event {
 
+    private boolean local = false;
+    private boolean synchronised = false;
+
     @Override
     public boolean is_local(){
         return local;
     }
 
-    private boolean local = false;
     public void set_local(boolean b) {
         this.local = true;
     }
 
-    private boolean synchronised = false;
     public boolean is_synchronised(){
         return synchronised;
     }

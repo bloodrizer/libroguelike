@@ -14,6 +14,7 @@ import com.nuclearunicorn.negame.server.gameserver.GameServer;
  * @author bloodrizer
  */
 public class NEServerCore implements IServer {
+
     CharServer charServer;
     GameServer gameServer;
     
@@ -40,5 +41,9 @@ public class NEServerCore implements IServer {
 
     public GameEnvironment getEnv() {
         return gameServer.getEnv();
+    }
+
+    public CharServer getCharServer() {
+        return charServer;
     }
 }

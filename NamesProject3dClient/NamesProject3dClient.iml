@@ -5,14 +5,13 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="1.6" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="libroguelike" />
     <orderEntry type="library" name="lwjgl" level="project" />
     <orderEntry type="module" module-name="serialkiller" />
     <orderEntry type="library" name="slick-util" level="project" />
     <orderEntry type="library" name="netty-3.2.5.Final" level="project" />
-    <orderEntry type="module" module-name="NamelessProject3dServer" />
     <orderEntry type="module" module-name="NamelessProjectCommon" />
   </component>
 </module>

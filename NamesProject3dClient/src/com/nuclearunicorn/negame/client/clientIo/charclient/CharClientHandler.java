@@ -4,24 +4,16 @@
  */
 package com.nuclearunicorn.negame.client.clientIo.charclient;
 
-import java.net.InetSocketAddress;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.nuclearunicorn.libroguelike.core.client.ClientEventManager;
 import com.nuclearunicorn.libroguelike.events.EPlayerAuthorise;
 import com.nuclearunicorn.libroguelike.game.player.Player;
-import com.nuclearunicorn.negame.client.Main;
 import com.nuclearunicorn.negame.client.clientIo.NettyClient;
-import com.nuclearunicorn.negame.client.game.modes.in_game.InGameMode;
 import org.jboss.netty.bootstrap.ClientBootstrap;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelHandler;
-import org.lwjgl.util.Point;
+import org.jboss.netty.channel.*;
+
+import java.net.InetSocketAddress;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -64,8 +56,8 @@ class CharClientHandler extends SimpleChannelHandler {
      }
      
      //-------------------------------------------------------------------------
-     
-     private void sendMsg(String msg, Channel ioChannel){
+
+     private static void sendMsg(String msg, Channel ioChannel){
         ioChannel.write(msg+"\r\n");
      }
      
@@ -85,7 +77,7 @@ class CharClientHandler extends SimpleChannelHandler {
             event.post();
         }
         
-        if (eventType.equals("EPlayerLogon")){
+        if (eventType.equals("EPlayerAccepted")){
             try {
                 /*
                  * Character server accepted our connection, so we could
@@ -109,7 +101,8 @@ class CharClientHandler extends SimpleChannelHandler {
                 Player.character_id = userId;
                 //some vague shit there
 
-                ((InGameMode)(Main.inGameMode)).spawnPlayer(new Point(5, 5));
+                //((InGameMode)(Main.inGameMode)).spawnPlayer(new Point(5, 5));
+                //waiting for spawn event
                 
                 
                 //------------------------------------------------------------------

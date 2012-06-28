@@ -12,7 +12,7 @@ import com.nuclearunicorn.libroguelike.events.EMouseClick;
 import com.nuclearunicorn.libroguelike.events.Event;
 import com.nuclearunicorn.libroguelike.events.EventManager;
 import com.nuclearunicorn.libroguelike.events.IEventListener;
-import com.nuclearunicorn.libroguelike.events.network.EPlayerLogon;
+import com.nuclearunicorn.libroguelike.events.network.EPlayerSpawn;
 import com.nuclearunicorn.libroguelike.game.GameEnvironment;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.ent.EntityPlayer;
@@ -87,7 +87,7 @@ public class ModeInGame implements IGameMode, IEventListener {
         
     }
 
-    void spawn_player(EPlayerLogon event){
+    void spawn_player(EPlayerSpawn event){
         
         Point location = event.origin;
         
@@ -143,8 +143,8 @@ public class ModeInGame implements IGameMode, IEventListener {
     //--------------------------------------------------------------------------
     public void e_on_event(Event event){
 
-       if (event instanceof EPlayerLogon){
-           spawn_player(((EPlayerLogon)event));
+       if (event instanceof EPlayerSpawn){
+           spawn_player(((EPlayerSpawn)event));
        }
        else if(event instanceof EMouseClick){
            e_on_mouse_click(((EMouseClick)event));

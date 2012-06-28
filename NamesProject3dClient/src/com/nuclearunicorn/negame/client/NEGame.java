@@ -1,6 +1,7 @@
 package com.nuclearunicorn.negame.client;
 
 import com.nuclearunicorn.libroguelike.core.Game;
+import com.nuclearunicorn.negame.client.clientIo.NettyClient;
 import com.nuclearunicorn.negame.common.IServer;
 
 /**
@@ -23,10 +24,18 @@ public class NEGame extends Game {
     }
 
     public void updateServerSession(){
-        server.update();
+        if (server != null){
+            server.update();
+        }
     }
 
     public void initStateUI() {
         activeMode.get_ui().init();
+    }
+
+    @Override
+    public void run() {
+        super.run();
+        NettyClient.destroy();
     }
 }

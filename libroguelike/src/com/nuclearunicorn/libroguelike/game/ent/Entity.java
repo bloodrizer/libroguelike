@@ -193,6 +193,13 @@ public class Entity implements Comparable, Serializable {
     }
 
     //--------------------------------------------------------------------------
+
+    /**
+     * @deprecated
+     * This function is deprecated, use Entity.java#spawn(origin) instead
+     * @param uid
+     * @param origin
+     */
     public void spawn(String uid, Point origin){
         if (layer_id < 0){
             throw new RuntimeException("Spawning entity without correct layerID");

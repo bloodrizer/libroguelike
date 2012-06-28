@@ -6,17 +6,14 @@ package com.nuclearunicorn.negame.client.clientIo.gameclient;
 
 import com.nuclearunicorn.libroguelike.core.client.ClientEventManager;
 import com.nuclearunicorn.libroguelike.core.client.ClientGameEnvironment;
-import com.nuclearunicorn.libroguelike.events.network.EPlayerLogon;
+import com.nuclearunicorn.libroguelike.events.network.EPlayerSpawn;
 import com.nuclearunicorn.libroguelike.game.combat.BasicCombat;
 import com.nuclearunicorn.libroguelike.game.ent.buildings.BuildManager;
 import com.nuclearunicorn.libroguelike.game.ent.buildings.EntBuilding;
 import com.nuclearunicorn.libroguelike.game.player.Player;
+import com.nuclearunicorn.negame.common.EventConstants;
 import org.jboss.netty.bootstrap.ClientBootstrap;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelHandler;
+import org.jboss.netty.channel.*;
 import org.lwjgl.util.Point;
 
 /**
@@ -61,9 +58,10 @@ public class GameServClientHandler extends SimpleChannelHandler {
         if (eventType.equals("EPlayerSpawn")){
             int x = Integer.parseInt(packet[1]);
             int y = Integer.parseInt(packet[2]);
+            String uid = packet[3];
 
 
-            EPlayerLogon event = new EPlayerLogon(new Point(x,y));
+            EPlayerSpawn event = new EPlayerSpawn(new Point(x,y), uid);
             ClientEventManager.addEvent(event);
             //event.post();
         }
@@ -95,7 +93,17 @@ public class GameServClientHandler extends SimpleChannelHandler {
                 break;
 
             }
+        }
 
+        if (eventType.equals(EventConstants.E_ENTITY_SPAWN_NETWORK)){
+            //TODO: implement deserialize
+            String uid = packet[1];
+            int x = Integer.parseInt(packet[2]);
+            int y = Integer.parseInt(packet[3]);
+
+            //EPlayerSpawn event = new EPlayerSpawn(new Point(x,y), uid);
+            //ClientEventManager.addEvent(event);
+            //TODO: spawn entity placeholder
         }
     }
 

@@ -3,11 +3,10 @@ package com.nuclearunicorn.negame.client.game.modes.in_game;
 import com.nuclearunicorn.libroguelike.core.client.ClientEventManager;
 import com.nuclearunicorn.libroguelike.core.client.ClientGameEnvironment;
 import com.nuclearunicorn.libroguelike.events.*;
+import com.nuclearunicorn.libroguelike.events.network.EPlayerSpawn;
 import com.nuclearunicorn.libroguelike.events.network.ESelectCharacter;
 import com.nuclearunicorn.libroguelike.game.GameEnvironment;
 import com.nuclearunicorn.libroguelike.game.ent.EntityPlayer;
-import com.nuclearunicorn.libroguelike.game.ent.controller.NpcController;
-import com.nuclearunicorn.libroguelike.game.items.BaseItem;
 import com.nuclearunicorn.libroguelike.game.modes.AbstractGameMode;
 import com.nuclearunicorn.libroguelike.game.player.CharacterInfo;
 import com.nuclearunicorn.libroguelike.game.player.Player;
@@ -24,7 +23,6 @@ import com.nuclearunicorn.libroguelike.render.overlay.OverlaySystem;
 import com.nuclearunicorn.libroguelike.utils.NLTimer;
 import com.nuclearunicorn.libroguelike.utils.Timer;
 import com.nuclearunicorn.libroguelike.vgui.effects.EffectsSystem;
-
 import com.nuclearunicorn.negame.client.Main;
 import com.nuclearunicorn.negame.client.NEGame;
 import com.nuclearunicorn.negame.client.clientIo.NettyClient;
@@ -35,28 +33,15 @@ import com.nuclearunicorn.negame.client.generators.NEGroundChunkGenerator;
 import com.nuclearunicorn.negame.client.render.TilesetVoxelRenderer;
 import com.nuclearunicorn.negame.client.render.VoxelEntityRenderer;
 import com.nuclearunicorn.negame.client.render.overlays.NEDebugOverlay;
-
-import com.nuclearunicorn.serialkiller.game.ItemFactory;
-import com.nuclearunicorn.serialkiller.game.MainApplet;
-import com.nuclearunicorn.serialkiller.game.SkillerGame;
-import com.nuclearunicorn.serialkiller.game.ai.PlayerAI;
-import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
-import com.nuclearunicorn.serialkiller.game.controllers.RLPlayerController;
 import com.nuclearunicorn.serialkiller.game.social.SocialController;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldModel;
-import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLPlayer;
-import com.nuclearunicorn.serialkiller.generators.NPCGenerator;
-import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
 import com.nuclearunicorn.serialkiller.render.ConsoleRenderer;
-
-import com.sun.xml.internal.bind.v2.TODO;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.Point;
 import rlforj.los.IFovAlgorithm;
 import rlforj.los.PrecisePermissive;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 /**
  * Main game mode
@@ -263,9 +248,13 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
             ESelectCharacter selectChrEvent = new ESelectCharacter(chrInfo);
             selectChrEvent.post();
         }
+        if (event instanceof EPlayerSpawn){
+            EPlayerSpawn logonEvent = (EPlayerSpawn)event;
+            spawnPlayer(logonEvent.origin, logonEvent.uid);
+        }
     }
 
-    public static void spawnPlayer(Point location){
+    public static void spawnPlayer(Point location, String uid){
 
         EntityPlayer playerEnt = new EntityPlayer();
         //playerEnt.set_combat(new RLCombat());
@@ -278,28 +267,13 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         //clientGameEnvironment.getEntityManager().add(player_ent, Player.get_zindex());
 
         playerEnt.setLayerId(Player.get_zindex());
-        playerEnt.spawn(location);
+        playerEnt.spawn(uid, location);
 
         WorldViewCamera.target.setLocation(location);
 
         playerEnt.set_controller(new NetworkPlayerController());
         //playerEnt.set_ai(new PlayerAI());
         Player.set_ent(playerEnt);
-
-        //---------------------------------------------------
-        playerEnt.getContainer().add_item(ItemFactory.produce("hammer"));
-        playerEnt.getContainer().add_item(ItemFactory.produce("knife"));
-        playerEnt.getContainer().add_item(ItemFactory.produce("taser"));
-
-        playerEnt.getContainer().add_item(ItemFactory.produce("suppressive pills"));
-
-        BaseItem food = ItemFactory.produceFood("generic food", 10);
-        food.set_count(5);
-        playerEnt.getContainer().add_item(food);
-
-        /*for (BaseItem item: playerEnt.container.getItems()){
-            System.out.println("Player's item: " + item + " , container:" + item.get_container());
-        }*/
 
         //NPCGenerator.generateNPCStats(new Random(), playerEnt);
         playerEnt.setName("Player");
