@@ -96,6 +96,7 @@ public class GameServClientHandler extends SimpleChannelHandler {
         }*/
 
         if (eventType.equals(EventConstants.E_ENTITY_SPAWN_NETWORK)){
+
             //TODO: implement deserialize
             String uid = packet[1];
             int x = Integer.parseInt(packet[2]);

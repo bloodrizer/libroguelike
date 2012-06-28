@@ -182,11 +182,6 @@ public class GameServer extends AServerIoLayer implements IEventListener {
         }
     }
 
-    void registerUser(User user) {
-        //do nothing?
-    }
-
-
     private void moveUser(User user, int x, int y) {
         Entity ent = user.getEntity();
 
@@ -293,6 +288,7 @@ public class GameServer extends AServerIoLayer implements IEventListener {
         System.err.println("Sending chunk data to user #"+observer.getId() + "(" + entityList.size() + " entities total)");
         for (Entity chunkEnt: entityList){
             if (!chunkEnt.equals(userEnt)){
+                System.out.println("forcing client to spawnt entity #"+userEnt.get_uid()+" @"+ userEnt.origin.getX() + "," + userEnt.origin.getY());
                 EEntitySpawnNetwork spawnEvent = new EEntitySpawnNetwork(userEnt, userEnt.origin);
                 sendEvent(spawnEvent, userChannel);
             }
@@ -337,7 +333,7 @@ public class GameServer extends AServerIoLayer implements IEventListener {
 
         sb.append(event.classname().concat(" "));
 
-        for (int i = 1; i<tokens.length; i++){
+        for (int i = 0; i<tokens.length; i++){
             sb.append(tokens[i].concat(" "));
         }
         sendMsg(sb.toString(), channel);

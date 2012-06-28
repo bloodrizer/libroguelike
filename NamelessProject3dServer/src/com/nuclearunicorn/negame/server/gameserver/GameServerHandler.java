@@ -44,10 +44,8 @@ public class GameServerHandler extends AServerHandler {
         if(user == null){
             throw new RuntimeException("Game Server: remote connection from unregistered user");
         }
-        
-        ((GameServer)server).registerUser(user);
-        server.allChannels.add(channel);
 
+        server.allChannels.add(channel);
 
         //spawn player entity on server side
         try{
