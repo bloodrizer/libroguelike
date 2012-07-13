@@ -17,7 +17,7 @@ import org.lwjgl.util.Point;
  * @author Administrator
  */
 @NetID(id="")
-public class EEntityMove extends Event {
+public class EEntityMove extends NetworkEvent {
     private Point from = new Point();
     private Point to   = new Point();
     public Entity entity = null;
@@ -69,12 +69,11 @@ public class EEntityMove extends Event {
         
     }*/
 
-    /*@Override
     public String[] serialize(){
         return new String[] {
-            get_id(),
+            entity.get_uid(),
             Integer.toString(this.to.getX()),
             Integer.toString(this.to.getY())
         };
-    }*/
+    }
 }

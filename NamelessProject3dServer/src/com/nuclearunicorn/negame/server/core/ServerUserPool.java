@@ -36,6 +36,7 @@ public class ServerUserPool {
         
         User userMdl = getUserMdl(username);
         ip2user.put(ip, userMdl);
+        activeUsers.add(userMdl);
     }
     
     private static User getUserMdl(String username){

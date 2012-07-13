@@ -4,17 +4,25 @@
  */
 package com.nuclearunicorn.negame.client.clientIo.gameclient;
 
+import com.google.gson.Gson;
 import com.nuclearunicorn.libroguelike.core.client.ClientEventManager;
 import com.nuclearunicorn.libroguelike.core.client.ClientGameEnvironment;
 import com.nuclearunicorn.libroguelike.events.network.EPlayerSpawn;
 import com.nuclearunicorn.libroguelike.game.combat.BasicCombat;
+import com.nuclearunicorn.libroguelike.game.ent.Entity;
+import com.nuclearunicorn.libroguelike.game.ent.EntityNPC;
 import com.nuclearunicorn.libroguelike.game.ent.buildings.BuildManager;
 import com.nuclearunicorn.libroguelike.game.ent.buildings.EntBuilding;
 import com.nuclearunicorn.libroguelike.game.player.Player;
+import com.nuclearunicorn.negame.client.render.VoxelEntityRenderer;
+import com.nuclearunicorn.negame.common.EntityConstants;
 import com.nuclearunicorn.negame.common.EventConstants;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.*;
 import org.lwjgl.util.Point;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -23,6 +31,7 @@ import org.lwjgl.util.Point;
 public class GameServClientHandler extends SimpleChannelHandler {
     
     final ClientBootstrap bootstrap;
+    
 
     public GameServClientHandler(ClientBootstrap bootstrap) {
         this.bootstrap = bootstrap;
@@ -103,6 +112,25 @@ public class GameServClientHandler extends SimpleChannelHandler {
             int y = Integer.parseInt(packet[3]);
             
             System.out.println("spawning entity #"+uid+" @"+x+","+y);
+
+            Gson gson = new Gson();
+            HashMap<String, String> entityData = gson.fromJson(packet[4], HashMap.class);
+            
+            String entClassname = entityData.get("classname");
+            Entity ent = null;
+            if (entClassname.equals(EntityConstants.ENT_NPC)){
+                ent = new EntityNPC();
+            }
+            
+            if (ent == null){
+                throw new RuntimeException("failed to initialize entity of classname '"+entClassname+"'");
+            }
+            ent.setEnvironment(ClientGameEnvironment.getEnvironment());
+            ent.setRenderer(new VoxelEntityRenderer());
+
+            ent.setLayerId(Player.get_zindex());
+            ent.spawn(uid, new Point(x, y));
+
 
             //EPlayerSpawn event = new EPlayerSpawn(new Point(x,y), uid);
             //ClientEventManager.addEvent(event);

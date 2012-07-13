@@ -9,6 +9,7 @@ import com.nuclearunicorn.libroguelike.events.EEntitySpawn;
 import com.nuclearunicorn.libroguelike.events.Event;
 import com.nuclearunicorn.libroguelike.events.EventManager;
 import com.nuclearunicorn.libroguelike.events.IEventListener;
+import com.nuclearunicorn.libroguelike.events.network.EEntityMove;
 import com.nuclearunicorn.negame.common.events.EEntitySpawnNetwork;
 import com.nuclearunicorn.libroguelike.events.network.NetworkEvent;
 import com.nuclearunicorn.libroguelike.game.GameEnvironment;
@@ -162,6 +163,10 @@ public class GameServer extends AServerIoLayer implements IEventListener {
     }
 
     @Override
+    /**
+     * This method is called whenever DATA PACKED is recieved from client
+     * The server's duty is to handle this packet and rise appropriate event
+     */
     protected void handlePacket(NEDataPacket packet) {
         String[] data = packet.getData();
         Channel ioChannel = packet.getChannel();
@@ -179,6 +184,7 @@ public class GameServer extends AServerIoLayer implements IEventListener {
 
             User user = ServerUserPool.getUser(ioChannel, ServerUserPool.CHANNEL_TYPE.CHANNEL_GAMESERV);
             moveUser(user, x, y);
+            
         }
     }
 
@@ -193,9 +199,29 @@ public class GameServer extends AServerIoLayer implements IEventListener {
 
         ((NpcController) ent.controller).set_destination(destCoord);
 
-        //ent.move_to(new Point(x, y));
-        Point chunkCoord = WorldChunk.get_chunk_coord(destCoord);
-        worldUpdateLazyLoad(chunkCoord.getX(),chunkCoord.getY());
+        ent.move_to(new Point(x, y));
+        //Point chunkCoord = WorldChunk.get_chunk_coord(destCoord);
+        //worldUpdateLazyLoad(chunkCoord.getX(),chunkCoord.getY());
+    }
+
+    @Override
+    public void e_on_event(Event event) {
+        if (event instanceof EEntitySpawn){
+            if (((EEntitySpawn) event).ent instanceof EntityPlayerNPC){
+                EntityPlayerNPC entPlayerNpc = (EntityPlayerNPC)((EEntitySpawn) event).ent;
+
+                //if player is spawned on server, notify every other player of this event
+                User npcUser = entPlayerNpc.getUser();
+                broadcostUserEvent(event, npcUser);
+            }
+        }
+        if (event instanceof EEntityMove){
+            EEntityMove moveEvent = (EEntityMove)event;
+
+            Point chunkCoord = WorldChunk.get_chunk_coord(moveEvent.getTo());
+            worldUpdateLazyLoad(chunkCoord.getX(),chunkCoord.getY());
+            broadcostEvent(event);
+        }
     }
 
      /**
@@ -225,12 +251,17 @@ public class GameServer extends AServerIoLayer implements IEventListener {
         //notifyChunkData(user);
 
         WorldLayer serverGroundLayer = getEnv().getWorldLayer(WorldLayer.GROUND_LAYER);
-        for (int i = chunk.origin.getX()-1; i<=chunk.origin.getX(); i++)
+        for (int i = chunk.origin.getX()-1; i<=chunk.origin.getX(); i++){
             for (int j = chunk.origin.getY()-1; j<=chunk.origin.getY(); j++){
                 //if chunk doest not exist, it will be generated and populated with game objects
                 WorldChunk cachedChunk = serverGroundLayer.get_cached_chunk(i, j);
                 notifyChunkData(user, cachedChunk);
             }
+        }
+        //once player has spawned, notify all active players of generic npc spawn
+
+        EEntitySpawnNetwork spawnEvent = new EEntitySpawnNetwork(mplayer_ent, mplayer_ent.origin);
+        broadcostUserEvent(spawnEvent, user);
     }
 
     /**
@@ -257,19 +288,6 @@ public class GameServer extends AServerIoLayer implements IEventListener {
         }
     }
 
-
-    @Override
-    public void e_on_event(Event event) {
-        if (event instanceof EEntitySpawn){
-            if (((EEntitySpawn) event).ent instanceof EntityPlayerNPC){
-                EntityPlayerNPC entPlayerNpc = (EntityPlayerNPC)((EEntitySpawn) event).ent;
-
-                //if player is spawned on server, notify every other player of this event
-                User npcUser = entPlayerNpc.getUser();
-                broadcostUserEvent(event, npcUser);
-            }
-        }
-    }
 
     /*
         This method takes all entities in the chunk and stream them to the player
@@ -306,7 +324,7 @@ public class GameServer extends AServerIoLayer implements IEventListener {
 
         List<User> users = ServerUserPool.getActiveUsers();
         for(User user : users){
-            if (user.getGameChannel() != observer.getGameChannel()){
+            if (! user.getGameChannel().equals(observer.getGameChannel()) ){
                 sendEvent(event, user.getGameChannel());
             }
         }
