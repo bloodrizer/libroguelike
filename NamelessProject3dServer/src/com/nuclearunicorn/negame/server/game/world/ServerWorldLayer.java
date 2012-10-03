@@ -27,16 +27,24 @@ public class ServerWorldLayer extends WorldLayer {
         push_point(util_point);
         util_point.setLocation(chunk_x, chunk_y);
 
-        WorldChunk cachedChunk = neCache.get(util_point);
+        //WorldChunk cachedChunk = neCache.get(util_point);
         
-        if (cachedChunk == null){
-            return precache_chunk(chunk_x, chunk_y);
+        WorldChunk cachedChunk;
+
+        //try to fast-access to the local storage
+        cachedChunk = chunk_data.get(util_point);
+        if (cachedChunk != null){
+            return cachedChunk;
+        }else{
+            cachedChunk = neCache.get(util_point);  //if no chunk generated, retrieve it from the cache
         }
 
-        if (!chunk_data.containsKey(util_point)){
-            //register chunk objects into the global entity pool
+        //if no chunk in cache, precache it
+        if (cachedChunk == null) {
+            return precache_chunk(chunk_x, chunk_y);   //this will aslo put chunk into local storage
+        }else{
+            //TODO: this part is confusing, move to the retrieveCachedChunk
             List<Entity> entList = cachedChunk.getEntList();
-            
             for (Entity ent: entList){
                 model.getEnvironment().getEntityManager().add(ent, z_index);
             }
@@ -63,8 +71,8 @@ public class ServerWorldLayer extends WorldLayer {
 
     protected WorldChunk precache_chunk(int x, int y){
         WorldChunk chunk = new WorldChunk(x, y);
-        neCache.put(new Point(x,y), chunk);
 
+        chunk_data.put(new Point(x,y), chunk);
         process_chunk(chunk, z_index);
 
         return chunk;

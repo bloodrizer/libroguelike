@@ -34,13 +34,6 @@ import java.util.UUID;
  */
 public class Entity implements Comparable, Serializable {
 
-    public enum Orientation {
-        ORIENT_N,
-        ORIENT_W,
-        ORIENT_S,
-        ORIENT_E
-    }
-
     public Point origin = new Point(0, 0);
     public WorldTile tile;  //the tile entity is currently assigned to
     /*
@@ -48,6 +41,10 @@ public class Entity implements Comparable, Serializable {
      */
     protected Combat combat;
     protected AI ai;
+
+    //todo: move to the animated entity?
+    public long frame_time_ms = 0;
+    public long next_frame;
 
     /*
      * This is an entity offset in tile coord system
@@ -67,7 +64,6 @@ public class Entity implements Comparable, Serializable {
     protected String name = "undefined";
 
     protected EntityRenderer render = null;
-
 
     /*
      * This flag indicates that this entity is no longer required by WorldModel
@@ -95,9 +91,6 @@ public class Entity implements Comparable, Serializable {
     public AI getAI() {
         return ai;
     }
-
-    public Orientation orientation = Orientation.ORIENT_N;
-
 
     public boolean is_garbage(){
         return garbage;
@@ -203,6 +196,7 @@ public class Entity implements Comparable, Serializable {
      * @param origin
      */
     public void spawn(String uid, Point origin){
+        System.out.println(env.getName() +  " >>>>>> Spawning entity with uid "+uid+" <<<<<<<<<");
         if (layer_id < 0){
             throw new RuntimeException("Spawning entity without correct layerID");
         }
@@ -211,11 +205,10 @@ public class Entity implements Comparable, Serializable {
             throw new RuntimeException("Spawning entity without enviroment");
         }
 
-        env.getEntityManager().add(this, layer_id);
-
         this.uid = uid;
         this.origin.setLocation(origin);
 
+        env.getEntityManager().add(this, layer_id);
 
         EEntitySpawn spawnEvent = new EEntitySpawn(this,origin);
         spawnEvent.setManager(env.getEventManager());
@@ -268,9 +261,6 @@ public class Entity implements Comparable, Serializable {
             ai.update();
         }
     }
-
-    public long frame_time_ms = 0;
-    public long next_frame;
 
     public boolean is_next_frame(long current_time_ms){
         if (current_time_ms > next_frame){

@@ -25,7 +25,7 @@ public class NettyClient {
     static final String host = "localhost";
     static final int port = IoCommon.CHAR_SERVER_PORT;
         
-    final static NettyClientLayer charServClient = new NettyClientLayer(host,port) {{
+    final static NettyClientLayer charServClient = new NettyClientLayer(host, port, "charserv-client-layer") {{
         packetFilter.add(EventConstants.E_SELECT_CHARACTER);
         //packetFilter.add(EventConstants.E_PLAYER_LOGON);
     }};
@@ -86,7 +86,7 @@ public class NettyClient {
         }
 
         public void run() {
-            gameServClient = new NettyClientLayer(host,port) {{
+            gameServClient = new NettyClientLayer(host,port, "gameserv-client-layer") {{
                 packetFilter.add(EventConstants.E_ENTITY_SET_PATH);
                 packetFilter.add("events.network.EBuildStructure");
             }};

@@ -62,7 +62,7 @@ public class ModeInGame implements IGameMode, IEventListener {
         view  = new WorldView(null);
         //model = new WorldModel();
 
-        clientGameEnvironment = new GameEnvironment(){
+        clientGameEnvironment = new GameEnvironment("libroguelike-client-game-environment"){
             @Override
             public EventManager getEventManager(){
                 return ClientEventManager.eventManager;

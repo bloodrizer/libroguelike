@@ -61,7 +61,7 @@ public class NPCRenderer extends EntityRenderer{
 
     private int get_tile_id(){
         int tile_id = 0;
-        switch(ent.orientation){
+        /*switch(ent.orientation){
             case ORIENT_N:
                 tile_id = 0;
             break;
@@ -74,7 +74,7 @@ public class NPCRenderer extends EntityRenderer{
             case ORIENT_W:
                 tile_id = 24;
             break;
-        }
+        }*/
 
         tile_id = tile_id+frame_id;
         return tile_id;

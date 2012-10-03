@@ -2,7 +2,7 @@ package com.nuclearunicorn.negame.client;
 
 import com.nuclearunicorn.libroguelike.core.Game;
 import com.nuclearunicorn.negame.client.clientIo.NettyClient;
-import com.nuclearunicorn.negame.common.IServer;
+import com.nuclearunicorn.negame.common.api.IServer;
 
 /**
  * Created by IntelliJ IDEA.
@@ -27,6 +27,10 @@ public class NEGame extends Game {
         if (server != null){
             server.update();
         }
+    }
+
+    public IServer getAttachedServerSession(){
+        return server;
     }
 
     public void initStateUI() {

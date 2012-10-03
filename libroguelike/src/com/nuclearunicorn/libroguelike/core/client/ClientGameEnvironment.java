@@ -24,7 +24,7 @@ public class ClientGameEnvironment {
 
     public static GameEnvironment getEnvironment(){
         if (env == null){
-            env = new GameEnvironment(){
+            env = new GameEnvironment("client-game-environment"){
                 @Override
                 public EventManager getEventManager(){
                     return ClientEventManager.eventManager;

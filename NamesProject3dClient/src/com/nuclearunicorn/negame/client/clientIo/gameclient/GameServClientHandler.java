@@ -69,40 +69,12 @@ public class GameServClientHandler extends SimpleChannelHandler {
             int y = Integer.parseInt(packet[2]);
             String uid = packet[3];
 
+            System.out.println("NEClient: recieved player's spawn packet, spawning player's entity");
 
             EPlayerSpawn event = new EPlayerSpawn(new Point(x,y), uid);
             ClientEventManager.addEvent(event);
             //event.post();
         }
-
-        /*if (eventType.equals("EEntitySpawn")){
-            int spawnType = Integer.parseInt(packet[1]);
-
-            String entType = packet[2];
-            int x = Integer.parseInt(packet[3]);
-            int y = Integer.parseInt(packet[4]);
-
-            switch (spawnType) {
-
-                case 0:
-                    Class building = BuildManager.get_building(entType);
-                    EntBuilding ent_building;
-                    try {
-                        ent_building = (EntBuilding) building.newInstance();
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                        return;
-                    }
-                    ent_building.set_combat(new BasicCombat());
-                    ent_building.setLayerId(Player.get_zindex()); //TODO: get layer_id from server
-                    ent_building.setEnvironment(ClientGameEnvironment.getEnvironment());
-
-                    ent_building.spawn("54321" //<<<<<< UID THERE!!!!!!!!!!
-                        , new Point(x,y));
-                break;
-
-            }
-        }*/
 
         if (eventType.equals(EventConstants.E_ENTITY_SPAWN_NETWORK)){
 

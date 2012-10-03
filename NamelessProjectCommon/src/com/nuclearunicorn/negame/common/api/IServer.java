@@ -1,4 +1,6 @@
-package com.nuclearunicorn.negame.common;
+package com.nuclearunicorn.negame.common.api;
+
+import com.nuclearunicorn.libroguelike.game.GameEnvironment;
 
 /**
  * Created by IntelliJ IDEA.
@@ -13,4 +15,6 @@ Default server interface for cross-project dependency resolution
  */
 public interface IServer {
     public void update();
+
+    public GameEnvironment getWorldEnvironment();
 }

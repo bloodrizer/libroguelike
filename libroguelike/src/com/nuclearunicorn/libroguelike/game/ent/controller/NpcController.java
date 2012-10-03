@@ -270,22 +270,22 @@ public class NpcController extends BaseController implements Mover, IEventListen
         if(owner.origin.getX() > __destination.getX()){
             //(owner.origin.getX()-1, owner.origin.getY());
             dx = -1;
-            owner.orientation = Entity.Orientation.ORIENT_W;
+            //owner.orientation = Entity.Orientation.ORIENT_W;
         }
         if(owner.origin.getX() < __destination.getX()){
             //move_ent(owner.origin.getX()+1, owner.origin.getY());
             dx = 1;
-            owner.orientation = Entity.Orientation.ORIENT_E;
+            //owner.orientation = Entity.Orientation.ORIENT_E;
         }
         if(owner.origin.getY() > __destination.getY()){
             //move_ent(owner.origin.getX(), owner.origin.getY()-1);
             dy = -1;
-            owner.orientation = Entity.Orientation.ORIENT_N;
+            //owner.orientation = Entity.Orientation.ORIENT_N;
         }
         if(owner.origin.getY() < __destination.getY()){
             //move_ent(owner.origin.getX(), owner.origin.getY()+1);
             dy = 1;
-            owner.orientation = Entity.Orientation.ORIENT_S;
+            //owner.orientation = Entity.Orientation.ORIENT_S;
         }
 
         move_ent(owner.origin.getX()+dx, owner.origin.getY()+dy);

@@ -63,6 +63,18 @@ public class GameServerHandler extends AServerHandler {
     }
 
     @Override
+    public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+        Channel channel = e.getChannel();
+        User user = ServerUserPool.getUser(channel, ServerUserPool.CHANNEL_TYPE.CHANNEL_GAMESERV);
+
+        getServer().removePlayerCharacter(user);
+        //TODO: send message to delete entity on clients
+
+        server.allChannels.remove(channel);
+    }
+
+
+    @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
 
         String request = (String) e.getMessage();

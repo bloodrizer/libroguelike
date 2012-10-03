@@ -10,6 +10,7 @@ import com.nuclearunicorn.libroguelike.events.Event;
 import com.nuclearunicorn.libroguelike.events.EventManager;
 import com.nuclearunicorn.libroguelike.events.IEventListener;
 import com.nuclearunicorn.libroguelike.events.network.EEntityMove;
+import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.negame.common.events.EEntitySpawnNetwork;
 import com.nuclearunicorn.libroguelike.events.network.NetworkEvent;
 import com.nuclearunicorn.libroguelike.game.GameEnvironment;
@@ -64,7 +65,7 @@ public class GameServer extends AServerIoLayer implements IEventListener {
 
         eventManager = new EventManager();
 
-        gameEnv = new GameEnvironment() {
+        gameEnv = new GameEnvironment("ne-server-game-environment") {
             {
                 clientWorld = new ServerWorldModel();
                 clientWorld.setEnvironment(this);
@@ -156,10 +157,12 @@ public class GameServer extends AServerIoLayer implements IEventListener {
 
     @Override
     public void update() {
-        super.update();
-        
-        gameEnv.getWorld().update();
-        gameEnv.getEntityManager().update();
+        synchronized (this){
+            super.update();
+
+            gameEnv.getWorld().update();
+            gameEnv.getEntityManager().update();
+        }
     }
 
     @Override
@@ -228,7 +231,6 @@ public class GameServer extends AServerIoLayer implements IEventListener {
      * Spawns player character binded to the connection channel
      */
     public void spawnPlayerCharacter(User user) {
-
         GameEnvironment env = getEnv();
 
         Entity mplayer_ent = new EntityPlayerNPC(user);
@@ -262,6 +264,14 @@ public class GameServer extends AServerIoLayer implements IEventListener {
 
         EEntitySpawnNetwork spawnEvent = new EEntitySpawnNetwork(mplayer_ent, mplayer_ent.origin);
         broadcostUserEvent(spawnEvent, user);
+    }
+
+
+    public void removePlayerCharacter(User user) {
+        GameEnvironment env = getEnv();
+
+        Entity playerEnt = Player.get_ent();
+        playerEnt.trash();
     }
 
     /**
@@ -298,10 +308,11 @@ public class GameServer extends AServerIoLayer implements IEventListener {
     public void notifyChunkData(User observer, WorldChunk chunk){
         Entity userEnt = observer.getEntity();
         Channel userChannel = observer.getGameChannel();
-        //userEnt.origin;
-        //Point chunkCoord = WorldChunk.get_chunk_coord(userEnt.origin);
-        //WorldChunk chunk = userEnt.get_chunk();
+
         List<Entity> entityList = chunk.getEntList();
+        if (entityList.isEmpty()){
+            return; //do not even bother to send chunk data
+        }
 
         System.err.println("Sending chunk data to user #"+observer.getId() + "(" + entityList.size() + " entities total)");
         for (Entity chunkEnt: entityList){
@@ -356,4 +367,5 @@ public class GameServer extends AServerIoLayer implements IEventListener {
         }
         sendMsg(sb.toString(), channel);
     }
+
 }

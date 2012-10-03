@@ -54,12 +54,11 @@ public class ClientEventManager {
         scheduledEvents.add(event);
     }
 
-    public static void update(){
-        for (Event event: scheduledEvents){
-            System.out.println("posting scheduled event of type "+event.classname());
-            event.post();
-        }
-
-        scheduledEvents.clear();
+    public static synchronized void update(){
+            for (Event event: scheduledEvents){
+                System.out.println("posting scheduled event of type "+event.classname());
+                event.post();
+            }
+            scheduledEvents.clear();
     }
 }
