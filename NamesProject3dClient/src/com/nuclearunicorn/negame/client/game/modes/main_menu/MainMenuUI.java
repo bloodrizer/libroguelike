@@ -32,7 +32,7 @@ public class MainMenuUI implements IUserInterface, IEventListener {
 
     @Override
     public void build_ui() {
-        ClientEventManager.eventManager.subscribe(this);
+        ClientEventManager.subscribe(this);
 
         final NEGame game;
         if (Main.game != null){

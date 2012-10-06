@@ -40,7 +40,7 @@ public class NettyClient {
         System.out.println("NEClient:>> Connecting to the character server...");
         
 
-        ClientEventManager.eventManager.subscribe(charServClient);
+        ClientEventManager.subscribe(charServClient);
 
 
         charServClient.setPipelineFactory(new CharClientPipelineFactory(charServClient.bootstrap));
@@ -91,7 +91,7 @@ public class NettyClient {
                 packetFilter.add("events.network.EBuildStructure");
             }};
             gameServClient.name = "gameserv client";
-            ClientEventManager.eventManager.subscribe(gameServClient);
+            ClientEventManager.subscribe(gameServClient);
 
 
             gameServClient.setPipelineFactory(new GameClientPipelineFactory(gameServClient.bootstrap));

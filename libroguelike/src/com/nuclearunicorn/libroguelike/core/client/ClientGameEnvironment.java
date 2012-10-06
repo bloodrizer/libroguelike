@@ -27,7 +27,7 @@ public class ClientGameEnvironment {
             env = new GameEnvironment("client-game-environment"){
                 @Override
                 public EventManager getEventManager(){
-                    return ClientEventManager.eventManager;
+                    return ClientEventManager.getEventManager();
                 }
             };
         }

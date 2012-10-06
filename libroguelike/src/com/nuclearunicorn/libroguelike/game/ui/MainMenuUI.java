@@ -57,7 +57,7 @@ public class MainMenuUI implements IUserInterface, IEventListener {
 
     public void build_ui() {
 
-        ClientEventManager.eventManager.subscribe(this);
+        ClientEventManager.subscribe(this);
 
         NE_GUI_Sprite background = new NE_GUI_Sprite(){{
             sprite_name = "/ui/background.jpeg";

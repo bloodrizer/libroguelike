@@ -54,7 +54,7 @@ public class NpcController extends BaseController implements Mover, IEventListen
     public static long totalAstarCalculationTime = 0;
 
     public NpcController(){
-        ClientEventManager.eventManager.subscribe(this);
+        ClientEventManager.subscribe(this);
 
         finder = new AStarPathFinder( 
             ClientGameEnvironment.getWorldLayer(Player.get_zindex()).tile_map,

@@ -48,7 +48,7 @@ public class InGameUI implements IUserInterface, IEventListener {
 
     @Override
     public void build_ui() {
-        ClientEventManager.eventManager.subscribe(this);
+        ClientEventManager.subscribe(this);
 
         NE_GUI_FrameModern frame = new NE_GUI_FrameModern();
         ui.root.add(frame);

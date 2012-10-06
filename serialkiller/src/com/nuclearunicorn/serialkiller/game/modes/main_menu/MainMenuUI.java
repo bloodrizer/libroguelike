@@ -36,7 +36,7 @@ public class MainMenuUI implements IUserInterface, IEventListener {
 
     @Override
     public void build_ui() {
-        ClientEventManager.eventManager.subscribe(this);
+        ClientEventManager.subscribe(this);
 
         final SkillerGame game;
         if (Main.game != null){

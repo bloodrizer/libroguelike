@@ -17,7 +17,7 @@ public abstract class AbstractGameMode implements IGameMode, IEventListener {
     private Game gameManager;
 
     public AbstractGameMode(){
-        ClientEventManager.eventManager.subscribe(this);
+        ClientEventManager.subscribe(this);
     }
 
     public boolean isActive() {

@@ -1,12 +1,8 @@
 package com.nuclearunicorn.negame.client.render.overlays;
 
-import com.nuclearunicorn.libroguelike.game.GameEnvironment;
-import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.render.overlay.OverlaySystem;
-import com.nuclearunicorn.negame.client.Main;
 import com.nuclearunicorn.negame.client.game.world.NEWorldView;
 import com.nuclearunicorn.negame.client.render.VoxelEntityRenderer;
-import com.nuclearunicorn.negame.common.api.IServer;
 import org.lwjgl.util.Point;
 import org.newdawn.slick.Color;
 
@@ -26,9 +22,10 @@ public class NEDebugOverlay {
         Point tileCoord = NEWorldView.getSelectedTileCoord();
         OverlaySystem.ttf.drawString(10, 110, "Tile traced @ " + tileCoord.getX() + "," + tileCoord.getY() , Color.white);
 
-        if (Main.game == null){
-            return; //game is not initialized yet
-        }
+        //REPLACE THIS SHIT
+        //if (Main.game == null){
+        //    return; //game is not initialized yet
+        //}
 
         /*IServer server = Main.game.getAttachedServerSession();
         if (server != null){

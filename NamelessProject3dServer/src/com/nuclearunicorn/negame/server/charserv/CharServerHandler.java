@@ -8,11 +8,12 @@ import com.nuclearunicorn.libroguelike.events.network.NetworkEvent;
 import com.nuclearunicorn.negame.server.core.AServerHandler;
 import com.nuclearunicorn.negame.server.core.AServerIoLayer;
 import com.nuclearunicorn.negame.server.core.NEDataPacket;
-import java.util.concurrent.atomic.AtomicLong;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
+
+import java.util.concurrent.atomic.AtomicLong;
 
 
 /**
@@ -41,7 +42,7 @@ public class CharServerHandler extends AServerHandler {
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
 
         String request = (String) e.getMessage();
-        System.err.println("Netty Character server: recived ["+request+"]");
+        System.err.println("Netty Character server: received ["+request+"]");
         
         String[] packet = null;
         if (request != null){

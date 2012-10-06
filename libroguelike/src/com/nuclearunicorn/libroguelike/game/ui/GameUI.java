@@ -40,7 +40,7 @@ public class GameUI implements IUserInterface, IEventListener {
  *
  */
     public void build_ui(){
-        ClientEventManager.eventManager.subscribe(this);
+        ClientEventManager.subscribe(this);
         ui = new NE_GUI_System();
 
 

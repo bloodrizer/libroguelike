@@ -74,7 +74,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         clientGameEnvironment = new GameEnvironment("ne-client-game-environment"){
             @Override
             public EventManager getEventManager(){
-                return ClientEventManager.eventManager;
+                return ClientEventManager.getEventManager();
             }
         };
         ClientGameEnvironment.setEnvironment(clientGameEnvironment);

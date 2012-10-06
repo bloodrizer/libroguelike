@@ -62,7 +62,8 @@ class CharClientHandler extends SimpleChannelHandler {
      }
      
      private void handlePacket(String[] packet, Channel ioChannel) {
-        //throw new UnsupportedOperationException("Not yet implemented");
+        System.out.println("handling data packet '" + packet[0] + "'");
+
         if (packet.length == 0){
             return;
         }
@@ -70,11 +71,12 @@ class CharClientHandler extends SimpleChannelHandler {
         
         if (eventType.equals("EPlayerAuthorize")){
             //Initialization problem there
-
             System.out.println("Initiating EPlayerAuthorize");
             EPlayerAuthorise event = new EPlayerAuthorise();
-            event.setManager(ClientEventManager.eventManager);
+            event.setManager(ClientEventManager.getEventManager());
             event.post();
+
+            return;
         }
         
         if (eventType.equals("EPlayerAccepted")){
@@ -103,12 +105,11 @@ class CharClientHandler extends SimpleChannelHandler {
 
                 //((InGameMode)(Main.inGameMode)).spawnPlayer(new Point(5, 5));
                 //waiting for spawn event
-                
-                
                 //------------------------------------------------------------------
             } catch (Exception ex) {
                 Logger.getLogger(CharClientHandler.class.getName()).log(Level.SEVERE, null, ex);
             }
+            return;
         }
         
      }

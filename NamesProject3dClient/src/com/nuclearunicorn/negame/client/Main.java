@@ -14,9 +14,10 @@ public class Main {
 
 
     public static NEGame game;
-    public static InGameMode inGameMode = new InGameMode();
+    public static InGameMode inGameMode;
 
     public static void main(String[] args) {
+        inGameMode = new InGameMode();
 
         System.out.println("------- starting game client ---------");
 

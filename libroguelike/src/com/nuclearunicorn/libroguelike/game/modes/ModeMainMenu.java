@@ -28,7 +28,7 @@ public class ModeMainMenu implements IGameMode, IEventListener {
     private OverlaySystem overlay;
     
     public ModeMainMenu(){
-        ClientEventManager.eventManager.subscribe(this);
+        ClientEventManager.subscribe(this);
     }
 
     public void run(){

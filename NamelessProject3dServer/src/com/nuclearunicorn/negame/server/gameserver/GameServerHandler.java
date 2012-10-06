@@ -78,7 +78,7 @@ public class GameServerHandler extends AServerHandler {
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
 
         String request = (String) e.getMessage();
-        System.err.println("Netty Game server: recived ["+request+"]");
+        System.err.println("Netty Game server: received ["+request+"]");
 
         String[] packet = null;
         if (request != null){
