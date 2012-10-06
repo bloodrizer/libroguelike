@@ -32,6 +32,11 @@ public class EntityManager implements IEventListener {
     public HashMap<Integer, ArrayList<Entity>> layer_ent_list = new HashMap<Integer, ArrayList<Entity>>(100);
 
     public void add(Entity ent, int layer_id){
+        
+        if (!isUniqueEntity(ent, layer_id)){
+            throw new RuntimeException(environment.getName() + "> Trying to register entity with duplicate uid: " + ent.get_uid());
+        }
+        
         ent.setLayerId(layer_id);      
         ArrayList<Entity> entList = getList(layer_id);
 
@@ -39,7 +44,17 @@ public class EntityManager implements IEventListener {
             entList.add(ent);
         }
     }
-    
+
+    //todo: replace with uid-entity hashmap for better performance?
+    private boolean isUniqueEntity(Entity newEnt, int layerId) {
+        for (Entity ent: getList(layerId)){
+            if (ent.get_uid().equals(newEnt.get_uid())){
+                return false;
+            }
+        }
+        return true;
+    }
+
     public ArrayList<Entity> getList(int layer_id){
         ArrayList<Entity> entList = layer_ent_list.get(layer_id);
 

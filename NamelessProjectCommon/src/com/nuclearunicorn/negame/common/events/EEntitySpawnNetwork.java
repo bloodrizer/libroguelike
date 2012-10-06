@@ -1,5 +1,7 @@
-package com.nuclearunicorn.libroguelike.events.network;
+package com.nuclearunicorn.negame.common.events;
 
+import com.google.gson.Gson;
+import com.nuclearunicorn.libroguelike.events.network.NetworkEvent;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import org.lwjgl.util.Point;
 
@@ -23,7 +25,12 @@ public class EEntitySpawnNetwork extends NetworkEvent {
         return new String[] {
                 ent.get_uid(),
                 Integer.toString(origin.getX()),
-                Integer.toString(origin.getY())
+                Integer.toString(origin.getY()),
+                serializeEntity(ent)
         };
+    }
+
+    private String serializeEntity(Entity ent) {
+        return new Gson().toJson(ent.serialize());
     }
 }

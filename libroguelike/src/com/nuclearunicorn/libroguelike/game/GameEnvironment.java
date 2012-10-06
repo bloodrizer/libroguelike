@@ -26,7 +26,16 @@ public abstract class GameEnvironment {
 
     protected EntityManager entManager = null;
     protected WorldModel clientWorld = null;
+    
+    public String name;
+    
+    public GameEnvironment(String name){
+        this.name = name;
+    }
 
+    public String getName(){
+        return name;
+    }
 
     public EventManager getEventManager(){
         throw new RuntimeException("requesting EventManager on abstract GameEnvironment");

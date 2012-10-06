@@ -5,7 +5,7 @@
 package com.nuclearunicorn.negame.server.core;
 
 import com.nuclearunicorn.libroguelike.game.GameEnvironment;
-import com.nuclearunicorn.negame.common.IServer;
+import com.nuclearunicorn.negame.common.api.IServer;
 import com.nuclearunicorn.negame.server.charserv.CharServer;
 import com.nuclearunicorn.negame.server.gameserver.GameServer;
 
@@ -37,6 +37,11 @@ public class NEServerCore implements IServer {
     public void update() {
         charServer.update();
         gameServer.update();
+    }
+
+    @Override
+    public GameEnvironment getWorldEnvironment() {
+        return gameServer.getEnv();
     }
 
     public GameEnvironment getEnv() {

@@ -38,16 +38,14 @@ public class GameServerHandler extends AServerHandler {
     public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) {
         
         Channel channel = e.getChannel();
-        User user = ServerUserPool.getUser(channel);
+        User user = ServerUserPool.getUser(channel, ServerUserPool.CHANNEL_TYPE.CHANNEL_GAMESERV);
         
         //Remote user connected to the game server
         if(user == null){
             throw new RuntimeException("Game Server: remote connection from unregistered user");
         }
-        
-        ((GameServer)server).registerUser(user);
-        server.allChannels.add(channel);
 
+        server.allChannels.add(channel);
 
         //spawn player entity on server side
         try{
@@ -63,6 +61,18 @@ public class GameServerHandler extends AServerHandler {
         String uid = user.getEntity().get_uid();
         sendMsg("EPlayerSpawn "+x+" "+y+" "+uid, channel);
     }
+
+    @Override
+    public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+        Channel channel = e.getChannel();
+        User user = ServerUserPool.getUser(channel, ServerUserPool.CHANNEL_TYPE.CHANNEL_GAMESERV);
+
+        getServer().removePlayerCharacter(user);
+        //TODO: send message to delete entity on clients
+
+        server.allChannels.remove(channel);
+    }
+
 
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {

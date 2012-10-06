@@ -4,17 +4,25 @@
  */
 package com.nuclearunicorn.negame.client.clientIo.gameclient;
 
+import com.google.gson.Gson;
 import com.nuclearunicorn.libroguelike.core.client.ClientEventManager;
 import com.nuclearunicorn.libroguelike.core.client.ClientGameEnvironment;
 import com.nuclearunicorn.libroguelike.events.network.EPlayerSpawn;
 import com.nuclearunicorn.libroguelike.game.combat.BasicCombat;
+import com.nuclearunicorn.libroguelike.game.ent.Entity;
+import com.nuclearunicorn.libroguelike.game.ent.EntityNPC;
 import com.nuclearunicorn.libroguelike.game.ent.buildings.BuildManager;
 import com.nuclearunicorn.libroguelike.game.ent.buildings.EntBuilding;
 import com.nuclearunicorn.libroguelike.game.player.Player;
+import com.nuclearunicorn.negame.client.render.VoxelEntityRenderer;
+import com.nuclearunicorn.negame.common.EntityConstants;
 import com.nuclearunicorn.negame.common.EventConstants;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.*;
 import org.lwjgl.util.Point;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -23,6 +31,7 @@ import org.lwjgl.util.Point;
 public class GameServClientHandler extends SimpleChannelHandler {
     
     final ClientBootstrap bootstrap;
+    
 
     public GameServClientHandler(ClientBootstrap bootstrap) {
         this.bootstrap = bootstrap;
@@ -39,7 +48,7 @@ public class GameServClientHandler extends SimpleChannelHandler {
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
         String request = (String) e.getMessage();
-        System.err.println("char client: recieved msg: ["+request+"]");
+        System.err.println("game client: recieved msg: ["+request+"]");
 
         String[] packet = null;
         if (request != null){
@@ -60,46 +69,40 @@ public class GameServClientHandler extends SimpleChannelHandler {
             int y = Integer.parseInt(packet[2]);
             String uid = packet[3];
 
+            System.out.println("NEClient: recieved player's spawn packet, spawning player's entity");
 
             EPlayerSpawn event = new EPlayerSpawn(new Point(x,y), uid);
             ClientEventManager.addEvent(event);
             //event.post();
         }
 
-        if (eventType.equals("EEntitySpawn")){
-            int spawnType = Integer.parseInt(packet[1]);
-
-            String entType = packet[2];
-            int x = Integer.parseInt(packet[3]);
-            int y = Integer.parseInt(packet[4]);
-
-            switch (spawnType) {
-
-                case 0:
-                    Class building = BuildManager.get_building(entType);
-                    EntBuilding ent_building;
-                    try {
-                        ent_building = (EntBuilding) building.newInstance();
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                        return;
-                    }
-                    ent_building.set_combat(new BasicCombat());
-                    ent_building.setLayerId(Player.get_zindex()); //TODO: get layer_id from server
-                    ent_building.setEnvironment(ClientGameEnvironment.getEnvironment());
-
-                    ent_building.spawn("54321" //<<<<<< UID THERE!!!!!!!!!!
-                        , new Point(x,y));
-                break;
-
-            }
-        }
-
         if (eventType.equals(EventConstants.E_ENTITY_SPAWN_NETWORK)){
+
             //TODO: implement deserialize
             String uid = packet[1];
             int x = Integer.parseInt(packet[2]);
             int y = Integer.parseInt(packet[3]);
+            
+            System.out.println("spawning entity #"+uid+" @"+x+","+y);
+
+            Gson gson = new Gson();
+            HashMap<String, String> entityData = gson.fromJson(packet[4], HashMap.class);
+            
+            String entClassname = entityData.get("classname");
+            Entity ent = null;
+            if (entClassname.equals(EntityConstants.ENT_NPC)){
+                ent = new EntityNPC();
+            }
+            
+            if (ent == null){
+                throw new RuntimeException("failed to initialize entity of classname '"+entClassname+"'");
+            }
+            ent.setEnvironment(ClientGameEnvironment.getEnvironment());
+            ent.setRenderer(new VoxelEntityRenderer());
+
+            ent.setLayerId(Player.get_zindex());
+            ent.spawn(uid, new Point(x, y));
+
 
             //EPlayerSpawn event = new EPlayerSpawn(new Point(x,y), uid);
             //ClientEventManager.addEvent(event);

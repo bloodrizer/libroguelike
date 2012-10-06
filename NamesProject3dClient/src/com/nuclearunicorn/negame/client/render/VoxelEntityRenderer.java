@@ -6,11 +6,10 @@ import com.nuclearunicorn.libroguelike.render.WindowRender;
 import com.nuclearunicorn.negame.client.render.utils.Voxel;
 
 /**
- * Created by IntelliJ IDEA.
- * User: bloodrizer
- * Date: 25.06.12
- * Time: 17:34
- * To change this template use File | Settings | File Templates.
+ * @author bloodrizer
+ * This is simple voxel rendre for entity that renders single solid voxel cube
+ *
+ * TODO: introduce complex composite voxel render featuring render of voxel array using VA / VBO
  */
 public class VoxelEntityRenderer extends EntityRenderer {
 

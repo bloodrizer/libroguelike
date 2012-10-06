@@ -76,7 +76,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         overlay = new OverlaySystem();
         fx = new EffectsSystem();
 
-        clientGameEnvironment = new GameEnvironment(){
+        clientGameEnvironment = new GameEnvironment("jskiller-client-game-environment"){
             @Override
             public EventManager getEventManager(){
                 return ClientEventManager.eventManager;

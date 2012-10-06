@@ -144,15 +144,6 @@ public class WorldLayer implements Serializable {
 
         return tile;
     }
-    
-    /*public static synchronized WorldTile get_tile(int x, int y){
-        return get_tile(x,y, GROUND_LAYER);
-    }*/
-
-    //DEPRECATED DEPRECATED DEPRECATED
-    public static boolean tile_blocked(Point tile_origin){
-        return false;
-    }
 
     private WorldChunk get_chunk(Point location){
         return chunk_data.get(location);

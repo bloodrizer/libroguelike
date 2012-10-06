@@ -17,15 +17,10 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
 
-/**
- *
- * @author bloodrizer
- */
-
-
 /*
  * Basic class for every client to server connection, e.g. : charserv, mapserv, chatserv, etc.
- *
+ * Implements low-level routine for network communication
+ * @author bloodrizer
  */
 public abstract class NettyClientLayer implements IEventListener {
     
@@ -41,8 +36,9 @@ public abstract class NettyClientLayer implements IEventListener {
 
     protected ArrayList<String> packetFilter = new ArrayList<String>();
     
-    public NettyClientLayer(String host, int port) {
-        
+    public NettyClientLayer(String host, int port, String name) {
+
+        this.name = name;
     
         bootstrap = new ClientBootstrap(
                 new NioClientSocketChannelFactory(
@@ -52,28 +48,26 @@ public abstract class NettyClientLayer implements IEventListener {
         this.host = host;
         this.port = port;
 
-        
     }
     
     public void connect() throws Exception{
-        future = bootstrap.connect(new InetSocketAddress(host, port));
 
-        // Wait until the connection attempt succeeds or fails.
-        Channel ioChannel = future.awaitUninterruptibly().getChannel();
-        if (!future.isSuccess()) {
-            //future.getCause().printStackTrace();
-            bootstrap.releaseExternalResources();
+        for (int i = 0; i< 5; i++){
+            System.out.println(name + "> Connection attempt #" + i + " ...");
+            future = bootstrap.connect(new InetSocketAddress(host, port));
 
-            throw new Exception("Unable to connect to "+host+":"+port, future.getCause());
-            //return;
+            // Wait until the connection attempt succeeds or fails.
+            Channel ioChannel = future.awaitUninterruptibly().getChannel();
+
+            if (!future.isSuccess()) {
+                bootstrap.releaseExternalResources();
+            }else{
+                System.out.println("connected successfully");
+                return;
+            }
         }
-        System.out.println("connected successfuly");
+        throw new Exception("Unable to connect to "+host+":"+port+" after 5 retries", future.getCause());
 
-        //perform i/o routine
-
-        /*ioThread = new Thread(new IOThread());
-        ioThread.setDaemon(true);
-        ioThread.start();*/
 
     }
     
@@ -82,6 +76,14 @@ public abstract class NettyClientLayer implements IEventListener {
     }
 
     public void sendMsg(String message){
+        if (future == null) {
+            System.err.println("Channel future is null, trying to re-acquire resource");
+            try {
+                connect();
+            }catch (Exception ex){
+                throw new RuntimeException("failed to re-acquire future, reason:", ex);
+            }
+        }
         Channel ioChannel = future.awaitUninterruptibly().getChannel();
         
         if (ioChannel==null){
@@ -100,13 +102,11 @@ public abstract class NettyClientLayer implements IEventListener {
 
 
     private void sendNetworkEvent(NetworkEvent event){
-        System.out.println("Client layer: sending network event ["+event.classname()+"]");
+        //System.out.println("Client layer: sending network event ["+event.classname()+"]");
         if (!whitelisted(event.classname())){
-            System.out.println("Client layer '"+name+"': event [" + event.classname()+ "] is not whitelisted, skipping");
+            //System.out.println("Client layer '"+name+"': event [" + event.classname()+ "] is not whitelisted, skipping");
             return;
         }
-        
-        
 
         String[] tokens = event.serialize();
         StringBuilder sb = new StringBuilder();

@@ -19,11 +19,11 @@ public class NEClientGameEnvironment extends ClientGameEnvironment {
     static GameEnvironment env = null;
 
     public static GameEnvironment getEnvironment(){
-        if (env == null){
+        /*if (env == null){
             env = new GameEnvironment(){
                 
             };
-        }
+        }*/
         return env;
     }
 

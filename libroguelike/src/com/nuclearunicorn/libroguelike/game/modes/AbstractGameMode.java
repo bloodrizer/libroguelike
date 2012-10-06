@@ -29,11 +29,11 @@ public abstract class AbstractGameMode implements IGameMode, IEventListener {
     }
 
     public void update(){
-            Input.update();
-            ClientEventManager.update();
+        Input.update();
+        ClientEventManager.update();
 
-            get_ui().update();
-            get_ui().render();
+        get_ui().update();
+        get_ui().render();
     }
 
     public Game getGameManager() {
