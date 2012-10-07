@@ -13,7 +13,7 @@ import com.nuclearunicorn.negame.client.game.modes.main_menu.MainMenuMode;
 public class Main {
 
 
-    public static NEGame game;
+    private static NEGame game;
     public static InGameMode inGameMode;
 
     public static void main(String[] args) {
@@ -21,7 +21,7 @@ public class Main {
 
         System.out.println("------- starting game client ---------");
 
-        game = new NEGame();
+        game = NEGameClient.getNEGame();
 
         game.registerMode("mainMenu", new MainMenuMode());
         game.registerMode("inGame", inGameMode);

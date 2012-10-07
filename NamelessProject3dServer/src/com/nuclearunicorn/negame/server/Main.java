@@ -1,6 +1,7 @@
 package com.nuclearunicorn.negame.server;
 
 import com.nuclearunicorn.negame.client.NEGame;
+import com.nuclearunicorn.negame.client.NEGameClient;
 import com.nuclearunicorn.negame.client.game.modes.in_game.InGameMode;
 import com.nuclearunicorn.negame.client.game.modes.main_menu.MainMenuMode;
 import com.nuclearunicorn.negame.server.core.NEServerCore;
@@ -14,7 +15,6 @@ import com.nuclearunicorn.negame.server.core.NEServerCore;
  */
 public class Main {
 
-    public static NEGame game;
     public static InGameMode inGameMode;
     public static NEServerCore serverCore;
 
@@ -26,8 +26,8 @@ public class Main {
         serverCore.run();
 
         /* Run Client in the same session and connect it to the server */
+        NEGame game = NEGameClient.getNEGame();
 
-        game = new NEGame();
         game.attachServerSession(serverCore);
 
         game.registerMode("mainMenu", new MainMenuMode());
