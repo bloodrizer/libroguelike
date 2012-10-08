@@ -270,15 +270,15 @@ public class WorldLayer implements Serializable {
         WorldChunk chunk = new WorldChunk(x, y){
             @Override
             public synchronized void unload(){
-                System.out.println("unloading chunk @"+origin.toString());
-                System.out.println("trying to remove " + Integer.toString( entList.size() ) +" entities");
+                //System.out.println("unloading chunk @"+origin.toString());
+                //System.out.println("trying to remove " + Integer.toString( entList.size() ) +" entities");
 
                 for (Iterator iter = entList.iterator(); iter.hasNext();) {
                         Entity ent = (Entity) iter.next();
                         getEntManager().remove_entity(ent);
                         iter.remove();
                 }
-                System.out.println(Integer.toString( entList.size() ) +" entities left");
+                //System.out.println(Integer.toString( entList.size() ) +" entities left");
             }
         };
 
@@ -308,9 +308,7 @@ public class WorldLayer implements Serializable {
     }
 
     protected void build_chunk(WorldChunk chunk, int z_index){
-
-        System.out.println("building chunk @"+chunk.origin);
-
+        //System.out.println("building chunk @"+chunk.origin);
         if (model.getEnvironment() == null){
             throw new WorldGenerationException("model environment is null on WorldLayer");
         }

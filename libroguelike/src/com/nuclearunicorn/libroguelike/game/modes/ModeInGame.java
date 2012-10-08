@@ -54,7 +54,7 @@ public class ModeInGame implements IGameMode, IEventListener {
     private OverlaySystem overlay;
     
     public ModeInGame(){
-        ClientEventManager.eventManager.subscribe(this);
+        ClientEventManager.subscribe(this);
     }
 
     public void run(){
@@ -65,7 +65,7 @@ public class ModeInGame implements IGameMode, IEventListener {
         clientGameEnvironment = new GameEnvironment("libroguelike-client-game-environment"){
             @Override
             public EventManager getEventManager(){
-                return ClientEventManager.eventManager;
+                return ClientEventManager.getEventManager();
             }
         };
         ClientGameEnvironment.setEnvironment(clientGameEnvironment);

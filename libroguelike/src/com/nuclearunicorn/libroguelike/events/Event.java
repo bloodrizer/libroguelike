@@ -55,7 +55,7 @@ public class Event {
     public void post(){
         if (manager==null){
             //hack for easy migration
-            manager = ClientEventManager.eventManager;
+            manager = ClientEventManager.getEventManager();
             //throw new RuntimeException("No event manager to dispatch posted event");
         }
         

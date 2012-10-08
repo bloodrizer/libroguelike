@@ -23,8 +23,8 @@ import com.nuclearunicorn.libroguelike.render.overlay.OverlaySystem;
 import com.nuclearunicorn.libroguelike.utils.NLTimer;
 import com.nuclearunicorn.libroguelike.utils.Timer;
 import com.nuclearunicorn.libroguelike.vgui.effects.EffectsSystem;
-import com.nuclearunicorn.negame.client.Main;
 import com.nuclearunicorn.negame.client.NEGame;
+import com.nuclearunicorn.negame.client.NEGameClient;
 import com.nuclearunicorn.negame.client.clientIo.NettyClient;
 import com.nuclearunicorn.negame.client.game.controllers.NetworkPlayerController;
 import com.nuclearunicorn.negame.client.game.world.NEWorldModel;
@@ -74,7 +74,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         clientGameEnvironment = new GameEnvironment("ne-client-game-environment"){
             @Override
             public EventManager getEventManager(){
-                return ClientEventManager.eventManager;
+                return ClientEventManager.getEventManager();
             }
         };
         ClientGameEnvironment.setEnvironment(clientGameEnvironment);
@@ -207,13 +207,8 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         //allow to press ESC even if player is dead
         if (event instanceof EKeyPress){
             if (((EKeyPress) event).key == Keyboard.KEY_ESCAPE){
-                NEGame game;
-                if (Main.game != null){
-                    game = Main.game;
-                }else{
-                    //game = MainApplet.game;
-                    game = Main.game;   //TODO: fix me!
-                }
+                NEGame game = NEGameClient.getNEGame();
+
                 game.set_state("mainMenu");
                 game.initStateUI();
                 return;

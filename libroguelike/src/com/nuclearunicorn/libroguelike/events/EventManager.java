@@ -13,13 +13,23 @@ public class EventManager {
     List<IEventListener> listeners = new ArrayList<IEventListener>();
 
     public void subscribe(IEventListener listener){
-        if (!listeners.contains(listener)){
-            listeners.add(listener);
+        if (listeners.contains(listener)){
+            //todo: log this case
+            return;
         }
+        /*
+            Additional check is performed to test if multiple parasite instances of a same class has subscribed to the event listener
+            The result of this may be catastrophic and very difficult to debug
+        */
+        for (IEventListener regListener: listeners){
+            if (regListener.getClass().equals(listener.getClass())){
+                throw new RuntimeException("Trying to subscribe non-unique instance of a class " + regListener.getClass().getCanonicalName());
+            }
+        }
+        listeners.add(listener);
     }
 
     public void notify_event(Event event){
-        
         if(event == null){
             return;
         }
@@ -30,7 +40,7 @@ public class EventManager {
 
         //WARN: problematic place
         //use defensive copy of list and than iterate it
-        //otherwase obscure ConcurentModification exception
+        //or be ready for obscure ConcurentModification exception
         for(IEventListener listener: listeners.toArray(new IEventListener[0])){
             listener.e_on_event(event);
         }

@@ -18,12 +18,9 @@ import com.nuclearunicorn.libroguelike.render.EntityRenderer;
 import com.nuclearunicorn.libroguelike.render.TilesetRenderer;
 import com.nuclearunicorn.libroguelike.render.WindowRender;
 import com.nuclearunicorn.libroguelike.render.layers.AbstractLayerRenderer;
-import com.nuclearunicorn.libroguelike.render.layers.GroundLayerRenderer;
 import com.nuclearunicorn.libroguelike.utils.Noise;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.Point;
-import org.lwjgl.util.vector.Vector3f;
 
 import java.util.Iterator;
 
@@ -46,7 +43,7 @@ public class WorldView implements IEventListener {
     public static boolean DRAW_GRID = false;
 
     public WorldView(WorldModel model) {
-        ClientEventManager.eventManager.subscribe(this);
+        ClientEventManager.subscribe(this);
         this.model = model;
     }
 

@@ -10,8 +10,8 @@ import com.nuclearunicorn.libroguelike.vgui.NE_GUI_Button;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_FrameModern;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_Label;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_System;
-import com.nuclearunicorn.negame.client.Main;
 import com.nuclearunicorn.negame.client.NEGame;
+import com.nuclearunicorn.negame.client.NEGameClient;
 import org.newdawn.slick.Color;
 
 /**
@@ -32,16 +32,9 @@ public class MainMenuUI implements IUserInterface, IEventListener {
 
     @Override
     public void build_ui() {
-        ClientEventManager.eventManager.subscribe(this);
+        ClientEventManager.subscribe(this);
 
-        final NEGame game;
-        if (Main.game != null){
-            game = Main.game;
-        }else{
-            //game = MainApplet.game;
-            throw new RuntimeException("Not implemented yet");
-        }
-
+        final NEGame game = NEGameClient.getNEGame();
 
         NE_GUI_Label loadingLabel = new NE_GUI_Label();
         loadingLabel.set_text("Loading...");

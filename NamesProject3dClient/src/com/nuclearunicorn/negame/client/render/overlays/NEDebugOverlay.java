@@ -3,7 +3,8 @@ package com.nuclearunicorn.negame.client.render.overlays;
 import com.nuclearunicorn.libroguelike.game.GameEnvironment;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.render.overlay.OverlaySystem;
-import com.nuclearunicorn.negame.client.Main;
+import com.nuclearunicorn.negame.client.NEGame;
+import com.nuclearunicorn.negame.client.NEGameClient;
 import com.nuclearunicorn.negame.client.game.world.NEWorldView;
 import com.nuclearunicorn.negame.client.render.VoxelEntityRenderer;
 import com.nuclearunicorn.negame.common.api.IServer;
@@ -26,11 +27,8 @@ public class NEDebugOverlay {
         Point tileCoord = NEWorldView.getSelectedTileCoord();
         OverlaySystem.ttf.drawString(10, 110, "Tile traced @ " + tileCoord.getX() + "," + tileCoord.getY() , Color.white);
 
-        if (Main.game == null){
-            return; //game is not initialized yet
-        }
-
-        /*IServer server = Main.game.getAttachedServerSession();
+        NEGame game = NEGameClient.getNEGame();
+        IServer server = game.getAttachedServerSession();
         if (server != null){
             GameEnvironment serverEnv = server.getWorldEnvironment();
             
@@ -42,6 +40,6 @@ public class NEDebugOverlay {
             }
         }   else {
             OverlaySystem.ttf.drawString(10, 10, "Server is detached, no telemetry signal");
-        }*/
+        }
     }
 }

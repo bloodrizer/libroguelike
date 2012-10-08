@@ -31,7 +31,7 @@ public class NE_GUI_Inventory extends NE_GUI_FrameModern implements IEventListen
         this.set_tw(7);
         this.set_th(5);
 
-        ClientEventManager.eventManager.subscribe(this);
+        ClientEventManager.subscribe(this);
 
         /* this is invisible container to store item icons
          * since NE_GUI_Inventory is container itself, we net

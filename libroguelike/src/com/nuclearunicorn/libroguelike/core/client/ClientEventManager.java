@@ -8,26 +8,19 @@ package com.nuclearunicorn.libroguelike.core.client;
 import com.nuclearunicorn.libroguelike.core.Game;
 import com.nuclearunicorn.libroguelike.events.Event;
 import com.nuclearunicorn.libroguelike.events.EventManager;
+import com.nuclearunicorn.libroguelike.events.IEventListener;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_System;
 
 import java.util.ArrayList;
 
-
-/**
- *
- * @author Administrator
- */
-
 /*
- * It handels local client-side events and shit
- *
- *
+ * Local client-side event manager
  */
 
 public class ClientEventManager {
-    public static ArrayList<Event> scheduledEvents = new ArrayList<Event>();
 
-    public static EventManager eventManager = new EventManager(){
+    private static ArrayList<Event> scheduledEvents = new ArrayList<Event>();
+    private static EventManager eventManager = new EventManager(){
         
         @Override
         public void notify_event(Event event){  
@@ -42,13 +35,20 @@ public class ClientEventManager {
              *  GUI System as regular listener.
              *  It makes explicit call to ensure that
              *  message is registered by GUI overlay first
-             *  and dispatched if nececary
+             *  and dispatched if necessary
              */
             
             super.notify_event(event);
         }
         
     };
+    public static EventManager getEventManager(){
+        return eventManager;
+    };
+
+    public static void subscribe(IEventListener listener){
+        eventManager.subscribe(listener);
+    }
 
     public static void addEvent(Event event){
         scheduledEvents.add(event);

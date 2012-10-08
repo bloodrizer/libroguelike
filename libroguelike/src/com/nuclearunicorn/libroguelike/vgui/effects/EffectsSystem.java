@@ -21,7 +21,7 @@ public class EffectsSystem implements IEventListener {
     public final Effect_Element root = new Effect_Element();
 
     public EffectsSystem(){
-        ClientEventManager.eventManager.subscribe(this);
+        ClientEventManager.subscribe(this);
     }
 
     public void render(){
