@@ -17,7 +17,7 @@ public class NE_GUI_FrameModern extends NE_GUI_Frame {
     public String title = "undefined";
 
     static final int TITLE_SIZE = 12;
-    public static TrueTypeFont title_ttf = OverlaySystem.precache_font(TITLE_SIZE);
+    public static TrueTypeFont title_ttf = OverlaySystem.precacheFont(TITLE_SIZE);
 
     public void set_title(String title){
         this.title = title;

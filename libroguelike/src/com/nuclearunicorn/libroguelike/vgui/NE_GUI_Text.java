@@ -37,7 +37,7 @@ public class NE_GUI_Text extends NE_GUI_Element{
     boolean alignBottom = false;
 
     public NE_GUI_Text(){
-        chat_ttf = OverlaySystem.precache_font(FONT_SIZE);
+        chat_ttf = OverlaySystem.precacheFont(FONT_SIZE);
     }
 
     @Override

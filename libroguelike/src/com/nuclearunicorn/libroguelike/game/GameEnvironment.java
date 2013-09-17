@@ -70,7 +70,7 @@ public abstract class GameEnvironment {
 
     public void reset() {
         getEventManager().reset();
-        entManager.reset();
-        clientWorld.reset();
+        getEntityManager().reset();
+        getWorld().reset();
     }
 }

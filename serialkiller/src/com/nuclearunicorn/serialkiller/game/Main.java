@@ -15,9 +15,10 @@ public class Main {
 
     public static SkillerGame game;
 
-    public static InGameMode inGameMode = new InGameMode();
+    public static InGameMode inGameMode;
 
     public static void main(String[] args) {
+        inGameMode = new InGameMode();
 
         game = new SkillerGame();
 

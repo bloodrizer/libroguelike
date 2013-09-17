@@ -57,12 +57,13 @@ public class OverlaySystem {
         ttf = new TrueTypeFont(font, true);
     }
 
-    public static TrueTypeFont precache_font(int size){
-        return precache_font(size, FONT_PATH);
+    public static TrueTypeFont precacheFont(int size){
+        return precacheFont(size, FONT_PATH);
     }
 
-    public static TrueTypeFont precache_font(int size, String fontPath){
-
+    public static TrueTypeFont precacheFont(int size, String fontPath){
+        System.out.println("trying to precache font '"+ fontPath + "'");
+        
         Font _font = null;
         try {
             _font = Font.createFont(Font.TRUETYPE_FONT, OverlaySystem.class.getResourceAsStream(FONT_PATH));
@@ -133,7 +134,7 @@ public class OverlaySystem {
         }
         catch(Exception e){
             System.err.println(filename + " not loaded.  Using serif font.");
-            return precache_font(size);
+            return precacheFont(size);
         }
     }
 

@@ -23,7 +23,7 @@ public class EventManager {
         */
         for (IEventListener regListener: listeners){
             if (regListener.getClass().equals(listener.getClass())){
-                throw new RuntimeException("Trying to subscribe non-unique instance of a class " + regListener.getClass().getCanonicalName());
+                //throw new RuntimeException("Trying to subscribe non-unique instance of a class " + regListener.getClass().getCanonicalName());
             }
         }
         listeners.add(listener);

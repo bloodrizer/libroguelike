@@ -14,10 +14,14 @@ import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.libroguelike.game.world.WorldTimer;
 import com.nuclearunicorn.libroguelike.game.world.WorldView;
 import com.nuclearunicorn.libroguelike.game.world.WorldViewCamera;
+import com.nuclearunicorn.libroguelike.render.Render;
 import com.nuclearunicorn.libroguelike.render.WindowRender;
 import com.nuclearunicorn.libroguelike.utils.Timer;
 import org.lwjgl.util.Point;
 import org.newdawn.slick.Color;
+
+import java.awt.*;
+import java.io.InputStream;
 
 
 public class DebugOverlay {
@@ -43,9 +47,12 @@ public class DebugOverlay {
         if (WorldTimer.is_night()){
             timePostifx = " (night)";
         }
-        OverlaySystem.ttf.drawString(10, 25, "time: "
-                    + WorldTimer.datetime.getTime() + timePostifx
-            , Color.white);
+
+        try {
+
+        } catch (Exception ex){
+            //do nothing
+        }
 
         
         
