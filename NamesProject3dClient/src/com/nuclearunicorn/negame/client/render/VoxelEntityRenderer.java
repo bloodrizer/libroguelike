@@ -15,6 +15,10 @@ public class VoxelEntityRenderer extends EntityRenderer {
 
     private Voxel voxelRenderer = new Voxel(0,0,0);
 
+    public VoxelEntityRenderer(){
+        voxelRenderer.setVoxelSize(0.25f);
+    }
+
     @Override
     public void render() {
         WindowRender.set3DMode();   //this is BS

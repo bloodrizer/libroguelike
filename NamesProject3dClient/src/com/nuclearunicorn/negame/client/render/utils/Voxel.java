@@ -16,7 +16,7 @@ import org.newdawn.slick.opengl.Texture;
  */
 public class Voxel {
 
-    public static final float VOXEL_SIZE = 1.0f;
+
     public Texture texture;
     private Vector3f origin = new Vector3f(0,0,0);
     public int textureTileId = 1;
@@ -24,6 +24,16 @@ public class Voxel {
     boolean fv, kv, lv, rv, tv, bv; //side visiblility flags
 
     static Vector3f vertex_normal = new Vector3f(0.0f, 0.0f, 0.0f);
+
+    public float getVoxelSize() {
+        return voxelSize;
+    }
+
+    public void setVoxelSize(float voxelSize) {
+        this.voxelSize = voxelSize;
+    }
+
+    public float voxelSize = 1.0f;
 
     public Voxel(float x, float y, float z){
         origin = new Vector3f(x,y,z);
@@ -72,11 +82,11 @@ public class Voxel {
          float ty = get_texture_y();
          float ts = get_texture_size();
 
-         float vo = VOXEL_SIZE/2;
+         float vo = voxelSize /2;
 
-         float  x = origin.x*VOXEL_SIZE;
-         float  y = origin.y*VOXEL_SIZE;
-         float  z = origin.z*VOXEL_SIZE;
+         float  x = origin.x* voxelSize;
+         float  y = origin.y* voxelSize;
+         float  z = origin.z* voxelSize;
 
 
          _vbo = vbo;
@@ -197,7 +207,7 @@ public class Voxel {
         float y = origin.y;
         float z = origin.z;
 
-        float vo = VOXEL_SIZE/2;
+        float vo = voxelSize /2;
 
          GL11.glBegin(GL11.GL_QUADS);
 
