@@ -30,15 +30,15 @@ import com.nuclearunicorn.negame.client.game.controllers.NetworkPlayerController
 import com.nuclearunicorn.negame.client.game.world.NEWorldModel;
 import com.nuclearunicorn.negame.client.game.world.NEWorldView;
 import com.nuclearunicorn.negame.client.generators.NEGroundChunkGenerator;
-import com.nuclearunicorn.negame.client.render.BillboardEntityRenderer;
+import com.nuclearunicorn.negame.client.render.ASCIISpriteEntityRenderer;
 import com.nuclearunicorn.negame.client.render.TilesetVoxelRenderer;
-import com.nuclearunicorn.negame.client.render.VoxelEntityRenderer;
 import com.nuclearunicorn.negame.client.render.overlays.NEDebugOverlay;
 import com.nuclearunicorn.serialkiller.game.social.SocialController;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldModel;
 import com.nuclearunicorn.serialkiller.render.ConsoleRenderer;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.Point;
+import org.newdawn.slick.Color;
 import rlforj.los.IFovAlgorithm;
 import rlforj.los.PrecisePermissive;
 
@@ -258,7 +258,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         playerEnt.setName("Player");
         playerEnt.setEnvironment(clientGameEnvironment);
         //playerEnt.setRenderer(new VoxelEntityRenderer());
-        playerEnt.setRenderer(new BillboardEntityRenderer());
+        playerEnt.setRenderer(new ASCIISpriteEntityRenderer("@", Color.white));
 
         //TODO: extract player information from the event
         //clientGameEnvironment.getEntityManager().add(player_ent, Player.get_zindex());

@@ -62,6 +62,7 @@ public class Entity implements Comparable, Serializable {
     
     private boolean blocking = true;
     protected String name = "undefined";
+    protected String description = "undefined";
 
     protected EntityRenderer render = null;
 
@@ -217,7 +218,7 @@ public class Entity implements Comparable, Serializable {
         set_next_think(Timer.get_time());
     }
 
-    //this is a debug version of spawn method, that use temporary timestamp-based uid
+    //this is a debug version of spawn method, that uses a temporary timestamp-based uid
     public void spawn(Point origin){
         String __uid = UUID.randomUUID().toString();
         spawn(__uid, origin);
@@ -359,6 +360,16 @@ public class Entity implements Comparable, Serializable {
     public ArrayList get_action_list(){
         return new ArrayList<Entity>(0);
     }
+
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
 
     /*
         Returns serialied data about entity (type, some info, etc)

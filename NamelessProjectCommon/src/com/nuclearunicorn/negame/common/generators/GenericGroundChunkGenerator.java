@@ -11,6 +11,10 @@ import com.nuclearunicorn.libroguelike.utils.NLTimer;
 import com.nuclearunicorn.negame.common.world.GenericNETile;
 import org.lwjgl.util.Point;
 
+import com.nuclearunicorn.libroguelike.game.world.generators.ObjectGenerator;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -21,24 +25,27 @@ import java.util.Random;
  * To change this template use File | Settings | File Templates.
  */
 public abstract class GenericGroundChunkGenerator extends ChunkGenerator {
-        //TreeGenerator treeGenerator;
-        //StoneGenerator stoneGenerator;
-        //GrassGenerator grassGenerator;
+
+        protected List<ObjectGenerator> chunkObjectGenerators = new ArrayList<ObjectGenerator>();
 
         public GenericGroundChunkGenerator(){
-            //treeGenerator = new TreeGenerator();
-            //stoneGenerator = new StoneGenerator();
-            //grassGenerator = new GrassGenerator();
+            
         }
 
         @Override
         public void setEnvironment(GameEnvironment environment){
-
             super.setEnvironment(environment);
 
-            //treeGenerator.setEnvironment(environment);
-            //stoneGenerator.setEnvironment(environment);
-            //grassGenerator.setEnvironment(environment);
+            for (ObjectGenerator gen: chunkObjectGenerators){
+                gen.setEnvironment(environment);
+            }
+        }
+    
+        public void registerObjectGenerator(ObjectGenerator objGenerator){
+            chunkObjectGenerators.add(objGenerator);
+            if (environment != null ){
+                objGenerator.setEnvironment(environment);
+            }
         }
 
         @Override

@@ -317,8 +317,8 @@ public class GameServer extends AServerIoLayer implements IEventListener {
         System.err.println("Sending chunk data to user #"+observer.getId() + "(" + entityList.size() + " entities total)");
         for (Entity chunkEnt: entityList){
             if (!chunkEnt.equals(userEnt)){
-                System.out.println("forcing client to spawnt entity #"+userEnt.get_uid()+" @"+ userEnt.origin.getX() + "," + userEnt.origin.getY());
-                EEntitySpawnNetwork spawnEvent = new EEntitySpawnNetwork(userEnt, userEnt.origin);
+                System.out.println("forcing client to spawn entity #"+chunkEnt.get_uid()+" @"+ chunkEnt.origin.getX() + "," + chunkEnt.origin.getY());
+                EEntitySpawnNetwork spawnEvent = new EEntitySpawnNetwork(chunkEnt, chunkEnt.origin);
                 sendEvent(spawnEvent, userChannel);
             }
         }

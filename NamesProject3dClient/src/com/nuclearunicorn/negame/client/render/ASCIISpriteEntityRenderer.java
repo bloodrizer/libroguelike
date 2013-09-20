@@ -10,9 +10,17 @@ import com.nuclearunicorn.negame.client.render.utils.FBO;
 import org.lwjgl.opengl.*;
 import org.newdawn.slick.Color;
 
-public class BillboardEntityRenderer extends EntityRenderer {
+public class ASCIISpriteEntityRenderer extends EntityRenderer {
 
     private static FBO fbo = new FBO(32, 32);  //smalllll texture to fit ascii characters
+
+    private String symbol = "?";
+    private Color color = Color.white;
+
+    public ASCIISpriteEntityRenderer(String symbol, Color color){
+        this.symbol = symbol;
+        this.color = color;
+    }
 
     @Override
     public void render(){
@@ -24,7 +32,7 @@ public class BillboardEntityRenderer extends EntityRenderer {
         GL11.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 
-        OverlaySystem.ttf.drawString(4, 8, "@", Color.white);
+        OverlaySystem.ttf.drawString(4, 8, symbol, color);
 
         fbo.render_end();
 
@@ -59,5 +67,13 @@ public class BillboardEntityRenderer extends EntityRenderer {
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
         WindowRender.set2DMode();
+    }
+
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public void setSymbol(String symbol) {
+        this.symbol = symbol;
     }
 }

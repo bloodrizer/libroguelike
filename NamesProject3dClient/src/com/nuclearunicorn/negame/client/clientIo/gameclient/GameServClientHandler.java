@@ -14,9 +14,12 @@ import com.nuclearunicorn.libroguelike.game.ent.EntityNPC;
 import com.nuclearunicorn.libroguelike.game.ent.buildings.BuildManager;
 import com.nuclearunicorn.libroguelike.game.ent.buildings.EntBuilding;
 import com.nuclearunicorn.libroguelike.game.player.Player;
+import com.nuclearunicorn.negame.client.render.ASCIISpriteEntityRenderer;
 import com.nuclearunicorn.negame.client.render.VoxelEntityRenderer;
 import com.nuclearunicorn.negame.common.EntityConstants;
 import com.nuclearunicorn.negame.common.EventConstants;
+import com.nuclearunicorn.negame.server.game.world.entities.EntityCommon;
+import com.nuclearunicorn.negame.server.game.world.entities.actors.EntityCommonNPC;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.*;
 import org.lwjgl.util.Point;
@@ -89,16 +92,34 @@ public class GameServClientHandler extends SimpleChannelHandler {
             HashMap<String, String> entityData = gson.fromJson(packet[4], HashMap.class);
             
             String entClassname = entityData.get("classname");
-            Entity ent = null;
-            if (entClassname.equals(EntityConstants.ENT_NPC)){
+            EntityCommon ent = null;
+            /*if (entClassname.equals(EntityConstants.ENT_NPC)){
                 ent = new EntityNPC();
+            }*/
+            try{
+                if (entClassname.equals(EntityConstants.ENT_NPC)){
+                    ent = new EntityCommonNPC();
+                    //remote player NPC is a regular NPC from the client point of view
+                    //no need to create concurent PlayerNPC instances
+                } else {
+                    ent = (EntityCommon) Class.forName(entClassname).newInstance();
+                }
+                //Some tricky cornercases go there
+            } catch (Exception e) {
+                throw new RuntimeException("failed to initialize entity of classname '"+entClassname+"'");
             }
-            
+
             if (ent == null){
                 throw new RuntimeException("failed to initialize entity of classname '"+entClassname+"'");
             }
+            
+            //ent.initClient();   //required for CommonEntities
+            
+            ent.setRenderer(new ASCIISpriteEntityRenderer(ent.getCharacter(), ent.getColor()));
+
+
             ent.setEnvironment(ClientGameEnvironment.getEnvironment());
-            ent.setRenderer(new VoxelEntityRenderer());
+            //ent.setRenderer(new VoxelEntityRenderer());
 
             ent.setLayerId(Player.get_zindex());
             ent.spawn(uid, new Point(x, y));
@@ -109,5 +130,4 @@ public class GameServClientHandler extends SimpleChannelHandler {
             //TODO: spawn entity placeholder
         }
     }
-
 }
