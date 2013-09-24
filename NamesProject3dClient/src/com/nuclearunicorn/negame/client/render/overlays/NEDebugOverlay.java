@@ -11,6 +11,8 @@ import com.nuclearunicorn.negame.common.api.IServer;
 import org.lwjgl.util.Point;
 import org.newdawn.slick.Color;
 
+import java.util.List;
+
 /**
  * @author bloodrizer
  */
@@ -31,8 +33,9 @@ public class NEDebugOverlay {
         IServer server = game.getAttachedServerSession();
         if (server != null){
             GameEnvironment serverEnv = server.getWorldEnvironment();
-            
-            for (Entity serverEnt: serverEnv.getEntityManager().getList(NEWorldView.get_zindex())){
+
+            List<Entity> debugRenderList = (List<Entity>) serverEnv.getEntityManager().getList(NEWorldView.get_zindex()).clone();
+            for (Entity serverEnt: debugRenderList){
 
                 debugVoxelRenderer.set_entity(serverEnt);
                 debugVoxelRenderer.render();

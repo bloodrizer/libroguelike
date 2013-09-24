@@ -271,7 +271,10 @@ public class GameServer extends AServerIoLayer implements IEventListener {
         GameEnvironment env = getEnv();
 
         Entity playerEnt = Player.get_ent();
-        playerEnt.trash();
+        //we may have a special case here where player entity failed to initialize
+        if (playerEnt != null){
+            playerEnt.trash();
+        }
     }
 
     /**

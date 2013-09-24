@@ -125,6 +125,8 @@ public class WorldView implements IEventListener {
     }
 
     public void render_entities(){
+        //TODO: this place is not concurency safe and exact reason for violation is unknown.
+        //Defensive copy before iteration seems like a very UNSMART idea
         for (Iterator iter = ClientGameEnvironment.getEntityManager().getList(view_z_index).iterator(); iter.hasNext();) {
            Entity entity = (Entity) iter.next();
            render_entity(entity);

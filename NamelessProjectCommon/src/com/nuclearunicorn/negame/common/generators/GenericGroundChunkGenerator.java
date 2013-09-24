@@ -32,6 +32,9 @@ public abstract class GenericGroundChunkGenerator extends ChunkGenerator {
             
         }
 
+        protected abstract void generate_objects(int i, int j, WorldTile tile, Random chunk_random);
+
+
         @Override
         public void setEnvironment(GameEnvironment environment){
             super.setEnvironment(environment);
@@ -85,7 +88,9 @@ public abstract class GenericGroundChunkGenerator extends ChunkGenerator {
             for (int i = x - OFFSET; i<x+size+OFFSET; i++ ){
                 for (int j = y - OFFSET; j<y+size+OFFSET; j++){
                     if ( i>= x && i<x+size && j >=y && j < y+size){
-                        build_chunk_tile(i, j, chunk_random);
+
+                        GenericNETile tile = build_chunk_tile(i, j, chunk_random);
+                        getLayer().set_tile(origin, tile);  //this is ULTRA important
                     }
 
                     if (Terrain.is_lake(Terrain.get_height(i, j))){
@@ -125,14 +130,20 @@ public abstract class GenericGroundChunkGenerator extends ChunkGenerator {
                     //stoneGenerator.generate_object(i, j, tile, chunk_random);
                     //grassGenerator.generate_object(i, j, tile, chunk_random);
                     //chestGenerator.generate_object(i, j, tile, chunk_random);
+
+                    generate_objects(i, j, tile, chunk_random);
                 }
             }
 
             //---------------------------------------------------------------------
-
-
+            
+            
+            afterGenerateChunk(chunk.origin.getX(), chunk.origin.getY());
 
             timer.pop("chunk @" + origin.getX() + "," + origin.getY());
+        }
+
+        protected void afterGenerateChunk(int x, int y) {
         }
 
         //TODO: use environment.getWorldLayer there

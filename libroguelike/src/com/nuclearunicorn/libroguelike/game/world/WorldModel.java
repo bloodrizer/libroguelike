@@ -102,26 +102,31 @@ public class WorldModel implements IEventListener {
        }
        else if(event instanceof EEntitySpawn){
            EEntitySpawn spawn_event = (EEntitySpawn)event;
+
            //-------------------------------------------------------------------
            Point chunkOrigin = WorldChunk.get_chunk_coord(spawn_event.ent.origin);
-           //System.out.println("loading cached chunk @"+chunkOrigin);
+           System.out.println("checking if ent "+spawn_event.ent.getClass().getName() + " is player ent: " + spawn_event.ent.isPlayerEnt());
+           if (spawn_event.ent.isPlayerEnt()){
+               WorldCluster.locate(spawn_event.ent.origin);
+           }
+           WorldChunk new_chunk = getLayer().get_cached_chunk(chunkOrigin, false); //no OutOfBounds check
 
-           WorldChunk new_chunk = getLayer().get_cached_chunk(chunkOrigin);
+           if (new_chunk == null ){
+               throw new RuntimeException("Failed to get cached chunk for origin @" + chunkOrigin);
+           }
 
-           //System.out.println("setting new chunk for a spawned entity");
-
-           EEntityChangeChunk e_change_chunk = new EEntityChangeChunk(spawn_event.ent,null,new_chunk);
+           EEntityChangeChunk e_change_chunk = new EEntityChangeChunk(spawn_event.ent, null, new_chunk);
            e_change_chunk.setManager(environment.getEventManager());
            e_change_chunk.post();
 
-           Point ent_origin = spawn_event.ent.origin;
-           WorldTile spawn_tile = spawn_event.ent.getLayer().get_tile(ent_origin.getX(), ent_origin.getY());
+           Point entOrigin = spawn_event.ent.origin;
+           WorldTile spawn_tile = spawn_event.ent.getLayer().get_tile(entOrigin.getX(), entOrigin.getY());
 
            /* Some ents are prohabited from spawning. Normaly, that should be checked at the server side
             *
             * For now we will check it at client side (totems for example)
             */
-           Point region_coord = WorldRegion.get_region_coord(ent_origin);
+           Point region_coord = WorldRegion.get_region_coord(entOrigin);
            //TODO: get region instance and check if totem can be build there
 
            if (spawn_tile != null){
@@ -135,11 +140,11 @@ public class WorldModel implements IEventListener {
                }
 
                WorldLayer layer = worldLayers.get(spawn_event.ent.getLayerId());
-               System.err.println("Tile data size:"+layer.getTileData(ent_origin).size());
+               System.err.println("Tile data size:"+layer.getTileData(entOrigin, false).size());   //do not restrict spawn location
                System.err.println("Chunk data size:"+layer.chunk_data.size());
                //layer.g
 
-               throw new RuntimeException("Failed to assign spawned entity " + spawn_event.ent.getName() +" to tile@"+ent_origin+"["+getLayer().get_zindex()+"] - tile is null!");
+               throw new RuntimeException("Failed to assign spawned entity " + spawn_event.ent.getName() +" to tile@"+entOrigin+"["+getLayer().get_zindex()+"] - tile is null!");
 
            }
 
@@ -152,14 +157,10 @@ public class WorldModel implements IEventListener {
            //-------------------------------------------------------------------
        }else if(event instanceof EEntityChangeChunk){
 
-
-
            EEntityChangeChunk e_change_chunk = (EEntityChangeChunk)event;
-
-           //System.err.println("setting new chunk @ for ent "+Entity.toString(e_change_chunk.ent));
-
            Entity ent = e_change_chunk.ent;
            //ent.set_chunk(e_change_chunk.to);
+
            e_change_chunk.to.add_entity(ent);
 
            if (ent.isPlayerEnt()){

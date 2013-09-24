@@ -203,7 +203,7 @@ public class Entity implements Comparable, Serializable {
         }
         
         if (env == null){
-            throw new RuntimeException("Spawning entity without enviroment");
+            throw new RuntimeException("Spawning entity without environment");
         }
 
         this.uid = uid;

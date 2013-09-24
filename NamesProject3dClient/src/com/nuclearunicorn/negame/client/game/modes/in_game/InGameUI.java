@@ -115,7 +115,7 @@ public class InGameUI implements IUserInterface, IEventListener {
 
         int layerID = Player.get_ent().getLayer().get_zindex();
 
-        WorldTile tile = Player.get_ent().getLayer().get_tile(tile_coord);
+        WorldTile tile = Player.get_ent().getLayer().getTile(tile_coord);
         if (tile!=null && ((RLTile)tile).isExplored()){         //isVisible()
             Entity ent = tile.getEntity();
 
@@ -132,7 +132,7 @@ public class InGameUI implements IUserInterface, IEventListener {
 
 
         Point tileCoord = WorldView.getTileCoord(event.origin);
-        WorldTile tile = Player.get_ent().getLayer().get_tile(tileCoord);
+        WorldTile tile = Player.get_ent().getLayer().getTile(tileCoord);
         if (tile == null){
             System.out.println("no loaded tile at this position");
             return;

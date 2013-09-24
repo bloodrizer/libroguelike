@@ -80,7 +80,7 @@ public class PedestrianAI extends BasicMobAI {
 
                 //force NPC to switch old path and move to bed
                 if (npcController.hasPath()){
-                    WorldTile target = owner.getLayer().get_tile(npcController.destination);
+                    WorldTile target = owner.getLayer().getTile(npcController.destination);
 
                     /*
                         If we have path to target and target is not a bed (or it is, but it is occupied bed)

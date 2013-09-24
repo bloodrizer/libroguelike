@@ -50,7 +50,6 @@ public class WindowRender {
         if (GLContext.getCapabilities().GL_ARB_vertex_buffer_object == false) {
             throw new RuntimeException("OpenGL Vertex Buffer Objects are not supported by Graphics Card. Unable to run program.");
         }
-        
     }
 
     public static int get_window_h(){

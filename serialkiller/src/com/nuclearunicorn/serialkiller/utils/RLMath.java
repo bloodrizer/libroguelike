@@ -58,7 +58,7 @@ public class RLMath {
         WorldLayer layer = ClientGameEnvironment.getEnvironment().getWorldLayer(Player.get_zindex());
         List<Point> line = BresinhamLine.line(origin.getX(), origin.getY(), target.getX(), target.getY());
         for (Point tile: line){
-            if (layer.get_tile(tile).isBlocked()){
+            if (layer.getTile(tile).isBlocked()){
                 return false;
             }
         }

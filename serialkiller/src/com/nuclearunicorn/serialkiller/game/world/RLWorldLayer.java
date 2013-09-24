@@ -79,9 +79,9 @@ public class RLWorldLayer extends WorldLayer {
     }
 
     @Override
-    public void move_entity(Entity entity, Point coord_dest) {
-        super.move_entity(entity, coord_dest);
-        RLTile rlTile = (RLTile)get_tile(coord_dest);
+    public void move_entity(Entity entity, Point coordDest) {
+        super.move_entity(entity, coordDest);
+        RLTile rlTile = (RLTile)getTile(coordDest);
         
         if (rlTile.has_ent(ItemEnt.class)){
             ItemEnt itemEnt = (ItemEnt)rlTile.getEntity(ItemEnt.class);

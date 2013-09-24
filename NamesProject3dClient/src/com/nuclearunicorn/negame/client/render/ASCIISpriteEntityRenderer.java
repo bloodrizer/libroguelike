@@ -3,16 +3,15 @@ package com.nuclearunicorn.negame.client.render;
 
 import com.nuclearunicorn.libroguelike.game.world.WorldView;
 import com.nuclearunicorn.libroguelike.render.EntityRenderer;
-import com.nuclearunicorn.libroguelike.render.Render;
+import com.nuclearunicorn.libroguelike.render.FBO;
 import com.nuclearunicorn.libroguelike.render.WindowRender;
 import com.nuclearunicorn.libroguelike.render.overlay.OverlaySystem;
-import com.nuclearunicorn.negame.client.render.utils.FBO;
 import org.lwjgl.opengl.*;
 import org.newdawn.slick.Color;
 
 public class ASCIISpriteEntityRenderer extends EntityRenderer {
 
-    private static FBO fbo = new FBO(32, 32);  //smalllll texture to fit ascii characters
+    private static FBO fbo = null;
 
     private String symbol = "?";
     private Color color = Color.white;
@@ -25,6 +24,10 @@ public class ASCIISpriteEntityRenderer extends EntityRenderer {
     @Override
     public void render(){
 
+        if (fbo == null){
+            fbo = new FBO(32, 32);  //lazy init this thing in GL context thread
+        }
+         /*
 
         //OverlaySystem.ttf.drawString(0,0, "@", Color.red);
         fbo.render_begin();
@@ -66,7 +69,7 @@ public class ASCIISpriteEntityRenderer extends EntityRenderer {
 
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-        WindowRender.set2DMode();
+        WindowRender.set2DMode(); */
     }
 
     public String getSymbol() {

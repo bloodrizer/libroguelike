@@ -5,6 +5,7 @@
 
 package com.nuclearunicorn.libroguelike.render;
 
+import org.lwjgl.opengl.ContextCapabilities;
 import org.lwjgl.opengl.EXTFramebufferObject;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
@@ -23,18 +24,24 @@ import static org.lwjgl.opengl.GL12.GL_TEXTURE_MAX_LEVEL;
  * @author Administrator
  */
 public class FBO {
-    
+
     /*
-     * Sometimes fbo minimap rendering can result in buggy blinking screen.
-     * In such case we must disable fbo minimap directly from the config file
-     */
-    
+    * Sometimes fbo minimap rendering can result in buggy blinking screen.
+    * In such case we must disable fbo minimap directly from the config file
+    */
+
     public static boolean fbo_enabled = false;
     private static String use_fbo = null;
-    
-    static
-    {
-        try {
+
+    int fbo_id;
+    public int fbo_texture_id;
+
+    private int textureW;
+    private int textureH;
+
+    public static void initGL(){
+
+        /*try {
             Properties p = new Properties();
             p.load(new FileInputStream("client.ini"));
             use_fbo = p.getProperty("fbo_enabled");
@@ -45,17 +52,20 @@ public class FBO {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        
+
         fbo_enabled = GLContext.getCapabilities().GL_EXT_framebuffer_object && (!use_fbo.equals("0"));
+        */
+
+        //must be called in GL thread
+        ContextCapabilities capabilities = GLContext.getCapabilities();
+        fbo_enabled = capabilities.GL_EXT_framebuffer_object;
     }
-    
-    
-    
 
-    int fbo_id;
-    public int fbo_texture_id;
+    public FBO(int textureW, int textureH){
 
-    public FBO(){
+        this.textureW = textureW;
+        this.textureH = textureH;
+
         if (fbo_enabled){
             //create texture
             fbo_texture_id = GL11.glGenTextures();
@@ -68,7 +78,7 @@ public class FBO {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
 
             glTexImage2D(GL_TEXTURE_2D, 0,
-                    GL_RGBA8, 512, 512, 0, GL_RGBA,
+                    GL_RGBA8, textureW, textureH, 0, GL_RGBA,
                     GL_UNSIGNED_BYTE, (ByteBuffer)null);
 
             glBindTexture(GL_TEXTURE_2D, 0);
@@ -79,13 +89,13 @@ public class FBO {
 
             //attach a texture to FBO collor channel
             EXTFramebufferObject.glFramebufferTexture2DEXT( EXTFramebufferObject.GL_FRAMEBUFFER_EXT, EXTFramebufferObject.GL_COLOR_ATTACHMENT0_EXT,
-                GL11.GL_TEXTURE_2D, fbo_texture_id, 0);
+                    GL11.GL_TEXTURE_2D, fbo_texture_id, 0);
 
             //------------------------------------------------------------------
             //check FBO status and shit
             int status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
             if(status != GL_FRAMEBUFFER_COMPLETE_EXT) {
-                throw new RuntimeException("Unsupproted fbo status:"+status);
+                throw new RuntimeException("Unsupported fbo status:"+status);
             }
 
             // switch back to window-system-provided framebuffer
@@ -93,21 +103,21 @@ public class FBO {
         }
     }
 
-        /*
-     * Prepares FBO for rendering path
-     */
+    /*
+    * Prepares FBO for rendering path
+    */
     public void render_begin(){
 
         EXTFramebufferObject.glBindFramebufferEXT( EXTFramebufferObject.GL_FRAMEBUFFER_EXT, fbo_id );
 
         glPushAttrib(GL_VIEWPORT_BIT | GL_TRANSFORM_BIT | GL_COLOR_BUFFER_BIT | GL_SCISSOR_BIT);
         glDisable(GL_SCISSOR_TEST);
-        glViewport(0, 0, 512, 512);
+        glViewport(0, 0, textureW, textureH);
 
         glMatrixMode(GL_PROJECTION);
         glPushMatrix();
         glLoadIdentity();
-        glOrtho(0, 512, 512, 0, -1.0, 1.0);
+        glOrtho(0, textureW, textureH, 0, -1.0, 1.0);
         glMatrixMode(GL_MODELVIEW);
         glPushMatrix();
         glLoadIdentity();

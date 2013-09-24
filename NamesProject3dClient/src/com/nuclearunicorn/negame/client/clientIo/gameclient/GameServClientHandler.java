@@ -19,6 +19,7 @@ import com.nuclearunicorn.negame.client.render.VoxelEntityRenderer;
 import com.nuclearunicorn.negame.common.EntityConstants;
 import com.nuclearunicorn.negame.common.EventConstants;
 import com.nuclearunicorn.negame.server.game.world.entities.EntityCommon;
+import com.nuclearunicorn.negame.server.game.world.entities.actors.EntityCommonActor;
 import com.nuclearunicorn.negame.server.game.world.entities.actors.EntityCommonNPC;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.*;
@@ -60,6 +61,7 @@ public class GameServClientHandler extends SimpleChannelHandler {
         }
     }
 
+    //TODO: MOVE TO THE PACKET HANDLER
      private void handlePacket(String[] packet, Channel ioChannel) {
         //throw new UnsupportedOperationException("Not yet implemented");
         if (packet.length == 0){
@@ -114,11 +116,8 @@ public class GameServClientHandler extends SimpleChannelHandler {
             }
             
             //ent.initClient();   //required for CommonEntities
-            
-            ent.setRenderer(new ASCIISpriteEntityRenderer(ent.getCharacter(), ent.getColor()));
-
-
             ent.setEnvironment(ClientGameEnvironment.getEnvironment());
+            ent.setRenderer(new ASCIISpriteEntityRenderer(ent.getCharacter(), ent.getColor()));
             //ent.setRenderer(new VoxelEntityRenderer());
 
             ent.setLayerId(Player.get_zindex());

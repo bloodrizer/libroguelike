@@ -21,17 +21,30 @@ public class NEServerGroundChunkGenerator extends GenericGroundChunkGenerator {
     }
 
     @Override
-    protected GenericNETile build_chunk_tile(int i, int j, Random chunk_random){
+    protected void generate_objects(int i, int j, WorldTile tile, Random chunk_random) {
+
+        for(ObjectGenerator objGen: chunkObjectGenerators){
+            //WRONG?
+            objGen.generate_object(i, j, tile, chunk_random);
+        }
+
+        //FoliageGenerator testGen = new FoliageGenerator();
+        //testGen.setEnvironment(environment);
+       // testGen.add_tree(i, j);
+    }
+
+    @Override
+    protected GenericNETile build_chunk_tile(int x, int y, Random chunk_random){
 
         int tile_id = 0;
-        int height = Terrain.get_height(i, j);
+        int height = Terrain.get_height(x, y);
 
         if (height > 120){
             tile_id = 25;
         }
 
         GenericNETile tile = new GenericNETile();
-        Point origin = new Point(i,j);
+        Point origin = new Point(x,y);
         tile.origin = origin;
         //important!
         //tile should be registered before any action is performed on it
@@ -43,10 +56,17 @@ public class NEServerGroundChunkGenerator extends GenericGroundChunkGenerator {
             tile.terrain_type = WorldTile.TerrainType.TERRAIN_WATER;
         }
 
-        for(ObjectGenerator objGen: chunkObjectGenerators){
-            objGen.generate_object(i, j, tile, chunk_random);
-        }
-
         return tile;
     }
+
+    @Override
+    protected void afterGenerateChunk(int i, int j) {
+
+        FoliageGenerator testGen = new FoliageGenerator();
+        testGen.setEnvironment(environment);
+        testGen.add_tree(i*32 + 10, j*32 + 10);
+
+    }
+
+
 }

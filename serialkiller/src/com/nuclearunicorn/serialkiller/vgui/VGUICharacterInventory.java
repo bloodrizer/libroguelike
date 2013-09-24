@@ -86,7 +86,7 @@ public class VGUICharacterInventory extends NE_GUI_FrameModern {
 
 
         Point tileCoord = WorldView.getTileCoord(clickEvent.origin);
-        WorldTile tile = Player.get_ent().getLayer().get_tile(tileCoord);
+        WorldTile tile = Player.get_ent().getLayer().getTile(tileCoord);
         if (tile == null){
             System.out.println("no loaded tile at this position");
             return;

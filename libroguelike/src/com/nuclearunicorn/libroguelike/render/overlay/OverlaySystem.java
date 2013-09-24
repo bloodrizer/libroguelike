@@ -32,7 +32,7 @@ public class OverlaySystem {
     public DebugOverlay debug = null;
 
     private static Font font = null;
-    public  static TrueTypeFont ttf = null;
+    public static TrueTypeFont ttf = null;
 
     public static final int FONT_SIZE = 15;
 
@@ -40,12 +40,10 @@ public class OverlaySystem {
     static String FONT_PATH = "/resources/fonts/arialMonospaced.ttf";
 
     public OverlaySystem() {
-        //
-        //font = new Font("Arial", Font.BOLD, FONT_SIZE);
+
         try {
             /*font = Font.createFont(Font.TRUETYPE_FONT, OverlaySystem.class.getResourceAsStream(FONT_PATH));
             font = font.deriveFont((float)FONT_SIZE); */
-            //font = font.deriveFont(Font.BOLD);
 
             font = new Font("Arial", Font.BOLD, FONT_SIZE);
 
@@ -87,8 +85,8 @@ public class OverlaySystem {
         int x2 = WorldView.get_tile_x_screen(tileCoord2);
         int y2 = WorldView.get_tile_y_screen(tileCoord2);
 
-        WorldTile tileFrom = ClientGameEnvironment.getWorldLayer(WorldLayer.GROUND_LAYER).get_tile(tileCoord1);
-        WorldTile tileTo = ClientGameEnvironment.getWorldLayer(WorldLayer.GROUND_LAYER).get_tile(tileCoord2);
+        WorldTile tileFrom = ClientGameEnvironment.getWorldLayer(WorldLayer.GROUND_LAYER).getTile(tileCoord1);
+        WorldTile tileTo = ClientGameEnvironment.getWorldLayer(WorldLayer.GROUND_LAYER).getTile(tileCoord2);
 
         int y_offset1 = WorldView.getYOffset(tileFrom);
         int y_offset2 = WorldView.getYOffset(tileTo);

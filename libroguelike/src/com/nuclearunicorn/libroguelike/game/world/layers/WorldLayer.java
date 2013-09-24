@@ -65,13 +65,13 @@ public class WorldLayer implements Serializable {
         generators.add(generator);
     }
 
-    public Map<Point,WorldTile> getTileData(Point tileOrigin){
+    public Map<Point,WorldTile> getTileData(Point tileOrigin, boolean restrictOutOfBounds){
         push_point(util_point);
         util_point.setLocation(tileOrigin);
 
         Point chunkOrigin = WorldChunk.get_chunk_coord(tileOrigin);      
 
-        WorldChunk chunk = get_cached_chunk(chunkOrigin);
+        WorldChunk chunk = get_cached_chunk(chunkOrigin, restrictOutOfBounds);
 
         pop_point(util_point);
         
@@ -89,9 +89,15 @@ public class WorldLayer implements Serializable {
     protected EntityManager getEntManager(){
         return model.getEnvironment().getEntityManager();
     }
-    
+
+    /**
+     * WARNING, THIS METHOD WILL LAZY INITIALIZE WHOLE CHUNK ON ACCESS
+     * BE EXEREMELY CAREFULL WHILE USING IT
+     * @param origin
+     * @param tile
+     */
     public void set_tile(Point origin, WorldTile tile){
-        getTileData(origin).put(origin, tile);
+        getTileData(origin, true).put(origin, tile);
     }
 
     public static void invalidate_light(){
@@ -115,13 +121,17 @@ public class WorldLayer implements Serializable {
         //pop_point(util_point);
         return tile;
     }
-    
+
     public WorldTile get_tile(int x, int y){
+        return getTile(x, y, true);
+    }
+
+    public WorldTile getTile(int x, int y, boolean restrictOutOfBounds){
         push_point(util_point);
         util_point.setLocation(x, y);
 
 
-        Map<Point,WorldTile> tileData = getTileData(util_point);
+        Map<Point,WorldTile> tileData = getTileData(util_point, restrictOutOfBounds);
         if (tileData == null){
             return null;
         }
@@ -131,12 +141,12 @@ public class WorldLayer implements Serializable {
         return tile;
     }
 
-    public WorldTile get_tile(Point tileOrigin){
+    public WorldTile getTile(Point tileOrigin){
         push_point(util_point);
         util_point.setLocation(tileOrigin);
 
         WorldTile tile = null;
-        Map<Point,WorldTile> tileData = getTileData(tileOrigin);
+        Map<Point,WorldTile> tileData = getTileData(tileOrigin, true);
         if (tileData!= null){
             tile = tileData.get(util_point);
             pop_point(util_point);
@@ -145,33 +155,44 @@ public class WorldLayer implements Serializable {
         return tile;
     }
 
-    private WorldChunk get_chunk(Point location){
-        return chunk_data.get(location);
-    }
-    
-    private WorldChunk get_chunk(int x, int y){
-        //push_point(util_point);
-        util_point.setLocation(x, y);
-        WorldChunk chunk = get_chunk(util_point);
-        //pop_point(util_point);
-
-        return chunk;
-    }
 
     public WorldChunk get_cached_chunk(int chunk_x, int chunk_y){
-        WorldChunk chunk = get_chunk(chunk_x, chunk_y);
-        if (chunk == null){
+        return get_cached_chunk(chunk_x, chunk_y, true);
+    }
+
+    /**
+     *
+     * @param chunk_x
+     * @param chunk_y
+     * @param restrictOutOfBounds
+     *  If true, basic bounds check will be performed on current game cluster.
+     *  If chunk is not in the cluster, it will be not retrieved
+     * @return
+     */
+    public WorldChunk get_cached_chunk(int chunk_x, int chunk_y, boolean restrictOutOfBounds){
+        util_point.setLocation(chunk_x, chunk_y);
+        WorldChunk chunk = chunk_data.get(util_point);
+
+        if (chunk != null){
+            return chunk;
+        }else {
 
             util_point.setLocation(chunk_x, chunk_y);
-            if( WorldCluster.chunk_in_cluster(util_point)){
-                chunk = precache_chunk(chunk_x, chunk_y);
+            if( WorldCluster.chunk_in_cluster(util_point) || !restrictOutOfBounds){
+                return precache_chunk(chunk_x, chunk_y);
             }
+
+            //throw new RuntimeException("Chunk origin @" + "[" + chunk_x + "," + chunk_y + "] is out of cluster bounds @" + WorldCluster.origin + "+/-" + WorldCluster.CLUSTER_SIZE);
+            return null;
         }
-        return chunk;
     }
 
     public WorldChunk get_cached_chunk(Point location){
-        return get_cached_chunk(location.getX(),location.getY());
+        return get_cached_chunk(location.getX(),location.getY(), true);
+    }
+
+    public WorldChunk get_cached_chunk(Point location, boolean restrictOutOfBounds){
+        return get_cached_chunk(location.getX(),location.getY(), restrictOutOfBounds);
     }
 
     public void update(){
@@ -288,13 +309,11 @@ public class WorldLayer implements Serializable {
         return chunk;
     }
 
-
-
     public void process_chunk(WorldChunk chunk, int z_index){
         build_chunk(chunk, z_index);
 
         /*
-         * TODO: We can not simply load one region player is into,
+         * TODO: We can not simply load one region player into one,
          * since the map will look dull and empty
          *
          * We should load large portion of regions, at least 3x3 blocks
@@ -304,7 +323,7 @@ public class WorldLayer implements Serializable {
         int ry = chunk.origin.getY()/WorldRegion.REGION_SIZE;
         Point regionOrigin = new Point(rx,ry);
         WorldModel.worldRegions.get_cached(regionOrigin);
-        
+
     }
 
     protected void build_chunk(WorldChunk chunk, int z_index){

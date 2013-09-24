@@ -19,7 +19,12 @@ import java.util.Random;
  */
 public class NEGroundChunkGenerator extends GenericGroundChunkGenerator {
 
-        @Override
+    @Override
+    protected void generate_objects(int i, int j, WorldTile tile, Random chunk_random) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
         protected GenericNETile build_chunk_tile(int i, int j, Random chunk_random){
 
             int tile_id = 0;
