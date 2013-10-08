@@ -30,7 +30,7 @@ public class NEServerGroundChunkGenerator extends GenericGroundChunkGenerator {
 
         //FoliageGenerator testGen = new FoliageGenerator();
         //testGen.setEnvironment(environment);
-       // testGen.add_tree(i, j);
+        //testGen.add_tree(i, j);
     }
 
     @Override

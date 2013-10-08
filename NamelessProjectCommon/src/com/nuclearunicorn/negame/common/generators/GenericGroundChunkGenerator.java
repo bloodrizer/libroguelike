@@ -34,6 +34,7 @@ public abstract class GenericGroundChunkGenerator extends ChunkGenerator {
 
         protected abstract void generate_objects(int i, int j, WorldTile tile, Random chunk_random);
 
+        protected abstract GenericNETile build_chunk_tile(int i, int j, Random chunk_random);
 
         @Override
         public void setEnvironment(GameEnvironment environment){
@@ -85,12 +86,23 @@ public abstract class GenericGroundChunkGenerator extends ChunkGenerator {
             * Store all aquatic-type tiles in temp array so we could quickly iterate them later
             */
 
+            Point tileOrigin = new Point(0,0);
             for (int i = x - OFFSET; i<x+size+OFFSET; i++ ){
                 for (int j = y - OFFSET; j<y+size+OFFSET; j++){
                     if ( i>= x && i<x+size && j >=y && j < y+size){
 
                         GenericNETile tile = build_chunk_tile(i, j, chunk_random);
-                        getLayer().set_tile(origin, tile);  //this is ULTRA important
+
+                        tileOrigin.setLocation(i, j);
+                        /**
+                         * TODO: this method assumes that build_chunk_tile will do it's job right
+                         * (e.g. correctly creates instance and origin, register tile, do not fuckup)
+                         * But it most likely will fail and we will be screwed.
+                         *
+                         * It's better to pass correctly generated tile to the builder
+                         */
+                        //getLayer().setTile(origin, tile, false);  //this is ULTRA important
+                        //chunk.tile_data.put(origin, tile);
                     }
 
                     if (Terrain.is_lake(Terrain.get_height(i, j))){
@@ -146,14 +158,8 @@ public abstract class GenericGroundChunkGenerator extends ChunkGenerator {
         protected void afterGenerateChunk(int x, int y) {
         }
 
-        //TODO: use environment.getWorldLayer there
         protected WorldLayer getLayer() {
             return environment.getWorldLayer(z_index);
         }
 
-        //--------------------------------------------------------------------------
-        protected GenericNETile build_chunk_tile(int i, int j, Random chunk_random){
-            //OVERRIDE ME!
-            return null;
-        }
 }

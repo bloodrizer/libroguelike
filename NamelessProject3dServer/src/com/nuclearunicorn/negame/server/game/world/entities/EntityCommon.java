@@ -25,8 +25,8 @@ public class EntityCommon extends Entity implements IEventListener {
 
 
     //this thing should be obviously in the render
-    String character;
-    Color color;
+    String character = "@";
+    Color color = Color.white;
 
     //-----------------------------
     public String getCharacter() {

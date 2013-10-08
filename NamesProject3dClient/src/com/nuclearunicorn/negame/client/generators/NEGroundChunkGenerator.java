@@ -38,9 +38,14 @@ public class NEGroundChunkGenerator extends GenericGroundChunkGenerator {
             NEVoxelTile tile = new NEVoxelTile();
             Point origin = new Point(i,j);
             tile.origin = origin;
+
             //important!
             //tile should be registered before any action is performed on it
             getLayer().set_tile(origin, tile);
+            //isn't it already registered?
+
+
+
             tile.set_height(height);
 
             if (Terrain.is_lake(tile)){

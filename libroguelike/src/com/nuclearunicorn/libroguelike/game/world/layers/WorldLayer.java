@@ -92,12 +92,21 @@ public class WorldLayer implements Serializable {
 
     /**
      * WARNING, THIS METHOD WILL LAZY INITIALIZE WHOLE CHUNK ON ACCESS
-     * BE EXEREMELY CAREFULL WHILE USING IT
+     * BE EXEREMELY CAREFUL WHILE USING IT
      * @param origin
      * @param tile
      */
     public void set_tile(Point origin, WorldTile tile){
-        getTileData(origin, true).put(origin, tile);
+        setTile(origin, tile, true);
+    }
+
+    public void setTile(Point origin, WorldTile tile, boolean checkOOC){
+        Map<Point,WorldTile> tileData = getTileData(origin, checkOOC);
+        //if called OOC (out of cluster), this will return null chunk data
+        if (tileData != null){
+            tileData.put(origin, tile);
+        }
+        //TODO: show warning
     }
 
     public static void invalidate_light(){
@@ -310,7 +319,7 @@ public class WorldLayer implements Serializable {
     }
 
     public void process_chunk(WorldChunk chunk, int z_index){
-        build_chunk(chunk, z_index);
+        buildChunk(chunk, z_index);
 
         /*
          * TODO: We can not simply load one region player into one,
@@ -326,8 +335,8 @@ public class WorldLayer implements Serializable {
 
     }
 
-    protected void build_chunk(WorldChunk chunk, int z_index){
-        //System.out.println("building chunk @"+chunk.origin);
+    protected void buildChunk(WorldChunk chunk, int z_index){
+        System.out.println("building chunk @"+chunk.origin);
         if (model.getEnvironment() == null){
             throw new WorldGenerationException("model environment is null on WorldLayer");
         }
@@ -442,6 +451,8 @@ public class WorldLayer implements Serializable {
         chunk_data.clear();
         generators.clear();   //kinda ok, but not sure
     }
+
+
 
     /*
      *  WorldModelTileMap is a mediator between WorldModel and AStarPathfinder

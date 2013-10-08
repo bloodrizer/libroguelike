@@ -11,7 +11,7 @@ import org.newdawn.slick.Color;
 
 public class ASCIISpriteEntityRenderer extends EntityRenderer {
 
-    private static FBO fbo = null;
+    private static FBO fbo = new FBO(32, 32);
 
     private String symbol = "?";
     private Color color = Color.white;
@@ -24,20 +24,18 @@ public class ASCIISpriteEntityRenderer extends EntityRenderer {
     @Override
     public void render(){
 
-        if (fbo == null){
-            fbo = new FBO(32, 32);  //lazy init this thing in GL context thread
-        }
-         /*
-
         //OverlaySystem.ttf.drawString(0,0, "@", Color.red);
-        fbo.render_begin();
+        /*fbo.render_begin();
 
         GL11.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 
+        if (symbol == null || color == null){
+            throw new RuntimeException("Cant render entity: symbol or color are null");
+        }
         OverlaySystem.ttf.drawString(4, 8, symbol, color);
 
-        fbo.render_end();
+        fbo.render_end();*/
 
         WindowRender.set3DMode();
         TilesetVoxelRenderer.camera.setMatrix();
@@ -53,7 +51,7 @@ public class ASCIISpriteEntityRenderer extends EntityRenderer {
         GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE_MINUS_SRC_COLOR);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, fbo.fbo_texture_id);
 
-        
+
 
         GL11.glTexEnvi(GL20.GL_POINT_SPRITE, GL20.GL_COORD_REPLACE, GL11.GL_TRUE);
 
@@ -69,7 +67,7 @@ public class ASCIISpriteEntityRenderer extends EntityRenderer {
 
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-        WindowRender.set2DMode(); */
+        WindowRender.set2DMode();
     }
 
     public String getSymbol() {

@@ -28,6 +28,7 @@ import static org.lwjgl.opengl.GL11.*;
  */
 public class OverlaySystem {
 
+    private static OverlaySystem _instance = null;
     
     public DebugOverlay debug = null;
 
@@ -53,6 +54,15 @@ public class OverlaySystem {
 
 
         ttf = new TrueTypeFont(font, true);
+    }
+
+    public static OverlaySystem getInstance(){
+        if (_instance != null){
+            return _instance;
+        } else {
+            _instance = new OverlaySystem();
+            return _instance;
+        }
     }
 
     public static TrueTypeFont precacheFont(int size){

@@ -14,7 +14,7 @@ import java.util.Random;
 public class FoliageGenerator extends ObjectGenerator {
 
     public void generate_object(int x, int y, WorldTile tile, Random chunk_random){
-        float tree_rate = 0.00f;
+        float tree_rate = 0.05f;
 
         int chance = (int)(chunk_random.nextFloat()*100);
         if (chance<tree_rate){

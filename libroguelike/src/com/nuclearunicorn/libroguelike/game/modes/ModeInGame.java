@@ -60,7 +60,6 @@ public class ModeInGame implements IGameMode, IEventListener {
     public void run(){
         bg_tileset = new TilesetRenderer();
         view  = new WorldView(null);
-        //model = new WorldModel();
 
         clientGameEnvironment = new GameEnvironment("libroguelike-client-game-environment"){
             @Override
@@ -71,20 +70,14 @@ public class ModeInGame implements IGameMode, IEventListener {
         ClientGameEnvironment.setEnvironment(clientGameEnvironment);
 
         model = clientGameEnvironment.getWorld();
-                //ClientWorld.getWorld();
 
         overlay = new OverlaySystem();
-
         fx = new EffectsSystem();
-
-        //gui = new NE_GUI_System();
 
         Timer.init();   //very-very critical
 
         //synchronize with server
         //init world
-
-        
     }
 
     void spawn_player(EPlayerSpawn event){

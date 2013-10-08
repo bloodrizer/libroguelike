@@ -114,8 +114,7 @@ public class GameServClientHandler extends SimpleChannelHandler {
             if (ent == null){
                 throw new RuntimeException("failed to initialize entity of classname '"+entClassname+"'");
             }
-            
-            //ent.initClient();   //required for CommonEntities
+
             ent.setEnvironment(ClientGameEnvironment.getEnvironment());
             ent.setRenderer(new ASCIISpriteEntityRenderer(ent.getCharacter(), ent.getColor()));
             //ent.setRenderer(new VoxelEntityRenderer());
