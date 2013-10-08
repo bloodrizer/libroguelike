@@ -41,7 +41,7 @@ public class FBO {
 
     public static void initGL(){
 
-        /*try {
+        try {
             Properties p = new Properties();
             p.load(new FileInputStream("client.ini"));
             use_fbo = p.getProperty("fbo_enabled");
@@ -53,12 +53,8 @@ public class FBO {
             ex.printStackTrace();
         }
 
-        fbo_enabled = GLContext.getCapabilities().GL_EXT_framebuffer_object && (!use_fbo.equals("0"));
-        */
-
-        //must be called in GL thread
-        ContextCapabilities capabilities = GLContext.getCapabilities();
-        fbo_enabled = capabilities.GL_EXT_framebuffer_object;
+        //fbo_enabled = GLContext.getCapabilities().GL_EXT_framebuffer_object && (!use_fbo.equals("0"));
+        fbo_enabled = true;
     }
 
     public FBO(int textureW, int textureH){
@@ -106,7 +102,7 @@ public class FBO {
     /*
     * Prepares FBO for rendering path
     */
-    public void render_begin(){
+    public void renderBegin(){
 
         EXTFramebufferObject.glBindFramebufferEXT( EXTFramebufferObject.GL_FRAMEBUFFER_EXT, fbo_id );
 
@@ -124,7 +120,7 @@ public class FBO {
         glDisable(GL_SCISSOR_TEST);
     }
 
-    public void render_end(){
+    public void renderEnd(){
         EXTFramebufferObject.glBindFramebufferEXT( EXTFramebufferObject.GL_FRAMEBUFFER_EXT, 0);
 
         glMatrixMode(GL_PROJECTION);

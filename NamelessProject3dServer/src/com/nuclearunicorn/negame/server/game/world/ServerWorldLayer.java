@@ -24,19 +24,18 @@ public class ServerWorldLayer extends WorldLayer {
 
     @Override
     public synchronized WorldChunk get_cached_chunk(int chunk_x, int chunk_y){
-        push_point(util_point);
-        util_point.setLocation(chunk_x, chunk_y);
+        Point chunkOrigin = getLightweightPoint(chunk_x, chunk_y);
 
         //WorldChunk cachedChunk = neCache.get(util_point);
         
         WorldChunk cachedChunk;
 
         //try to fast-access to the local storage
-        cachedChunk = chunk_data.get(util_point);
+        cachedChunk = chunk_data.get(chunkOrigin);
         if (cachedChunk != null){
             return cachedChunk;
         }else{
-            cachedChunk = neCache.get(util_point);  //if no chunk generated, retrieve it from the cache
+            cachedChunk = neCache.get(chunkOrigin);  //if no chunk generated, retrieve it from the cache
         }
 
         //if no chunk in cache, precache it
@@ -51,7 +50,7 @@ public class ServerWorldLayer extends WorldLayer {
         }
 
 
-        pop_point(util_point);
+        returnLightweightPoint(chunkOrigin);
 
         return cachedChunk;
     }

@@ -14,13 +14,14 @@ import com.nuclearunicorn.libroguelike.game.world.generators.WorldGenerationExce
 import com.nuclearunicorn.libroguelike.utils.Timer;
 import com.nuclearunicorn.libroguelike.utils.pathfinder.astar.Mover;
 import com.nuclearunicorn.libroguelike.utils.pathfinder.astar.TileBasedMap;
+import org.apache.commons.pool.BasePoolableObjectFactory;
+import org.apache.commons.pool.PoolableObjectFactory;
+import org.apache.commons.pool.impl.GenericObjectPool;
+import org.apache.commons.pool.impl.StackObjectPool;
 import org.lwjgl.util.Point;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  *
@@ -44,8 +45,9 @@ public class WorldLayer implements Serializable {
 
     
     //--------------------------------------------------------------------------
-    protected Point util_point     = new Point(0,0);
-    private Point __stack_point  = new Point(0,0);
+    //protected Point util_point     = new Point(0,0);
+    //private Point __stack_point  = new Point(0,0);
+    protected StackObjectPool<Point> objectPool = null;
 
     private static boolean light_outdated = false;  //shows if model should rebuild terrain lightning
     protected static boolean terrain_outdated = false;  //shows if model should rebuild terrain lightning
@@ -59,22 +61,53 @@ public class WorldLayer implements Serializable {
     
     public WorldLayer(){
         tile_map = new WorldModelTileMap(this);
+
+        PoolableObjectFactory<Point> poolFactory = new BasePoolableObjectFactory<Point>(){
+            public Point makeObject(){
+                return new Point(0,0);
+            }
+
+            @Override
+            public void passivateObject(Point point) throws Exception { point.setLocation(0, 0);}
+        };
+        objectPool = new StackObjectPool<Point>(poolFactory);
     }
 
     public void registerGenerator(ChunkGenerator generator){
         generators.add(generator);
     }
+    
+    public Point getLightweightPoint(){
+        try {
+            Point point = objectPool.borrowObject();
+            return point;
+        } catch (Exception ex) {
+            throw new RuntimeException("Failed to borrow lightweight object from the pool");
+            //return new Point(0,0);
+        }
+    }
+    
+    public Point getLightweightPoint(int x, int y){
+        Point point = getLightweightPoint();
+        point.setLocation(x, y);
+        
+        return point;
+    }
+    
+    public void returnLightweightPoint(Point point){
+        try {
+            objectPool.returnObject(point);
+        } catch (Exception ex) {
+            //throw new RuntimeException("Failed to return lightweight object from the pool");
+        }    
+    }
 
     public Map<Point,WorldTile> getTileData(Point tileOrigin, boolean restrictOutOfBounds){
-        push_point(util_point);
-        util_point.setLocation(tileOrigin);
 
         Point chunkOrigin = WorldChunk.get_chunk_coord(tileOrigin);      
 
         WorldChunk chunk = get_cached_chunk(chunkOrigin, restrictOutOfBounds);
 
-        pop_point(util_point);
-        
         if (chunk != null){
             return chunk.tile_data;
         }
@@ -113,21 +146,12 @@ public class WorldLayer implements Serializable {
         light_outdated = true;
     }
 
-    //todo: use actual stack there
-    protected void push_point(Point point){
-        __stack_point.setLocation(point);
-    }
-    protected void pop_point(Point point){
-        point.setLocation(__stack_point);
-    }
-
     //a bit more faster version of getTile - no tile calculation presents
     public WorldTile getTile(WorldChunk chunk, int x, int y){
-        //push_point(util_point);
-        util_point.setLocation(x, y);
-        WorldTile tile = chunk.tile_data.get(util_point);
+        Point tileOrigin = getLightweightPoint(x, y);
+        WorldTile tile = chunk.tile_data.get(tileOrigin);
 
-        //pop_point(util_point);
+        returnLightweightPoint(tileOrigin);
         return tile;
     }
 
@@ -136,29 +160,24 @@ public class WorldLayer implements Serializable {
     }
 
     public WorldTile getTile(int x, int y, boolean restrictOutOfBounds){
-        push_point(util_point);
-        util_point.setLocation(x, y);
+        Point tileOrigin = getLightweightPoint(x, y);
 
-
-        Map<Point,WorldTile> tileData = getTileData(util_point, restrictOutOfBounds);
+        Map<Point,WorldTile> tileData = getTileData(tileOrigin, restrictOutOfBounds);
         if (tileData == null){
             return null;
         }
-        WorldTile tile = tileData.get(util_point);
-        pop_point(util_point);
+        WorldTile tile = tileData.get(tileOrigin);
+        returnLightweightPoint(tileOrigin);
 
         return tile;
     }
 
     public WorldTile getTile(Point tileOrigin){
-        push_point(util_point);
-        util_point.setLocation(tileOrigin);
 
         WorldTile tile = null;
         Map<Point,WorldTile> tileData = getTileData(tileOrigin, true);
         if (tileData!= null){
-            tile = tileData.get(util_point);
-            pop_point(util_point);
+            tile = tileData.get(tileOrigin);
         }
 
         return tile;
@@ -179,15 +198,14 @@ public class WorldLayer implements Serializable {
      * @return
      */
     public WorldChunk get_cached_chunk(int chunk_x, int chunk_y, boolean restrictOutOfBounds){
-        util_point.setLocation(chunk_x, chunk_y);
-        WorldChunk chunk = chunk_data.get(util_point);
+        Point chunkOrigin = getLightweightPoint(chunk_x, chunk_y);
+        WorldChunk chunk = chunk_data.get(chunkOrigin);
 
         if (chunk != null){
             return chunk;
         }else {
 
-            util_point.setLocation(chunk_x, chunk_y);
-            if( WorldCluster.chunk_in_cluster(util_point) || !restrictOutOfBounds){
+            if( WorldCluster.chunk_in_cluster(chunkOrigin) || !restrictOutOfBounds){
                 return precache_chunk(chunk_x, chunk_y);
             }
 

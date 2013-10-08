@@ -126,8 +126,9 @@ public abstract class GenericGroundChunkGenerator extends ChunkGenerator {
                 for (int j = y; j<y+size; j++)
                 {
                     WorldTile tile = getLayer().get_tile(i, j);
+                    //NPE THERE
+
                     tile.moisture = Terrain.getHumidity(i, j);
-                    //tile.moisture = Terrain.get_moisture(i, j);
 
                     //Do not calculate actual humidity. Get random perlin2d value instead
                     tile.update_biome_type();
@@ -136,13 +137,6 @@ public abstract class GenericGroundChunkGenerator extends ChunkGenerator {
                         int biome_id = tile.biome_type.tile_id();
                         tile.set_tile_id(biome_id);
                     }
-                    //TODO: this part probably need some future refactoring
-
-                    //treeGenerator.generate_object(i, j, tile, chunk_random);
-                    //stoneGenerator.generate_object(i, j, tile, chunk_random);
-                    //grassGenerator.generate_object(i, j, tile, chunk_random);
-                    //chestGenerator.generate_object(i, j, tile, chunk_random);
-
                     generate_objects(i, j, tile, chunk_random);
                 }
             }

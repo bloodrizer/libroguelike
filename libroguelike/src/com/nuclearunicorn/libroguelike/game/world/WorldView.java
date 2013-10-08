@@ -22,7 +22,9 @@ import com.nuclearunicorn.libroguelike.utils.Noise;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.util.Point;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import static org.lwjgl.opengl.GL11.glLoadIdentity;
 
@@ -127,7 +129,10 @@ public class WorldView implements IEventListener {
     public void render_entities(){
         //TODO: this place is not concurency safe and exact reason for violation is unknown.
         //Defensive copy before iteration seems like a very UNSMART idea
-        for (Iterator iter = ClientGameEnvironment.getEntityManager().getList(view_z_index).iterator(); iter.hasNext();) {
+
+        List<Entity> list = new ArrayList(ClientGameEnvironment.getEntityManager().getList(view_z_index));
+
+        for (Iterator iter = list.iterator(); iter.hasNext();) {
            Entity entity = (Entity) iter.next();
            render_entity(entity);
         }
