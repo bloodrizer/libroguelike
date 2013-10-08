@@ -30,7 +30,7 @@ public class FBO {
     * In such case we must disable fbo minimap directly from the config file
     */
 
-    public static boolean fbo_enabled = false;
+    public static boolean fbo_enabled = true;
     private static String use_fbo = null;
 
     int fbo_id;
@@ -38,10 +38,12 @@ public class FBO {
 
     private int textureW;
     private int textureH;
+    
+    int currentTextureId = 0;
 
     public static void initGL(){
 
-        try {
+        /*try {
             Properties p = new Properties();
             p.load(new FileInputStream("client.ini"));
             use_fbo = p.getProperty("fbo_enabled");
@@ -51,10 +53,10 @@ public class FBO {
             }
         } catch (Exception ex) {
             ex.printStackTrace();
-        }
+        }*/
 
-        //fbo_enabled = GLContext.getCapabilities().GL_EXT_framebuffer_object && (!use_fbo.equals("0"));
-        fbo_enabled = true;
+        fbo_enabled = GLContext.getCapabilities().GL_EXT_framebuffer_object;
+        //fbo_enabled = true;
     }
 
     public FBO(int textureW, int textureH){
@@ -104,6 +106,11 @@ public class FBO {
     */
     public void renderBegin(){
 
+        currentTextureId = glGetInteger(GL_TEXTURE_BINDING_2D);
+
+        //If we don't unbind texture, all consequent FBO calls will fail
+        glBindTexture(GL_TEXTURE_2D, 0);
+
         EXTFramebufferObject.glBindFramebufferEXT( EXTFramebufferObject.GL_FRAMEBUFFER_EXT, fbo_id );
 
         glPushAttrib(GL_VIEWPORT_BIT | GL_TRANSFORM_BIT | GL_COLOR_BUFFER_BIT | GL_SCISSOR_BIT);
@@ -121,6 +128,8 @@ public class FBO {
     }
 
     public void renderEnd(){
+        glBindTexture(GL_TEXTURE_2D, currentTextureId); //restore current binded texture
+
         EXTFramebufferObject.glBindFramebufferEXT( EXTFramebufferObject.GL_FRAMEBUFFER_EXT, 0);
 
         glMatrixMode(GL_PROJECTION);

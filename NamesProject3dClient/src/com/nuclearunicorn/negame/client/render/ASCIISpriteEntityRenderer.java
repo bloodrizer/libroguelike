@@ -1,6 +1,5 @@
 package com.nuclearunicorn.negame.client.render;
 
-
 import com.nuclearunicorn.libroguelike.game.world.WorldView;
 import com.nuclearunicorn.libroguelike.render.EntityRenderer;
 import com.nuclearunicorn.libroguelike.render.FBO;
@@ -9,9 +8,11 @@ import com.nuclearunicorn.libroguelike.render.overlay.OverlaySystem;
 import org.lwjgl.opengl.*;
 import org.newdawn.slick.Color;
 
+import static org.lwjgl.opengl.GL11.*;
+
 public class ASCIISpriteEntityRenderer extends EntityRenderer {
 
-    private static FBO fbo = new FBO(32, 32);
+    private static FBO fbo = null;
 
     private String symbol = "?";
     private Color color = Color.white;
@@ -24,12 +25,17 @@ public class ASCIISpriteEntityRenderer extends EntityRenderer {
     @Override
     public void render(){
 
-        //OverlaySystem.ttf.drawString(0,0, "@", Color.red);
+        if (fbo == null){
+            fbo = new FBO(32, 32);
+            FBO.initGL();
+        }
+
+        WindowRender.set2DMode();
         //------------------- FBO BEGIN ----------------------
         fbo.renderBegin();
 
-        //GL11.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        //GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+        GL11.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 
         if (symbol == null || color == null){
             throw new RuntimeException("Cant render entity: symbol or color are null");
@@ -52,8 +58,8 @@ public class ASCIISpriteEntityRenderer extends EntityRenderer {
         //  bind texture
 
         GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE_MINUS_SRC_COLOR);
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, fbo.fbo_texture_id);
 
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, fbo.fbo_texture_id);
         GL11.glTexEnvi(GL20.GL_POINT_SPRITE, GL20.GL_COORD_REPLACE, GL11.GL_TRUE);
 
         //Replace me with shader
