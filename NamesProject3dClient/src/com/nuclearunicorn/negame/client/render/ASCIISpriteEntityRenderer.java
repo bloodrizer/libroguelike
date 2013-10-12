@@ -30,15 +30,14 @@ public class ASCIISpriteEntityRenderer extends EntityRenderer {
             FBO.initGL();
         }
 
-        WindowRender.set2DMode();
         //------------------- FBO BEGIN ----------------------
         fbo.renderBegin();
 
-        GL11.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL11.GL_COLOR_BUFFER_BIT);
 
         if (symbol == null || color == null){
-            throw new RuntimeException("Cant render entity: symbol or color are null");
+            throw new RuntimeException("Cant render entity");
         }
         OverlaySystem.ttf.drawString(4, 8, "@", Color.red);
 
@@ -56,16 +55,14 @@ public class ASCIISpriteEntityRenderer extends EntityRenderer {
         GL11.glHint(GL11.GL_POINT_SMOOTH_HINT, GL11.GL_NICEST);
 
         //  bind texture
-
         GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE_MINUS_SRC_COLOR);
 
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, fbo.fbo_texture_id);
         GL11.glTexEnvi(GL20.GL_POINT_SPRITE, GL20.GL_COORD_REPLACE, GL11.GL_TRUE);
 
-        //Replace me with shader
+        //----------------
         GL11.glPointSize(tileHeight/2.0f);
 
-        //GL11.glEnable(GL11.GL_POINT_SMOOTH);
         GL11.glBegin(GL11.GL_POINTS);
         GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
         GL11.glVertex3f(ent.origin.getX() * 1.00005f, (tileHeight + 20 ) * 0.05f, ent.origin.getY() * 1.00005f);

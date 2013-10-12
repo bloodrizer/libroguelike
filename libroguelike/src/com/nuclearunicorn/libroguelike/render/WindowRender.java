@@ -30,6 +30,8 @@ public class WindowRender {
 
     static int WINDOW_W = 1024;
     static int WINDOW_H = 768;
+    
+    private static boolean is3DMode = false;
 
     public static void create() throws LWJGLException {
 
@@ -71,21 +73,15 @@ public class WindowRender {
         GL11.glClearColor(0, 0, 0, 1);
 
         GL11.glEnable(GL11.GL_TEXTURE_2D);
-        //GL11.glShadeModel(GL11.GL_SMOOTH);
 
         GL11.glEnable (GL11.GL_BLEND);
         GL11.glBlendFunc (GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-        //wtf?
         GL11.glMatrixMode(GL11.GL_MODELVIEW);
         GL11.glLoadIdentity();
-
-        
     }
 
     public static void set3DMode(){
-        /*  SET 3D RENDER MODE */
-
         glViewport(0,0,WindowRender.get_window_w(),WindowRender.get_window_h());
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
@@ -100,10 +96,6 @@ public class WindowRender {
     }
 
     public static void set2DMode(){
-
-        //glEnable(GL11.GL_TEXTURE_2D);
-
-
         GL11.glLoadIdentity();
 
         GL11.glViewport(0, 0, WindowRender.get_window_w(), WindowRender.get_window_h());
@@ -114,6 +106,7 @@ public class WindowRender {
         GL11.glOrtho(0.0f, WindowRender.get_window_w(), WindowRender.get_window_h(), 0.0f, -1.0f, 1.0f);
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
+
     }
 
     public static void destroy(){

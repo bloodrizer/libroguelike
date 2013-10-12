@@ -166,13 +166,6 @@ public class Voxel {
             return; //safe switch
         }
 
-        //#hacky safe switch
-        // HACK HACK HACK
-
-        //if (_vbo.vertexPositionAttributes != null) {
-
-
-            
          _vbo.get_vpa().putFloat(x);
          _vbo.get_vpa().putFloat(y);
          _vbo.get_vpa().putFloat(z);
@@ -184,37 +177,30 @@ public class Voxel {
          _vbo.get_vpa().putFloat(tx);
          _vbo.get_vpa().putFloat(ty);
 
-       //}
-
-
          _vbo.get_vi().putInt(_vbo.vertex_index++);
 
          _vbo.VBO_buffer_size++;
     }
 
     public void put_normal(float nx, float ny, float nz){
-        vertex_normal.set(nx, ny, nz);
+         vertex_normal.set(nx, ny, nz);
     }
 
     public void render(){
 
-        GL11.glPushMatrix();    //save for the fuck's safe
+         GL11.glPushMatrix();    //save for the fuck's safe
 
-        //GL11.glTranslatef(origin.x,origin.y,origin.z);
-        //GL11.glScalef(0.5f,0.5f,0.5f);
+         float x = origin.x;
+         float y = origin.y;
+         float z = origin.z;
 
-        float x = origin.x;
-        float y = origin.y;
-        float z = origin.z;
-
-        float vo = voxelSize /2;
+         float vo = voxelSize /2;
 
          GL11.glBegin(GL11.GL_QUADS);
 
          float tx = get_texture_x();
          float ty = get_texture_y();
          float ts = get_texture_size();
-
 
          // Front Face
 
@@ -321,10 +307,6 @@ public class Voxel {
          GL11.glNormal3f(0, -0.5f, 0);
          GL11.glTexCoord2f(tx+ts, ty);
          GL11.glVertex3f(-vo+x, -vo+y,  vo+z);   // Bottom Right Of The Texture and Quad  */
-
-
-
-
 
          GL11.glEnd();
 

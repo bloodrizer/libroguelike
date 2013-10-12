@@ -85,22 +85,10 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         clientGameEnvironment.setWorld(model);
         model.setName("client world");
 
-        //WorldCluster.CLUSTER_SIZE = 1;
         WorldCluster.CLUSTER_SIZE = 3;
 
-        //ChunkGenerator townGenerator = new TownChunkGenerator();
         ArrayList<WorldLayer> layers = new ArrayList<WorldLayer>(model.getLayers());
         layers.get(0).registerGenerator(new NEGroundChunkGenerator());
-
-        /*for (int i = 1; i<5; i++){
-            layers.get(i).registerGenerator(new BasementGenerator());
-        }*/
-        //layers.get(1).registerGenerator(new BasementGenerator());
-
-        /*for(WorldLayer layer : model.getLayers()){
-            layer.registerGenerator(townGenerator);
-        }*/
-
         Timer.init();
 
         final AbstractLayerRenderer renderer = new TilesetVoxelRenderer();

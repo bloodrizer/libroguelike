@@ -24,11 +24,7 @@ public class VoxelEntityRenderer extends EntityRenderer {
         WindowRender.set3DMode();   //this is BS
         TilesetVoxelRenderer.camera.setMatrix();
 
-        //ent   <<-- render me
-
         int tileHeight = WorldView.getYOffset(ent.tile);
-
-        //System.out.println("rendering voxel @" + ent.tile.origin.getX() + "," + ent.tile.origin.getY());
 
         //20 is magic constant from getYOffset, it is single atomic step offset
         voxelRenderer.set_origin(ent.origin.getX() * 1.00005f, (tileHeight + 20 ) * 0.05f, ent.origin.getY() * 1.00005f);

@@ -32,7 +32,7 @@ public class OverlaySystem {
     
     public DebugOverlay debug = null;
 
-    private static Font font = null;
+    public static Font font = null;
     public static TrueTypeFont ttf = null;
 
     public static final int FONT_SIZE = 15;
