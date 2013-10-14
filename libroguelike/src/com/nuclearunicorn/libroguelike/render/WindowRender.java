@@ -7,10 +7,8 @@ package com.nuclearunicorn.libroguelike.render;
 
 import com.nuclearunicorn.libroguelike.core.Game;
 import org.lwjgl.LWJGLException;
-import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.*;
 import org.lwjgl.opengl.DisplayMode;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GLContext;
 import org.lwjgl.util.glu.GLU;
 
 import java.awt.*;
@@ -52,6 +50,16 @@ public class WindowRender {
         if (GLContext.getCapabilities().GL_ARB_vertex_buffer_object == false) {
             throw new RuntimeException("OpenGL Vertex Buffer Objects are not supported by Graphics Card. Unable to run program.");
         }
+
+        //enable some debug extentions
+
+        if ( GLContext.getCapabilities().GL_ARB_debug_output ){
+            ARBDebugOutput.glDebugMessageCallbackARB(new ARBDebugOutputCallback());
+        }
+        else if ( GLContext.getCapabilities().GL_AMD_debug_output ) {
+            AMDDebugOutput.glDebugMessageCallbackAMD(new AMDDebugOutputCallback());
+        }
+
     }
 
     public static int get_window_h(){

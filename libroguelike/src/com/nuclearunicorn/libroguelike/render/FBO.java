@@ -47,14 +47,22 @@ public class FBO {
 
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+            glTexParameteri(GL_TEXTURE_2D, GL14.GL_GENERATE_MIPMAP, GL_TRUE); // automatic mipmap
+
+            //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);          //1 mipmap level?
 
             glTexImage2D(GL_TEXTURE_2D, 0,
                     GL_RGBA8, textureW, textureH, 0, GL_RGBA,
                     GL_UNSIGNED_BYTE, (ByteBuffer)null);
             //------------------------------------------------
+
+            //unbind texture
+            GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 
             fbo_id = glGenFramebuffersEXT();
             glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, fbo_id );
@@ -70,6 +78,12 @@ public class FBO {
             if (glGetError() != 0){
                 throw new RuntimeException("Failed to init FBO, gl error code:" + glGetError());
             }
+
+            //todo: viewport?
+
+            //unbind everything
+            EXTFramebufferObject.glBindRenderbufferEXT(EXTFramebufferObject.GL_RENDERBUFFER_EXT, 0);
+            EXTFramebufferObject.glBindFramebufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, 0);
         }
     }
 
@@ -77,8 +91,6 @@ public class FBO {
     * Prepares FBO for rendering path
     */
     public void renderBegin(){
-        //If we don't unbind texture, all consequent FBO calls will fail
-        glBindTexture(GL_TEXTURE_2D, 0);
         EXTFramebufferObject.glBindFramebufferEXT( EXTFramebufferObject.GL_FRAMEBUFFER_EXT, fbo_id );
 
         glViewport(0, 0, textureW, textureH);

@@ -7,6 +7,7 @@ import com.nuclearunicorn.libroguelike.render.WindowRender;
 import com.nuclearunicorn.libroguelike.render.overlay.OverlaySystem;
 import org.lwjgl.opengl.*;
 import org.newdawn.slick.Color;
+import org.newdawn.slick.opengl.TextureImpl;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -42,6 +43,8 @@ public class ASCIISpriteEntityRenderer extends EntityRenderer {
         OverlaySystem.ttf.drawString(4, 8, "@", Color.red);
 
         fbo.renderEnd();
+
+        TextureImpl.unbind();
         //------------------- FBO END ----------------------
 
         WindowRender.set3DMode();
@@ -58,6 +61,7 @@ public class ASCIISpriteEntityRenderer extends EntityRenderer {
         GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE_MINUS_SRC_COLOR);
 
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, fbo.fbo_texture_id);
+        GL30.glGenerateMipmap(GL_TEXTURE_2D);
         GL11.glTexEnvi(GL20.GL_POINT_SPRITE, GL20.GL_COORD_REPLACE, GL11.GL_TRUE);
 
         //----------------
@@ -69,6 +73,9 @@ public class ASCIISpriteEntityRenderer extends EntityRenderer {
         GL11.glEnd();
 
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+
+        //If we don't unbind texture, all consequent FBO calls will fail
+        glBindTexture(GL11.GL_TEXTURE_2D, 0);
 
         WindowRender.set2DMode();
     }
