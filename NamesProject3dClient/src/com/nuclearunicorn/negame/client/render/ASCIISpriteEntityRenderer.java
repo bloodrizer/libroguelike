@@ -5,6 +5,7 @@ import com.nuclearunicorn.libroguelike.render.EntityRenderer;
 import com.nuclearunicorn.libroguelike.render.FBO;
 import com.nuclearunicorn.libroguelike.render.WindowRender;
 import com.nuclearunicorn.libroguelike.render.overlay.OverlaySystem;
+import com.nuclearunicorn.negame.client.render.utils.ARBShader;
 import org.lwjgl.opengl.*;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.opengl.TextureImpl;
@@ -17,6 +18,8 @@ public class ASCIISpriteEntityRenderer extends EntityRenderer {
 
     private String symbol = "?";
     private Color color = Color.white;
+
+    private static ARBShader shader = null;
 
     public ASCIISpriteEntityRenderer(String symbol, Color color){
         this.symbol = symbol;
@@ -31,6 +34,11 @@ public class ASCIISpriteEntityRenderer extends EntityRenderer {
             FBO.initGL();
         }
 
+        if (shader == null){
+            shader = new ARBShader("/resources/shaders/asciiPoint.vert",
+                    "/resources/shaders/asciiPoint.frag");
+        }
+
         //------------------- FBO BEGIN ----------------------
         fbo.renderBegin();
 
@@ -40,7 +48,7 @@ public class ASCIISpriteEntityRenderer extends EntityRenderer {
         if (symbol == null || color == null){
             throw new RuntimeException("Cant render entity");
         }
-        OverlaySystem.ttf.drawString(4, 8, "@", Color.red);
+        OverlaySystem.ttf.drawString(4, 8, symbol, color);
 
         fbo.renderEnd();
 
@@ -65,12 +73,15 @@ public class ASCIISpriteEntityRenderer extends EntityRenderer {
         GL11.glTexEnvi(GL20.GL_POINT_SPRITE, GL20.GL_COORD_REPLACE, GL11.GL_TRUE);
 
         //----------------
-        GL11.glPointSize(tileHeight/2.0f);
+        shader.beginProgram();
+        GL11.glPointSize(40.0f);    //todo: pass point size to the vertex shader
 
         GL11.glBegin(GL11.GL_POINTS);
         GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
         GL11.glVertex3f(ent.origin.getX() * 1.00005f, (tileHeight + 20 ) * 0.05f, ent.origin.getY() * 1.00005f);
         GL11.glEnd();
+
+        shader.endProgram();
 
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 

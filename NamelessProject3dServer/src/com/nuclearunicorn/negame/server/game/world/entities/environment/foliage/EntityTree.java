@@ -11,6 +11,9 @@ public class EntityTree extends EntityCommon {
     public EntityTree(){
         //BAD BAD BAD idea for server
         //setRenderer(new ASCIISpriteEntityRenderer("T", Color.green));
+        
+        this.setCharacter("T");
+        this.setColor(Color.green);
     }
 
     @Override

@@ -99,7 +99,8 @@ public class FBO {
         glPushMatrix();
         glLoadIdentity();
 
-        glOrtho(0, textureW, textureH, 0, -1.0, 1.0);
+        //0 , w, h, 0 if you want to flip ortho
+        glOrtho(0, textureW, 0, textureH, -1.0, 1.0);
         glMatrixMode(GL_MODELVIEW);
 
         glPushMatrix();
