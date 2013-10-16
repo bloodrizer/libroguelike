@@ -11,6 +11,7 @@
     <orderEntry type="library" name="jinput" level="project" />
     <orderEntry type="library" name="gson-2.2.4" level="project" />
     <orderEntry type="library" name="commons-pool-1.6" level="project" />
+    <orderEntry type="library" name="slf4j-api-1.7.5" level="project" />
   </component>
 </module>
 

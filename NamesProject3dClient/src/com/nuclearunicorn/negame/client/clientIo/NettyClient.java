@@ -10,12 +10,8 @@ import com.nuclearunicorn.negame.client.clientIo.charclient.CharClientPipelineFa
 import com.nuclearunicorn.negame.client.clientIo.gameclient.GameClientPipelineFactory;
 import com.nuclearunicorn.negame.common.EventConstants;
 import com.nuclearunicorn.negame.common.IoCommon;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 /**
  *
  * @author bloodrizer
@@ -24,7 +20,9 @@ public class NettyClient {
     
     static final String host = "localhost";
     static final int port = IoCommon.CHAR_SERVER_PORT;
-        
+
+    final static Logger logger = LoggerFactory.getLogger(NettyClient.class);
+
     final static NettyClientLayer charServClient = new NettyClientLayer(host, port, "charserv-client-layer") {{
         packetFilter.add(EventConstants.E_SELECT_CHARACTER);
         //packetFilter.add(EventConstants.E_PLAYER_LOGON);
@@ -35,42 +33,34 @@ public class NettyClient {
 
 
     public static void connect(){
-        //return;
-        
-        System.out.println("NEClient:>> Connecting to the character server...");
-        
+        logger.info("Connecting to the character server...");
 
         ClientEventManager.subscribe(charServClient);
-
-
         charServClient.setPipelineFactory(new CharClientPipelineFactory(charServClient.bootstrap));
 
         try {
             charServClient.connect(
             );
-         System.out.println("NEClient:>> Connected successfully");
-                            
-         System.out.println("NEClient:>> Sending login command");
-         charServClient.sendMsg("EPlayerLogin Red True");    
+
+            logger.info("Connected successfully...");
+            logger.debug("Sending login command");
+
+            charServClient.sendMsg("EPlayerLogin Red True");
             
             
         } catch (Exception ex) {
-            Logger.getLogger(NettyClient.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error("Failed to connect to the CHARECTER server", ex);
         }
         
         
     }
 
     public static void gameServConnect(String host, int port){
-        
-        System.out.println("NEClient:>> Starting gameServListening thread @"+host+":"+port+" (kinda)");
-
+        logger.debug("Starting gameServListening thread @ {}:{}", host, port);
 
         Thread chrSrvThread = new Thread(new GameServConnectionThread(host, port));
         chrSrvThread.setDaemon(true);
         chrSrvThread.start();
-        
-
     }
 
     static NettyClientLayer gameServClient;
@@ -98,7 +88,7 @@ public class NettyClient {
             try {
                 gameServClient.connect();
             } catch (Exception ex) {
-                Logger.getLogger(NettyClient.class.getName()).log(Level.SEVERE, null, ex);
+                logger.error("Failed to connect to the GAME server", ex);
             }
         }
     }

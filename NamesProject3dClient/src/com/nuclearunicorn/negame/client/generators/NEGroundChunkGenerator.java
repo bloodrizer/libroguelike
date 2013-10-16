@@ -21,7 +21,7 @@ public class NEGroundChunkGenerator extends GenericGroundChunkGenerator {
 
     @Override
     protected void generate_objects(int i, int j, WorldTile tile, Random chunk_random) {
-        //To change body of implemented methods use File | Settings | File Templates.
+
     }
 
     @Override
@@ -29,7 +29,6 @@ public class NEGroundChunkGenerator extends GenericGroundChunkGenerator {
 
             int tile_id = 0;
             int height = Terrain.get_height(i,j);
-            //System.out.println("HEIGHT@" + i + "," + j + ":" + height);
 
             if (height > 120){
                 tile_id = 25;
@@ -43,8 +42,6 @@ public class NEGroundChunkGenerator extends GenericGroundChunkGenerator {
             //tile should be registered before any action is performed on it
             getLayer().set_tile(origin, tile);
             //isn't it already registered?
-
-
 
             tile.set_height(height);
 

@@ -15,6 +15,8 @@ import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.world.layers.WorldLayer;
 import com.nuclearunicorn.libroguelike.utils.LazyLoadWorldElement;
 import org.lwjgl.util.Point;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 
@@ -23,15 +25,16 @@ import java.util.Collection;
  * @author Administrator
  */
 public class WorldModel implements IEventListener {
+    final static Logger logger = LoggerFactory.getLogger(WorldModel.class);
+
+    protected GameEnvironment environment = null;
 
     public static int LAYER_COUNT;    //max depth of geometry layers
-
     protected final java.util.HashMap<Integer, WorldLayer> worldLayers
             = new java.util.HashMap<Integer, WorldLayer>(LAYER_COUNT);
 
 
     private String name;
-
     /**
     * Load region data from server including village assigment, ownership and so on
     *
@@ -105,7 +108,8 @@ public class WorldModel implements IEventListener {
 
            //-------------------------------------------------------------------
            Point chunkOrigin = WorldChunk.get_chunk_coord(spawn_event.ent.origin);
-           System.out.println("checking if ent "+spawn_event.ent.getClass().getName() + " is player ent: " + spawn_event.ent.isPlayerEnt());
+           //System.out.println("checking if ent "+spawn_event.ent.getClass().getName() + " is player ent: " + spawn_event.ent.isPlayerEnt());
+
            if (spawn_event.ent.isPlayerEnt()){
                WorldCluster.locate(spawn_event.ent.origin);
            }
@@ -136,13 +140,13 @@ public class WorldModel implements IEventListener {
                //show some debug info to hint me next time when this fucking world model crashs again
 
                if (!environment.getEventManager().hasListener(this)){
-                   System.err.println("World model is not subscribed to the event manager");
+                   logger.error("World model is not subscribed to the event manager");
                }
 
                WorldLayer layer = worldLayers.get(spawn_event.ent.getLayerId());
-               System.err.println("Tile data size:"+layer.getTileData(entOrigin, false).size());   //do not restrict spawn location
-               System.err.println("Chunk data size:"+layer.chunk_data.size());
-               //layer.g
+
+               logger.error("Tile data size: {}", layer.getTileData(entOrigin, false).size());
+               logger.error("Chunk data size: {}", layer.chunk_data.size());
 
                throw new RuntimeException("Failed to assign spawned entity " + spawn_event.ent.getName() +" to tile@"+entOrigin+"["+getLayer().get_zindex()+"] - tile is null!");
 
@@ -219,16 +223,10 @@ public class WorldModel implements IEventListener {
 
         WorldTimer.tick();
 
-
         for(WorldLayer layer: worldLayers.values()){
             layer.update();
         }
-
-
-
     }
-
-    protected GameEnvironment environment = null;
 
     public void setEnvironment(GameEnvironment environment) {
         this.environment = environment;

@@ -13,6 +13,7 @@
     <orderEntry type="module" module-name="NamesProject3dClient" />
     <orderEntry type="module" module-name="NamelessProjectCommon" />
     <orderEntry type="library" name="slick-util" level="project" />
+    <orderEntry type="library" name="slf4j-api-1.7.5" level="project" />
   </component>
 </module>
 

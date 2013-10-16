@@ -8,10 +8,7 @@ package com.nuclearunicorn.libroguelike.game.world;
 import com.nuclearunicorn.libroguelike.core.Input;
 import com.nuclearunicorn.libroguelike.core.client.ClientEventManager;
 import com.nuclearunicorn.libroguelike.core.client.ClientGameEnvironment;
-import com.nuclearunicorn.libroguelike.events.EMouseDrag;
-import com.nuclearunicorn.libroguelike.events.EMouseRelease;
-import com.nuclearunicorn.libroguelike.events.Event;
-import com.nuclearunicorn.libroguelike.events.IEventListener;
+import com.nuclearunicorn.libroguelike.events.*;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.world.layers.WorldLayer;
 import com.nuclearunicorn.libroguelike.render.EntityRenderer;
@@ -34,7 +31,18 @@ import static org.lwjgl.opengl.GL11.glLoadIdentity;
  */
 public class WorldView implements IEventListener {
 
+    public static boolean ISOMETRY_MODE = true;
+    public static float ISOMETRY_ANGLE = 45.0f;
 
+    public static float ISOMETRY_Y_SCALE = 0.6f;
+    public static float ISOMETRY_TILE_SCALE = 1.0f;
+    /*
+     * Sprites are rendering in 1:1 proportion, but
+     * tiles are rendering in 1:1.2 proportion, so
+     * we use this hack to avoid insane recalculations.
+     * See Tileset.java
+     */
+    public static float TILE_UPSCALE = 1.2f;
 
     public class TextureTransition {
         public boolean[] nb = new boolean[8];  //n, w, e, s, nw, ns, ew, es
@@ -78,7 +86,6 @@ public class WorldView implements IEventListener {
         return null;
     }
 
-
     /**
        Get current loaded world cluster and iterate every chunk of this cluster
        Get associated tile renderer and perform tile rendering
@@ -87,11 +94,9 @@ public class WorldView implements IEventListener {
        on a large / infinite-sized maps
      */
     public void render_layer(){
-        
         AbstractLayerRenderer renderer = null;
 
         renderer = getLayerRenderer();
-
         renderer.beforeRender();
 
         int x = WorldCluster.origin.getX();
@@ -100,17 +105,9 @@ public class WorldView implements IEventListener {
 
         WorldChunk currentChunk;
 
-        for (int chunk_x = x; chunk_x<x+size; chunk_x++)
-        for (int chunk_y = y; chunk_y<y+size; chunk_y++)
+        for (int chunk_x = x; chunk_x<x+size; chunk_x++){
+            for (int chunk_y = y; chunk_y<y+size; chunk_y++)
             {
-
-                //TODO: move checking to the child class
-                /*if (!WorldViewCamera.tile_in_fov(i,j)){
-                    continue;
-                }*/
-                
-                //System.out.println("rendering chunk @"+chunk_x + "," + chunk_y);
-
                 //NOTE: get_cached_chink is now deprecated function, as it can load random chunk data without checking, if it's inside
                 //of world cluster
                 //world cluster should cache it instead
@@ -122,6 +119,7 @@ public class WorldView implements IEventListener {
                 }
 
             }
+        }
 
         renderer.afterRender();
     }
@@ -148,33 +146,6 @@ public class WorldView implements IEventListener {
     }
 
     public void render_entity(Entity entity){
-        //todo: use factory render
-
-        //IGenericRender render = Render.get_render(entity);
-        //render.render(entity);
-        /*GL11.glColor3f(1.0f,1.0f,1.0f);
-
-        WorldTile tile = getLayer().get_tile(
-            entity.origin.getX(),
-            entity.origin.getY()
-        );
-
-
-        float r, g, b;
-
-        Vector3f tile_color = GroundLayerRenderer.get_tile_color(tile);
-        r = tile_color.getX();
-        g = tile_color.getY();
-        b = tile_color.getZ();
-
-        GL11.glColor3f(
-            r,
-            g,
-            b
-        );
-
-        final int y_offset = WorldView.getYOffset(tile);*/
-
         EntityRenderer renderer = entity.get_render();
         renderer.render();  //render, lol
     }
@@ -182,18 +153,12 @@ public class WorldView implements IEventListener {
     //--------------------------------------------------------------------------
 
     public void render(){
-
-        //WorldViewCamera.update();
-
         glLoadIdentity();
-    
-        //WorldViewCamera.setMatrix();
-  
+
         render_layer();
         render_entities();
         
         glLoadIdentity();
-
         //update_cursor();
     }
 
@@ -231,32 +196,11 @@ public class WorldView implements IEventListener {
 
     }
 
-
-
     public static Point getTileCoord(Point window_coord){
         int x = window_coord.getX();
         int y = window_coord.getY();
         return getTileCoord(x,y);
     }
-
-    
-    public static boolean ISOMETRY_MODE = true;
-    public static float ISOMETRY_ANGLE = 45.0f;
-
-    //public static float ISOMETRY_Y_SCALE = 0.6f;
-    //public static float ISOMETRY_TILE_SCALE = 1.2f;
-    public static float ISOMETRY_Y_SCALE = 0.6f;
-    public static float ISOMETRY_TILE_SCALE = 1.0f;
-    /*
-     * Sprites are rendering in 1:1 proportion, but
-     * tiles are rendering in 1:1.2 proportion, so
-     * we use this hack to avoid insane recalculations.
-     * See Tileset.java
-     */
-    public static float TILE_UPSCALE = 1.2f;
-
-    //perform reverse isometric transformation
-    //transform screen point into the world representation in isometric space
 
     public static int local2world_x(float x, float y){
 
@@ -418,10 +362,6 @@ public class WorldView implements IEventListener {
     }
 
 
-    //todo: refact me
-    float camera_x = 0;
-    float camera_y = 0;
-
     //----------------------------EVENTS SHIT-----------------------------------
     public void e_on_event(Event event){
        
@@ -438,10 +378,6 @@ public class WorldView implements IEventListener {
             //camera_y += drag_event.dy*1.5;
                WorldViewCamera.move(drag_event.dx*1.5f,-drag_event.dy*1.5f);
            }
-
-
-           
-
        }else if(event instanceof EMouseRelease){
            EMouseRelease drag_event = (EMouseRelease)event;
            if (drag_event.type == Input.MouseInputType.RCLICK){
@@ -458,7 +394,6 @@ public class WorldView implements IEventListener {
     public void e_on_event_rollback(Event event){
       
     }
-
 
     /**
      * Recieves screen coord of the entity based on the tile coord and a screen tile size

@@ -20,6 +20,8 @@ import com.nuclearunicorn.libroguelike.render.DebugRenderer;
 import com.nuclearunicorn.libroguelike.render.EntityRenderer;
 import com.nuclearunicorn.libroguelike.utils.Timer;
 import org.lwjgl.util.Point;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -33,6 +35,7 @@ import java.util.UUID;
  * @author Administrator
  */
 public class Entity implements Comparable, Serializable {
+    final static Logger logger = LoggerFactory.getLogger(Entity.class);
 
     public Point origin = new Point(0, 0);
     public WorldTile tile;  //the tile entity is currently assigned to
@@ -197,7 +200,8 @@ public class Entity implements Comparable, Serializable {
      * @param origin
      */
     public void spawn(String uid, Point origin){
-        System.out.println(env.getName() +  " >>>>>> Spawning entity with uid "+uid+" <<<<<<<<<");
+        logger.debug("{} >>>>>> Spawning entity with uid {} <<<<<<<<<", env.getName(), uid);
+
         if (layer_id < 0){
             throw new RuntimeException("Spawning entity without correct layerID");
         }
@@ -235,7 +239,7 @@ public class Entity implements Comparable, Serializable {
 
     public boolean in_chunk(WorldChunk chunk){
        if (chunk == null) {
-           System.out.println("Entity::in_chunk() - ent chunk is null");
+           logger.error("Entity::in_chunk() - ent chunk is null");
            return false;
        }
        //note: for some strange reason there are different object pointers that are compared

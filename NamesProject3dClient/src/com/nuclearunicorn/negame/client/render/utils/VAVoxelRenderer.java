@@ -2,19 +2,16 @@ package com.nuclearunicorn.negame.client.render.utils;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.util.vector.Vector3f;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.FloatBuffer;
 
 import static org.lwjgl.opengl.GL11.*;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Administrator
- * Date: 23.06.12
- * Time: 18:23
- * To change this template use File | Settings | File Templates.
- */
 public class VAVoxelRenderer {
+
+    final static Logger logger = LoggerFactory.getLogger(VAVoxelRenderer.class);
 
     static final int vertexSize = (3 + 3 + 2) * 4;
     static final int faceSize =  vertexSize * 4;
@@ -31,7 +28,8 @@ public class VAVoxelRenderer {
     public VAVoxelRenderer(){
         //maxBufferSize = 1900000;
 
-        System.out.println("creating VA buffer of size "+ maxBufferSize);
+        logger.info("creating VA buffer of size {}", maxBufferSize);
+
         vertexBuffer = BufferUtils.createFloatBuffer(maxBufferSize);
         textureBuffer = BufferUtils.createFloatBuffer(maxBufferSize);
         normalBuffer = BufferUtils.createFloatBuffer(maxBufferSize);
@@ -64,7 +62,7 @@ public class VAVoxelRenderer {
         textureBuffer.flip();
         normalBuffer.flip();
 
-        System.out.println("flushed " + vertexCount + "vertex data");
+        logger.debug("flushed {} bytes of vertex data", vertexCount);
     }
 
     public void render(){

@@ -3,6 +3,7 @@ package com.nuclearunicorn.negame.client.game.modes.in_game;
 import com.nuclearunicorn.libroguelike.core.client.ClientEventManager;
 import com.nuclearunicorn.libroguelike.core.client.ClientGameEnvironment;
 import com.nuclearunicorn.libroguelike.events.*;
+import com.nuclearunicorn.libroguelike.events.network.EEntityMove;
 import com.nuclearunicorn.libroguelike.events.network.EPlayerSpawn;
 import com.nuclearunicorn.libroguelike.events.network.ESelectCharacter;
 import com.nuclearunicorn.libroguelike.game.GameEnvironment;
@@ -235,6 +236,13 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         if (event instanceof EPlayerSpawn){
             EPlayerSpawn logonEvent = (EPlayerSpawn)event;
             spawnPlayer(logonEvent.origin, logonEvent.uid);
+        }
+        //we need to recalculate view lighting on entity move/spawn
+        if (event instanceof EEntitySpawn){
+            TilesetVoxelRenderer.invalidateGeometry();
+        }
+        if (event instanceof EEntityMove){
+            TilesetVoxelRenderer.invalidateGeometry();
         }
     }
 

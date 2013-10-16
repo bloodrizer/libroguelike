@@ -41,9 +41,9 @@ public class GroundLayerRenderer extends LayerChunkRenderer {
             //lil hack for terrain rendering visualization
             if (tile.terrain_type != WorldTile.TerrainType.TERRAIN_WATER){
                 Vector3f tile_color = get_tile_color(tile);
-                GL11.glColor3f(tile_color.x,tile_color.y,tile_color.z);
+                GL11.glColor3f(tile_color.x, tile_color.y, tile_color.z);
             }else{
-                GL11.glColor3f(1.0f,1.0f,1.0f);
+                GL11.glColor3f(1.0f, 1.0f, 1.0f);
             }
 
             render_bg_tile(tile_x, tile_y, tile);

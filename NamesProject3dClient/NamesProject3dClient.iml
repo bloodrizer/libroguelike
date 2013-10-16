@@ -15,6 +15,7 @@
     <orderEntry type="module" module-name="NamelessProjectCommon" />
     <orderEntry type="library" name="gson-2.2.1" level="project" />
     <orderEntry type="module" module-name="NamelessProject3dServer" />
+    <orderEntry type="library" name="slf4j-api-1.7.5" level="project" />
   </component>
 </module>
 

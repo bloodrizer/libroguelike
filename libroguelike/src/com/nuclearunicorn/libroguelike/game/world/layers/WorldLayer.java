@@ -16,9 +16,10 @@ import com.nuclearunicorn.libroguelike.utils.pathfinder.astar.Mover;
 import com.nuclearunicorn.libroguelike.utils.pathfinder.astar.TileBasedMap;
 import org.apache.commons.pool.BasePoolableObjectFactory;
 import org.apache.commons.pool.PoolableObjectFactory;
-import org.apache.commons.pool.impl.GenericObjectPool;
 import org.apache.commons.pool.impl.StackObjectPool;
 import org.lwjgl.util.Point;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.*;
@@ -33,32 +34,25 @@ import java.util.*;
  */
 public class WorldLayer implements Serializable {
 
-    protected transient WorldModel model;
-        
-    public static final int GROUND_LAYER = 0;
+    final static Logger logger = LoggerFactory.getLogger(WorldLayer.class);
 
+    protected transient WorldModel model;
+
+    public static final int GROUND_LAYER = 0;
     protected int z_index;
 
     static final int MAP_SIZE = WorldCluster.CLUSTER_SIZE*WorldChunk.CHUNK_SIZE;
     public transient WorldModelTileMap tile_map;
 
-
-    
-    //--------------------------------------------------------------------------
-    //protected Point util_point     = new Point(0,0);
-    //private Point __stack_point  = new Point(0,0);
     protected StackObjectPool<Point> objectPool = null;
 
     private static boolean light_outdated = false;  //shows if model should rebuild terrain lightning
     protected static boolean terrain_outdated = false;  //shows if model should rebuild terrain lightning
 
     //--------------------------------------------------------------------------
-
     public Map<Point,WorldChunk> chunk_data = new java.util.HashMap<Point,WorldChunk>(100);
     private List<ChunkGenerator> generators = new ArrayList<ChunkGenerator>();
-    //public Map<Point,WorldTile> tile_data = new java.util.HashMap<Point,WorldTile>(1000);
-    
-    
+
     public WorldLayer(){
         tile_map = new WorldModelTileMap(this);
 
@@ -98,7 +92,7 @@ public class WorldLayer implements Serializable {
         try {
             objectPool.returnObject(point);
         } catch (Exception ex) {
-            //throw new RuntimeException("Failed to return lightweight object from the pool");
+            logger.error("Failed to return lightweight object from the pool", ex);
         }    
     }
 
@@ -209,7 +203,8 @@ public class WorldLayer implements Serializable {
                 return precache_chunk(chunk_x, chunk_y);
             }
 
-            //throw new RuntimeException("Chunk origin @" + "[" + chunk_x + "," + chunk_y + "] is out of cluster bounds @" + WorldCluster.origin + "+/-" + WorldCluster.CLUSTER_SIZE);
+            //this is not an actuall error
+            //logger.error("Chunk origin @" + "[" + chunk_x + "," + chunk_y + "] is out of cluster bounds @" + WorldCluster.origin + "+/-" + WorldCluster.CLUSTER_SIZE);
             return null;
         }
     }
@@ -287,7 +282,6 @@ public class WorldLayer implements Serializable {
                          if (entity.light_amt > 0.0f){
                             tile.light_level += get_light_amt(i,j,entity);
                          }
-                         //System.out.println(tile.light_level);
                      }
                  }
              }
@@ -354,7 +348,9 @@ public class WorldLayer implements Serializable {
     }
 
     protected void buildChunk(WorldChunk chunk, int z_index){
-        System.out.println("building chunk @"+chunk.origin);
+
+        logger.debug("building chunk @{}", chunk.origin);
+
         if (model.getEnvironment() == null){
             throw new WorldGenerationException("model environment is null on WorldLayer");
         }
@@ -409,8 +405,7 @@ public class WorldLayer implements Serializable {
         //----------------------------------------------------------------------
         WorldChunk new_chunk = get_cached_chunk(WorldChunk.get_chunk_coord(coord_dest));
         if (new_chunk != null && !entity.in_chunk(new_chunk)){
-
-            System.err.println("World model '" + model.getName() + "' is changing chunk for entity "+entity.getName());
+            logger.info("World model '{}' is changing chunk for entity {}", model.getName(), entity.getName() );
 
             WorldChunk ent_chunk = entity.get_chunk();
             //todo: move to event dispatcher?
@@ -427,7 +422,7 @@ public class WorldLayer implements Serializable {
             e_change_chunk.post();
             //----------------------------------------------------------------------
         }
-        //now, after we succesfuly performed chunk routime,
+        //now, after we successfully performed chunk routine,
         //set valid entity pointers in chunks
         WorldTile tile_from = get_tile(coord_from.getX(), coord_from.getY());
         WorldTile tile_to   = get_tile(coord_dest.getX(), coord_dest.getY());
@@ -505,7 +500,6 @@ public class WorldLayer implements Serializable {
         }
 
         public boolean blocked(Mover mover, int x, int y) {
-            //throw new UnsupportedOperationException("Not supported yet.");
             //todo: check the mover type
             temp.setLocation(x,y);
             temp = local2world(temp);
@@ -555,7 +549,4 @@ public class WorldLayer implements Serializable {
             return world;
         }
     }
-
-
-    //--------------------------------------------------------------------------
 }

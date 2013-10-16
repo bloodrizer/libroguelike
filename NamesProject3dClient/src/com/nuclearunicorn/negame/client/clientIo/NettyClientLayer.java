@@ -12,6 +12,8 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -28,11 +30,12 @@ public abstract class NettyClientLayer implements IEventListener {
     String host;
     int port;
 
-    String name = "undefinded client layer";
+    String name = "undefined client layer";
 
-    //the thransport channel we use to write into/read from
+    //the transport channel we use to write into/read from
     ChannelFuture future;
-    Thread  ioThread;
+
+    final static Logger logger = LoggerFactory.getLogger(NettyClientLayer.class);
 
     protected ArrayList<String> packetFilter = new ArrayList<String>();
     
@@ -53,7 +56,8 @@ public abstract class NettyClientLayer implements IEventListener {
     public void connect() throws Exception{
 
         for (int i = 0; i< 5; i++){
-            System.out.println(name + "> Connection attempt #" + i + " ...");
+
+            logger.info("{} > Connection attempt # {} ...", name, i);
             future = bootstrap.connect(new InetSocketAddress(host, port));
 
             // Wait until the connection attempt succeeds or fails.
@@ -62,7 +66,7 @@ public abstract class NettyClientLayer implements IEventListener {
             if (!future.isSuccess()) {
                 bootstrap.releaseExternalResources();
             }else{
-                System.out.println("connected successfully");
+                logger.info("Connection successful");
                 return;
             }
         }
@@ -77,7 +81,7 @@ public abstract class NettyClientLayer implements IEventListener {
 
     public void sendMsg(String message){
         if (future == null) {
-            System.err.println("Channel future is null, trying to re-acquire resource");
+            logger.warn("Channel future is null, trying to re-acquire resource");
             try {
                 connect();
             }catch (Exception ex){
@@ -87,12 +91,10 @@ public abstract class NettyClientLayer implements IEventListener {
         Channel ioChannel = future.awaitUninterruptibly().getChannel();
         
         if (ioChannel==null){
-            //System.err.println(host+":"+port+"> Unable to send message, channel is not ready");
-            //return;
-
             throw new RuntimeException(host+":"+port+"> Unable to send message, channel is not ready");
         }
-        System.out.println(host+":"+port+"> writing raw message - [" + message + "]");
+        //System.out.println(host+":"+port+"> writing raw message - [" + message + "]");
+
         ioChannel.write(message + "\r\n");
     }
 
@@ -102,9 +104,7 @@ public abstract class NettyClientLayer implements IEventListener {
 
 
     private void sendNetworkEvent(NetworkEvent event){
-        //System.out.println("Client layer: sending network event ["+event.classname()+"]");
         if (!whitelisted(event.classname())){
-            //System.out.println("Client layer '"+name+"': event [" + event.classname()+ "] is not whitelisted, skipping");
             return;
         }
 
@@ -125,12 +125,6 @@ public abstract class NettyClientLayer implements IEventListener {
         if (event instanceof NetworkEvent){
             sendNetworkEvent((NetworkEvent)event);
         }
-    }
-
-
-
-    public void e_on_event_rollback(Event event) {
-        //throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public void destroy(){

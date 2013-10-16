@@ -5,13 +5,15 @@ import com.nuclearunicorn.negame.client.NEGameClient;
 import com.nuclearunicorn.negame.client.game.modes.in_game.InGameMode;
 import com.nuclearunicorn.negame.client.game.modes.main_menu.MainMenuMode;
 import com.nuclearunicorn.negame.server.core.NEServerCore;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.PropertyConfigurator;
 
 /**
- * Created by IntelliJ IDEA.
- * User: bloodrizer
- * Date: 25.06.12
- * Time: 12:04
- * To change this template use File | Settings | File Templates.
+ * Main server class
+ *
+ * Server will launch additional client instance
+ * and attach it's update loop to the client loop
+ *
  */
 public class Main {
 
@@ -19,13 +21,16 @@ public class Main {
     public static NEServerCore serverCore;
 
     public static void main(String[] args) {
+
+        PropertyConfigurator.configure("application.properties");
+
         inGameMode = new InGameMode();
 
-        /* Run NE Server */
+        // Run NE Server
         serverCore = new NEServerCore();
         serverCore.run();
 
-        /* Run Client in the same session and connect it to the server */
+        //Run Client in the same session and connect it to the server
         NEGame game = NEGameClient.getNEGame();
 
         game.attachServerSession(serverCore);
@@ -39,9 +44,7 @@ public class Main {
             game.run();
         }
         finally{
-            //when client is done, terminate server
             game.running = false;
-            //NettyClient.destroy();
             serverCore.destroy();
         }
     }

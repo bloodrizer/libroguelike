@@ -58,20 +58,8 @@ public class TilesetVoxelRenderer extends LayerChunkRenderer {
 
     @Override
     public void render_tile(WorldTile tile, int tile_x, int tile_y) {
-        //TODO: render voxel tile
 
         int height = WorldView.getYOffset(tile);
-
-        //glColor3f(0.3f, 0.8f, 0.3f);
-
-
-        //SELECTION DEBUG START
-        /*Point selectedTileCoord = NEWorldView.getSelectedTileCoord();        //<-- ~8-9 fps
-        if (selectedTileCoord.getX() == tile_x && selectedTileCoord.getY() == tile_y){
-            vaVoxel.topTileId = 7;
-        }else{
-            vaVoxel.topTileId = 1;
-        }*/
 
         if (tile_x % WorldChunk.CHUNK_SIZE == 0 || tile_y % WorldChunk.CHUNK_SIZE == 0){
             vaVoxel.topTileId = 7;
@@ -79,34 +67,27 @@ public class TilesetVoxelRenderer extends LayerChunkRenderer {
             vaVoxel.topTileId = 1;
         }
 
+        //make blocked tiles a little bit darker (so we can easily spot them)
+        if (tile.isBlocked()){
+            glColor4f(0.7f, 0.7f, 0.7f, 1.0f);
+        }else{
+            glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+        }
+
         if (isGeometryOutdated){
             vaVoxel.setOrigin(tile_x * 1.000005f, height * 0.05f, tile_y * 1.000005f);
             vaVoxel.renderIntoVA(vaRenderer, (NEVoxelTile)tile);
         }
-
-        //voxelRenderer.set_origin(5 * 1.00005f, (height + 128) * 0.05f, 5 * 1.00005f);
-        //voxelRenderer.render();
-
-
-        //voxelRenderer.set_origin(tile_x * 1.1f, height * 0.05f, tile_y * 1.1f);
-        //voxelRenderer.render();
-
-        //voxelRenderer.set_origin(tile_x * 1.1f, height * 0.05f, tile_y * 1.1f);
-        //voxelRenderer.build_vbo(vboRenderer);
     }
 
     @Override
     public void beforeRender() {
         WindowRender.set3DMode();
 
-
-        //camera.update();
         camera.setMatrix();
 
         /*  SET LIGHTING TO THE SCENE */
         setSceneLighting();
-
-        //GL11.glPolygonMode( GL11.GL_FRONT_AND_BACK, GL11.GL_LINE );
 
         if (isGeometryOutdated){
             vaRenderer.clearBuffers();
@@ -141,11 +122,7 @@ public class TilesetVoxelRenderer extends LayerChunkRenderer {
         /*
            Voxel render uses half voxel offset from 0,0 origin, so mouse coords actually start at -0.5f, -0.5f
         */
-
-        //reset from 3d mode back to 2d
-        //TODO: move to WindowRender.switch2d() / switch3d()
         WindowRender.set2DMode();
-
     }
 
     private void setSceneLighting() {
