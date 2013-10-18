@@ -9,8 +9,6 @@ import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
 import com.nuclearunicorn.libroguelike.game.world.layers.WorldLayer;
 import org.lwjgl.util.Point;
 
-
-
 /**
  *
  * @author bloodrizer
@@ -32,6 +30,5 @@ public abstract class ChunkGenerator {
         return environment.getWorldLayer(z_index);
     }
     
-    public void generate(WorldChunk chunk){
-    }
+    public abstract void generate(WorldChunk chunk);
 }

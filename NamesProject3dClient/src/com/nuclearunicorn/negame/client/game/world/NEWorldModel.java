@@ -18,7 +18,7 @@ public class NEWorldModel extends WorldModel implements ILosBoard {
         this.LAYER_COUNT = layersCount;
 
         for (int i = 0; i< LAYER_COUNT; i++ ){
-            WorldLayer layer = new NEWorldLayer();    //TODO: use NEWorldLayer
+            WorldLayer layer = new NEWorldLayer();
             layer.set_zindex(i);
             layer.setModel(this);
             worldLayers.put(i, layer);
@@ -32,16 +32,16 @@ public class NEWorldModel extends WorldModel implements ILosBoard {
 
     @Override
     public boolean isObstacle(int x, int y) {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        return false;
     }
 
     @Override
     public void visit(int x, int y) {
-        //To change body of implemented methods use File | Settings | File Templates.
+
     }
 
     public void resetFov() {
-        //To change body of created methods use File | Settings | File Templates.
+
     }
 
     @Override

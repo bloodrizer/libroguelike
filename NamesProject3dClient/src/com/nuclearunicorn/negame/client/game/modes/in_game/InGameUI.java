@@ -12,6 +12,7 @@ import com.nuclearunicorn.libroguelike.game.ui.IUserInterface;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.WorldView;
 import com.nuclearunicorn.libroguelike.render.WindowRender;
+import com.nuclearunicorn.libroguelike.utils.JSONUtils;
 import com.nuclearunicorn.libroguelike.vgui.*;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import com.nuclearunicorn.serialkiller.messages.EConsoleMessage;
@@ -25,13 +26,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 
-/**
- * Created by IntelliJ IDEA.
- * User: Administrator
- * Date: 03.03.12
- * Time: 16:05
- * To change this template use File | Settings | File Templates.
- */
 public class InGameUI implements IUserInterface, IEventListener {
 
     public NE_GUI_System ui;
@@ -81,11 +75,14 @@ public class InGameUI implements IUserInterface, IEventListener {
         console.y = 36;
         console.dragable = false;
         console.max_lines = 7;
+        
+        JSONUtils jsonUTILS = new JSONUtils();
 
-        /*console.add_line("Wellcome to the Serial Killer Roguelike");
-        console.add_line("Press 'wsad' to move, 'space' to skil turn");
-        console.add_line("Use 'ctrl' + direction to attack ");
-        console.add_line("Press 'tab' to view your character screen and inventory ");*/
+        String motd_message = jsonUTILS.getMessage("motd.json");
+        String echo_message = jsonUTILS.getMessage("echo.json");
+
+        console.add_line(motd_message);
+        console.add_line(echo_message);
 
         frame.add(console);
     }

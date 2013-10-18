@@ -6,10 +6,12 @@ package com.nuclearunicorn.negame.client.clientIo;
 
 
 import com.nuclearunicorn.libroguelike.core.client.ClientEventManager;
+import com.nuclearunicorn.libroguelike.events.network.EEntitySetPath;
 import com.nuclearunicorn.negame.client.clientIo.charclient.CharClientPipelineFactory;
 import com.nuclearunicorn.negame.client.clientIo.gameclient.GameClientPipelineFactory;
 import com.nuclearunicorn.negame.common.EventConstants;
 import com.nuclearunicorn.negame.common.IoCommon;
+import com.nuclearunicorn.negame.common.events.EGetChunkData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 /**
@@ -76,8 +78,17 @@ public class NettyClient {
         }
 
         public void run() {
+            /**
+             * If event is not added to the packetFilter, *client* *** will not *** sent it to the server
+             *
+             * TODO: replace packetFilter with eventWhitelist
+             * TODO2: probably manage whitelisted with annotations
+             */
             gameServClient = new NettyClientLayer(host,port, "gameserv-client-layer") {{
-                packetFilter.add(EventConstants.E_ENTITY_SET_PATH);
+
+                packetFilter.add(EEntitySetPath.class.getName());
+                packetFilter.add(EGetChunkData.class.getName());
+
                 packetFilter.add("events.network.EBuildStructure");
             }};
             gameServClient.name = "gameserv client";

@@ -68,7 +68,6 @@ public class GameServerHandler extends AServerHandler {
         User user = ServerUserPool.getUser(channel, ServerUserPool.CHANNEL_TYPE.CHANNEL_GAMESERV);
 
         getServer().removePlayerCharacter(user);
-        //TODO: send message to delete entity on clients
 
         server.allChannels.remove(channel);
     }
@@ -91,10 +90,7 @@ public class GameServerHandler extends AServerHandler {
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) {
         // Close the connection when an exception is raised.
         e.getChannel().close();
-
         e.getCause().printStackTrace();
-
-        //throw new RuntimeException("Unexpected exception from downstream", e.getCause());
     }
 
     private void sendNetworkEvent(NetworkEvent event){

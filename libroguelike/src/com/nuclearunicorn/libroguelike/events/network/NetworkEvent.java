@@ -16,7 +16,7 @@ import com.nuclearunicorn.libroguelike.events.Event;
 }
 
 
-public class NetworkEvent extends Event {
+public abstract class NetworkEvent extends Event {
 
     private boolean local = false;
     private boolean synchronised = false;

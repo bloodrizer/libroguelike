@@ -15,6 +15,7 @@ import com.nuclearunicorn.libroguelike.game.GameEnvironment;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  *
@@ -82,6 +83,9 @@ public class EntityManager implements IEventListener {
      * to be sure that render order is correct
      */
     public synchronized void update(){
+        //TODO: fix concurency issues there
+        List<ArrayList<Entity>> entities = new ArrayList<ArrayList<Entity>>(layer_ent_list.values());
+
         for(ArrayList<Entity> list: layer_ent_list.values()){
             Collections.sort(list);
         }

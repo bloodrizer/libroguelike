@@ -17,20 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Administrator
- * Date: 22.06.12
- * Time: 2:00
- * To change this template use File | Settings | File Templates.
- */
 public abstract class GenericGroundChunkGenerator extends ChunkGenerator {
 
         protected List<ObjectGenerator> chunkObjectGenerators = new ArrayList<ObjectGenerator>();
-
-        public GenericGroundChunkGenerator(){
-            
-        }
 
         protected abstract void generate_objects(int i, int j, WorldTile tile, Random chunk_random);
 
@@ -140,16 +129,14 @@ public abstract class GenericGroundChunkGenerator extends ChunkGenerator {
                     generate_objects(i, j, tile, chunk_random);
                 }
             }
-
             //---------------------------------------------------------------------
-            
-            
-            afterGenerateChunk(chunk.origin.getX(), chunk.origin.getY());
 
+            afterGenerateChunk(chunk.origin.getX(), chunk.origin.getY());
             timer.pop("chunk @" + origin.getX() + "," + origin.getY());
         }
 
         protected void afterGenerateChunk(int x, int y) {
+            //do nothing, override me
         }
 
         protected WorldLayer getLayer() {

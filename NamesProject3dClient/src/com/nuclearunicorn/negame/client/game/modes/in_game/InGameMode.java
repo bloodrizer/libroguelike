@@ -30,7 +30,7 @@ import com.nuclearunicorn.negame.client.clientIo.NettyClient;
 import com.nuclearunicorn.negame.client.game.controllers.NetworkPlayerController;
 import com.nuclearunicorn.negame.client.game.world.NEWorldModel;
 import com.nuclearunicorn.negame.client.game.world.NEWorldView;
-import com.nuclearunicorn.negame.client.generators.NEGroundChunkGenerator;
+import com.nuclearunicorn.negame.client.generators.NEClientGroundChunkGenerator;
 import com.nuclearunicorn.negame.client.render.ASCIISpriteEntityRenderer;
 import com.nuclearunicorn.negame.client.render.TilesetVoxelRenderer;
 import com.nuclearunicorn.negame.client.render.overlays.NEDebugOverlay;
@@ -89,7 +89,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         WorldCluster.CLUSTER_SIZE = 3;
 
         ArrayList<WorldLayer> layers = new ArrayList<WorldLayer>(model.getLayers());
-        layers.get(0).registerGenerator(new NEGroundChunkGenerator());
+        layers.get(0).registerGenerator(new NEClientGroundChunkGenerator());
         Timer.init();
 
         final AbstractLayerRenderer renderer = new TilesetVoxelRenderer();

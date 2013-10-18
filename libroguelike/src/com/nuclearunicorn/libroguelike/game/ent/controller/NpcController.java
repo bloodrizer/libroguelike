@@ -189,7 +189,7 @@ public class NpcController extends BaseController implements Mover, IEventListen
 
         EEntitySetPath dest_event = new EEntitySetPath(owner, __dest);
         dest_event.setManager(ClientGameEnvironment.getEnvironment().getEventManager());
-        System.out.println("posting event");
+
         dest_event.post();
     }
 

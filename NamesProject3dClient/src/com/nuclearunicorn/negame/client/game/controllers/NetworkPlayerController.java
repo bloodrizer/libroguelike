@@ -45,7 +45,6 @@ public class NetworkPlayerController extends PlayerController {
 
                 EEntitySetPath dest_event = new EEntitySetPath(owner, tileCoord);
                 dest_event.setManager(ClientGameEnvironment.getEnvironment().getEventManager());
-                System.out.println("posting event");
                 dest_event.post();
             }
         }

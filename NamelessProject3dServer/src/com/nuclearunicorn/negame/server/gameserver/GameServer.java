@@ -10,6 +10,7 @@ import com.nuclearunicorn.libroguelike.events.Event;
 import com.nuclearunicorn.libroguelike.events.EventManager;
 import com.nuclearunicorn.libroguelike.events.IEventListener;
 import com.nuclearunicorn.libroguelike.events.network.EEntityMove;
+import com.nuclearunicorn.libroguelike.events.network.EEntitySetPath;
 import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.negame.common.events.EEntitySpawnNetwork;
 import com.nuclearunicorn.libroguelike.events.network.NetworkEvent;
@@ -21,6 +22,7 @@ import com.nuclearunicorn.libroguelike.game.world.WorldModel;
 import com.nuclearunicorn.libroguelike.game.world.layers.WorldLayer;
 import com.nuclearunicorn.negame.common.EventConstants;
 import com.nuclearunicorn.negame.common.IoCommon;
+import com.nuclearunicorn.negame.common.events.EGetChunkData;
 import com.nuclearunicorn.negame.server.core.AServerIoLayer;
 import com.nuclearunicorn.negame.server.core.NEDataPacket;
 import com.nuclearunicorn.negame.server.core.ServerUserPool;
@@ -39,6 +41,8 @@ import org.jboss.netty.handler.codec.frame.Delimiters;
 import org.jboss.netty.handler.codec.string.StringDecoder;
 import org.jboss.netty.handler.codec.string.StringEncoder;
 import org.lwjgl.util.Point;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -54,6 +58,7 @@ import java.util.concurrent.Executors;
 public class GameServer extends AServerIoLayer implements IEventListener {
     NioServerSocketChannelFactory nio_factory;
 
+    final static Logger logger = LoggerFactory.getLogger(GameServer.class);
 
     GameEnvironment gameEnv;
     EventManager eventManager;
@@ -93,7 +98,7 @@ public class GameServer extends AServerIoLayer implements IEventListener {
 
 
     public void run(){
-        System.out.println("Starting local game server on "+ IoCommon.GAME_SERVER_PORT);
+        logger.info("Starting local game server on {}", IoCommon.GAME_SERVER_PORT);
         
         handler = new GameServerHandler(this);
 
@@ -105,9 +110,6 @@ public class GameServer extends AServerIoLayer implements IEventListener {
             nio_factory
         );
 
-        // Set up the pipeline factory.
-
-        //this shit not works yet
         bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
 
             public ChannelPipeline getPipeline() throws Exception {
@@ -147,11 +149,10 @@ public class GameServer extends AServerIoLayer implements IEventListener {
             cache.put(element);
         }*/
 
-
-        System.out.println("Flushing down cache");
+        logger.info("Flushing down cache");
         //cache.flush();
 
-        System.out.println("Shutting down cache manager");
+        logger.info("Shutting down cache manager");
         //cacheManager.shutdown();
     }
 
@@ -174,20 +175,28 @@ public class GameServer extends AServerIoLayer implements IEventListener {
         String[] data = packet.getData();
         Channel ioChannel = packet.getChannel();
 
+        User user = ServerUserPool.getUser(ioChannel, ServerUserPool.CHANNEL_TYPE.CHANNEL_GAMESERV);
+
         if (data.length == 0){
             return;
         }
         String eventType = data[0];
 
-        System.err.println("handling event '"+eventType+"'");
-
-        if (eventType.equals(EventConstants.E_ENTITY_SET_PATH)){
+        if (eventType.equals(EEntitySetPath.class.getName())){
             int x = Integer.parseInt(data[1]);
             int y = Integer.parseInt(data[2]);
 
-            User user = ServerUserPool.getUser(ioChannel, ServerUserPool.CHANNEL_TYPE.CHANNEL_GAMESERV);
             moveUser(user, x, y);
             
+        }
+        if (eventType.equals(EGetChunkData.class.getName())) {
+            int x = Integer.parseInt(data[1]);
+            int y = Integer.parseInt(data[2]);
+            
+            WorldLayer layer = this.getEnv().getWorld().getWorldLayer(user.getEntity().getLayerId());
+            WorldChunk chunk = layer.get_cached_chunk(x, y);
+
+            notifyChunkData(user, chunk);
         }
     }
 
@@ -246,20 +255,11 @@ public class GameServer extends AServerIoLayer implements IEventListener {
         mplayer_ent.spawn(getUserLocation(user));
 
         user.setEntity(mplayer_ent);
-        //worldUpdateLazyLoad(0,0);
 
-        //stream 3x3 chunk data
-        WorldChunk chunk = mplayer_ent.get_chunk();
-        //notifyChunkData(user);
+        //we do not need to stream chunk data any more,
+        //as client will handle entity streaming by itself (?)
 
-        WorldLayer serverGroundLayer = getEnv().getWorldLayer(WorldLayer.GROUND_LAYER);
-        for (int i = chunk.origin.getX()-1; i<=chunk.origin.getX(); i++){
-            for (int j = chunk.origin.getY()-1; j<=chunk.origin.getY(); j++){
-                //if chunk doest not exist, it will be generated and populated with game objects
-                WorldChunk cachedChunk = serverGroundLayer.get_cached_chunk(i, j);
-                notifyChunkData(user, cachedChunk);
-            }
-        }
+
         //once player has spawned, notify all active players of generic npc spawn
 
         EEntitySpawnNetwork spawnEvent = new EEntitySpawnNetwork(mplayer_ent, mplayer_ent.origin);
@@ -301,13 +301,13 @@ public class GameServer extends AServerIoLayer implements IEventListener {
         }
     }
 
-
     /*
         This method takes all entities in the chunk and stream them to the player
         TODO: introduce some compact bundle format a-la json
         Note that this method passes simple data only, i.e. coords, uid and simple ent type
         Client responsibility is to request additional information about given entity
      */
+
     public void notifyChunkData(User observer, WorldChunk chunk){
         Entity userEnt = observer.getEntity();
         Channel userChannel = observer.getGameChannel();
@@ -317,10 +317,12 @@ public class GameServer extends AServerIoLayer implements IEventListener {
             return; //do not even bother to send chunk data
         }
 
-        System.err.println("Sending chunk data to user #"+observer.getId() + "(" + entityList.size() + " entities total)");
+        logger.info("Sending chunk data to user #"+observer.getId() + "(" + entityList.size() + " entities total)");
         for (Entity chunkEnt: entityList){
             if (!chunkEnt.equals(userEnt)){
-                System.out.println("forcing client to spawn entity #"+chunkEnt.get_uid()+" @"+ chunkEnt.origin.getX() + "," + chunkEnt.origin.getY());
+
+                logger.debug("forcing client to spawn entity #"+chunkEnt.get_uid()+" @"+ chunkEnt.origin.getX() + "," + chunkEnt.origin.getY());
+
                 EEntitySpawnNetwork spawnEvent = new EEntitySpawnNetwork(chunkEnt, chunkEnt.origin);
                 sendEvent(spawnEvent, userChannel);
             }
