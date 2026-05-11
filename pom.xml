@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.nuclearunicorn</groupId>
+    <artifactId>libroguelike-parent</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>libroguelike (parent)</name>
+    <description>
+        Multi-module aggregator for the libroguelike engine and the
+        serialkiller game. Milestone 1: CLI build only — keeps the
+        original LWJGL 2.7.1 / slick-util / rlforj dependency stack so
+        sources compile unchanged.
+    </description>
+
+    <modules>
+        <module>libroguelike</module>
+        <module>serialkiller</module>
+    </modules>
+
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <lwjgl.legacy.version>2.7.1</lwjgl.legacy.version>
+    </properties>
+
+    <repositories>
+        <!-- File-based local repo committed to the tree so the build is
+             self-contained. Run scripts/install-local-jars.sh to repopulate. -->
+        <repository>
+            <id>project-local</id>
+            <url>file://${maven.multiModuleProjectDirectory}/local-repo</url>
+            <releases>
+                <enabled>true</enabled>
+                <checksumPolicy>ignore</checksumPolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.lwjgl.legacy</groupId>
+                <artifactId>lwjgl</artifactId>
+                <version>${lwjgl.legacy.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.lwjgl.legacy</groupId>
+                <artifactId>lwjgl_util</artifactId>
+                <version>${lwjgl.legacy.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.lwjgl.legacy</groupId>
+                <artifactId>jinput</artifactId>
+                <version>${lwjgl.legacy.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.newdawn.slick</groupId>
+                <artifactId>slick-util</artifactId>
+                <version>1.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sourceforge.rlforj</groupId>
+                <artifactId>rlforj</artifactId>
+                <version>0.2</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>2.2.4</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-pool</groupId>
+                <artifactId>commons-pool</artifactId>
+                <version>1.6</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>1.7.5</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>1.7.5</version>
+            </dependency>
+            <dependency>
+                <groupId>log4j</groupId>
+                <artifactId>log4j</artifactId>
+                <version>1.2.17</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.13.0</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.4.2</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>3.3.1</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>3.8.1</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>

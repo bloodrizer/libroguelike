@@ -1,4 +1,22 @@
 
 /out
+
+# IDEA leftovers from old project layout
 /libroguelike/lib/lwjgl-2.8.3
 /libroguelike/lib/slick
+
+# Maven build output
+target/
+**/target/
+
+# IDE
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/usage.statistics.xml
+.idea/shelf/
+*.iws
+.vscode/
+
+# OS
+.DS_Store
+local-repo
