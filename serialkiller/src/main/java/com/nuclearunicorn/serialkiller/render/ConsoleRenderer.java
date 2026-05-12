@@ -35,8 +35,6 @@ public class ConsoleRenderer extends LayerChunkRenderer {
 
     @Override
     public void render_tile(WorldTile tile, int tile_x, int tile_y) {
-        //this may be slow, but anyway, it's faster than render all those quads
-
         if (WorldViewCamera.tile_in_fov(tile_x,tile_y)){
            RLTile rltile = (((RLTile)tile));
            if (rltile == null){

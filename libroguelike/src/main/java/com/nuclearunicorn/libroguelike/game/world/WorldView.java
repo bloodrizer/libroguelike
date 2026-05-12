@@ -155,6 +155,13 @@ public class WorldView implements IEventListener {
     public void render(){
         glLoadIdentity();
 
+        // Camera follows the player. Without this update,
+        // WorldViewCamera.camera_x/y stay at (0,0) so tile_in_fov only ever
+        // matches tiles in the world's first 1024×768 pixel block, and tiles
+        // around the actual player position never render.
+        WorldViewCamera.update();
+        WorldViewCamera.setMatrix();
+
         render_layer();
         render_entities();
 
