@@ -113,12 +113,5 @@ public class FBO {
         glPopMatrix();
         glMatrixMode(GL_MODELVIEW);
         glPopMatrix();
-
-        // Restore main framebuffer viewport — it's not just window-sized on
-        // Retina/HiDPI displays.
-        int[] fbW = new int[1], fbH = new int[1];
-        org.lwjgl.glfw.GLFW.glfwGetFramebufferSize(
-            org.lwjgl.opengl.Display.handle(), fbW, fbH);
-        glViewport(0, 0, fbW[0], fbH[0]);
     }
 }

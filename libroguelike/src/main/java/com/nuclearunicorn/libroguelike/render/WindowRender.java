@@ -81,15 +81,12 @@ public class WindowRender {
         GL11.glMatrixMode(GL11.GL_PROJECTION);
         GL11.glLoadIdentity();
 
-        // M2 EXPERIMENT — try window-unit viewport (the legacy default).
+        // Viewport in window units, not framebuffer pixels: macOS Apple GL
+        // scales internally for Retina, and the legacy game's draw calls all
+        // measure in window-unit coords. Using the framebuffer size here would
+        // double-scale on Retina displays.
         GL11.glViewport(0, 0, w, h);
         GL11.glOrtho(0.0f, w, h, 0.0f, -1.0f, 1.0f);
-
-        int[] vp = new int[4];
-        GL11.glGetIntegerv(GL11.GL_VIEWPORT, vp);
-        System.err.println("[initGL] viewport=" + w + "x" + h
-            + ", ortho=" + w + "x" + h
-            + ", actual GL_VIEWPORT=[" + vp[0] + "," + vp[1] + "," + vp[2] + "," + vp[3] + "]");
 
         GL11.glClearColor(0, 0, 0, 1);
 
@@ -102,14 +99,8 @@ public class WindowRender {
         GL11.glLoadIdentity();
     }
 
-    private static int[] _fbW = new int[1], _fbH = new int[1];
-    private static void glViewportFb() {
-        org.lwjgl.glfw.GLFW.glfwGetFramebufferSize(Display.handle(), _fbW, _fbH);
-        glViewport(0, 0, _fbW[0], _fbH[0]);
-    }
-
     public static void set3DMode(){
-        glViewportFb();
+        glViewport(0,0,WindowRender.get_window_w(),WindowRender.get_window_h());
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
 
@@ -125,7 +116,7 @@ public class WindowRender {
     public static void set2DMode(){
         GL11.glLoadIdentity();
 
-        glViewportFb();
+        GL11.glViewport(0, 0, WindowRender.get_window_w(), WindowRender.get_window_h());
         GL11.glMatrixMode(GL11.GL_PROJECTION);
         GL11.glLoadIdentity();
 
