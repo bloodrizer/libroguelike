@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
 # Repopulate the project's local-repo/ from libroguelike/lib/.
-# Only needed if local-repo/ is removed. The committed local-repo means the
-# Maven build is hermetic — no remote fetch required for these legacy jars.
+# slick-util and rlforj are not on Maven Central, so they live in the
+# committed lib/ directory and are installed into a project-local Maven
+# repository before the first build. Run once after cloning:
+#
+#   ./scripts/install-local-jars.sh
+#   mvn package
+#
+# LWJGL 2 itself is no longer needed (M2 switched to LWJGL 3 from Central).
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -11,9 +17,6 @@ install_local() {
     -Dpackaging=jar -DlocalRepositoryPath=local-repo -DcreateChecksum=true
 }
 
-install_local libroguelike/lib/lwjgl-2.7.1/jar/lwjgl.jar       org.lwjgl.legacy lwjgl       2.7.1
-install_local libroguelike/lib/lwjgl-2.7.1/jar/lwjgl_util.jar  org.lwjgl.legacy lwjgl_util  2.7.1
-install_local libroguelike/lib/lwjgl-2.7.1/jar/jinput.jar      org.lwjgl.legacy jinput      2.7.1
 install_local libroguelike/lib/slick-util/slick-util.jar       org.newdawn.slick slick-util 1.0.0
 install_local libroguelike/lib/rlforj.0.2.jar                  net.sourceforge.rlforj rlforj 0.2
 

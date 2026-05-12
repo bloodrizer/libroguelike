@@ -93,7 +93,7 @@ public class Game {
                Display.sync(60);
                Display.update();
 
-               if (Display.isCloseRequested()){  
+               if (Display.isCloseRequested()){
                     onCloseDisplay();
                     running = false;
                }

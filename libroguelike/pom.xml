@@ -14,21 +14,48 @@
     <name>libroguelike (engine)</name>
 
     <dependencies>
+        <!-- LWJGL 3 core + GLFW windowing + OpenGL bindings -->
         <dependency>
-            <groupId>org.lwjgl.legacy</groupId>
+            <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.lwjgl.legacy</groupId>
-            <artifactId>lwjgl_util</artifactId>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl-glfw</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.lwjgl.legacy</groupId>
-            <artifactId>jinput</artifactId>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl-opengl</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.newdawn.slick</groupId>
-            <artifactId>slick-util</artifactId>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl-stb</artifactId>
+        </dependency>
+
+        <!-- LWJGL 3 native binaries, classifier set per OS via parent profile -->
+        <dependency>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl</artifactId>
+            <classifier>${lwjgl.natives}</classifier>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl-glfw</artifactId>
+            <classifier>${lwjgl.natives}</classifier>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl-opengl</artifactId>
+            <classifier>${lwjgl.natives}</classifier>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl-stb</artifactId>
+            <classifier>${lwjgl.natives}</classifier>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -43,22 +70,29 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>runtime</scope>
         </dependency>
     </dependencies>
 
     <build>
         <resources>
+            <!-- logback looks for logback.xml at the classpath root. -->
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>logback.xml</include>
+                </includes>
+            </resource>
             <!-- Code uses getResourceAsStream("/resources/...") — keep that
                  layout inside the jar. -->
             <resource>
                 <directory>src/main/resources</directory>
                 <targetPath>resources</targetPath>
+                <excludes>
+                    <exclude>logback.xml</exclude>
+                </excludes>
             </resource>
         </resources>
     </build>

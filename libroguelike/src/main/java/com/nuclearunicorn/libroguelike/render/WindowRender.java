@@ -54,10 +54,16 @@ public class WindowRender {
         //enable some debug extentions
 
         if ( GLContext.getCapabilities().GL_ARB_debug_output ){
-            ARBDebugOutput.glDebugMessageCallbackARB(new ARBDebugOutputCallback());
+            ARBDebugOutput.glDebugMessageCallbackARB(
+                (source, type, id, severity, length, message, userParam) ->
+                    System.err.println("[GL] " + org.lwjgl.system.MemoryUtil.memUTF8(message, length)),
+                0L);
         }
         else if ( GLContext.getCapabilities().GL_AMD_debug_output ) {
-            AMDDebugOutput.glDebugMessageCallbackAMD(new AMDDebugOutputCallback());
+            AMDDebugOutput.glDebugMessageCallbackAMD(
+                (id, category, severity, length, message, userParam) ->
+                    System.err.println("[GL] " + org.lwjgl.system.MemoryUtil.memUTF8(message, length)),
+                0L);
         }
 
     }
@@ -74,9 +80,16 @@ public class WindowRender {
 
         GL11.glMatrixMode(GL11.GL_PROJECTION);
         GL11.glLoadIdentity();
-        
+
+        // M2 EXPERIMENT — try window-unit viewport (the legacy default).
         GL11.glViewport(0, 0, w, h);
         GL11.glOrtho(0.0f, w, h, 0.0f, -1.0f, 1.0f);
+
+        int[] vp = new int[4];
+        GL11.glGetIntegerv(GL11.GL_VIEWPORT, vp);
+        System.err.println("[initGL] viewport=" + w + "x" + h
+            + ", ortho=" + w + "x" + h
+            + ", actual GL_VIEWPORT=[" + vp[0] + "," + vp[1] + "," + vp[2] + "," + vp[3] + "]");
 
         GL11.glClearColor(0, 0, 0, 1);
 
@@ -89,8 +102,14 @@ public class WindowRender {
         GL11.glLoadIdentity();
     }
 
+    private static int[] _fbW = new int[1], _fbH = new int[1];
+    private static void glViewportFb() {
+        org.lwjgl.glfw.GLFW.glfwGetFramebufferSize(Display.handle(), _fbW, _fbH);
+        glViewport(0, 0, _fbW[0], _fbH[0]);
+    }
+
     public static void set3DMode(){
-        glViewport(0,0,WindowRender.get_window_w(),WindowRender.get_window_h());
+        glViewportFb();
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
 
@@ -106,7 +125,7 @@ public class WindowRender {
     public static void set2DMode(){
         GL11.glLoadIdentity();
 
-        GL11.glViewport(0, 0, WindowRender.get_window_w(), WindowRender.get_window_h());
+        glViewportFb();
         GL11.glMatrixMode(GL11.GL_PROJECTION);
         GL11.glLoadIdentity();
 

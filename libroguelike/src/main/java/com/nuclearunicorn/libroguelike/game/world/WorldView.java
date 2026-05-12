@@ -157,7 +157,7 @@ public class WorldView implements IEventListener {
 
         render_layer();
         render_entities();
-        
+
         glLoadIdentity();
         //update_cursor();
     }
