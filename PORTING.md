@@ -95,9 +95,10 @@ So step zero of any plan is to be able to build it from the command line, then t
 There are three increasingly aggressive milestones. Each one is independently shippable:
 
 ```
-M1: CLI build           ─►  (Maven or Gradle, no IDE required)
-M2: LWJGL 3 + GL3 core  ─►  (works on modern macOS; immediate mode → VBO+shaders)
-M3: libGDX + TeaVM      ─►  (single source compiles to desktop JAR + WebGL/wasm)
+M1: CLI build           ─►  ✅ done (Maven multi-module)
+M2: LWJGL 3 + GLFW      ─►  ✅ done (runs on macOS arm64; still GL 2.1 compat)
+M2b: GL3 core / VBO     ─►  next (immediate mode → VBO+shaders)
+M3: libGDX + TeaVM      ─►  later (single source compiles to desktop JAR + WebGL/wasm)
 ```
 
 You can stop at M2 and have a healthy desktop game. M3 is what unlocks the "ship a URL" distribution story.

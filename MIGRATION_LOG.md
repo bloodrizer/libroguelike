@@ -188,3 +188,94 @@ What's next (M2 — see [PORTING.md §5](PORTING.md)):
 - Replace LWJGL 2 with LWJGL 3 + GLFW in [WindowRender.java](libroguelike/src/main/java/com/nuclearunicorn/libroguelike/render/WindowRender.java), [Input.java](libroguelike/src/main/java/com/nuclearunicorn/libroguelike/core/Input.java), [Game.run()](libroguelike/src/main/java/com/nuclearunicorn/libroguelike/core/Game.java#L80).
 - Replace slick-util `TextureLoader`/`TrueTypeFont` with STBImage/STBTruetype.
 - Decide GL 2.1 compat vs GL 3.3 core (recommendation: core, see PORTING.md §5).
+
+---
+
+## Milestone 2 — LWJGL 3 + GLFW
+
+Goal: replace LWJGL 2.7.1 (no macOS arm64 support, dead since 2014) with LWJGL 3 + GLFW so the game runs natively on Apple Silicon. Decision recorded earlier: **shim layer** approach — keep the game's source unchanged and add small implementations of the LWJGL 2 classes the game imports, in their original packages, delegating to LWJGL 3.
+
+### Step 1 — Toolchain & deps
+
+- Bumped `<source>`/`<target>` from 8 to 17 in the parent POM.
+- Replaced LWJGL 2 dep block with the LWJGL 3 BOM (`org.lwjgl:lwjgl-bom:3.3.6` imported as `<scope>import</scope>` `<type>pom</type>`).
+- libroguelike module declares `lwjgl`, `lwjgl-glfw`, `lwjgl-opengl`, `lwjgl-stb`, plus a runtime-scope copy of each with the per-OS native classifier.
+- Native classifier resolved via parent-POM `<profiles>`: `natives-macos-arm64`, `natives-macos`, `natives-linux`, `natives-linux-arm64`, `natives-windows`. OS+arch detection happens automatically via Maven's `<activation><os>…</os></activation>`.
+- Bumped gson 2.2.4 → 2.10.1 and slf4j 1.7.5 → 2.0.13 to match logback 1.5.x.
+- Replaced log4j 1.2.17 binding with logback 1.5.12 (slf4j-log4j12 dropped). Old `application.properties` deleted; new `libroguelike/src/main/resources/logback.xml` lands at the jar root via a dedicated `<resource>` block in `libroguelike/pom.xml`.
+- `scripts/install-local-jars.sh` simplified — only slick-util and rlforj need to be vendored now. The LWJGL 2 jars are no longer referenced.
+
+### Step 2 — Shim classes for the LWJGL 2 → LWJGL 3 surface
+
+Audited the entire codebase for LWJGL 2 imports:
+
+| Package | Used | Status in LWJGL 3 |
+|---|---|---|
+| `org.lwjgl.opengl.Display` / `DisplayMode` | yes | gone — must shim |
+| `org.lwjgl.opengl.GLContext` | yes | renamed to `GL.getCapabilities()` — must shim |
+| `org.lwjgl.opengl.ARBDebugOutputCallback` / `AMDDebugOutputCallback` | yes | replaced by `GLDebugMessageARBCallbackI`/`AMDCallbackI` lambdas — patched the callsite directly in `WindowRender.java` (only place using these) |
+| `org.lwjgl.opengl.EXTFramebufferObject` | yes | still present in LWJGL 3, no shim needed |
+| `org.lwjgl.opengl.GL11` / `GL12` / `GL14` | yes | still present, identical signatures |
+| `org.lwjgl.input.{Keyboard, Mouse, Cursor}` | yes | gone — must shim |
+| `org.lwjgl.util.Point` | yes (very widely) | gone — must shim |
+| `org.lwjgl.util.vector.Vector3f` | yes (one file) | gone — must shim |
+| `org.lwjgl.util.glu.GLU.gluPerspective` | yes | gone — must shim |
+| `org.lwjgl.LWJGLException` | yes | gone — must shim |
+| `org.lwjgl.BufferUtils` | yes | still present, no shim needed |
+
+Wrote shims under `libroguelike/src/main/java/org/lwjgl/...`:
+
+- `LWJGLException` — empty wrapper exception.
+- `util/Point` — int x/y, getters/setters/equals/hashCode (only what callers use).
+- `util/vector/Vector3f` — public x/y/z floats + `set(...)`, `getX/Y/Z`, `setX/Y/Z`.
+- `util/glu/GLU` — single static `gluPerspective` that builds the matrix and calls `glMultMatrixf`.
+- `opengl/Display` — wraps GLFW. `setDisplayMode/setTitle/setVSyncEnabled/create/update/sync/destroy/isCloseRequested/setParent`. `create()` initialises GLFW, requests a 2.1 compatibility context (so `glBegin`/`glEnd` keep working), creates the window centered on the primary monitor, makes the context current, runs `GL.createCapabilities()`, attaches `InputBridge`, shows + focuses the window.
+- `opengl/DisplayMode` — width/height holder.
+- `opengl/GLContext` — `getCapabilities()` returns an LWJGL 2-shaped `ContextCapabilities` populated from `GL.getCapabilities()`. Required because slick-util's compiled bytecode (initially still on classpath) references the LWJGL 2 type.
+- `opengl/ContextCapabilities` — boolean fields the game queries (`GL_ARB_vertex_buffer_object`, `GL_ARB_debug_output`, `GL_AMD_debug_output`, `GL_EXT_framebuffer_object`, `GL_EXT_texture_mirror_clamp`).
+- `input/InputBridge` — internal; holds GLFW callbacks + per-frame event queues. `attach(window)` registers char/key/mousebutton/cursor-pos/scroll callbacks; `beginFrame()` clears the queues each frame before `glfwPollEvents`.
+- `input/Keyboard` — LWJGL 2-style polling API (`next()`, `getEventKey()`, `getEventKeyState()`, `getEventCharacter()`). Key constants alias to GLFW codes — safe because the game only ever compares them by name.
+- `input/Mouse` — `next()`, `getEventButton()`, `getEventDX/DY()`, `getX/Y()` (Y inverted to LWJGL 2 convention), `isButtonDown(b)`, `setGrabbed(...)`, no-op `setNativeCursor(...)`.
+- `input/Cursor` — opaque struct, never actually applied (Mouse.setNativeCursor is no-op for now; the legacy bitmap-cursor code in `Render.set_cursor` is best-effort).
+
+`WindowRender.java` was patched in place for the two debug-callback sites — LWJGL 3 uses lambdas that take `(source, type, id, severity, length, messagePtr, userParam)` rather than legacy `Callback` objects.
+
+### Step 3 — Slick-util replacement
+
+slick-util (the texture/font helper) is shipped as a binary jar from 2011 with calls to LWJGL 2 GL11 method overloads that LWJGL 3 has renamed (`glGetInteger(int, IntBuffer)` → `glGetIntegerv`). Three options were considered:
+
+1. ASM-rewrite the slick-util bytecode at install-time.
+2. Rebuild slick-util from source.
+3. Reimplement the small surface the game uses with STB.
+
+Chose **option 3** (per request) — smallest surface, no extra build steps. Wrote four classes under `libroguelike/src/main/java/org/newdawn/slick/...`:
+
+- `Color` — int and float ctors, the named statics the game uses (`white`, `black`, `red`, `green`, `blue`, `yellow`, `orange`, `cyan`, `magenta`, `gray`, `lightGray`, `darkGray`), float `r/g/b/a` fields.
+- `opengl/Texture` — id + width/height + image-width/image-height; `bind()` calls `glBindTexture`.
+- `opengl/TextureLoader` — `getTexture(format, InputStream)` reads bytes, decodes with `STBImage.stbi_load_from_memory`, uploads via `glTexImage2D(GL_RGBA, GL_UNSIGNED_BYTE)`. NPOT textures used directly — modern GL handles this natively.
+- `TrueTypeFont` — bakes glyphs (chars 32-256) from a `java.awt.Font` into a single `BufferedImage` via `Graphics2D.drawString`, converts ARGB → RGBA, uploads as a GL texture, draws strings as one `glBegin(GL_QUADS)` batch per call.
+
+Slick-util jar dropped from POM.
+
+### Step 4 — macOS-specific fixes
+
+A series of macOS-only issues, each isolated by adding diagnostic prints, then removing them once understood:
+
+1. **GLFW thread requirement.** GLFW must run on macOS process main thread. Added `-XstartOnFirstThread` to `scripts/run.sh` for `Darwin*`.
+2. **AWT runloop hijacking.** Once `java.awt` is touched (the font baker uses `Graphics2D`), Java's AWT installs `NSApplicationAWT` on the main thread and `glfwPollEvents` blocks forever. Diagnosed via `sample`-stack on the running JVM — the trace ended in `[NSApplicationAWT runAWTLoopWithApp:]`. Fixed by adding `-Dapple.awt.UIElement=true` and `-Djava.awt.headless=true` to `scripts/run.sh`. With those, AWT still rasterises fonts to `BufferedImage` (it's purely off-screen) but doesn't try to seize the runloop.
+3. **Viewport cropping (Retina).** Window=1024×768, framebuffer=2048×1536. Initial fix attempted `glViewport(0,0, framebufferSize)` to match physical pixels — produced bottom-left quadrant rendering (game draws in window units, ortho mapped 0..1024 across 2048 viewport, but a follow-up `glViewport` in slick-util-derived code reset it back to window units). Final fix: **viewport in window units, ortho in window units** — Apple's GL-on-Metal layer scales internally for Retina. So: `glViewport(0, 0, w, h); glOrtho(0, w, h, 0, -1, 1);` where w/h are window units.
+4. **Tileset not rendering.** Even after viewport was correct the world tiles didn't appear. Probed `RLWorldModel.visit(x,y)` and `ConsoleRenderer.render_tile` — confirmed tile objects are the same and `isVisible()` returns `true` for FOV-marked tiles. The actual culprit: `WorldViewCamera.update()` and `setMatrix()` were never called from anywhere in the codebase, so the camera stayed at `(0,0)` and `tile_in_fov` only matched tiles in the world's first 1024×768 pixel block — never the area around the player. Added both calls at the top of `WorldView.render()` in [libroguelike/src/main/java/com/nuclearunicorn/libroguelike/game/world/WorldView.java](libroguelike/src/main/java/com/nuclearunicorn/libroguelike/game/world/WorldView.java#L155).
+
+### Milestone 2 — done
+
+What works today:
+- `mvn package` produces an executable jar with all native LWJGL 3 binaries for the host OS+arch.
+- `./scripts/run.sh` opens a 1024×768 window on macOS arm64, renders the world tileset around the player, the GUI overlay, the console TUI, the FPS counter, debug overlay, and version overlay.
+- All five LWJGL 2-derived legacy jars (`lwjgl-2.7.1.jar`, `lwjgl_util-2.7.1.jar`, `jinput-2.7.1.jar`, `slick-util-1.0.0.jar`, plus the bundled native dirs) are out of the build. Only `rlforj-0.2.jar` and our own STB-backed slick replacements remain.
+- log4j 1.2 is gone; logging goes through slf4j → logback.
+
+What's next (M2b — see [PORTING.md §5](PORTING.md)):
+- Replace `glBegin`/`glEnd` immediate mode with batched VBOs and a single textured-quad shader. Required to move to GL3 core profile.
+- Wire `glfwSetCursor` so `Mouse.setNativeCursor` shim isn't a no-op.
+- Audit `Cursor` shim — currently the cursor texture upload is no-op so the in-game cursor is the OS default.
+
