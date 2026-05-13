@@ -392,22 +392,27 @@ public class EntityRLHuman extends EntityRLActor {
 
         boolean isAlive = true;
         boolean isStunned = false;
+        boolean isPlayer = false;
+
         if (combat != null && !combat.is_alive()){
             isAlive = false;
         }
         if (bodysim != null && bodysim.isStunned()){
             isStunned = true;
         }
+        if (this == Player.get_ent()){
+            isPlayer = true;
+        }
 
         ActionList<Entity> list = new ActionList();
         list.set_owner(this);
         list.add_action(new ActionDetailedInformation(),"Detailed info");
-        if (!isAlive){
+        if (!isAlive && !isPlayer){
             list.add_action(new ActionDismember(),"Dismember");
         }
         if (!isAlive || isStunned){
             EntityRLHuman playerEnt = ((EntityRLHuman)Player.get_ent());
-            if (playerEnt.getSex().equals(Sex.MALE) && playerEnt.isAdult()){
+            if (playerEnt.getSex().equals(Sex.MALE) && playerEnt.isAdult() && !isPlayer){
                 list.add_action(new ActionRape(),"Rape");
             }
         }

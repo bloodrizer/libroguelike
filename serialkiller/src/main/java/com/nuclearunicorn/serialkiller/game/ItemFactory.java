@@ -47,11 +47,11 @@ public class ItemFactory {
 
         registerItem("taser", item);
 
-        item = RLItem.produce("suppressive pills",10);
+        item = RLItem.produce("valium",10);
         item.setEffect("restore_hunger","0");
         item.setEffect("restore_bloodlust","-10");
 
-        registerItem("suppressive pills", item);
+        registerItem("valium", item);
     }
     
     private static void registerItem(String key, BaseItem item){

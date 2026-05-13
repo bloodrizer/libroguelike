@@ -78,8 +78,8 @@ public class TownChunkGenerator extends ChunkGenerator {
         chunk_random = new Random(seed);
 
 
-        int x = chunk.origin.getX()* WorldChunk.CHUNK_SIZE;
-        int y = chunk.origin.getY()*WorldChunk.CHUNK_SIZE;
+        int x = chunk.origin.getX() * WorldChunk.CHUNK_SIZE;
+        int y = chunk.origin.getY() * WorldChunk.CHUNK_SIZE;
         int size = WorldChunk.CHUNK_SIZE;
 
         final int OFFSET = WorldChunk.CHUNK_SIZE;

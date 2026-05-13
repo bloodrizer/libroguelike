@@ -4,13 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-/**
- * Created by IntelliJ IDEA.
- * User: Administrator
- * Date: 04.03.12
- * Time: 18:11
- * To change this template use File | Settings | File Templates.
- */
 public class MapGenerator {
 
     private int refSize;

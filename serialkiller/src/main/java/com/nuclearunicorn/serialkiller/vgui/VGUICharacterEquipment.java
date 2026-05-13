@@ -2,6 +2,7 @@ package com.nuclearunicorn.serialkiller.vgui;
 
 import com.nuclearunicorn.libroguelike.events.EMouseClick;
 import com.nuclearunicorn.libroguelike.game.items.BaseItem;
+import com.nuclearunicorn.libroguelike.game.items.EquipContainer;
 import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_FrameModern;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_Text;
@@ -28,15 +29,17 @@ public class VGUICharacterEquipment extends NE_GUI_FrameModern {
 
                 super.e_on_line_click(lineId, type);
 
-                List<BaseItem> eqItems = new ArrayList<BaseItem>(Player.get_player_ent().equipment.slots.values());
+                EquipContainer equipment = ((EntityRLPlayer) Player.get_ent()).equipment;
+
+                List<BaseItem> eqItems = new ArrayList<BaseItem>(equipment.slots.values());
                 if (lineId < 0 || eqItems.size() <= lineId){
                     return;
                 }
 
                 BaseItem item = eqItems.get(lineId);
 
-                if (Player.get_player_ent().equipment.hasItem(item)){
-                    Player.get_player_ent().equipment.unequip(item);
+                if (equipment.hasItem(item)){
+                    equipment.unequip(item);
                 }
             }
         };
