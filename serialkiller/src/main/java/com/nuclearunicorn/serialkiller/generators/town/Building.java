@@ -17,8 +17,13 @@ public class Building extends Apartment {
     public BuildingType type = BuildingType.APARTMENT;
     public GridMask footprint;
     public List<Block> parts = new ArrayList<Block>();   // rects composing the footprint
+    public List<Room> roomList = new ArrayList<Room>();  // typed rooms (commercial layout)
     public Point entrance;                                // world coords of main door
     public int residentCount = 0;                         // owners stamped in populateMap
+
+    public boolean isResidential() {
+        return type == BuildingType.APARTMENT;
+    }
 
     public Building(Block lot) {
         super(lot);

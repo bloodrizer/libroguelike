@@ -20,21 +20,30 @@ import com.nuclearunicorn.serialkiller.game.world.RLWorldModel;
 import com.nuclearunicorn.serialkiller.game.world.entities.*;
 import com.nuclearunicorn.serialkiller.generators.*;
 import com.nuclearunicorn.serialkiller.generators.town.Building;
+import com.nuclearunicorn.serialkiller.generators.town.BuildingLayout;
+import com.nuclearunicorn.serialkiller.generators.town.BuildingTemplate;
+import com.nuclearunicorn.serialkiller.generators.town.BuildingTemplates;
+import com.nuclearunicorn.serialkiller.generators.town.BuildingType;
 import com.nuclearunicorn.serialkiller.generators.town.Footprint;
 import com.nuclearunicorn.serialkiller.generators.town.FootprintGenerator;
 import com.nuclearunicorn.serialkiller.generators.town.GridMask;
 import com.nuclearunicorn.serialkiller.generators.town.Lot;
 import com.nuclearunicorn.serialkiller.generators.town.LotSplitter;
+import com.nuclearunicorn.serialkiller.generators.town.Room;
 import com.nuclearunicorn.serialkiller.generators.town.RoomSplitter;
+import com.nuclearunicorn.serialkiller.generators.town.RoomType;
 import com.nuclearunicorn.serialkiller.generators.town.TownGenConfig;
+import com.nuclearunicorn.serialkiller.generators.town.TypeSelector;
 import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
 import com.nuclearunicorn.serialkiller.utils.pathfinder.adaptive.AdaptivePathfinder;
 import org.lwjgl.util.Point;
 import org.newdawn.slick.Color;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 /**
  */
@@ -43,20 +52,16 @@ public class TownChunkGenerator extends ChunkGenerator {
     private static final int NPC_PER_ROAD_RATE = 35;    //50% is a hell lot of npc , 35 is sorta ok
     private static final int MAX_POLICEMAN_COUNT = 4;
 
-    enum RoomType {
-        KITCHEN,
-        BEDROOM,
-        BATHROOM,
-        STOREROOM
-    }
-
-
     int seed;
     Random chunk_random;
 
     List<Block> districts = null;
     List<Block> roads = new ArrayList<Block>();
     private static final int ROAD_SIZE = 3;
+
+    //per-chunk building-type picker and the police station (if one was placed)
+    private TypeSelector typeSelector;
+    private Building policeStation;
 
     //List<Block> apartments = new ArrayList<Block>();
 
@@ -118,6 +123,9 @@ public class TownChunkGenerator extends ChunkGenerator {
 
         districts = mapgen.process(blocks);
 
+        typeSelector = new TypeSelector();
+        policeStation = null;
+
         for(Block district: districts){
 
             //register corner nodes before scaling and tracing roads
@@ -165,23 +173,31 @@ public class TownChunkGenerator extends ChunkGenerator {
         if (!lots.isEmpty()){
             Lot safehouseLot = lots.remove(chunk_random.nextInt(lots.size()));
             Building safehouse = new Building(safehouseLot);
+            safehouse.type = BuildingType.APARTMENT;        //family/bed logic needs this
+            typeSelector.forceRecord(BuildingType.APARTMENT);
             getApartments().add(safehouse);
             generateSafehouse(safehouse, safehouseLot);
         }
 
         //-----------------------------------------------------------
-        //		create other buildings (all APARTMENT for now)
+        //		create other buildings (data-driven type per lot)
         //-----------------------------------------------------------
         for (Lot lot : lots){
             Building building = new Building(lot);
+            building.type = typeSelector.pick(lot.getW(), lot.getH(), chunk_random);
             getApartments().add(building);
             generateBuilding(building, lot, false);
         }
 
         populateMap();
 
+        //furnish: residential homes get beds/kitchen, commercial gets per-type props
         for (Apartment apt : getApartments()){
-            fillApartmentRooms(apt);
+            if (apt instanceof Building && !((Building)apt).isResidential()){
+                furnishCommercial((Building)apt);
+            } else {
+                fillApartmentRooms(apt);
+            }
         }
 
         NLTimer graphTimer = new NLTimer();
@@ -347,59 +363,254 @@ public class TownChunkGenerator extends ChunkGenerator {
         return all.get(chunk_random.nextInt(all.size()));
     }
 
+    /** Residential furnishing by explicit role (bed/kitchen/store roles are chosen
+     *  dynamically by {@link #fillApartmentRooms}, not from room.type). */
     private void fillRoom(Apartment apt, Block room, RoomType type) {
-
-        Point coord;
-
         switch (type) {
             case KITCHEN:
-                coord = room.getFreeTileSafe(chunk_random, getLayer());
-                if (coord == null){ break; }
-
-                EntityFurniture fridge = new EntityFurniture();
-                placeEntity(coord.getX(), coord.getY(), fridge, "Fridge", "F", Color.green);
-                fridge.get_combat().set_hp(20);
-
-                BaseItem food = ItemFactory.produceFood("generic food", 10);
-                food.set_count(10);
-
-                fridge.getContainer().add_item(food);
-
+                placeFridge(room);
                 break;
             case BEDROOM:
-                coord = room.getFreeTileSafe(chunk_random, getLayer());
-                if (coord == null){ break; }
-
-                EntityBed bed = new EntityBed();
-                placeEntity(coord.getX(), coord.getY(), bed, "bed", "B", Color.green);
-                bed.get_combat().set_hp(50);    //good wooden bed, hard to break >:3
-                bed.set_blocking(false);    //npc can stand on the same tile
-
-                /*if (apt.beds == null){
-                    apartmentBeds.put(apt, new ArrayList<Entity>(3));
-                }*/
-                apt.beds.add(bed);
-
+                placeBed(apt, room);
                 break;
             case BATHROOM:
-
+                placeBathtub(room);
                 break;
-
-
             case STOREROOM:
-                coord = room.getFreeTileSafe(chunk_random, getLayer());
-                if (coord == null){ break; }
-
-                EntLadder ladder = new EntLadder(); //desc ladder
-                placeEntity(coord.getX(), coord.getY(), ladder, "ladder", ">", Color.green);
-                ladder.setDescending(true);
-
-                //save ladder position to generate underlaying rooms later
-                System.out.println("adding ladder position for layer #"+getLayer().get_zindex());
-                BasementGenerator.addLadder(getLayer().get_zindex(), coord);
-
+                placeCrates(room, 1 + chunk_random.nextInt(2));
+                placeLadder(room);
+                break;
+            default:
                 break;
         }
+    }
+
+    //-----------------------------------------------------------------------
+    //  Commercial / civic furnishing (TOWN_GENERATION_DESIGN.md 5.6)
+    //-----------------------------------------------------------------------
+
+    /** Furnish a non-residential building room-by-type, then drop in a little staff. */
+    private void furnishCommercial(Building building) {
+        for (Room room : building.roomList){
+            furnishRoom(building, room);
+        }
+
+        //0-2 staff NPCs milling about (pedestrian AI is fine for now)
+        int staff = chunk_random.nextInt(3);
+        for (int i = 0; i < staff; i++){
+            Point coord = interiorFreeTile(building);
+            if (coord == null){ break; }
+            EntityRLHuman npc = (EntityRLHuman) placeNPC(coord.getX(), coord.getY());
+            npc.set_ai(new PedestrianAI());
+            npc.set_controller(new RLController());
+            npc.set_combat(new RLCombat());
+        }
+    }
+
+    private void furnishRoom(Building building, Room room) {
+        if (room.type == null){
+            return;
+        }
+        switch (room.type) {
+            case KITCHEN:
+                placeFridge(room);
+                break;
+            case BEDROOM:
+            case PRIVATE_ROOM:
+            case CELL:
+                placeBed(building, room);
+                break;
+            case BATHROOM:
+                placeBathtub(room);
+                break;
+            case STOREROOM:
+            case BACKROOM:
+                placeCrates(room, 1 + chunk_random.nextInt(3));
+                break;
+            case LIVING_ROOM:
+                placeSofa(room);
+                break;
+            case LOBBY:
+            case RECEPTION:
+                placeDesk(room, "reception desk");
+                break;
+            case OFFICE_ROOM:
+                placeDesk(room, "desk");
+                if (chunk_random.nextInt(100) < 50){ placeDesk(room, "desk"); }
+                break;
+            case MANAGER_OFFICE:
+                placeDesk(room, "desk");
+                if (chunk_random.nextInt(100) < 50){ placeSafe(room, false); }
+                break;
+            case VAULT:
+                int safes = 2 + chunk_random.nextInt(3);   //2-4 safes with cash
+                for (int i = 0; i < safes; i++){ placeSafe(room, true); }
+                break;
+            case SHOP_FLOOR:
+                int shelves = 2 + chunk_random.nextInt(3);
+                for (int i = 0; i < shelves; i++){ placeShelf(room); }
+                placeCounter(room);
+                break;
+            case CORRIDOR:
+            default:
+                break;   //corridors stay walkable
+        }
+    }
+
+    //-----------------------------------------------------------------------
+    //  Furniture placement primitives
+    //-----------------------------------------------------------------------
+
+    private void placeFridge(Block room) {
+        Point coord = wallAdjacentFreeTile(room);
+        if (coord == null){ return; }
+        EntityFurniture fridge = new EntityFurniture();
+        placeEntity(coord.getX(), coord.getY(), fridge, "Fridge", "F", Color.green);
+        fridge.get_combat().set_hp(20);
+        BaseItem food = ItemFactory.produceFood("generic food", 10);
+        food.set_count(10);
+        fridge.getContainer().add_item(food);
+    }
+
+    private void placeBed(Apartment apt, Block room) {
+        Point coord = wallAdjacentFreeTile(room);
+        if (coord == null){ return; }
+        EntityBed bed = new EntityBed();
+        placeEntity(coord.getX(), coord.getY(), bed, "bed", "B", Color.green);
+        bed.get_combat().set_hp(50);    //good wooden bed, hard to break >:3
+        bed.set_blocking(false);        //npc can stand on the same tile
+        apt.beds.add(bed);
+    }
+
+    private void placeLadder(Block room) {
+        Point coord = room.getFreeTileSafe(chunk_random, getLayer());
+        if (coord == null){ return; }
+        EntLadder ladder = new EntLadder(); //desc ladder
+        placeEntity(coord.getX(), coord.getY(), ladder, "ladder", ">", Color.green);
+        ladder.setDescending(true);
+        //save ladder position to generate underlaying rooms later
+        System.out.println("adding ladder position for layer #"+getLayer().get_zindex());
+        BasementGenerator.addLadder(getLayer().get_zindex(), coord);
+    }
+
+    private void placeBathtub(Block room) {
+        Point coord = wallAdjacentFreeTile(room);
+        if (coord == null){ return; }
+        EntityFurniture tub = new EntityFurniture();
+        placeEntity(coord.getX(), coord.getY(), tub, "bathtub", "b", new Color(220, 220, 235));
+        tub.get_combat().set_hp(30);
+    }
+
+    private void placeCrates(Block room, int count) {
+        for (int i = 0; i < count; i++){
+            Point coord = wallAdjacentFreeTile(room);
+            if (coord == null){ return; }
+            EntityFurniture crate = new EntityFurniture();
+            placeEntity(coord.getX(), coord.getY(), crate, "crate", "x", new Color(150, 110, 60));
+            crate.get_combat().set_hp(15);
+        }
+    }
+
+    private void placeSofa(Block room) {
+        Point coord = wallAdjacentFreeTile(room);
+        if (coord == null){ return; }
+        EntityFurniture sofa = new EntityFurniture();
+        placeEntity(coord.getX(), coord.getY(), sofa, "sofa", "n", new Color(120, 90, 160));
+        sofa.get_combat().set_hp(25);
+        sofa.set_blocking(false);
+    }
+
+    private void placeDesk(Block room, String name) {
+        Point coord = wallAdjacentFreeTile(room);
+        if (coord == null){ return; }
+        EntityFurniture desk = new EntityFurniture();
+        placeEntity(coord.getX(), coord.getY(), desk, name, "d", new Color(170, 130, 80));
+        desk.get_combat().set_hp(20);
+        //a chair beside the desk, if there's room
+        Point chair = wallAdjacentFreeTile(room);
+        if (chair != null){
+            EntityFurniture seat = new EntityFurniture();
+            placeEntity(chair.getX(), chair.getY(), seat, "chair", "h", new Color(140, 100, 60));
+            seat.get_combat().set_hp(8);
+            seat.set_blocking(false);
+        }
+    }
+
+    private void placeSafe(Block room, boolean withMoney) {
+        Point coord = wallAdjacentFreeTile(room);
+        if (coord == null){ return; }
+        EntityFurniture safe = new EntityFurniture();
+        placeEntity(coord.getX(), coord.getY(), safe, "safe", "$", new Color(200, 190, 90));
+        safe.get_combat().set_hp(60);
+        if (withMoney){
+            safe.getContainer().add_item(ItemFactory.produceMoney(100 + chunk_random.nextInt(400)));
+        }
+    }
+
+    private void placeShelf(Block room) {
+        Point coord = wallAdjacentFreeTile(room);
+        if (coord == null){ return; }
+        EntityFurniture shelf = new EntityFurniture();
+        placeEntity(coord.getX(), coord.getY(), shelf, "shelf", "s", new Color(160, 140, 90));
+        shelf.get_combat().set_hp(15);
+    }
+
+    private void placeCounter(Block room) {
+        Point coord = wallAdjacentFreeTile(room);
+        if (coord == null){ return; }
+        EntityFurniture counter = new EntityFurniture();
+        placeEntity(coord.getX(), coord.getY(), counter, "counter", "c", new Color(150, 120, 80));
+        counter.get_combat().set_hp(20);
+    }
+
+    /** A random free interior tile of the building (prefers non-corridor rooms). */
+    private Point interiorFreeTile(Building building) {
+        List<Room> rooms = building.roomList;
+        if (rooms == null || rooms.isEmpty()){
+            return null;
+        }
+        for (int attempt = 0; attempt < 8; attempt++){
+            Room r = rooms.get(chunk_random.nextInt(rooms.size()));
+            if (r.isCorridor()){ continue; }
+            Point p = r.getFreeTileSafe(chunk_random, getLayer());
+            if (p != null){ return p; }
+        }
+        return null;
+    }
+
+    /**
+     * A free interior tile next to a wall (furniture-against-walls look,
+     * TOWN_GENERATION_DESIGN.md 5.6). Falls back to any free interior tile.
+     */
+    private Point wallAdjacentFreeTile(Block room) {
+        List<Point> candidates = new ArrayList<Point>();
+        for (int i = 1; i < room.getW(); i++){
+            for (int j = 1; j < room.getH(); j++){
+                int wx = room.getX() + i, wy = room.getY() + j;
+                if (isFreeFloor(wx, wy) && nextToWall(wx, wy)){
+                    candidates.add(new Point(wx, wy));
+                }
+            }
+        }
+        if (candidates.isEmpty()){
+            return room.getFreeTileSafe(chunk_random, getLayer());
+        }
+        return candidates.get(chunk_random.nextInt(candidates.size()));
+    }
+
+    private boolean isFreeFloor(int x, int y) {
+        RLTile tile = (RLTile)(getLayer().get_tile(x, y));
+        return tile != null && !tile.isWall() && !tile.isBlocked();
+    }
+
+    private boolean nextToWall(int x, int y) {
+        return isWallTile(x - 1, y) || isWallTile(x + 1, y)
+            || isWallTile(x, y - 1) || isWallTile(x, y + 1);
+    }
+
+    private boolean isWallTile(int x, int y) {
+        RLTile tile = (RLTile)(getLayer().get_tile(x, y));
+        return tile != null && tile.isWall();
     }
 
     private void generateRoads(Block block) {
@@ -492,6 +703,10 @@ public class TownChunkGenerator extends ChunkGenerator {
      #this method should be called BEFORE room structure generation!
      */
     private void populateMap() {
+        //residents live only in APARTMENT buildings (5.7); if a chunk somehow has
+        //no residential building, fall back to any apartment so we never nextInt(0).
+        List<Apartment> residential = getResidentialApartments();
+
         for (Block road: roads){
 
             //add pedestrians to the road
@@ -510,20 +725,25 @@ public class TownChunkGenerator extends ChunkGenerator {
                 npc.set_controller(new RLController());
                 npc.set_combat(new RLCombat());
 
-                if (getApartments().isEmpty()){ continue; }   //nowhere to live (all parks)
-                int randomApt = chunk_random.nextInt(getApartments().size());
-                Apartment apt = getApartments().get(randomApt);
+                if (residential.isEmpty()){ continue; }   //nowhere to live (all parks)
+                Apartment apt = residential.get(chunk_random.nextInt(residential.size()));
 
                 npc.setApartment(apt);
                 stampOwnership(apt, npc);
             }
         }
 
-        //police
-        
-        for (int i=0; i<MAX_POLICEMAN_COUNT && !roads.isEmpty(); i++){    //4 policemans
-            Block road = roads.get(chunk_random.nextInt(roads.size()));
-            Point coord = road.getFreeTileSafe(chunk_random, getLayer());
+        //police — spawn at the police station lobby if one exists, else on roads
+        List<Point> policePosts = policeSpawnPoints();
+
+        for (int i=0; i<MAX_POLICEMAN_COUNT; i++){    //4 policemans
+            Point coord = null;
+            if (!policePosts.isEmpty()){
+                coord = policePosts.get(chunk_random.nextInt(policePosts.size()));
+            } else if (!roads.isEmpty()){
+                Block road = roads.get(chunk_random.nextInt(roads.size()));
+                coord = road.getFreeTileSafe(chunk_random, getLayer());
+            }
             if (coord == null){ continue; }
 
             EntityRLHuman police = new EntityRLHuman();
@@ -554,6 +774,42 @@ public class TownChunkGenerator extends ChunkGenerator {
 
 
         }
+    }
+
+    /** Apartments that actually house residents (APARTMENT type / legacy Apartment). */
+    private List<Apartment> getResidentialApartments() {
+        List<Apartment> res = new ArrayList<Apartment>();
+        for (Apartment apt : getApartments()){
+            if (!(apt instanceof Building) || ((Building)apt).isResidential()){
+                res.add(apt);
+            }
+        }
+        if (res.isEmpty()){
+            res.addAll(getApartments());   //degrade gracefully, never nextInt(0)
+        }
+        return res;
+    }
+
+    /** Free interior tiles of the police station lobby, if a station was built. */
+    private List<Point> policeSpawnPoints() {
+        List<Point> posts = new ArrayList<Point>();
+        if (policeStation == null || policeStation.roomList == null){
+            return posts;
+        }
+        for (Room room : policeStation.roomList){
+            if (room.type != RoomType.LOBBY){
+                continue;
+            }
+            for (int i = 1; i < room.getW(); i++){
+                for (int j = 1; j < room.getH(); j++){
+                    int wx = room.getX() + i, wy = room.getY() + j;
+                    if (isFreeFloor(wx, wy)){
+                        posts.add(new Point(wx, wy));
+                    }
+                }
+            }
+        }
+        return posts;
     }
 
     public void placeEntity(int x, int y, EntityRLActor entity, String symbol, String name, Color color) {
@@ -653,20 +909,34 @@ public class TownChunkGenerator extends ChunkGenerator {
         //outer shell traced from the (possibly non-rectangular) mask
         traceMask(fp.mask);
 
-        //Stage 4B: constrained BSP per footprint part -> human-scale rooms
-        List<Block> rooms = new ArrayList<Block>();
-        for (Block part : fp.parts){
-            RoomSplitter.split(part, chunk_random, rooms);
+        //Stage 4: interior rooms. APARTMENTs use open-plan constrained BSP (rooms
+        //stay untyped, furnished by the residential logic); commercial/civic
+        //buildings use the template-driven corridor/BSP layout with typed rooms.
+        List<Room> rooms = new ArrayList<Room>();
+        boolean commercial = !building.isResidential();
+
+        if (commercial){
+            BuildingTemplate template = BuildingTemplates.forType(building.type);
+            rooms = BuildingLayout.layout(template, fp.parts, chunk_random);
+        } else {
+            List<Block> bsp = new ArrayList<Block>();
+            for (Block part : fp.parts){
+                RoomSplitter.split(part, chunk_random, bsp);
+            }
+            for (Block b : bsp){
+                rooms.add(new Room(b));
+            }
         }
 
         //draw each room's interior walls
-        for (Block room : rooms){
+        for (Room room : rooms){
             traceBlock(room);
             room.clearNeighbours(); //rebuild the door graph from scratch
         }
 
-        //Stage 5.5: connectivity — spanning tree of doors, guarantees reachability
-        connectRooms(rooms);
+        //Stage 5.5: connectivity — commercial rooms door onto the corridor first,
+        //then a spanning-tree pass guarantees every room is reachable.
+        connect(rooms, commercial);
 
         //street-facing windows + a guaranteed exterior entrance
         placeExteriorFeatures(building, lot, rooms);
@@ -674,7 +944,13 @@ public class TownChunkGenerator extends ChunkGenerator {
         //yard: grass and the odd crate against exterior walls (mock look)
         decorateYard(building, lot);
 
-        building.rooms = rooms;
+        building.rooms = new ArrayList<Block>(rooms);
+        building.roomList = rooms;
+
+        //remember the police station so patrolmen spawn at its lobby
+        if (building.type == BuildingType.POLICE_STATION){
+            policeStation = building;
+        }
     }
 
     /** Trace the building outline: place a wall on every footprint-mask edge cell. */
@@ -689,49 +965,55 @@ public class TownChunkGenerator extends ChunkGenerator {
     }
 
     /**
-     * Punch one door per edge of a BFS spanning tree over the room-adjacency
-     * graph, so the whole building is connected. A repair pass links any room
-     * the tree missed. Rooms from a single BSP are always adjacency-connected,
-     * but the repair pass makes the guarantee unconditional.
+     * Punch doors so every room is reachable (TOWN_GENERATION_DESIGN.md 5.5).
+     * When {@code preferCorridor} is set, each non-corridor room first gets a
+     * direct door onto a corridor (the mock's "one door per room" look); then a
+     * BFS spanning tree plus a repair pass guarantee full connectivity. A shared
+     * {@code punched} set keeps any wall from receiving two stacked door entities.
      */
-    private void connectRooms(List<Block> rooms) {
+    private void connect(List<Room> rooms, boolean preferCorridor) {
         if (rooms.size() < 2){
             return;
         }
 
-        List<Block> visited = new ArrayList<Block>();
+        Set<Long> punched = new HashSet<Long>();
+
+        if (preferCorridor){
+            for (Room r : rooms){
+                if (r.isCorridor()){
+                    continue;
+                }
+                for (Room c : rooms){
+                    if (c.isCorridor() && punchBetween(r, c, punched)){
+                        break;
+                    }
+                }
+            }
+        }
+
+        List<Room> visited = new ArrayList<Room>();
         int head = 0;
         visited.add(rooms.get(0));
 
         while (head < visited.size()){
-            Block cur = visited.get(head++);
-            for (Block other : rooms){
+            Room cur = visited.get(head++);
+            for (Room other : rooms){
                 if (visited.contains(other)){
                     continue;
                 }
-                List<Point> doors = RoomSplitter.sharedWallDoors(cur, other);
-                if (!doors.isEmpty()){
-                    Point d = doors.get(doors.size() / 2);
-                    punchDoor(d.getX(), d.getY(), false);
-                    cur.addNeighbour(other);
-                    other.addNeighbour(cur);
+                if (cur.hasNeighbour(other) || punchBetween(cur, other, punched)){
                     visited.add(other);
                 }
             }
         }
 
         //repair: force-connect anything the BFS could not reach
-        for (Block room : rooms){
+        for (Room room : rooms){
             if (visited.contains(room)){
                 continue;
             }
-            for (Block other : visited){
-                List<Point> doors = RoomSplitter.sharedWallDoors(room, other);
-                if (!doors.isEmpty()){
-                    Point d = doors.get(doors.size() / 2);
-                    punchDoor(d.getX(), d.getY(), false);
-                    room.addNeighbour(other);
-                    other.addNeighbour(room);
+            for (Room other : visited){
+                if (room.hasNeighbour(other) || punchBetween(room, other, punched)){
                     visited.add(room);
                     break;
                 }
@@ -740,57 +1022,128 @@ public class TownChunkGenerator extends ChunkGenerator {
     }
 
     /**
+     * If {@code a} and {@code b} share a wall, ensure a door exists on it (once)
+     * and record the adjacency. Vault/cell rooms get a reinforced locked door.
+     * Returns true when the two rooms are (now) door-connected.
+     */
+    private boolean punchBetween(Room a, Room b, Set<Long> punched) {
+        List<Point> doors = RoomSplitter.sharedWallDoors(a, b);
+        if (doors.isEmpty()){
+            return false;
+        }
+        Point d = doors.get(doors.size() / 2);
+        long key = ((long) d.getX() << 32) ^ (d.getY() & 0xffffffffL);
+        if (!punched.contains(key)){
+            boolean secure = isSecure(a) || isSecure(b);
+            punchDoor(d.getX(), d.getY(), secure, secure ? 200 : 5);
+            punched.add(key);
+        }
+        a.addNeighbour(b);
+        b.addNeighbour(a);
+        return true;
+    }
+
+    private boolean isSecure(Room r) {
+        return r.type != null && r.type.isSecure();
+    }
+
+    /**
      * Windows on exterior (footprint-edge) walls, spaced by WINDOW_SPACING, plus
      * a guaranteed exterior entrance preferring a street-facing wall. Exterior
      * wall tiles are found per room-side using the footprint mask, so only real
      * outside-facing walls (not walls between stacked rooms) qualify.
      */
-    private void placeExteriorFeatures(Building building, Lot lot, List<Block> rooms) {
+    /** One exterior wall tile plus the room it belongs to and whether it faces a street. */
+    private static class ExtTile {
+        final Point p;
+        final Room room;
+        final boolean street;
+        ExtTile(Point p, Room room, boolean street){ this.p = p; this.room = room; this.street = street; }
+    }
+
+    private void placeExteriorFeatures(Building building, Lot lot, List<Room> rooms) {
         GridMask m = building.footprint;
 
-        List<Point> streetTiles = new ArrayList<Point>();   //street-facing exterior walls
-        List<Point> allExterior = new ArrayList<Point>();
-
-        for (Block room : rooms){
-            collectSide(room, m, lot, Lot.N, streetTiles, allExterior);
-            collectSide(room, m, lot, Lot.S, streetTiles, allExterior);
-            collectSide(room, m, lot, Lot.W, streetTiles, allExterior);
-            collectSide(room, m, lot, Lot.E, streetTiles, allExterior);
+        List<ExtTile> exterior = new ArrayList<ExtTile>();
+        for (Room room : rooms){
+            collectSide(room, m, lot, Lot.N, exterior);
+            collectSide(room, m, lot, Lot.S, exterior);
+            collectSide(room, m, lot, Lot.W, exterior);
+            collectSide(room, m, lot, Lot.E, exterior);
         }
 
-        //entrance: prefer a street-facing wall, else any exterior wall
-        Point entrance = null;
-        List<Point> pool = !streetTiles.isEmpty() ? streetTiles : allExterior;
-        if (!pool.isEmpty()){
-            entrance = pool.get(chunk_random.nextInt(pool.size()));
-            punchDoor(entrance.getX(), entrance.getY(), true);
-            building.entrance = entrance;
-            if (!chunk.hasMilestone(entrance)){
-                chunk.addMilestone(entrance);   //let NPCs path to the door
+        //entrance: prefer a street-facing wall of an entrance room (lobby/shop/
+        //living room), then any street wall, then any exterior wall.
+        ExtTile entrance = pickEntrance(exterior);
+        if (entrance != null){
+            boolean locked = entranceLocked(building.type);
+            punchDoor(entrance.p.getX(), entrance.p.getY(), locked);
+            building.entrance = entrance.p;
+            if (!chunk.hasMilestone(entrance.p)){
+                chunk.addMilestone(entrance.p);   //let NPCs path to the door
             }
         }
 
-        //windows on the rest, regularly spaced
+        //windows on the rest, regularly spaced; never on windowless room types
         int counter = 0;
-        for (Point p : allExterior){
-            if (entrance != null && p.getX() == entrance.getX() && p.getY() == entrance.getY()){
+        for (ExtTile e : exterior){
+            if (entrance != null && e.p.getX() == entrance.p.getX() && e.p.getY() == entrance.p.getY()){
+                continue;
+            }
+            if (!roomAllowsWindow(e.room)){
                 continue;
             }
             if (counter % TownGenConfig.WINDOW_SPACING == 0){
-                placeWindow(p.getX(), p.getY());
+                placeWindow(e.p.getX(), e.p.getY());
             }
             counter++;
         }
     }
 
+    /** Best available entrance wall, in descending order of desirability. */
+    private ExtTile pickEntrance(List<ExtTile> exterior) {
+        List<ExtTile> streetEntrance = new ArrayList<ExtTile>();
+        List<ExtTile> street = new ArrayList<ExtTile>();
+        List<ExtTile> entranceRoom = new ArrayList<ExtTile>();
+
+        for (ExtTile e : exterior){
+            boolean isEntranceRoom = roomIsEntrance(e.room);
+            if (e.street && isEntranceRoom){ streetEntrance.add(e); }
+            else if (e.street){ street.add(e); }
+            else if (isEntranceRoom){ entranceRoom.add(e); }
+        }
+
+        List<ExtTile> pool = !streetEntrance.isEmpty() ? streetEntrance
+                : !street.isEmpty() ? street
+                : !entranceRoom.isEmpty() ? entranceRoom
+                : exterior;
+        if (pool.isEmpty()){
+            return null;
+        }
+        return pool.get(chunk_random.nextInt(pool.size()));
+    }
+
+    /** Banks and offices lock their street door; everything else stays open. */
+    private boolean entranceLocked(BuildingType type) {
+        return type == BuildingType.BANK || type == BuildingType.OFFICE;
+    }
+
+    /** Untyped (apartment) rooms allow both windows and entrances. */
+    private boolean roomAllowsWindow(Room r) {
+        return r.type == null || r.type.allowsWindow();
+    }
+
+    private boolean roomIsEntrance(Room r) {
+        return r.type == null || r.type.isEntranceRoom();
+    }
+
     /**
-     * Append the exterior wall tiles of one room side (excluding corners) to the
-     * output lists. A tile qualifies when it is on the footprint boundary and the
-     * cell immediately outside (in this side's direction) is not part of the
-     * building — i.e. it genuinely faces {@code side}.
+     * Append the exterior wall tiles of one room side (excluding corners). A tile
+     * qualifies when it is on the footprint boundary and the cell immediately
+     * outside (in this side's direction) is not part of the building — i.e. it
+     * genuinely faces {@code side}.
      */
-    private void collectSide(Block room, GridMask m, Lot lot, int side,
-                             List<Point> streetTiles, List<Point> allExterior) {
+    private void collectSide(Room room, GridMask m, Lot lot, int side, List<ExtTile> out) {
         int x0 = room.getX(), y0 = room.getY();
         int x1 = x0 + room.getW(), y1 = y0 + room.getH();
         boolean streetFacing = lot.street[side];
@@ -800,9 +1153,7 @@ public class TownChunkGenerator extends ChunkGenerator {
             int outY = (side == Lot.N) ? wy - 1 : wy + 1;
             for (int x = x0 + 1; x < x1; x++){
                 if (m.isEdgeWorld(x, wy) && !m.getWorld(x, outY)){
-                    Point p = new Point(x, wy);
-                    allExterior.add(p);
-                    if (streetFacing){ streetTiles.add(p); }
+                    out.add(new ExtTile(new Point(x, wy), room, streetFacing));
                 }
             }
         } else {
@@ -810,9 +1161,7 @@ public class TownChunkGenerator extends ChunkGenerator {
             int outX = (side == Lot.W) ? wx - 1 : wx + 1;
             for (int y = y0 + 1; y < y1; y++){
                 if (m.isEdgeWorld(wx, y) && !m.getWorld(outX, y)){
-                    Point p = new Point(wx, y);
-                    allExterior.add(p);
-                    if (streetFacing){ streetTiles.add(p); }
+                    out.add(new ExtTile(new Point(wx, y), room, streetFacing));
                 }
             }
         }
@@ -845,10 +1194,14 @@ public class TownChunkGenerator extends ChunkGenerator {
     }
 
     private void punchDoor(int x, int y, boolean locked) {
+        punchDoor(x, y, locked, 5);
+    }
+
+    private void punchDoor(int x, int y, boolean locked, int hp) {
         clearWall(x, y);
         EntityDoor door = new EntityDoor();
-        placeEntity(x, y, door, "door", "+", Color.green);
-        door.get_combat().set_hp(5);
+        placeEntity(x, y, door, "door", "+", locked ? Color.red : Color.green);
+        door.get_combat().set_hp(hp);
         if (locked){
             door.lock();
         } else {

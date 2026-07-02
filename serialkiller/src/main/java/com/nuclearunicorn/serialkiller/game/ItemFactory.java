@@ -68,4 +68,13 @@ public class ItemFactory {
 
         return food;
     }
+
+    /** Loot for vaults/safes: a stack of cash worth {@code amount}. */
+    public static BaseItem produceMoney(int amount){
+        BaseItem money = RLItem.produce("cash", amount);
+        money.set_count(amount);
+        money.setEffect("value", String.valueOf(amount));
+
+        return money;
+    }
 }
