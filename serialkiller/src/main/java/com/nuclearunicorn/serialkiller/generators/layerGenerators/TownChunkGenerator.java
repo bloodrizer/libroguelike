@@ -19,6 +19,7 @@ import com.nuclearunicorn.serialkiller.game.world.RLWorldChunk;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldModel;
 import com.nuclearunicorn.serialkiller.game.world.entities.*;
 import com.nuclearunicorn.serialkiller.generators.*;
+import com.nuclearunicorn.serialkiller.generators.town.RoomSplitter;
 import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
 import com.nuclearunicorn.serialkiller.utils.pathfinder.adaptive.AdaptivePathfinder;
 import org.lwjgl.util.Point;
@@ -317,7 +318,8 @@ public class TownChunkGenerator extends ChunkGenerator {
 
         switch (type) {
             case KITCHEN:
-                coord = room.getFreeTile(chunk_random, getLayer());
+                coord = room.getFreeTileSafe(chunk_random, getLayer());
+                if (coord == null){ break; }
 
                 EntityFurniture fridge = new EntityFurniture();
                 placeEntity(coord.getX(), coord.getY(), fridge, "Fridge", "F", Color.green);
@@ -330,7 +332,8 @@ public class TownChunkGenerator extends ChunkGenerator {
 
                 break;
             case BEDROOM:
-                coord = room.getFreeTile(chunk_random, getLayer());
+                coord = room.getFreeTileSafe(chunk_random, getLayer());
+                if (coord == null){ break; }
 
                 EntityBed bed = new EntityBed();
                 placeEntity(coord.getX(), coord.getY(), bed, "bed", "B", Color.green);
@@ -349,7 +352,8 @@ public class TownChunkGenerator extends ChunkGenerator {
 
 
             case STOREROOM:
-                coord = room.getFreeTile(chunk_random, getLayer());
+                coord = room.getFreeTileSafe(chunk_random, getLayer());
+                if (coord == null){ break; }
 
                 EntLadder ladder = new EntLadder(); //desc ladder
                 placeEntity(coord.getX(), coord.getY(), ladder, "ladder", ">", Color.green);
@@ -539,112 +543,140 @@ public class TownChunkGenerator extends ChunkGenerator {
     }
 
     private void generateHousing(Apartment block) {
+        //outer shell
         traceBlock(block);
 
-        int ROOM_COUNT = 4;
+        //Stage 4B: constrained BSP — rooms of controlled, human-scale size
+        List<Block> rooms = new ArrayList<Block>();
+        RoomSplitter.split(block, chunk_random, rooms);
 
-        MapGenerator gen = new MapGenerator(block);
-        gen.setMinBlockSize( block.getArea() / ROOM_COUNT );
-
-        List<Block> housePrefab = new ArrayList<Block>();
-        housePrefab.add(block);
-
-        List<Block> rooms = gen.roomProcess(housePrefab,1);
-
-
-
-        //TODO: extract method traceBlock
-        for(Block room: rooms){
-            traceBlock(room);
-            room.clearNeighbours(); //so we could correctly generate rooms
-        }
-
-        /*
-            This algorythm doesn't work with buggy corner rooms like
-
-            -----------|
-            |       ___|
-            |      |   |
-            |      |   |
-            -------|---|
-
-            Smaller room will result in pfanthom intersection wall.
-            Altho this bug is invisible, we should probably assimilate smaller room by larger one
-         */
-
-        System.err.println("checking intersections from apartment " + block + ": iterating " + rooms.size() + " rooms");
-
+        //draw each room's interior walls
         for (Block room : rooms){
-            for(Block room2 : rooms){
-                if(room != room2 && room.intersect(room2)){
-                    if( !room.isConnected(room2) && !room2.isConnected(room)){ //transitive FTW?
-                        Block intrs = room.getIntersection(room2);
-                        if (intrs != null){
-
-
-                            //------------room intersection debug start-------------
-                            /*for(Point debug: intrs.getTiles()){
-                                Entity debugActor = new EntityRLActor();
-
-                                debugActor.setName("Room intersection");
-                                debugActor.setEnvironment(environment);
-                                debugActor.setRenderer(new AsciiEntRenderer("X", Color.red));
-
-                                debugActor.setLayerId(z_index);
-                                debugActor.spawn(new Point(debug.getX(),debug.getY()));
-                            }*/
-                            //------------debug end---------------
-
-                            List<Point> wall = intrs.getTiles();
-                            if (wall.size() > 0){
-                                Point door_coord = wall.get(chunk_random.nextInt(wall.size()));
-                                clearWall(door_coord.getX(), door_coord.getY());
-
-                                EntityDoor door = new EntityDoor();
-                                placeEntity(door_coord.getX(), door_coord.getY(), door, "door", "+", Color.green);
-                                door.get_combat().set_hp(5);
-
-                                door.unlock();
-
-                                room.addNeighbour(room2);
-                            }
-                        }
-                    }
-                }
-            }
-
-
-            for (List<Point> outerWall : room.getOuterWall(block)){
-                //int rndChar =
-                if (outerWall != null && outerWall.size()>0){
-                    Point windowCoord = outerWall.get(outerWall.size()/2);
-                    if (chunk_random.nextInt(100) > 20){
-
-                        //Window
-
-                        EntityFurniture window = new EntityFurniture();
-                        placeEntity(windowCoord.getX(), windowCoord.getY(), window, "window", "=", Color.green);
-                        window.get_combat().set_hp(1);
-                        window.setBlockSight(false);
-                        clearWall(windowCoord.getX(), windowCoord.getY());
-
-
-                    } else {
-
-                        //Door
-
-                        EntityDoor door = new EntityDoor();
-                        placeEntity(windowCoord.getX(), windowCoord.getY(), door, "door", "+", Color.green);
-                        door.get_combat().set_hp(5);
-                        door.lock();
-                        clearWall(windowCoord.getX(), windowCoord.getY());
-                    }
-                }
-            }
+            traceBlock(room);
+            room.clearNeighbours(); //rebuild the door graph from scratch
         }
+
+        //Stage 5.5: connectivity — a spanning tree of doors guarantees every
+        //room is reachable (replaces the old phantom-wall intersection heuristic)
+        connectRooms(rooms);
+
+        //street-facing windows + at least one exterior entrance
+        placeExteriorFeatures(block, rooms);
 
         block.rooms = rooms;
-        //apartmentRooms.put(block, rooms);   //save apartment and rooms in in for later handling
+    }
+
+    /**
+     * Punch one door per edge of a BFS spanning tree over the room-adjacency
+     * graph, so the whole building is connected. A repair pass links any room
+     * the tree missed. Rooms from a single BSP are always adjacency-connected,
+     * but the repair pass makes the guarantee unconditional.
+     */
+    private void connectRooms(List<Block> rooms) {
+        if (rooms.size() < 2){
+            return;
+        }
+
+        List<Block> visited = new ArrayList<Block>();
+        int head = 0;
+        visited.add(rooms.get(0));
+
+        while (head < visited.size()){
+            Block cur = visited.get(head++);
+            for (Block other : rooms){
+                if (visited.contains(other)){
+                    continue;
+                }
+                List<Point> doors = RoomSplitter.sharedWallDoors(cur, other);
+                if (!doors.isEmpty()){
+                    Point d = doors.get(doors.size() / 2);
+                    punchDoor(d.getX(), d.getY(), false);
+                    cur.addNeighbour(other);
+                    other.addNeighbour(cur);
+                    visited.add(other);
+                }
+            }
+        }
+
+        //repair: force-connect anything the BFS could not reach
+        for (Block room : rooms){
+            if (visited.contains(room)){
+                continue;
+            }
+            for (Block other : visited){
+                List<Point> doors = RoomSplitter.sharedWallDoors(room, other);
+                if (!doors.isEmpty()){
+                    Point d = doors.get(doors.size() / 2);
+                    punchDoor(d.getX(), d.getY(), false);
+                    room.addNeighbour(other);
+                    other.addNeighbour(room);
+                    visited.add(room);
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * Windows on street-facing (building-perimeter) wall segments, plus a
+     * guaranteed exterior entrance. Windows are placed at the midpoint of each
+     * qualifying segment; roughly 1 in 5 segments becomes a locked door instead
+     * (as in the legacy generator), and if none did, one is forced.
+     */
+    private void placeExteriorFeatures(Apartment block, List<Block> rooms) {
+        boolean hasEntrance = false;
+
+        for (Block room : rooms){
+            for (List<Point> outerWall : room.getOuterWall(block)){
+                if (outerWall == null || outerWall.size() <= 2){
+                    continue;   //too short to host a feature without hitting a corner
+                }
+                Point coord = outerWall.get(outerWall.size() / 2);
+                if (chunk_random.nextInt(100) > 20){
+                    placeWindow(coord.getX(), coord.getY());
+                } else {
+                    punchDoor(coord.getX(), coord.getY(), true);
+                    hasEntrance = true;
+                }
+            }
+        }
+
+        if (!hasEntrance){
+            for (Block room : rooms){
+                boolean placed = false;
+                for (List<Point> outerWall : room.getOuterWall(block)){
+                    if (outerWall != null && outerWall.size() > 2){
+                        Point coord = outerWall.get(outerWall.size() / 2);
+                        punchDoor(coord.getX(), coord.getY(), true);
+                        placed = true;
+                        break;
+                    }
+                }
+                if (placed){
+                    break;
+                }
+            }
+        }
+    }
+
+    private void punchDoor(int x, int y, boolean locked) {
+        clearWall(x, y);
+        EntityDoor door = new EntityDoor();
+        placeEntity(x, y, door, "door", "+", Color.green);
+        door.get_combat().set_hp(5);
+        if (locked){
+            door.lock();
+        } else {
+            door.unlock();
+        }
+    }
+
+    private void placeWindow(int x, int y) {
+        EntityFurniture window = new EntityFurniture();
+        placeEntity(x, y, window, "window", "=", Color.green);
+        window.get_combat().set_hp(1);
+        window.setBlockSight(false);
+        clearWall(x, y);
     }
 
 
