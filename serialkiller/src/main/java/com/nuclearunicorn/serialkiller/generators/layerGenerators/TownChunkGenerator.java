@@ -959,6 +959,12 @@ public class TownChunkGenerator extends ChunkGenerator {
             for (int j = 0; j < m.h; j++){
                 if (m.isEdge(i, j)){
                     placeWall(m.ox + i, m.oy + j);
+                } else if (m.isInterior(i, j)){
+                    //flag the floor so the renderer gives it an interior material
+                    RLTile tile = (RLTile)(getLayer().get_tile(m.ox + i, m.oy + j));
+                    if (tile != null){
+                        tile.setIndoor(true);
+                    }
                 }
             }
         }
@@ -1242,9 +1248,15 @@ public class TownChunkGenerator extends ChunkGenerator {
         //self.tiles[(x,y)].block_sight = True
     }
 
+    /**
+     * Knock a hole in a wall for a door or a window. The tile stops being a wall
+     * for gameplay, but stays flagged as a gap so the renderer keeps the wall run
+     * visually continuous through the frame.
+     */
     private void clearWall(int i, int j) {
         RLTile tile = (RLTile)(getLayer().get_tile(i,j));
         tile.setWall(false);
+        tile.setWallGap(true);
     }
 
 

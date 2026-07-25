@@ -20,7 +20,6 @@ import com.nuclearunicorn.libroguelike.game.world.WorldView;
 import com.nuclearunicorn.libroguelike.game.world.WorldViewCamera;
 import com.nuclearunicorn.libroguelike.game.world.layers.WorldLayer;
 import com.nuclearunicorn.libroguelike.render.TilesetRenderer;
-import com.nuclearunicorn.libroguelike.render.layers.AbstractLayerRenderer;
 import com.nuclearunicorn.libroguelike.render.overlay.DebugOverlay;
 import com.nuclearunicorn.libroguelike.render.overlay.OverlaySystem;
 import com.nuclearunicorn.libroguelike.utils.NLTimer;
@@ -42,8 +41,9 @@ import com.nuclearunicorn.serialkiller.generators.layerGenerators.BasementGenera
 import com.nuclearunicorn.serialkiller.generators.layerGenerators.TownChunkGenerator;
 import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
 import com.nuclearunicorn.serialkiller.render.AsciiWorldView;
-import com.nuclearunicorn.serialkiller.render.ConsoleRenderer;
+import com.nuclearunicorn.serialkiller.render.RenderConfig;
 import com.nuclearunicorn.serialkiller.render.RLMessages;
+import org.newdawn.slick.Color;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.Point;
 import rlforj.los.IFovAlgorithm;
@@ -105,19 +105,16 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
 
         Timer.init();
 
-        final AbstractLayerRenderer renderer = new ConsoleRenderer();
+        //the world is a plain square grid; the pseudo-isometry lives in the
+        //renderer's projection, not in a rotated tileset
         WorldView.ISOMETRY_MODE = false;
         WorldView.ISOMETRY_ANGLE = 0.0f;
         WorldView.ISOMETRY_Y_SCALE = 1.0f;
 
-        view  = new AsciiWorldView(model){
-            public AbstractLayerRenderer getLayerRenderer(){
-                return renderer;
-            }
-        };
+        view = new AsciiWorldView(model);
 
         //tileset render affects camera positioning. Todo:fix this shit
-        TilesetRenderer.TILE_SIZE = ConsoleRenderer.TILE_SIZE;
+        TilesetRenderer.TILE_SIZE = RenderConfig.CELL;
 
         WorldChunk.CHUNK_SIZE = 128;
         
@@ -261,6 +258,24 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
                 break;
                 case Keyboard.KEY_SPACE:
                     isNextTurn = true;
+                break;
+
+                //render mode toggles, handy for comparing the layers
+                case Keyboard.KEY_F1:
+                    RenderConfig.PIXEL_SPRITES = !RenderConfig.PIXEL_SPRITES;
+                    RLMessages.message("pixel sprites: " + RenderConfig.PIXEL_SPRITES, Color.yellow);
+                break;
+                case Keyboard.KEY_F2:
+                    RenderConfig.SMOOTH_LIGHT = !RenderConfig.SMOOTH_LIGHT;
+                    RLMessages.message("smooth light: " + RenderConfig.SMOOTH_LIGHT, Color.yellow);
+                break;
+                case Keyboard.KEY_F3:
+                    RenderConfig.ASCII_OVER_SPRITES = !RenderConfig.ASCII_OVER_SPRITES;
+                    RLMessages.message("ascii overlay: " + RenderConfig.ASCII_OVER_SPRITES, Color.yellow);
+                break;
+                case Keyboard.KEY_F4:
+                    RenderConfig.REVEAL = !RenderConfig.REVEAL;
+                    RLMessages.message("reveal map: " + RenderConfig.REVEAL, Color.yellow);
                 break;
             }
         }
