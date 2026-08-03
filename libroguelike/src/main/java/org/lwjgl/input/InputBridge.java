@@ -20,7 +20,7 @@ public final class InputBridge {
     static final class KeyEvent {
         final int key;
         final boolean down;
-        final char chr;
+        char chr;   // backfilled by the char callback, which GLFW fires right after the key callback
         KeyEvent(int key, boolean down, char chr) { this.key = key; this.down = down; this.chr = chr; }
     }
 
@@ -51,8 +51,6 @@ public final class InputBridge {
     private static GLFWCursorPosCallback posCb;
     private static GLFWScrollCallback scrollCb;
 
-    private static char pendingChar = 0;
-
     private InputBridge() {}
 
     public static void attach(long handle) {
@@ -61,18 +59,20 @@ public final class InputBridge {
         glfwGetWindowSize(window, w, h);
         winW = w[0]; winH = h[0];
 
-        // Char first so char-then-key pairing is reliable for printable keys.
-        charCb = GLFWCharCallback.create((win, codepoint) -> {
-            if (codepoint < 0x10000) pendingChar = (char) codepoint;
-        });
-        glfwSetCharCallback(window, charCb);
-
         keyCb = GLFWKeyCallback.create((win, key, scancode, action, mods) -> {
             if (action == GLFW_REPEAT) return;
-            char chr = pendingChar; pendingChar = 0;
-            keyQueue.add(new KeyEvent(key, action == GLFW_PRESS, chr));
+            keyQueue.add(new KeyEvent(key, action == GLFW_PRESS, (char) 0));
         });
         glfwSetKeyCallback(window, keyCb);
+
+        // GLFW fires the char callback right AFTER the key callback for a printable press.
+        // Backfill the char onto the key event we just queued so the pairing is exact.
+        charCb = GLFWCharCallback.create((win, codepoint) -> {
+            if (codepoint < 0x10000 && !keyQueue.isEmpty()) {
+                keyQueue.peekLast().chr = (char) codepoint;
+            }
+        });
+        glfwSetCharCallback(window, charCb);
 
         btnCb = GLFWMouseButtonCallback.create((win, button, action, mods) -> {
             if (action == GLFW_REPEAT) return;

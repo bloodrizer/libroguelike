@@ -16,6 +16,7 @@ public final class Keyboard {
     public static final int KEY_M = GLFW_KEY_M;
     public static final int KEY_Q = GLFW_KEY_Q;
     public static final int KEY_S = GLFW_KEY_S;
+    public static final int KEY_T = GLFW_KEY_T;
     public static final int KEY_W = GLFW_KEY_W;
 
     public static final int KEY_F1       = GLFW_KEY_F1;
@@ -34,6 +35,10 @@ public final class Keyboard {
     public static final int KEY_LMENU    = GLFW_KEY_LEFT_ALT;
     public static final int KEY_LCONTROL = GLFW_KEY_LEFT_CONTROL;
     public static final int KEY_LSHIFT   = GLFW_KEY_LEFT_SHIFT;
+
+    // macOS Command keys — treated as an attack modifier alongside Control (see Input.java).
+    public static final int KEY_LMETA    = GLFW_KEY_LEFT_SUPER;
+    public static final int KEY_RMETA    = GLFW_KEY_RIGHT_SUPER;
 
     private static InputBridge.KeyEvent current;
 

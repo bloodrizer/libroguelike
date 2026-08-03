@@ -128,6 +128,12 @@ public class LLMAgentAI extends BasicMobAI {
         addObservation(event.getClass().getSimpleName());
     }
 
+    /** Record a spoken line heard nearby, so the next reactor prompt can react to it (§7). */
+    public void hear(String speaker, String text) {
+        addObservation(speaker + " said to you: \"" + text + "\"");
+        LlmDebug.log("%s heard %s say: \"%s\"", owner.get_uid(), speaker, text);
+    }
+
     private void addObservation(String text) {
         int cap = LlmRuntime.config() != null ? LlmRuntime.config().memory.observations : 8;
         observations.add(text);

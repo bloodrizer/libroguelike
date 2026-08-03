@@ -110,7 +110,10 @@ public class Input {
             if (Keyboard.getEventKey() == Keyboard.KEY_LMENU) {
                 key_state_alt = true;
             }
-            if (Keyboard.getEventKey() == Keyboard.KEY_LCONTROL) {
+            // Control or macOS Command both engage combat mode.
+            if (Keyboard.getEventKey() == Keyboard.KEY_LCONTROL
+                    || Keyboard.getEventKey() == Keyboard.KEY_LMETA
+                    || Keyboard.getEventKey() == Keyboard.KEY_RMETA) {
                 key_state_ctrl = true;
             }
             if (Keyboard.getEventKey() == Keyboard.KEY_LSHIFT) {
@@ -131,7 +134,9 @@ public class Input {
                 if (Keyboard.getEventKey() == Keyboard.KEY_LMENU) {
 		            key_state_alt = false;
 		        }
-                if (Keyboard.getEventKey() == Keyboard.KEY_LCONTROL) {
+                if (Keyboard.getEventKey() == Keyboard.KEY_LCONTROL
+                        || Keyboard.getEventKey() == Keyboard.KEY_LMETA
+                        || Keyboard.getEventKey() == Keyboard.KEY_RMETA) {
                     key_state_ctrl = false;
                 }
                 if (Keyboard.getEventKey() == Keyboard.KEY_LSHIFT) {

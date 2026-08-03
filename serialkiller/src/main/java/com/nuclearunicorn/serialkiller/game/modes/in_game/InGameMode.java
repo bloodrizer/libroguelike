@@ -9,6 +9,8 @@ import com.nuclearunicorn.libroguelike.events.EventManager;
 import com.nuclearunicorn.libroguelike.events.IEventListener;
 import com.nuclearunicorn.libroguelike.game.GameEnvironment;
 import com.nuclearunicorn.libroguelike.game.combat.Combat;
+import com.nuclearunicorn.libroguelike.game.ent.Entity;
+import com.nuclearunicorn.libroguelike.game.ent.EntityActor;
 import com.nuclearunicorn.libroguelike.game.ent.controller.NpcController;
 import com.nuclearunicorn.libroguelike.game.items.BaseItem;
 import com.nuclearunicorn.libroguelike.game.modes.AbstractGameMode;
@@ -30,6 +32,7 @@ import com.nuclearunicorn.serialkiller.game.ItemFactory;
 import com.nuclearunicorn.serialkiller.game.Main;
 import com.nuclearunicorn.serialkiller.game.MainApplet;
 import com.nuclearunicorn.serialkiller.game.SkillerGame;
+import com.nuclearunicorn.serialkiller.game.ai.LLMAgentAI;
 import com.nuclearunicorn.serialkiller.game.ai.PlayerAI;
 import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
@@ -70,6 +73,12 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
 
     private static GameEnvironment clientGameEnvironment;
     private int turnNumber = 0;
+
+    // FPS-style talk mode: 't' opens it, printable keys build the line, Enter speaks it to
+    // nearby NPCs, Escape cancels. While active, movement/attack keys are suppressed.
+    private boolean typeMode = false;
+    private StringBuilder typeBuffer = new StringBuilder();
+    private static final int SPEECH_RADIUS = 8;
 
     @Override
     public void run() {
@@ -191,6 +200,12 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         DebugOverlay.debugPathfinding();    //heavy, but very useful
         overlay.render();
 
+        if (typeMode){
+            OverlaySystem.ttf.drawString(15,
+                    com.nuclearunicorn.libroguelike.render.WindowRender.get_window_h() - 30,
+                    "Say: " + typeBuffer + "_", org.newdawn.slick.Color.yellow);
+        }
+
         DebugOverlay.frameTime = timer.popDiff();
 
     }
@@ -214,6 +229,12 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
     @Override
     public void e_on_event(Event event) {
         boolean isNextTurn = false;
+
+        // Talk mode swallows all keyboard input until the line is sent or cancelled.
+        if (typeMode && event instanceof EKeyPress){
+            handleTypeMode((EKeyPress) event);
+            return;
+        }
 
         //allow to press ESC even if player is dead
         if (event instanceof EKeyPress){
@@ -262,11 +283,56 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
                 case Keyboard.KEY_SPACE:
                     isNextTurn = true;
                 break;
+                case Keyboard.KEY_T:
+                    typeMode = true;
+                    typeBuffer.setLength(0);
+                break;
             }
         }
 
         if (isNextTurn){
             makeTurn();
+        }
+    }
+
+    /** Edit the talk buffer. Enter sends the line, Escape cancels, Backspace deletes. */
+    private void handleTypeMode(EKeyPress e){
+        switch (e.key){
+            case Keyboard.KEY_ESCAPE:
+                typeMode = false;
+                typeBuffer.setLength(0);
+                break;
+            case Keyboard.KEY_RETURN:
+                if (typeBuffer.length() > 0){
+                    speakToNearby(typeBuffer.toString());
+                }
+                typeMode = false;
+                typeBuffer.setLength(0);
+                break;
+            case Keyboard.KEY_BACK:
+                if (typeBuffer.length() > 0){
+                    typeBuffer.setLength(typeBuffer.length() - 1);
+                }
+                break;
+            default:
+                if (e.chr != Keyboard.CHAR_NONE && e.chr >= ' '){
+                    typeBuffer.append(e.chr);
+                }
+        }
+    }
+
+    /** Show the line as a chat bubble and deliver it to nearby LLM agents as heard speech. */
+    private void speakToNearby(String text){
+        Entity playerEnt = Player.get_ent();
+        ((EntityActor) playerEnt).say_message(text);
+
+        Entity[] nearby = com.nuclearunicorn.libroguelike.utils.Fov.get_entity_in_radius(
+                playerEnt.getEnvironment().getEntityManager(),
+                playerEnt.origin, SPEECH_RADIUS, playerEnt.getLayerId());
+        for (Entity ent : nearby){
+            if (ent.getAI() instanceof LLMAgentAI){
+                ((LLMAgentAI) ent.getAI()).hear("the player", text);
+            }
         }
     }
 
