@@ -9,8 +9,10 @@ import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.generators.ChunkGenerator;
 import com.nuclearunicorn.libroguelike.utils.NLTimer;
 import com.nuclearunicorn.serialkiller.game.ItemFactory;
+import com.nuclearunicorn.serialkiller.game.ai.LLMAgentAI;
 import com.nuclearunicorn.serialkiller.game.ai.PedestrianAI;
 import com.nuclearunicorn.serialkiller.game.ai.PoliceAI;
+import com.nuclearunicorn.serialkiller.game.ai.llm.LlmRuntime;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
 import com.nuclearunicorn.serialkiller.game.controllers.RLController;
 import com.nuclearunicorn.serialkiller.game.modes.in_game.InGameMode;
@@ -34,6 +36,7 @@ public class TownChunkGenerator extends ChunkGenerator {
 
     private static final int NPC_PER_ROAD_RATE = 35;    //50% is a hell lot of npc , 35 is sorta ok
     private static final int MAX_POLICEMAN_COUNT = 4;
+
 
     enum RoomType {
         KITCHEN,
@@ -419,7 +422,16 @@ public class TownChunkGenerator extends ChunkGenerator {
                 Point coord = road.getFreeTile(chunk_random, getLayer());
 
                 EntityRLHuman npc = (EntityRLHuman)placeNPC(coord.getX(), coord.getY());
-                npc.set_ai(new PedestrianAI());
+                //Every pedestrian is an LLM agent when inference is enabled; the reactor
+                //self-throttles to the near bucket so far NPCs cost nothing (§11).
+                if (LlmRuntime.isEnabled()){
+                    npc.set_ai(new LLMAgentAI());
+                    com.nuclearunicorn.serialkiller.game.ai.llm.LlmDebug.log(
+                            "spawned LLM agent %s (%s) at %d,%d",
+                            npc.get_uid(), npc.getName(), coord.getX(), coord.getY());
+                }else{
+                    npc.set_ai(new PedestrianAI());
+                }
                 npc.set_controller(new RLController());
                 npc.set_combat(new RLCombat());
 
@@ -446,7 +458,13 @@ public class TownChunkGenerator extends ChunkGenerator {
             EntityRLHuman police = new EntityRLHuman();
             placeEntity(coord.getX(), coord.getY(), police, "Policeman", "P", new Color(127, 127, 255));
 
-            police.set_ai(new PoliceAI());
+            if (LlmRuntime.isEnabled()){
+                police.set_ai(new LLMAgentAI());
+                com.nuclearunicorn.serialkiller.game.ai.llm.LlmDebug.log(
+                        "spawned LLM police %s at %d,%d", police.get_uid(), coord.getX(), coord.getY());
+            }else{
+                police.set_ai(new PoliceAI());
+            }
             police.set_controller(new RLController());
             police.set_combat(new RLCombat());
 
@@ -498,7 +516,7 @@ public class TownChunkGenerator extends ChunkGenerator {
             for(int j = 0; j<=block.getH(); j++ ){
                 if (chunk_random.nextInt(200) < 1){
                     EntityActor npc = placeNPC(block.getX()+i, block.getY()+j);
-                    npc.set_ai(new PedestrianAI());
+                    npc.set_ai(LlmRuntime.isEnabled() ? new LLMAgentAI() : new PedestrianAI());
                     npc.set_controller(new RLController());
                     npc.set_combat(new RLCombat());
                 }

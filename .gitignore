@@ -17,6 +17,8 @@ target/
 *.iws
 .vscode/
 
+models/
+
 # OS
 .DS_Store
 local-repo

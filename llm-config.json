@@ -1,0 +1,10 @@
+{
+  "enabled": true,
+  "debug": true,
+  "serverBinary": "llama-server",
+  "reactor":  { "model": "models/phi-4-mini.gguf", "port": 8081, "cadenceMs": 4000,  "maxTokens": 512 },
+  "director": { "model": "models/phi-4.gguf",      "port": 8082, "cadenceMs": 60000, "maxTokens": 1024, "batch": true },
+  "throttle": { "mode": "buckets", "nearRadius": 24 },
+  "far":      { "teleport": false },
+  "memory":   { "observations": 8 }
+}
