@@ -82,8 +82,12 @@ public final class Display {
                     (vid.height() - height) / 2);
             }
         }
-        glfwShowWindow(window);
-        glfwFocusWindow(window);
+        // Offscreen mode for scripted screenshots: render into the back buffer
+        // of a window that is never mapped (see render/ScreenCapture).
+        if (!Boolean.getBoolean("lrl.window.hidden")) {
+            glfwShowWindow(window);
+            glfwFocusWindow(window);
+        }
 
         org.lwjgl.input.InputBridge.attach(window);
         lastFrameTime = glfwGetTime();

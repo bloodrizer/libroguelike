@@ -242,6 +242,34 @@ public class Block {
         }
     }
 
+    /**
+     * Bounded version of {@link #getFreeTile}: N random samples, then a linear
+     * scan of the interior, then null. Never loops forever, so it is safe for
+     * small (3x3 interior) rooms that may be fully occupied by furniture.
+     * Callers MUST handle a null return by skipping placement.
+     */
+    public Point getFreeTileSafe(Random chunk_random, WorldLayer layer){
+        if (w <= 1 || h <= 1){
+            return null;
+        }
+        for (int n = 0; n < 50; n++){
+            int _x = chunk_random.nextInt( w-1 ) + x + 1;
+            int _y = chunk_random.nextInt( h-1 ) + y + 1;
+            if (!isBlocked(_x,_y, layer)){
+                return new Point(_x,_y);
+            }
+        }
+        //exhaustive fallback
+        for (int i = 1; i < w; i++){
+            for (int j = 1; j < h; j++){
+                if (!isBlocked(x+i, y+j, layer)){
+                    return new Point(x+i, y+j);
+                }
+            }
+        }
+        return null;
+    }
+
     private boolean isBlocked(int x, int y, WorldLayer layer) {
         RLTile tile = (RLTile)(layer.get_tile(x,y));
 

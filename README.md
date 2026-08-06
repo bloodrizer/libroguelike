@@ -25,6 +25,9 @@ mvn package
 
 # Launch the game.
 ./scripts/run.sh
+
+# Render one frame offscreen to a PNG (no window).
+./scripts/shot.sh /tmp/shot.png
 ```
 
 The launcher picks the right JVM args per OS (e.g. `-XstartOnFirstThread` and
@@ -41,10 +44,12 @@ thread with AWT-based offscreen font rasterisation).
 │                        # (gitignored — regenerate with the script above)
 ├── scripts/
 │   ├── install-local-jars.sh
-│   └── run.sh
+│   ├── run.sh
+│   └── shot.sh          # offscreen single-frame screenshot
 ├── pom.xml              # parent aggregator
 ├── PORTING.md           # full porting/modernisation plan
 ├── MIGRATION_LOG.md     # step-by-step record of what changed and why
+├── RENDERING.md         # world renderer: projection, lighting, sprite atlas
 └── README.md
 ```
 

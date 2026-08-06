@@ -24,6 +24,12 @@ public class RLTile extends WorldTile {
     private boolean isWall = false;
     private boolean isFovChecked = false;
 
+    //inside a building footprint - the renderer floors it differently
+    private boolean isIndoor = false;
+
+    //a door or window was punched here: walkable, but part of a wall run
+    private boolean isWallGap = false;
+
     //how much blood this tile is covered with
     float bloodAmt = 0.0f;
 
@@ -97,6 +103,22 @@ public class RLTile extends WorldTile {
 
     public void setExplored(boolean explored) {
         isExplored = explored;
+    }
+
+    public boolean isIndoor() {
+        return isIndoor;
+    }
+
+    public boolean isWallGap() {
+        return isWallGap;
+    }
+
+    public void setWallGap(boolean wallGap) {
+        isWallGap = wallGap;
+    }
+
+    public void setIndoor(boolean indoor) {
+        isIndoor = indoor;
     }
 
     public boolean isWall() {

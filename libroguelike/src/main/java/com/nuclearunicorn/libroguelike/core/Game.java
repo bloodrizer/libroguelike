@@ -9,6 +9,7 @@ package com.nuclearunicorn.libroguelike.core;
 import com.nuclearunicorn.libroguelike.game.modes.AbstractGameMode;
 import com.nuclearunicorn.libroguelike.game.modes.IGameMode;
 import com.nuclearunicorn.libroguelike.game.ui.IUserInterface;
+import com.nuclearunicorn.libroguelike.render.ScreenCapture;
 import com.nuclearunicorn.libroguelike.render.WindowRender;
 import com.nuclearunicorn.libroguelike.utils.Timer;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_Element;
@@ -89,6 +90,8 @@ public class Game {
 
                Timer.tick();
                mode.update();
+
+               ScreenCapture.tick();
 
                Display.sync(60);
                Display.update();
