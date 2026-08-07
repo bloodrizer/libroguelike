@@ -153,6 +153,31 @@ public class EntityRLHuman extends EntityRLActor {
         return mate;
     }
 
+    /**
+     * What {@code other} is to us: "wife", "son", "father", "sister"... or null for a
+     * stranger. Named from {@code other}'s side and gendered by <i>their</i> sex, so it
+     * reads as an address: my mate who is female is my "wife".
+     */
+    public String relationTo(EntityRLHuman other){
+        if (other == null || other == this){
+            return null;
+        }
+        boolean male = other.getSex() == Sex.MALE;
+        if (mate == other){
+            return male ? "husband" : "wife";
+        }
+        if (parent == other){
+            return male ? "father" : "mother";
+        }
+        if (children.contains(other)){
+            return male ? "son" : "daughter";
+        }
+        if (siblings.contains(other)){
+            return male ? "brother" : "sister";
+        }
+        return null;
+    }
+
     public void addCrimeRecord(CrimeRecord crimeRecord) {
         for (CrimeRecord crime: crimeRecords){
             if (crime.crimeType == crimeRecord.crimeType){

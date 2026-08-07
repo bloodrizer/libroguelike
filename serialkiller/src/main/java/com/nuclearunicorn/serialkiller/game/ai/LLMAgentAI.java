@@ -26,11 +26,20 @@ import java.util.List;
  * contract, and resolves competing signals by {@link Salience}:
  *
  * <ol>
+ *   <li><b>Reflex</b> — being attacked takes the body immediately, with no inference at
+ *       all: scream, then run from the attacker until clear. Everything below is advisory
+ *       while this holds.</li>
  *   <li><b>Interrupt</b> — a stimulus at or above {@code priority.interruptAt} (being
  *       spoken to, being attacked) drops the running plan and submits immediately at that
  *       priority, ignoring both the idle check and the cadence.</li>
  *   <li><b>Ambient</b> — otherwise re-plan only when idle and the cadence has elapsed.</li>
  * </ol>
+ *
+ * <p>The reflex rung exists because latency is not a detail here. A stab used to reach the
+ * model as a prompt, wait a round trip, and come back as dialogue — so the victim stood
+ * still next to their attacker <i>discussing</i> it, for a dozen turns, while the plan it
+ * eventually produced ({@code goto home}) silently failed to resolve. Survival cannot be a
+ * completion; the model gets to narrate afterwards, not to gate running away.
  *
  * <p>The ambient rung is the behaviour this class used to have <i>unconditionally</i>, which
  * is why NPCs ignored the player: a durative {@code goto} kept the interpreter non-idle, so
@@ -50,6 +59,15 @@ public class LLMAgentAI extends BasicMobAI {
     // manager - just a bias on cadence and prompt framing, so exchanges hold together.
     private String attentionUid;
     private long attentionUntilTurn;
+
+    // Reflex rung (§3 layer 1): who is hurting us, and how long we keep running. Survival
+    // cannot wait on a model round trip - a victim that stands still composing a sentence
+    // while being stabbed is the wrong behaviour no matter how good the sentence is.
+    private String threatUid;
+    private long fleeUntilTurn;
+
+    /** How far to look for an escape milestone. Bounded so A* is asked a routable question. */
+    private static final int SEARCH_RADIUS = 20;
 
     private transient PlanInterpreter interpreter;
     private transient AgentContext context;
@@ -111,7 +129,7 @@ public class LLMAgentAI extends BasicMobAI {
         int interruptAt = LlmRuntime.config().priority.interruptAt;
 
         if (top >= interruptAt) {
-            submit(service, top, "interrupt (" + Salience.label(top) + ")");
+            submit(service, top, "interrupt");
             return;
         }
 
@@ -135,8 +153,13 @@ public class LLMAgentAI extends BasicMobAI {
             focusOn(memory.peekTop());
         }
 
-        LlmDebug.log("%s: %s -> submitting at %s (turn %d)",
-                uid, why, Salience.label(priority), GameTurn.current());
+        // Log the stimulus's own band, not the decayed number's: a DIRECTED line one turn
+        // old scores 68 and would read as "NOTABLE", which is exactly the wrong thing to
+        // see in a log you are using to work out whether a directed signal got through.
+        Stimulus top = memory.peekTop();
+        LlmDebug.log("%s: %s -> submitting at %s (score %d, turn %d)",
+                uid, why, Salience.label(top == null ? priority : top.salience),
+                priority, GameTurn.current());
         service.submit(uid, Perception.snapshot((EntityRLHuman) owner, memory, attentionName()), priority);
 
         // Consume at submit time, not at reply time: a round trip takes seconds, and a
@@ -211,7 +234,134 @@ public class LLMAgentAI extends BasicMobAI {
         if (!LlmRuntime.isEnabled() || !ensureWired()) {
             return;
         }
+        // Reflex outranks the plan. While it holds, the interpreter does not get the body
+        // at all - otherwise an in-flight "goto home" walks the victim calmly past the
+        // person stabbing them.
+        if (flee()) {
+            return;
+        }
         interpreter.tick(context);
+    }
+
+    /**
+     * Engage the flee reflex: drop the plan, scream once, and start running. Called the
+     * moment the stimulus lands, so it costs no inference and happens on the same turn as
+     * the blow — the model still gets to speak afterwards, it just no longer gates survival.
+     */
+    private void engageReflex(Stimulus stimulus) {
+        boolean fresh = !isFleeing();
+        threatUid = stimulus.sourceUid;
+        fleeUntilTurn = GameTurn.current() + LlmRuntime.config().priority.fleeTurns;
+        interpreter.setReactive(java.util.Collections.<NpcCommand>emptyList());
+        ((RLController) owner.controller).clearPath();   // wherever we were going is moot
+        focusOn(stimulus);
+        if (fresh) {
+            scream();
+        }
+        LlmDebug.log("%s: REFLEX engaged (threat=%s, fleeing until turn %d)",
+                owner.get_uid(), threatUid, fleeUntilTurn);
+    }
+
+    private boolean isFleeing() {
+        return GameTurn.current() < fleeUntilTurn;
+    }
+
+    /** One step away from the threat. Returns false once we are clear, or it is gone. */
+    private boolean flee() {
+        if (!isFleeing()) {
+            return false;
+        }
+        com.nuclearunicorn.libroguelike.game.ent.Entity threat = threatUid == null
+                ? null : owner.getEnvironment().getEntityManager().get_entity(threatUid);
+        RLController ctrl = (RLController) owner.controller;
+        if (threat == null || threat.origin == null) {
+            fleeUntilTurn = 0;
+            return false;
+        }
+        int distance = ctrl.distanceToTarget(threat.origin);
+        if (distance <= 0 || distance > LlmRuntime.config().priority.fleeDistance) {
+            fleeUntilTurn = 0;   // clear of them; hand the body back to the plan
+            LlmDebug.log("%s: REFLEX released (distance %d)", owner.get_uid(), distance);
+            return false;
+        }
+
+        // Route the escape rather than stepping greedily away. escapeTarget() walks
+        // straight at whatever is behind you, which indoors is a wall — the victim got two
+        // tiles from the attacker, jammed in a corner, and stood there being stabbed.
+        if (!ctrl.hasPath()) {
+            routeAwayFrom(ctrl, threat);
+        }
+        if (ctrl.hasPath()) {
+            ctrl.follow_path();
+        } else {
+            ctrl.escapeTarget(threat);   // open ground, or nowhere left to route to
+        }
+        return true;
+    }
+
+    /**
+     * Head for the nav-mesh milestone furthest from the threat. Milestones are routable by
+     * construction and lead out through doors, so panic takes an NPC out of the building
+     * instead of into the nearest corner.
+     */
+    private void routeAwayFrom(RLController ctrl, com.nuclearunicorn.libroguelike.game.ent.Entity threat) {
+        if (!(owner.get_chunk() instanceof com.nuclearunicorn.serialkiller.game.world.RLWorldChunk)) {
+            LlmDebug.log("%s: REFLEX no chunk (%s)", owner.get_uid(), owner.get_chunk());
+            return;
+        }
+        List<org.lwjgl.util.Point> milestones =
+                ((com.nuclearunicorn.serialkiller.game.world.RLWorldChunk) owner.get_chunk()).getMilestones();
+        if (milestones == null || milestones.isEmpty()) {
+            LlmDebug.log("%s: REFLEX no milestones", owner.get_uid());
+            return;
+        }
+        // Furthest from the threat *among nearby milestones*. Scoring distance globally
+        // picks the far corner of the map, and A* refuses a route that long — panic is a
+        // short sprint to the next junction, not an expedition.
+        long reach = (long) SEARCH_RADIUS * SEARCH_RADIUS;
+        org.lwjgl.util.Point best = null;
+        long bestScore = Long.MIN_VALUE;
+        org.lwjgl.util.Point nearest = null;
+        long nearestDist = Long.MAX_VALUE;
+        for (org.lwjgl.util.Point milestone : milestones) {
+            long fromUs = distanceSq(milestone, owner.origin);
+            if (fromUs < nearestDist) {
+                nearestDist = fromUs;
+                nearest = milestone;
+            }
+            if (fromUs > reach) {
+                continue;
+            }
+            long fromThreat = distanceSq(milestone, threat.origin);
+            if (fromThreat > bestScore) {
+                bestScore = fromThreat;
+                best = milestone;
+            }
+        }
+        if (best == null) {
+            best = nearest;   // nothing in reach; head for the nav mesh at all
+        }
+        if (best != null) {
+            ctrl.set_destination(new org.lwjgl.util.Point(best));
+            LlmDebug.log("%s: REFLEX route from %d,%d -> %d,%d (%d milestones, path=%s)",
+                    owner.get_uid(), owner.origin.getX(), owner.origin.getY(),
+                    best.getX(), best.getY(), milestones.size(), ctrl.hasPath());
+        }
+    }
+
+    private static long distanceSq(org.lwjgl.util.Point a, org.lwjgl.util.Point b) {
+        long dx = a.getX() - b.getX();
+        long dy = a.getY() - b.getY();
+        return dx * dx + dy * dy;
+    }
+
+    private void scream() {
+        if (!(owner instanceof com.nuclearunicorn.libroguelike.game.ent.EntityActor)) {
+            return;
+        }
+        com.nuclearunicorn.serialkiller.render.RLMessages.message(
+                owner.getName() + " screams!", org.newdawn.slick.Color.red);
+        ((com.nuclearunicorn.libroguelike.game.ent.EntityActor) owner).say_message("AAAAAAAA!");
     }
 
     @Override
@@ -219,8 +369,31 @@ public class LLMAgentAI extends BasicMobAI {
         // World events are ambient by default; the ones that mean something get promoted
         // by their own sensors. Bare class names used to be written straight into memory,
         // where they crowded out real signal and pushed the model toward empty plans.
+        if (!carriesSignal(event)) {
+            return;
+        }
         sense(new Stimulus(GameTurn.current(), Stimulus.Channel.EVENT, Salience.AMBIENT,
                 null, describe(event)));
+    }
+
+    /**
+     * Keep out what we cannot actually perceive. Legacy crime plumbing hand-delivers a
+     * report to <i>every</i> entity in the layer, so one punch wrote "something happened
+     * nearby" into ~50 brains, most of them a hundred tiles away — pure noise that ages
+     * real stimuli out of memory. A located event has to be in earshot to count.
+     */
+    private boolean carriesSignal(Event event) {
+        if (event instanceof com.nuclearunicorn.libroguelike.events.network.EChatMessage
+                || event instanceof com.nuclearunicorn.libroguelike.events.ETakeDamage) {
+            return false;   // HearingSensor / PainSensor own these, at their real salience
+        }
+        if (event instanceof com.nuclearunicorn.libroguelike.events.PointBasedEvent) {
+            org.lwjgl.util.Point at =
+                    ((com.nuclearunicorn.libroguelike.events.PointBasedEvent) event).getOrigin();
+            return at != null
+                    && Fov.in_range(owner.origin, at, LlmRuntime.config().speech.earshotRadius);
+        }
+        return true;
     }
 
     /** Turn an event class into something a model can actually reason about. */
@@ -243,6 +416,11 @@ public class LLMAgentAI extends BasicMobAI {
         }
         memory.add(stimulus);
         LlmDebug.log("%s sensed %s", owner.get_uid(), stimulus);
+
+        // Pain does not queue. It fires now, before anything is asked of the model.
+        if (stimulus.channel == Stimulus.Channel.PAIN) {
+            engageReflex(stimulus);
+        }
     }
 
     /**
@@ -262,6 +440,7 @@ public class LLMAgentAI extends BasicMobAI {
                 + " sinceRequest=" + (lastRequestTurn < 0
                         ? "never" : String.valueOf(GameTurn.current() - lastRequestTurn))
                 + " attention=" + (hasAttention() ? attentionUid : "none")
+                + " fleeing=" + (isFleeing() ? threatUid : "no")
                 + " near=" + isNearPlayer();
     }
 }

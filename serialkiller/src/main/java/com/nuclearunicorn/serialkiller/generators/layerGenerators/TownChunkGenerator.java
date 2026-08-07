@@ -228,8 +228,15 @@ public class TownChunkGenerator extends ChunkGenerator {
         InGameMode.spawn_player(new Point(0,0));
         EntityRLHuman playerEnt = ((EntityRLHuman) Player.get_ent());
 
-        //add family members
+        //add family members. One FamilyGenerator = one surname, and everyone in the
+        //household wears it - the player included, who was literally named "Player" while
+        //the mate carried an unrelated generated surname and the children a third and
+        //fourth. The safehouse is also their home; without setApartment they are homeless
+        //and every "goto home" they plan resolves to UNRESOLVED.
         FamilyGenerator familyGen = new FamilyGenerator();
+        playerEnt.setName(familyGen.generateName(playerEnt.getSex() == EntityRLHuman.Sex.MALE));
+        moveIn(playerEnt, safehouseBlock);
+
         Point mateOrigin = safehouseBlock.getFreeTileSafe(chunk_random, getLayer());
         if (mateOrigin != null && chunk_random.nextInt(100) <= 60){    //60% you have a mate
 
@@ -254,7 +261,8 @@ public class TownChunkGenerator extends ChunkGenerator {
 
             playerEnt.setMate(mate);    //TODO: possible family relationship for monsters, etc. Inherite them from RLHuman?
 
-            mate.set_combat(new RLCombat());
+            giveBrain(mate, "mate");
+            moveIn(mate, safehouseBlock);
             //mate.setBodysim(new BodySimulation());
         }
 
@@ -267,8 +275,10 @@ public class TownChunkGenerator extends ChunkGenerator {
             Point origin = child1Origin;
             EntityRLHuman child = NPCGenerator.generateNPC(chunk_random, this, origin.getX(), origin.getY());
             child.age = NPCGenerator.generateAge(chunk_random, false);  //young age
+            child.setName(familyGen.generateName(child.getSex() == EntityRLHuman.Sex.MALE));
 
-            child.set_combat(new RLCombat());
+            giveBrain(child, "child");
+            moveIn(child, safehouseBlock);
             //child.setBodysim(new BodySimulation());
 
             playerEnt.addChild(child);
@@ -279,8 +289,10 @@ public class TownChunkGenerator extends ChunkGenerator {
             Point origin = child2Origin;
             EntityRLHuman child = NPCGenerator.generateNPC(chunk_random, this, origin.getX(), origin.getY());
             child.age = NPCGenerator.generateAge(chunk_random, false);  //young age
+            child.setName(familyGen.generateName(child.getSex() == EntityRLHuman.Sex.MALE));
 
-            child.set_combat(new RLCombat());
+            giveBrain(child, "child");
+            moveIn(child, safehouseBlock);
             //child.setBodysim(new BodySimulation());
 
             playerEnt.addChild(child);
@@ -397,15 +409,16 @@ public class TownChunkGenerator extends ChunkGenerator {
             furnishRoom(building, room);
         }
 
-        //0-2 staff NPCs milling about (pedestrian AI is fine for now)
+        //0-2 staff NPCs milling about. These are the NPCs the player meets *indoors* -
+        //including in the building they start in - so they get the same brain pedestrians
+        //do. They were hardwired to PedestrianAI, which is why the nearest NPC at spawn
+        //ignored both speech and being attacked: it had no LLM brain to sense either.
         int staff = chunk_random.nextInt(3);
         for (int i = 0; i < staff; i++){
             Point coord = interiorFreeTile(building);
             if (coord == null){ break; }
             EntityRLHuman npc = (EntityRLHuman) placeNPC(coord.getX(), coord.getY());
-            npc.set_ai(new PedestrianAI());
-            npc.set_controller(new RLController());
-            npc.set_combat(new RLCombat());
+            giveBrain(npc, "staff");
         }
     }
 
@@ -725,16 +738,7 @@ public class TownChunkGenerator extends ChunkGenerator {
                 EntityRLHuman npc = (EntityRLHuman)placeNPC(coord.getX(), coord.getY());
                 //Every pedestrian is an LLM agent when inference is enabled; the reactor
                 //self-throttles to the near bucket so far NPCs cost nothing (§11).
-                if (LlmRuntime.isEnabled()){
-                    npc.set_ai(new LLMAgentAI());
-                    com.nuclearunicorn.serialkiller.game.ai.llm.LlmDebug.log(
-                            "spawned LLM agent %s (%s) at %d,%d",
-                            npc.get_uid(), npc.getName(), coord.getX(), coord.getY());
-                }else{
-                    npc.set_ai(new PedestrianAI());
-                }
-                npc.set_controller(new RLController());
-                npc.set_combat(new RLCombat());
+                giveBrain(npc, "agent");
 
                 if (residential.isEmpty()){ continue; }   //nowhere to live (all parks)
                 Apartment apt = residential.get(chunk_random.nextInt(residential.size()));
@@ -873,9 +877,7 @@ public class TownChunkGenerator extends ChunkGenerator {
             for(int j = 0; j<=block.getH(); j++ ){
                 if (chunk_random.nextInt(200) < 1){
                     EntityActor npc = placeNPC(block.getX()+i, block.getY()+j);
-                    npc.set_ai(LlmRuntime.isEnabled() ? new LLMAgentAI() : new PedestrianAI());
-                    npc.set_controller(new RLController());
-                    npc.set_combat(new RLCombat());
+                    giveBrain(npc, "loiterer");
                 }
 
                 if (chunk_random.nextInt(100) < 2){
@@ -898,6 +900,32 @@ public class TownChunkGenerator extends ChunkGenerator {
         EntityRLHuman playerEnt = NPCGenerator.generateNPC(chunk_random, this, x, y);
 
         return playerEnt;
+    }
+
+    /** Move a resident in: somewhere to sleep, and somewhere {@code goto home} resolves to. */
+    private void moveIn(EntityRLHuman resident, Apartment apartment) {
+        resident.setApartment(apartment);
+        stampOwnership(apartment, resident);
+    }
+
+    /**
+     * Give an NPC the standard brain+body: an LLM agent when inference is on, the legacy
+     * FSM otherwise. Every spawn site must go through here — the four sites used to each
+     * roll their own, and the one that forgot (the player's own family, in the building the
+     * player starts in) produced NPCs with no AI and no controller at all. Those are inert:
+     * no sensors, so speech and being attacked both land on nothing.
+     */
+    private void giveBrain(EntityActor npc, String role) {
+        if (LlmRuntime.isEnabled()){
+            npc.set_ai(new LLMAgentAI());
+            com.nuclearunicorn.serialkiller.game.ai.llm.LlmDebug.log(
+                    "spawned LLM %s %s (%s) at %d,%d",
+                    role, npc.get_uid(), npc.getName(), npc.origin.getX(), npc.origin.getY());
+        }else{
+            npc.set_ai(new PedestrianAI());
+        }
+        npc.set_controller(new RLController());
+        npc.set_combat(new RLCombat());
     }
 
     /*

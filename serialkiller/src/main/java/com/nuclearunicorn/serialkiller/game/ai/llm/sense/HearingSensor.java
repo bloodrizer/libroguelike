@@ -23,6 +23,12 @@ import com.nuclearunicorn.serialkiller.game.ai.llm.LlmRuntime;
  * manager: close enough and you are being <i>addressed</i> ({@link Salience#DIRECTED},
  * preempts the running plan); merely within earshot and you have <i>overheard</i> something
  * ({@link Salience#NOTABLE}, remembered but not urgent).
+ *
+ * <p>Radius alone left a dead band the player fell into constantly. "Standing near someone"
+ * in a room is 5-10 tiles, but only {@code directedRadius} (4) counted as addressed, so a
+ * deliberate hello landed as NOTABLE — below the interrupt threshold, hence no reply. Player
+ * speech therefore also promotes the <i>nearest</i> hearer: the player types a line rarely
+ * and on purpose, unlike NPC chatter, so someone should always take it as meant for them.
  */
 public class HearingSensor implements IEventListener {
 
@@ -54,27 +60,52 @@ public class HearingSensor implements IEventListener {
 
         int directed = LlmRuntime.config().speech.directedRadius;
         int earshot = Math.max(directed, LlmRuntime.config().speech.earshotRadius);
-        String speakerName = speaker.isPlayerEnt() ? "the player" : speaker.getName();
 
         Entity[] nearby = Fov.get_entity_in_radius(
                 ClientGameEnvironment.getEnvironment().getEntityManager(),
                 speaker.origin, earshot, speaker.getLayerId());
 
+        // The player always gets one definite addressee, whatever the radius says.
+        Entity nearest = speaker.isPlayerEnt() ? nearestListener(speaker, nearby) : null;
+
         for (Entity listener : nearby) {
             if (listener == speaker || !(listener.getAI() instanceof LLMAgentAI)) {
                 continue;
             }
-            boolean addressed = Fov.in_range(speaker.origin, listener.origin, directed);
+            boolean addressed = listener == nearest
+                    || Fov.in_range(speaker.origin, listener.origin, directed);
+            // Named from this listener's side: the same speaker is "your daughter" to one
+            // and a stranger to the next.
+            String speakerName = Relations.describe(listener, speaker);
             Stimulus stimulus = new Stimulus(
                     GameTurn.current(),
                     Stimulus.Channel.SPEECH,
                     addressed ? Salience.DIRECTED : Salience.NOTABLE,
                     chat.uid,
                     addressed
-                            ? speakerName + " is standing right next to you and said to you: \"" + chat.message + "\""
+                            ? speakerName + " is talking to you and just said: \"" + chat.message + "\""
                             : "you overheard " + speakerName + " say: \"" + chat.message + "\"");
 
             ((LLMAgentAI) listener.getAI()).sense(stimulus);
         }
+    }
+
+    /** Closest LLM-brained hearer, by squared distance; null if nobody is listening. */
+    private static Entity nearestListener(Entity speaker, Entity[] nearby) {
+        Entity best = null;
+        long bestDist = Long.MAX_VALUE;
+        for (Entity listener : nearby) {
+            if (listener == speaker || !(listener.getAI() instanceof LLMAgentAI)) {
+                continue;
+            }
+            long dx = listener.origin.getX() - speaker.origin.getX();
+            long dy = listener.origin.getY() - speaker.origin.getY();
+            long dist = dx * dx + dy * dy;
+            if (dist < bestDist) {
+                bestDist = dist;
+                best = listener;
+            }
+        }
+        return best;
     }
 }

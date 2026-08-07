@@ -4,7 +4,7 @@
 #   ./scripts/replay.sh record [out.jsonl]        play normally, write a replay on exit
 #   ./scripts/replay.sh play <in.jsonl> [out]     drive the game from a replay
 #
-# Recording is on by default for every run of the game, to replays/MM-DD-HH:SS.jsonl -
+# Recording is on by default for every run of the game, to replays/MM-DD-HH:MM.jsonl -
 # `record` only exists to pin a specific filename. Opt out with -Dreplay.record=false.
 #
 # `play` runs headless by default so a harness can use it; set SHOW=1 to watch the window.
@@ -30,7 +30,7 @@ llm_flag=()
 
 case "$MODE" in
   record)
-    OUT="${2:-replays/$(date +%m-%d-%H:%S).jsonl}"
+    OUT="${2:-replays/$(date +%m-%d-%H:%M).jsonl}"
     mkdir -p "$(dirname "$OUT")"
     echo "recording to $OUT - play, then quit (Esc to menu, or close the window)"
     exec java -Dreplay.record="$OUT" "${llm_flag[@]}" -jar "$JAR"

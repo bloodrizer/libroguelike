@@ -36,6 +36,8 @@ import com.nuclearunicorn.serialkiller.game.ai.LLMAgentAI;
 import com.nuclearunicorn.serialkiller.game.ai.PlayerAI;
 import com.nuclearunicorn.serialkiller.game.ai.llm.sense.GameTurn;
 import com.nuclearunicorn.serialkiller.game.ai.llm.sense.HearingSensor;
+import com.nuclearunicorn.serialkiller.game.ai.llm.sense.PainSensor;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
 import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
 import com.nuclearunicorn.serialkiller.game.controllers.RLPlayerController;
@@ -153,6 +155,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         //loading misc services
         SocialController.init();
         HearingSensor.init();
+        PainSensor.init();
 
         //world is built and taking input - anchor replay playback here, not at frame 0
         Replay.markReady();
@@ -395,7 +398,11 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
                 playerEnt.getEnvironment().getEntityManager(),
                 playerEnt.origin, NPC_DUMP_RADIUS, playerEnt.getLayerId());
         for (Entity ent : nearby){
-            if (!(ent.getAI() instanceof LLMAgentAI)){
+            // Every human, not just the LLM-brained ones, and always name the AI class.
+            // Filtering to LLMAgentAI hid the actual bug: the NPC standing next to the
+            // player had no AI at all, so an empty dump read as "no NPC nearby" rather
+            // than "the NPC nearby has no brain to ignore you with".
+            if (ent == playerEnt || !(ent instanceof EntityRLHuman)){
                 continue;
             }
             Replay.observe("npc", "turn", turnNumber, "uid", ent.get_uid(), "name", ent.getName(),
@@ -403,7 +410,9 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
                     "dist", (int) Math.sqrt(
                             Math.pow(ent.origin.getX() - playerEnt.origin.getX(), 2)
                           + Math.pow(ent.origin.getY() - playerEnt.origin.getY(), 2)),
-                    "state", ((LLMAgentAI) ent.getAI()).debugState());
+                    "ai", ent.getAI() == null ? "none" : ent.getAI().getClass().getSimpleName(),
+                    "state", ent.getAI() instanceof LLMAgentAI
+                            ? ((LLMAgentAI) ent.getAI()).debugState() : "-");
         }
     }
 

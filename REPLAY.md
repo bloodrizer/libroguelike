@@ -10,7 +10,7 @@ and inspect.
 
 ## Usage
 
-**Every run records by default** to `replays/MM-DD-HH:SS.jsonl` — the session worth
+**Every run records by default** to `replays/MM-DD-HH:MM.jsonl` — the session worth
 replaying is always the one you did not think to arm beforehand. Opt out with
 `-Dreplay.record=false`.
 
@@ -22,8 +22,8 @@ java -jar serialkiller/target/serialkiller-0.1.0-SNAPSHOT.jar   # records automa
 ./scripts/replay.sh play my.jsonl out.jsonl     # re-run it headless, log to out.jsonl
 ```
 
-The name is not unique within an hour (hour-and-second, no minutes), so a collision gets a
-`-2`, `-3` suffix instead of overwriting the earlier run.
+Two runs in the same minute collide, so the second gets a `-2`, `-3` suffix instead of
+overwriting the earlier run.
 
 Scenarios can also be written directly, which is what tests should do:
 
@@ -38,7 +38,7 @@ Actions: `wait <frames>`, `walk <wasd> [n]`, `attack <wasd> [n]`, `say <text>`,
 
 | Flag / env | Default | Meaning |
 |---|---|---|
-| `-Dreplay.record=<path\|true\|false>` | `true` | record here; `true` → `replays/MM-DD-HH:SS.jsonl`, `false` disables |
+| `-Dreplay.record=<path\|true\|false>` | `true` | record here; `true` → `replays/MM-DD-HH:MM.jsonl`, `false` disables |
 | `-Dreplay.play=<path>` | off | drive input from this file |
 | `SPEED=` / `-Dreplay.speed` | `1.0` | playback rate |
 | `TAIL=` / `-Dreplay.tailFrames` | `600` | frames to keep running after the last input |
@@ -67,7 +67,7 @@ Modifiers are recorded because attack is **ctrl+direction** — a replay that dr
 | type | carries |
 |---|---|
 | `turn` | turn number, player position |
-| `npc` | per-turn brain dump of every LLM NPC within 12 tiles (see below) |
+| `npc` | per-turn brain dump of every human within 12 tiles (see below) |
 | `say` | every line spoken, by anyone |
 | `damage` | attacker, target, amount, type |
 | `trace` | LLM pipeline lines — sensing, queueing, plans, resolution |
@@ -76,12 +76,18 @@ Modifiers are recorded because attack is **ctrl+direction** — a replay that dr
 The `npc` record is the one that makes "the NPC ignored me" diagnosable:
 
 ```
-top=DIRECTED:the player said... topSalience=70 idle=true busy=false
-sinceRequest=3 attention=none near=true
+name=LAJUANA PITTS dist=1 ai=LLMAgentAI
+state=top=URGENT:the player just attacked you! topSalience=95 idle=false
+      busy=false sinceRequest=2 attention=712f9bec fleeing=712f9bec near=true
 ```
 
 — whether the stimulus arrived at all, what salience it carries *now*, and whether the
 trigger or the queue is holding the reaction back.
+
+`ai` is there because the first real bug found this way was not in the salience model at
+all: the NPC next to the player had **no AI object**, so nothing could reach it. Dump
+every human and name the AI class — filtering to LLM agents makes an inert NPC look like
+an absent one, which is the one failure the log most needs to distinguish.
 
 ## Determinism
 

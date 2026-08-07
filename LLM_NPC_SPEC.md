@@ -232,6 +232,13 @@ The same number arbitrates **three** layers — it inverts somewhere if they dis
    running plan and submits immediately, bypassing both the idle check and the cadence.
    Below it, the old rule applies: re-plan only when idle and the cadence has elapsed.
 
+`interruptAt` must sit **below** the band it is meant to catch, because the comparison
+happens after decay (r5). Set to 70 — exactly `DIRECTED` — a directed stimulus was at 68
+one turn later and never interrupted at all: the threshold had a window of zero turns. At
+60 with decay 2/turn, being spoken to preempts for ~5 turns and being attacked for ~17,
+after which they are memory rather than emergency. For the same reason, debug lines label
+a stimulus by its **own** band, not by its decayed score.
+
 Stimuli are marked consumed at **submit** time, not reply time — a round trip takes
 seconds, and an unconsumed stimulus re-fires the interrupt every turn until then.
 
@@ -251,9 +258,26 @@ an empty command array (silently dropped → NPC does nothing); restructured, 0/
 `attentionCadenceTurns` and the prompt says to stay put and keep talking. Turn-taking
 still emerges from timing — no conversation state machine.
 
-**Reflex rung not yet wired.** `LLMAgentAI` still overrides `update()`/`think()` without
-calling `super`, so the escape/chase FSM above the interpreter (§3 layer 1) is bypassed.
-The ladder is currently URGENT > DIRECTED > ambient; the reflex rung is a follow-up.
+**Reflex rung `[DECIDED]` (r5).** Survival does not go through the model. A `PAIN` stimulus
+engages a reflex *the moment it lands* — same turn as the blow, no inference: scream, drop
+the running plan, and run from the attacker for `priority.fleeTurns` or until
+`priority.fleeDistance` clear. The interpreter does not get the body while it holds.
+
+This is a latency argument, not a taste one. Routed through the model, a stab became a
+prompt, a round trip and then *dialogue*: the victim stood next to their attacker
+discussing it for a dozen turns while the plan it produced (`goto home`) failed to resolve
+and never moved them at all. The model still speaks — it just narrates the panic instead
+of gating it.
+
+Fleeing **routes**, it does not step. `NpcController.escapeTarget()` walks directly away
+from the threat, which indoors means into a wall: measured, the victim got two tiles and
+then jammed in a corner for the remaining eight turns. The reflex instead picks the nav-mesh
+milestone furthest from the threat *within `SEARCH_RADIUS`* and paths to it, so panic leads
+out through doors. The radius matters — scoring distance globally picks the far corner of
+the map and A* refuses a route that long, which silently degrades back to the jammed corner.
+
+The ladder is now reflex > URGENT > DIRECTED > ambient. The chase half of the FSM (§3
+layer 1) is still bypassed; only escape is wired.
 
 ---
 
@@ -271,6 +295,41 @@ remembered, not urgent). Proximity is what gives conversation focus without a di
 manager. The player is just another speaker — previously player speech was hand-delivered
 from `InGameMode` as a special case, and NPC speech reached nobody at all, which is why
 NPCs never answered each other.
+
+Radius alone left a **dead band** (r5): "standing near someone" in a room is 5–10 tiles,
+but only `directedRadius` (4) counted as addressed, so a deliberate hello landed as
+`NOTABLE` and never crossed the interrupt threshold. Player speech therefore also promotes
+the **nearest hearer** to `DIRECTED` regardless of distance. The player types a line rarely
+and on purpose; NPC chatter is ambient, so the rule is not symmetric.
+
+**`PainSensor` (r5)** is the `PAIN` channel's producer, which until now did not exist.
+`ETakeDamage` was a client-side FX cue — the floating damage number — and nothing routed it
+to the victim's brain, so being attacked was, to an LLM NPC, silence. It now enters as
+`URGENT` carrying the attacker's uid (so the victim holds attention on whoever hit them),
+and anyone within earshot gets a `NOTABLE` *"you just saw X attack Y"* — a real witness
+signal in place of the anonymous crime-report broadcast.
+
+**Sensors name people by relation, not by string (r5).** Every stimulus is phrased from the
+observer's side via `Relations.describe()`, so the same speaker is *"your daughter GENNY
+FAULKNER"* to one listener and a bare name to the next. The world has generated families
+since long before the LLM work — mate, children, siblings, all wired bidirectionally — and
+none of it reached a prompt, so being shouted at by a stranger and by your wife were the
+same event with different text. Witnessing kin take a hit also enters at `URGENT` rather
+than `NOTABLE`. The witness channel fires only for violence against **people**: every swing
+at a crate raises `ETakeDamage` too, and *"you saw your husband attack crate"* is not a
+social event.
+
+The household was also incoherent to begin with: the player was named literally `Player`,
+the mate carried an unrelated generated surname, and each child a further one. One
+`FamilyGenerator` surname now covers the whole household. They were homeless too — no
+`setApartment`, so every `goto home` they planned resolved to `UNRESOLVED` and failed.
+
+**Every NPC needs a brain to sense with (r5).** Four spawn sites each rolled their own
+AI assignment and one forgot: the player's own family, in the building the player *starts
+in*, got `set_combat` but never `set_ai` or `set_controller`. Those NPCs are inert — no AI
+means no sensors, so speech and violence both land on nothing, which is exactly what
+"the NPC in the starting building ignores me" was. All sites now go through
+`TownChunkGenerator.giveBrain()`.
 
 **`[DECIDED]`** Emergent behavior — no dialogue manager, no turn-taking lock. `say`
 posts `EChatMessage`; nearby NPCs record it as an observation and may react on their

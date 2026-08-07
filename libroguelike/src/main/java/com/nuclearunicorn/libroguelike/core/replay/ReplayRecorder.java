@@ -29,9 +29,9 @@ public class ReplayRecorder {
         this.path = path;
     }
 
-    /** Default directory and name for an unattended recording: replays/MM-DD-HH:SS.jsonl */
+    /** Default directory and name for an unattended recording: replays/MM-DD-HH:MM.jsonl */
     private static final String DEFAULT_DIR = "replays";
-    private static final String NAME_FORMAT = "MM-dd-HH:ss";
+    private static final String NAME_FORMAT = "MM-dd-HH:mm";
 
     /** {@code spec} is a file path, or "true" to auto-name one under replays/. */
     static ReplayRecorder open(String spec) {
@@ -59,10 +59,10 @@ public class ReplayRecorder {
     }
 
     /**
-     * {@code replays/MM-DD-HH:SS.jsonl}. Hour-and-second is not unique within an hour, so
-     * an existing file gets a {@code -2}, {@code -3} suffix rather than being truncated —
-     * silently overwriting the previous run's replay is exactly the failure this system
-     * exists to prevent.
+     * {@code replays/MM-DD-HH:MM.jsonl}. Minute resolution is not unique — two runs in the
+     * same minute collide — so an existing file gets a {@code -2}, {@code -3} suffix rather
+     * than being truncated. Silently overwriting the previous run's replay is exactly the
+     * failure this system exists to prevent.
      */
     private static String defaultName() {
         String stamp = new SimpleDateFormat(NAME_FORMAT).format(new Date());

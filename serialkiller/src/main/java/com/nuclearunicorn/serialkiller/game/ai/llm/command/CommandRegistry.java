@@ -37,6 +37,15 @@ public class CommandRegistry {
     }
 
     /**
+     * Longest plan the grammar will accept. An unbounded {@code *} let a small model fall
+     * into a repetition loop — the same two commands emitted until maxTokens cut it off
+     * mid-token, which then failed to parse and was dropped as an empty plan. That burned
+     * the slowest inference in the queue to produce nothing. A hard ceiling ends the array
+     * while it is still valid JSON, and NPCs re-plan every cadence anyway.
+     */
+    private static final int MAX_PLAN = 4;
+
+    /**
      * GBNF that accepts a JSON array of command objects (§5.2). The model emits an
      * ordered program constrained to registered verbs with valid argument shapes.
      */
@@ -51,7 +60,14 @@ public class CommandRegistry {
             first = false;
         }
 
-        return "root ::= \"[\" ws ( command ( ws \",\" ws command )* )? ws \"]\"\n" +
+        // Spelled out as optional tails rather than {0,n}: repetition-count syntax is a
+        // newer GBNF addition, and this stays portable across llama.cpp builds.
+        StringBuilder tail = new StringBuilder();
+        for (int i = 1; i < MAX_PLAN; i++) {
+            tail.append(" ( ws \",\" ws command )?");
+        }
+
+        return "root ::= \"[\" ws ( command" + tail + " )? ws \"]\"\n" +
                 command + "\n" +
                 "string ::= \"\\\"\" ( [^\"\\\\] )* \"\\\"\"\n" +
                 "number ::= [0-9]+\n" +

@@ -49,14 +49,25 @@ public class LlmConfig {
 
     /** How signal priority resolves against a running plan (§9). */
     public static class Priority {
-        /** Stimuli at or above this salience preempt the current plan and jump the queue. */
-        public int interruptAt = 70;          // Salience.DIRECTED
+        /**
+         * Stimuli at or above this salience preempt the current plan and jump the queue.
+         * Deliberately *below* {@code Salience.DIRECTED} (70): salience is compared after
+         * decay, so a threshold set exactly at DIRECTED gave a directed stimulus a window
+         * of zero turns — one turn of ageing put it at 68 and it never interrupted at all.
+         * At decay 2/turn this leaves being spoken to ~5 turns to preempt a plan, and being
+         * attacked (URGENT 95) ~17, after which they are memory rather than emergency.
+         */
+        public int interruptAt = 60;
         /** Salience lost per turn of age, so nothing stays urgent forever. */
         public int decayPerTurn = 2;
         /** Turns an NPC stays focused on whoever addressed it. */
         public int attentionTurns = 12;
         /** Ambient re-plan cadence while holding attention — conversation ticks faster. */
         public int attentionCadenceTurns = 2;
+        /** Turns the flee reflex keeps the body after being attacked (§3 layer 1). */
+        public int fleeTurns = 10;
+        /** Distance at which a fleeing NPC considers itself clear and stops running. */
+        public int fleeDistance = 12;
     }
 
     public static class Throttle {

@@ -8,5 +8,5 @@
   "far":      { "teleport": false },
   "memory":   { "observations": 8 },
   "speech":   { "directedRadius": 4, "earshotRadius": 10 },
-  "priority": { "interruptAt": 70, "decayPerTurn": 2, "attentionTurns": 12, "attentionCadenceTurns": 2 }
+  "priority": { "interruptAt": 60, "decayPerTurn": 2, "attentionTurns": 12, "attentionCadenceTurns": 2, "fleeTurns": 10, "fleeDistance": 12 }
 }
