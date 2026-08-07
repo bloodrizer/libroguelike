@@ -19,6 +19,9 @@ target/
 
 models/
 
+# every run records one (see REPLAY.md)
+replays/
+
 # OS
 .DS_Store
 local-repo

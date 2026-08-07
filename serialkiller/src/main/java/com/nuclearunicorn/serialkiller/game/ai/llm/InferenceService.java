@@ -8,8 +8,16 @@ package com.nuclearunicorn.serialkiller.game.ai.llm;
  */
 public interface InferenceService {
 
-    /** Queue a prompt for this uid. Ignored if a request for the uid is already in flight. */
-    void submit(String uid, String prompt);
+    /**
+     * Queue a prompt for this uid at a given {@code Salience} priority. Ignored if a
+     * request for the uid is already in flight <i>at the same or higher</i> priority.
+     *
+     * <p>The priority is not advisory. Local inference serves roughly one request per
+     * second or two while a whole town of NPCs submits every few turns, so the queue runs
+     * saturated in normal play — arrival order alone means the NPC a human is talking to
+     * waits behind every wandering pedestrian. Priority is what makes that NPC answer.
+     */
+    void submit(String uid, String prompt, int priority);
 
     /** A request for this uid is queued or running. */
     boolean isBusy(String uid);

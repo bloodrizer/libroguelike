@@ -18,6 +18,8 @@ public class EntityActor extends Entity {
     }
 
     public void say_message(String text){
+        com.nuclearunicorn.libroguelike.core.replay.Replay.observe("say",
+                "uid", get_uid(), "name", getName(), "text", text);
         EChatMessage message = new EChatMessage(get_uid(),text);
         message.set_local(true);
         message.setManager(env.getEventManager());

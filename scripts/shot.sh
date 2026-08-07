@@ -13,6 +13,7 @@ FRAME="${2:-90}"
 exec java \
   -Dlrl.window.hidden=true \
   -Dllm.enabled=false \
+  -Dreplay.record=false \
   -Dlrl.capture.file="$OUT" \
   -Dlrl.capture.frame="$FRAME" \
   -Dlrl.capture.exit=true \

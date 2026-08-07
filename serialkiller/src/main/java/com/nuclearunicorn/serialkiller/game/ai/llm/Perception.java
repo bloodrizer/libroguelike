@@ -4,15 +4,23 @@ import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.libroguelike.game.world.WorldTimer;
 import com.nuclearunicorn.libroguelike.utils.Fov;
+import com.nuclearunicorn.serialkiller.game.ai.llm.sense.Salience;
+import com.nuclearunicorn.serialkiller.game.ai.llm.sense.Stimulus;
+import com.nuclearunicorn.serialkiller.game.ai.llm.sense.StimulusMemory;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
 
 import java.util.List;
 
 /**
- * Builds the reactor prompt on the game thread (§3): a compact, human-readable snapshot
- * of who the NPC is, the time of day, who is nearby, recent memory, and the instruction
- * to emit a JSON command program. The result is an immutable String — the worker thread
- * sees only this, never live game objects.
+ * Builds the reactor prompt on the game thread (§3): who the NPC is, the time of day, who is
+ * nearby, what it has sensed, and the instruction to emit a JSON command program. The result
+ * is an immutable String — the worker thread sees only this, never live game objects.
+ *
+ * <p>Structure follows salience. The strongest unconsumed stimulus gets its own block at the
+ * top with an explicit instruction; everything else is background. Flattening all of it into
+ * one undifferentiated "Recent memory" list is what let a 3.8B model treat "the player is
+ * talking to you" as no more important than a chunk-change event — measurably so: with a
+ * diluted list, half of all completions came back as an empty command array.
  */
 public final class Perception {
 
@@ -20,8 +28,8 @@ public final class Perception {
 
     private Perception() {}
 
-    public static String snapshot(EntityRLHuman owner, List<String> observations) {
-        StringBuilder sb = new StringBuilder(512);
+    public static String snapshot(EntityRLHuman owner, StimulusMemory memory, String attending) {
+        StringBuilder sb = new StringBuilder(768);
 
         sb.append("You are ").append(owner.getName())
           .append(", a ").append(owner.age).append("-year-old ")
@@ -33,19 +41,53 @@ public final class Perception {
 
         appendNearby(sb, owner);
 
-        if (observations != null && !observations.isEmpty()) {
-            sb.append("Recent memory:\n");
-            for (String obs : observations) {
-                sb.append("- ").append(obs).append("\n");
-            }
-        }
+        Stimulus top = memory == null ? null : memory.peekTop();
+        appendUrgent(sb, top, attending);
+        appendBackground(sb, memory, top);
 
-        sb.append("\nDecide what to do next. Reply ONLY with a JSON array of commands. Speek in short sentences.\n");
+        sb.append("\nDecide what to do next. Reply ONLY with a JSON array of commands.");
+        sb.append(" Speak in short sentences. Never reply with an empty array.\n");
+        if (attending != null) {
+            sb.append("You are in the middle of a conversation with ").append(attending)
+              .append(" - stay where you are and keep talking, do not walk off.\n");
+        }
         sb.append("Commands: {\"verb\":\"goto\",\"target\":\"<home|random|uid>\"}, ");
         sb.append("{\"verb\":\"say\",\"text\":\"<line>\"}, ");
         sb.append("{\"verb\":\"wait\",\"ticks\":<n>}.\n");
 
         return sb.toString();
+    }
+
+    /** The one signal that earned the re-plan, stated as a demand rather than a memory. */
+    private static void appendUrgent(StringBuilder sb, Stimulus top, String attending) {
+        if (top == null || top.salience < Salience.NOTABLE) {
+            return;
+        }
+        sb.append("\nRIGHT NOW: ").append(top.text()).append("\n");
+        if (top.salience >= Salience.URGENT) {
+            sb.append("This is an emergency. React to it immediately.\n");
+        } else if (top.salience >= Salience.DIRECTED) {
+            sb.append("You are being spoken to directly. Answer with a 'say' command before doing anything else.\n");
+        }
+    }
+
+    /** Everything else, strongest first, clearly subordinate to the block above. */
+    private static void appendBackground(StringBuilder sb, StimulusMemory memory, Stimulus top) {
+        if (memory == null || memory.isEmpty()) {
+            return;
+        }
+        List<Stimulus> ranked = memory.ranked();
+        boolean any = false;
+        for (Stimulus s : ranked) {
+            if (s == top || s.salience < Salience.NOTABLE) {
+                continue;   // ambient churn is not worth prompt budget
+            }
+            if (!any) {
+                sb.append("Background, most important first:\n");
+                any = true;
+            }
+            sb.append("- ").append(s.text()).append("\n");
+        }
     }
 
     private static void appendNearby(StringBuilder sb, EntityRLHuman owner) {

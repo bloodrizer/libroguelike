@@ -29,6 +29,34 @@ public class LlmConfig {
         public int cadenceMs;
         public int maxTokens;
         public boolean batch;
+        /**
+         * Turns between ambient re-plans. Cadence is counted in turns, not milliseconds:
+         * the world only advances when the player acts, so a wall clock throttles a
+         * standing-still player and outruns one holding shift.
+         */
+        public int cadenceTurns = 8;
+        /** Pending requests the queue holds before it starts dropping the least salient. */
+        public int queueCapacity = 12;
+    }
+
+    /** Hearing sensor ranges, in tiles (§8). Distance is what makes speech feel addressed. */
+    public static class Speech {
+        /** Spoken this close and the NPC treats it as addressed to them (DIRECTED). */
+        public int directedRadius = 4;
+        /** Heard out to here, but only overheard (NOTABLE). */
+        public int earshotRadius = 10;
+    }
+
+    /** How signal priority resolves against a running plan (§9). */
+    public static class Priority {
+        /** Stimuli at or above this salience preempt the current plan and jump the queue. */
+        public int interruptAt = 70;          // Salience.DIRECTED
+        /** Salience lost per turn of age, so nothing stays urgent forever. */
+        public int decayPerTurn = 2;
+        /** Turns an NPC stays focused on whoever addressed it. */
+        public int attentionTurns = 12;
+        /** Ambient re-plan cadence while holding attention — conversation ticks faster. */
+        public int attentionCadenceTurns = 2;
     }
 
     public static class Throttle {
@@ -52,6 +80,8 @@ public class LlmConfig {
     public Throttle throttle = new Throttle();
     public Far far = new Far();
     public Memory memory = new Memory();
+    public Speech speech = new Speech();
+    public Priority priority = new Priority();
 
     /**
      * Resolution order (§14.1): external file wins, else bundled template, else a

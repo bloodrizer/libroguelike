@@ -27,7 +27,7 @@ public class StubInferenceService implements InferenceService {
     }
 
     @Override
-    public void submit(String uid, String prompt) {
+    public void submit(String uid, String prompt, int priority) {
         pending.putIfAbsent(uid, plan);
     }
 

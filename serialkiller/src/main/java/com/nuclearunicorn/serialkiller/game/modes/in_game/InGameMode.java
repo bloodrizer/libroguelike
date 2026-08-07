@@ -31,8 +31,11 @@ import com.nuclearunicorn.serialkiller.game.ItemFactory;
 import com.nuclearunicorn.serialkiller.game.Main;
 import com.nuclearunicorn.serialkiller.game.MainApplet;
 import com.nuclearunicorn.serialkiller.game.SkillerGame;
+import com.nuclearunicorn.libroguelike.core.replay.Replay;
 import com.nuclearunicorn.serialkiller.game.ai.LLMAgentAI;
 import com.nuclearunicorn.serialkiller.game.ai.PlayerAI;
+import com.nuclearunicorn.serialkiller.game.ai.llm.sense.GameTurn;
+import com.nuclearunicorn.serialkiller.game.ai.llm.sense.HearingSensor;
 import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
 import com.nuclearunicorn.serialkiller.game.controllers.RLPlayerController;
@@ -78,7 +81,8 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
     // nearby NPCs, Escape cancels. While active, movement/attack keys are suppressed.
     private boolean typeMode = false;
     private StringBuilder typeBuffer = new StringBuilder();
-    private static final int SPEECH_RADIUS = 8;
+    /** How far out the replay dumps NPC brain state each turn. */
+    private static final int NPC_DUMP_RADIUS = 12;
 
     @Override
     public void run() {
@@ -148,6 +152,10 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
 
         //loading misc services
         SocialController.init();
+        HearingSensor.init();
+
+        //world is built and taking input - anchor replay playback here, not at frame 0
+        Replay.markReady();
     }
 
     @Override
@@ -341,33 +349,62 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         }
     }
 
-    /** Show the line as a chat bubble and deliver it to nearby LLM agents as heard speech. */
+    /**
+     * Say the line and let the world hear it. Delivery is HearingSensor's job now — the
+     * player is just another speaker, which is also what makes NPCs hear each other.
+     * Speaking costs a turn, so the NPC being addressed actually gets to think.
+     */
     private void speakToNearby(String text){
-        Entity playerEnt = Player.get_ent();
-        ((EntityActor) playerEnt).say_message(text);
-
-        Entity[] nearby = com.nuclearunicorn.libroguelike.utils.Fov.get_entity_in_radius(
-                playerEnt.getEnvironment().getEntityManager(),
-                playerEnt.origin, SPEECH_RADIUS, playerEnt.getLayerId());
-        for (Entity ent : nearby){
-            if (ent.getAI() instanceof LLMAgentAI){
-                ((LLMAgentAI) ent.getAI()).hear("the player", text);
-            }
-        }
+        ((EntityActor) Player.get_ent()).say_message(text);
+        makeTurn();
     }
 
     void makeTurn(){
         turnNumber++;
+        GameTurn.advance();
         NLTimer timer = new NLTimer();
         timer.push();
 
         model.update();
 
         timer.pop("Turn # "+turnNumber);
+        recordTurn();
         System.out.println(NpcController.pathfinderRequests + " astar calls on this turn ");
         System.out.println("Total pure astar calculation time: " + NpcController.totalAstarCalculationTime + "ms");
         NpcController.pathfinderRequests = 0;
         NpcController.totalAstarCalculationTime = 0;
+    }
+
+    /**
+     * Dump the turn and every nearby NPC brain into the replay. Cheap when not recording
+     * (Replay.observe is a no-op), and it is the record that makes a "the NPC ignored me"
+     * report diagnosable after the fact instead of a thing to re-enact by hand.
+     */
+    private void recordTurn(){
+        if (!Replay.isRecording()){
+            return;
+        }
+        Entity playerEnt = Player.get_ent();
+        if (playerEnt == null){
+            return;
+        }
+        Replay.observe("turn", "turn", turnNumber,
+                "px", playerEnt.origin.getX(), "py", playerEnt.origin.getY());
+
+        Entity[] nearby = com.nuclearunicorn.libroguelike.utils.Fov.get_entity_in_radius(
+                playerEnt.getEnvironment().getEntityManager(),
+                playerEnt.origin, NPC_DUMP_RADIUS, playerEnt.getLayerId());
+        for (Entity ent : nearby){
+            if (!(ent.getAI() instanceof LLMAgentAI)){
+                continue;
+            }
+            Replay.observe("npc", "turn", turnNumber, "uid", ent.get_uid(), "name", ent.getName(),
+                    "x", ent.origin.getX(), "y", ent.origin.getY(),
+                    "dist", (int) Math.sqrt(
+                            Math.pow(ent.origin.getX() - playerEnt.origin.getX(), 2)
+                          + Math.pow(ent.origin.getY() - playerEnt.origin.getY(), 2)),
+                    "state", ((LLMAgentAI) ent.getAI()).debugState());
+        }
     }
 
     public static void spawn_player(Point location){

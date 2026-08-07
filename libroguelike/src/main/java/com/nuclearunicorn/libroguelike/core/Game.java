@@ -8,6 +8,7 @@ package com.nuclearunicorn.libroguelike.core;
 
 import com.nuclearunicorn.libroguelike.game.modes.AbstractGameMode;
 import com.nuclearunicorn.libroguelike.game.modes.IGameMode;
+import com.nuclearunicorn.libroguelike.core.replay.Replay;
 import com.nuclearunicorn.libroguelike.game.ui.IUserInterface;
 import com.nuclearunicorn.libroguelike.render.ScreenCapture;
 import com.nuclearunicorn.libroguelike.render.WindowRender;
@@ -83,12 +84,14 @@ public class Game {
 
         try {
             WindowRender.create();
+            Replay.init();
 
             while(running) {
                GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
                mode = get_game_mode();
 
                Timer.tick();
+               Replay.nextFrame();
                mode.update();
 
                ScreenCapture.tick();
@@ -103,6 +106,7 @@ public class Game {
             }
 
             System.out.println("Game stopped, destroying lwjgl render...");
+            Replay.shutdown();
             WindowRender.destroy();
 
         }

@@ -13,6 +13,7 @@ import com.nuclearunicorn.libroguelike.events.EKeyPress;
 import com.nuclearunicorn.libroguelike.events.EMouseClick;
 import com.nuclearunicorn.libroguelike.events.EMouseDrag;
 import com.nuclearunicorn.libroguelike.events.EMouseRelease;
+import com.nuclearunicorn.libroguelike.core.replay.Replay;
 import com.nuclearunicorn.libroguelike.render.WindowRender;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -54,6 +55,13 @@ public class Input {
     }
 
     public static void update(){
+
+        // Playback owns the input pipeline: real keys are ignored so a replay cannot be
+        // perturbed by whoever is watching it run.
+        if (Replay.isPlaying()){
+            Replay.player().pump();
+            return;
+        }
 
         //Mouse.
         while (Mouse.next()){
@@ -126,6 +134,8 @@ public class Input {
                                 Keyboard.getEventKey(),
                                 Keyboard.getEventCharacter()
                             );
+                    Replay.recordInput(event.key, event.chr,
+                            key_state_ctrl, key_state_shft, key_state_alt);
                     event.post();
                 }
                 key_states.put(Keyboard.getEventKey(), true);

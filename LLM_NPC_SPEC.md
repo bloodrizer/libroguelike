@@ -202,8 +202,58 @@ Per-NPC, on the AI instance (serializes with the entity — `AI implements Seria
 
 **`[DECIDED]`** Sane defaults, all configurable (§10): `llm.memory.observations = 8`,
 reactor snapshot cap `llm.reactor.maxTokens = 512`, director snapshot cap
-`llm.director.maxTokens = 1024`. The ring buffer drops oldest first; the snapshot
-builder truncates observations to fit the cap.
+`llm.director.maxTokens = 1024`. The snapshot builder truncates observations to fit the cap.
+
+### 7.1 Salience: how competing signals resolve `[DECIDED]` (r4)
+
+Observations were originally plain strings in a drop-oldest ring buffer. That carried no
+priority, so nothing in the system could express *"this outranks what you are doing"* —
+and NPCs did not react to the player. Every sensor now emits a `Stimulus`
+(`turn`, `channel`, `salience`, `sourceUid`, `text`) on one 0-100 scale:
+
+| Band | Value | Meaning |
+|---|---|---|
+| `AMBIENT` | 10 | FOV churn, chunk changes |
+| `NOTABLE` | 40 | overheard speech, a crime seen nearby |
+| `DIRECTED` | 70 | someone addressed **you** |
+| `URGENT` | 95 | attacked, witnessed a murder |
+
+The same number arbitrates **three** layers — it inverts somewhere if they disagree:
+
+1. **Memory** (`StimulusMemory`) evicts the *least salient*, not the oldest, so ambient
+   churn can never push out a line spoken to your face. Salience decays by
+   `priority.decayPerTurn` so nothing stays urgent forever.
+2. **Queue** (`LlamaHttpInferenceService`) serves highest-salience first, bounded, and
+   drops the weakest under saturation. *This is load-bearing:* CPU inference costs 1-3s
+   per request while a whole near-bucket submits every few turns, so the queue runs
+   permanently backed up. A FIFO makes arrival order the arbiter and the NPC a human is
+   talking to answers minutes late or never.
+3. **Trigger** (`LLMAgentAI`) — a stimulus at or above `priority.interruptAt` drops the
+   running plan and submits immediately, bypassing both the idle check and the cadence.
+   Below it, the old rule applies: re-plan only when idle and the cadence has elapsed.
+
+Stimuli are marked consumed at **submit** time, not reply time — a round trip takes
+seconds, and an unconsumed stimulus re-fires the interrupt every turn until then.
+
+**Cadence is counted in turns, not milliseconds.** The world only advances when the player
+acts, so a wall clock throttles a player standing still and outruns one holding shift.
+`GameTurn` advances once per `InGameMode.makeTurn()`; **speaking costs a turn**, so the NPC
+being addressed actually gets to think.
+
+**Prompt structure follows salience.** The top unconsumed stimulus gets its own
+`RIGHT NOW:` block with an explicit instruction; ambient entries are dropped from the
+prompt entirely. Measured on phi-4-mini with the flat list, 7/12 completions came back as
+an empty command array (silently dropped → NPC does nothing); restructured, 0/12 empty and
+12/12 answered.
+
+**Attention (§8) instead of a dialogue manager.** Being addressed sets
+`attentionUid` for `priority.attentionTurns`; while held, cadence tightens to
+`attentionCadenceTurns` and the prompt says to stay put and keep talking. Turn-taking
+still emerges from timing — no conversation state machine.
+
+**Reflex rung not yet wired.** `LLMAgentAI` still overrides `update()`/`think()` without
+calling `super`, so the escape/chase FSM above the interpreter (§3 layer 1) is bypassed.
+The ladder is currently URGENT > DIRECTED > ambient; the reflex rung is a follow-up.
 
 ---
 
@@ -212,6 +262,15 @@ builder truncates observations to fit the cap.
 Emergent, no dedicated dialogue manager for M1: `say` posts `EChatMessage`; any NPC
 within earshot records it as an observation, and its next plan may react (answer, walk
 away, report). Turn-taking falls out of the perception→plan cadence.
+
+**`HearingSensor` (r4)** is the one subscriber that makes this real. It turns every
+`EChatMessage` into a ranked stimulus for whoever is in earshot, with **distance setting
+the band**: within `speech.directedRadius` you are being *addressed* (`DIRECTED`, preempts
+the running plan); out to `speech.earshotRadius` you merely *overheard* it (`NOTABLE`,
+remembered, not urgent). Proximity is what gives conversation focus without a dialogue
+manager. The player is just another speaker — previously player speech was hand-delivered
+from `InGameMode` as a special case, and NPC speech reached nobody at all, which is why
+NPCs never answered each other.
 
 **`[DECIDED]`** Emergent behavior — no dialogue manager, no turn-taking lock. `say`
 posts `EChatMessage`; nearby NPCs record it as an observation and may react on their

@@ -20,9 +20,13 @@ public final class LlmDebug {
     }
 
     public static void log(String fmt, Object... args) {
+        String line = args.length == 0 ? fmt : String.format(fmt, args);
+        // Always mirror into a replay, even when stdout tracing is off: the recording is
+        // the artifact you read afterwards, and a replay missing the reasoning is useless.
+        com.nuclearunicorn.libroguelike.core.replay.Replay.trace(line);
         if (!enabled) {
             return;
         }
-        System.out.println("[LLM] " + (args.length == 0 ? fmt : String.format(fmt, args)));
+        System.out.println("[LLM] " + line);
     }
 }

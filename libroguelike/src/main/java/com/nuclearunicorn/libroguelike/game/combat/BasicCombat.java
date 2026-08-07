@@ -76,6 +76,10 @@ public class BasicCombat extends Combat{
             Damage dmg = new Damage(amt, type);
             dmg.set_inflictor(this.owner);
 
+            com.nuclearunicorn.libroguelike.core.replay.Replay.observe("damage",
+                    "attacker", this.owner == null ? null : this.owner.get_uid(),
+                    "target", ent.get_uid(), "targetName", ent.getName(),
+                    "amount", amt, "damageType", type.toString());
 
             ent_combat.take_damage(dmg);
         }

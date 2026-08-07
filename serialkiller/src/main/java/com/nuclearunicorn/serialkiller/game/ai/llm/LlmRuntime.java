@@ -43,7 +43,8 @@ public final class LlmRuntime {
         if (ready) {
             LlmDebug.log("reactor server healthy on port %d — using live inference", config.reactor.port);
             reactor = new LlamaHttpInferenceService(
-                    config.reactor.port, registry.getGrammar(), config.reactor.maxTokens);
+                    config.reactor.port, registry.getGrammar(), config.reactor.maxTokens,
+                    config.reactor.queueCapacity);
         } else {
             degradedReason = serverManager.getLastError();
             System.err.println("LlmRuntime: reactor server unavailable (" + degradedReason
