@@ -19,9 +19,12 @@ public class LlmConfig {
     private static final String BUNDLED = "/resources/llm/config.json";
     /** External override next to the run script; edited by users, wins if present. */
     private static final String EXTERNAL = "llm-config.json";
+    /** System property that forces "enabled" either way, whatever the files say. */
+    private static final String OVERRIDE = "llm.enabled";
 
     public static class Tier {
         public String model;
+        public String url;      // where ModelDownloader fetches "model" from if it's missing
         public int port;
         public int cadenceMs;
         public int maxTokens;
@@ -55,6 +58,18 @@ public class LlmConfig {
      * disabled default so the game runs unaffected.
      */
     public static LlmConfig load() {
+        LlmConfig config = read();
+
+        // Escape hatch for tooling that wants the plain game: -Dllm.enabled=false skips
+        // model staging and the servers entirely (see scripts/shot.sh).
+        String override = System.getProperty(OVERRIDE);
+        if (override != null) {
+            config.enabled = Boolean.parseBoolean(override);
+        }
+        return config;
+    }
+
+    private static LlmConfig read() {
         Gson gson = new Gson();
 
         File external = new File(EXTERNAL);

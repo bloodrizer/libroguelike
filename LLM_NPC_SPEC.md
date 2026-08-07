@@ -307,16 +307,26 @@ staging script (§10.1). External file wins if present.
 ```
 
 **`[DECIDED]` models on disk:** `LlamaServerManager` assumes the `.gguf` files exist at
-the configured paths (no download/verify in-engine). A **staging shell script** (§10.1)
-fetches/places them.
+the configured paths. Getting them there is `ModelDownloader`'s job (§10.1); the shell
+script stays available for pre-staging offline boxes.
 
-### 10.1 Model staging script
+### 10.1 Model staging
 
-`scripts/stage-llm-models.sh` — downloads the two GGUF models to `models/`, verifies
-checksums, and copies `config.json` → `llm-config.json` next to the run script if absent.
-Idempotent; skips already-present files. Documented so users run it once before first
-launch. (This mirrors the existing self-contained-build ethos, e.g.
-`scripts/install-local-jars.sh` referenced in the root `pom.xml`.)
+Each tier carries the `url` its `model` is fetched from, so the game and the script stage
+identical files.
+
+**In-engine (default).** `LoadingMode` runs before the world exists: `ModelDownloader`
+fetches any missing model on a worker thread while the render loop draws a progress bar,
+then `LlmRuntime.init()` boots the tier — so the llama-server wait is on screen instead of
+frozen behind a black window. Bytes land in `<model>.part` and are renamed into place only
+when complete, so an interrupted run resumes (`Range:`) rather than restarting; transfers
+get 3 attempts, HTTP errors none. If staging fails the screen says so and the game starts
+with `LlmRuntime.disable()` — FSM NPCs, no minute-long stall waiting on a server that
+cannot come up. `-Dllm.enabled=false` skips the whole phase (used by `scripts/shot.sh`).
+
+**`scripts/stage-llm-models.sh`.** Same downloads ahead of time (both tiers, not just the
+reactor) plus seeding `llm-config.json` from the template. Idempotent; skips present files.
+(Mirrors the existing self-contained-build ethos, e.g. `scripts/install-local-jars.sh`.)
 
 ---
 
@@ -379,10 +389,12 @@ serialkiller/.../game/ai/llm/command/
 serialkiller/.../game/ai/llm/
     Perception.java
 serialkiller/.../game/ai/LLMAgentAI.java
+serialkiller/.../game/ai/llm/ModelDownloader.java   (fetches missing GGUFs on start)
+serialkiller/.../game/modes/loading/                (LoadingMode + LoadingUI: staging screen)
 serialkiller/src/main/resources/resources/llm/
     config.json                      (default template; copied to ./llm-config.json)
     (grammar is assembled at runtime from the registry, not a static file)
-scripts/stage-llm-models.sh          (download/verify GGUFs, seed llm-config.json)
+scripts/stage-llm-models.sh          (pre-stage GGUFs offline, seed llm-config.json)
 one spawn-site edit in TownChunkGenerator (behind config "enabled")
 ```
 

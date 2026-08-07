@@ -1,5 +1,6 @@
 package com.nuclearunicorn.serialkiller.game.ai.llm;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -17,6 +18,7 @@ import java.util.List;
 public class LlamaServerManager {
 
     private final String serverBinary;
+    private String lastError;
     private final List<Process> processes = new ArrayList<>();
     private final HttpClient http = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(1))
@@ -44,11 +46,45 @@ public class LlamaServerManager {
         try {
             processes.add(pb.start());
         } catch (IOException e) {
+            //plain ASCII: this reaches the loading overlay, whose font is Latin-1 only
+            lastError = "'" + serverBinary + "' not found - install llama.cpp";
             System.err.println("Failed to start llama-server (" + serverBinary + "): " + e);
             return false;
         }
 
-        return awaitHealth(tier.port, 60);
+        if (awaitHealth(tier.port, 60)) {
+            return true;
+        }
+        lastError = "'" + serverBinary + "' never became healthy on port " + tier.port;
+        return false;
+    }
+
+    /** Why the last {@link #startTier} failed, or null if it didn't. */
+    public String getLastError() {
+        return lastError;
+    }
+
+    /**
+     * True if the configured binary is runnable — a bare name is looked up on PATH, the way
+     * ProcessBuilder will. Lets the loading screen warn before it spends a download on it.
+     */
+    public static boolean isBinaryAvailable(String binary) {
+        if (binary == null || binary.isEmpty()) {
+            return false;
+        }
+        if (binary.contains(File.separator)) {
+            return new File(binary).canExecute();
+        }
+        String path = System.getenv("PATH");
+        if (path == null) {
+            return false;
+        }
+        for (String dir : path.split(File.pathSeparator)) {
+            if (new File(dir, binary).canExecute()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** Poll {@code /health} once per second until ready or the timeout elapses. */

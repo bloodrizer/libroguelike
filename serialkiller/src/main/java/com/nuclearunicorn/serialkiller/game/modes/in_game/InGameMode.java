@@ -227,6 +227,12 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
     public void e_on_event(Event event) {
         boolean isNextTurn = false;
 
+        // Every mode stays subscribed, so ignore input until this one is actually running —
+        // otherwise keys pressed on the loading screen hit a world that doesn't exist yet.
+        if (!isActive()){
+            return;
+        }
+
         // Talk mode swallows all keyboard input until the line is sent or cancelled.
         if (typeMode && event instanceof EKeyPress){
             handleTypeMode((EKeyPress) event);

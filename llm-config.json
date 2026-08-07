@@ -2,8 +2,8 @@
   "enabled": true,
   "debug": true,
   "serverBinary": "llama-server",
-  "reactor":  { "model": "models/phi-4-mini.gguf", "port": 8081, "cadenceMs": 4000,  "maxTokens": 512 },
-  "director": { "model": "models/phi-4.gguf",      "port": 8082, "cadenceMs": 60000, "maxTokens": 1024, "batch": true },
+  "reactor":  { "model": "models/phi-4-mini.gguf", "url": "https://huggingface.co/unsloth/Phi-4-mini-instruct-GGUF/resolve/main/Phi-4-mini-instruct-Q4_K_M.gguf", "port": 8081, "cadenceMs": 4000,  "maxTokens": 512 },
+  "director": { "model": "models/phi-4.gguf",      "url": "https://huggingface.co/bartowski/phi-4-GGUF/resolve/main/phi-4-Q4_K_M.gguf",                        "port": 8082, "cadenceMs": 60000, "maxTokens": 1024, "batch": true },
   "throttle": { "mode": "buckets", "nearRadius": 24 },
   "far":      { "teleport": false },
   "memory":   { "observations": 8 }

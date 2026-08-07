@@ -17,6 +17,7 @@ public final class LlmRuntime {
     private static CommandRegistry registry;
     private static InferenceService reactor;
     private static LlamaServerManager serverManager;
+    private static volatile String degradedReason;
 
     private LlmRuntime() {}
 
@@ -26,8 +27,7 @@ public final class LlmRuntime {
         }
         initialized = true;
 
-        config = LlmConfig.load();
-        LlmDebug.setEnabled(config.debug);
+        config = peekConfig();
         if (!config.enabled) {
             LlmDebug.log("disabled (llm.enabled=false) — NPCs use the FSM");
             return;
@@ -45,10 +45,42 @@ public final class LlmRuntime {
             reactor = new LlamaHttpInferenceService(
                     config.reactor.port, registry.getGrammar(), config.reactor.maxTokens);
         } else {
-            System.err.println("LlmRuntime: reactor server unavailable, using stub inference");
+            degradedReason = serverManager.getLastError();
+            System.err.println("LlmRuntime: reactor server unavailable (" + degradedReason
+                    + "), using stub inference");
             LlmDebug.log("reactor server UNAVAILABLE — falling back to canned StubInferenceService");
             reactor = new StubInferenceService();
         }
+    }
+
+    /**
+     * Why NPCs are on canned replies instead of live inference, or null when inference is
+     * live. Surfaced by the loading screen — a silent fallback reads like a config that
+     * simply didn't take.
+     */
+    public static String degradedReason() {
+        return degradedReason;
+    }
+
+    /** Config without booting anything — the loading screen needs it to stage models first. */
+    public static synchronized LlmConfig peekConfig() {
+        if (config == null) {
+            config = LlmConfig.load();
+            LlmDebug.setEnabled(config.debug);
+        }
+        return config;
+    }
+
+    /**
+     * Give up on the LLM tiers for this session (models missing, staging failed). Marks the
+     * runtime initialized so nothing later blocks for a minute waiting on a server that
+     * cannot start — NPCs just run the FSM.
+     */
+    public static synchronized void disable(String reason) {
+        peekConfig();
+        config.enabled = false;
+        initialized = true;
+        LlmDebug.log("LLM disabled for this session: %s", reason);
     }
 
     public static boolean isEnabled() {

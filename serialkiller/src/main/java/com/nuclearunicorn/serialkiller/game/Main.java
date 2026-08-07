@@ -1,6 +1,7 @@
 package com.nuclearunicorn.serialkiller.game;
 
 import com.nuclearunicorn.serialkiller.game.modes.in_game.InGameMode;
+import com.nuclearunicorn.serialkiller.game.modes.loading.LoadingMode;
 import com.nuclearunicorn.serialkiller.game.modes.main_menu.MainMenuMode;
 
 /**
@@ -22,10 +23,12 @@ public class Main {
 
         game = new SkillerGame();
 
+        game.registerMode("loading", new LoadingMode());
         game.registerMode("mainMenu", new MainMenuMode());
         game.registerMode("inGame", inGameMode);
 
-        game.set_state("inGame");
+        //loading stages the LLM models, then hands off to inGame
+        game.set_state("loading");
         game.run();
 
     }
