@@ -78,11 +78,13 @@ The `npc` record is the one that makes "the NPC ignored me" diagnosable:
 ```
 name=LAJUANA PITTS dist=1 ai=LLMAgentAI
 state=top=URGENT:the player just attacked you! topSalience=95 idle=false
-      busy=false sinceRequest=2 attention=712f9bec fleeing=712f9bec near=true
+      busy=false sinceRequest=2 dialogue=4 attention=712f9bec fleeing=712f9bec near=true
 ```
 
 — whether the stimulus arrived at all, what salience it carries *now*, and whether the
-trigger or the queue is holding the reaction back.
+trigger or the queue is holding the reaction back. `dialogue` counts the lines held in the
+NPC's transcript: an NPC that talks like it has never met you while this reads non-zero is
+a prompt problem, not a memory one.
 
 `ai` is there because the first real bug found this way was not in the salience model at
 all: the NPC next to the player had **no AI object**, so nothing could reach it. Dump

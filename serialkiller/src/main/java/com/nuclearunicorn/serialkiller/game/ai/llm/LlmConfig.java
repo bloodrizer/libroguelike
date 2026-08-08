@@ -39,12 +39,21 @@ public class LlmConfig {
         public int queueCapacity = 12;
     }
 
-    /** Hearing sensor ranges, in tiles (§8). Distance is what makes speech feel addressed. */
+    /** Hearing sensor ranges, in tiles (§8), and what an NPC is allowed to say. */
     public static class Speech {
         /** Spoken this close and the NPC treats it as addressed to them (DIRECTED). */
         public int directedRadius = 4;
         /** Heard out to here, but only overheard (NOTABLE). */
         public int earshotRadius = 10;
+        /**
+         * Most {@code say} commands one plan may contain. Asked for a plan, a small model
+         * answers with several alternative <i>drafts</i> of the same line; the interpreter
+         * then delivers them one per turn, so an NPC greets you four times in four turns,
+         * contradicting itself. One line per plan — it re-plans when there is more to say.
+         */
+        public int maxSaysPerPlan = 1;
+        /** Longest line an NPC may speak; longer is cut back to a sentence boundary. */
+        public int maxSayChars = 110;
     }
 
     /** How signal priority resolves against a running plan (§9). */
@@ -64,6 +73,13 @@ public class LlmConfig {
         public int attentionTurns = 12;
         /** Ambient re-plan cadence while holding attention — conversation ticks faster. */
         public int attentionCadenceTurns = 2;
+        /**
+         * Ambient re-plan cadence when <i>nothing has been sensed</i> since the last one.
+         * The re-plan used to fire on idle alone, and the prompt ends with "never reply with
+         * an empty array" — so an NPC standing near the player was asked every other turn to
+         * produce something out of nothing, and what it produced was almost always talking.
+         */
+        public int idleCadenceTurns = 30;
         /** Turns the flee reflex keeps the body after being attacked (§3 layer 1). */
         public int fleeTurns = 10;
         /** Distance at which a fleeing NPC considers itself clear and stops running. */
@@ -81,6 +97,11 @@ public class LlmConfig {
 
     public static class Memory {
         public int observations = 8;
+        /**
+         * Dialogue lines kept in the order they happened, heard and spoken. Conversation is
+         * a sequence; ranked stimulus memory is not, which is why speech needs its own log.
+         */
+        public int dialogueLines = 6;
     }
 
     public boolean enabled = false;

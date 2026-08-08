@@ -331,6 +331,50 @@ means no sensors, so speech and violence both land on nothing, which is exactly 
 "the NPC in the starting building ignores me" was. All sites now go through
 `TownChunkGenerator.giveBrain()`.
 
+### 8.1 Speech is ordered, ranked memory is not `[DECIDED]` (r6)
+
+Salience ranking is right for deciding *what to react to* and wrong for *holding a
+conversation*: a ranked bag has no notion of who spoke last. `DialogueLog` sits alongside
+`StimulusMemory` and keeps the last `memory.dialogueLines` utterances in the order they
+happened, each attributed, with overheard lines marked as such. The stimulus still decides
+whether to react and how hard; the transcript is what a reply is built from.
+
+An NPC's own speech was recorded **nowhere at all** — `HearingSensor` skips the speaker and
+the prompt never said what the NPC had just said — so every re-plan opened cold on the same
+scene. Observed: an NPC answered the player, then two turns later greeted them again with
+*"sorry, I didn't hear you come in"*. `AgentContext.say()` is the single speech funnel and
+now writes back into the speaker's own log.
+
+Attribution also does work the bulleted list could not. Overheard lines arrived as
+*"- you overheard X say: Y"* among other bullets, and a 3.8B model copies the nearest quoted
+string: one NPC repeated, as her own line, a sentence another NPC had said *about her*.
+Speech stimuli are therefore dropped from the background block once a transcript exists —
+they are in it already, in a form much harder to mistake for something to repeat.
+
+### 8.2 A plan is not a list of drafts `[DECIDED]` (r6)
+
+Asked for a *plan*, a small model answers a conversational prompt with several alternative
+**drafts of the same line**. The interpreter runs one command per turn, so four `say`s
+became a four-turn monologue that contradicted itself ("just a moment, I was getting ready
+for bed" / "I'm actually sleeping right now"). `speech.maxSaysPerPlan` (default 1) caps it
+at parse time — a runtime value, so it is enforced in `CommandRegistry.parse` rather than in
+the grammar, which is assembled once. `speech.maxSayChars` (default 110) clips the line to a
+sentence boundary: NPC speech renders in a bubble over the head, and a model told to "speak
+in short sentences" still returns paragraphs. The instruction is advice; the clip is the
+rule. `DialogueLog.alreadySaid()` is the last-resort guard against literal repetition.
+
+### 8.3 Idle is not a reason to talk `[DECIDED]` (r6)
+
+The ambient re-plan fired on `isIdle() && cadence elapsed`, with no requirement that
+anything had *happened*. Combined with `attentionCadenceTurns = 2` and a prompt ending in
+"never reply with an empty array", an NPC standing near the player was asked every other
+turn to produce something out of nothing — and what it produced was almost always talking.
+`StimulusMemory.lastAddedTurn()` gives the re-plan an activity clock: nothing sensed since
+the last submit drops the cadence to `priority.idleCadenceTurns` (default 30). Eviction and
+consumption both erase the evidence that something arrived, which is why the clock has to be
+separate from the entries. Cold start is unaffected — an NPC that has never planned still
+plans immediately.
+
 **`[DECIDED]`** Emergent behavior — no dialogue manager, no turn-taking lock. `say`
 posts `EChatMessage`; nearby NPCs record it as an observation and may react on their
 next cadence. Focused exchanges, walking away, and reporting all emerge from perception

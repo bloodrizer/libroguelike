@@ -10,6 +10,7 @@ import com.nuclearunicorn.serialkiller.game.ai.llm.command.AgentContext;
 import com.nuclearunicorn.serialkiller.game.ai.llm.command.CommandRegistry;
 import com.nuclearunicorn.serialkiller.game.ai.llm.command.NpcCommand;
 import com.nuclearunicorn.serialkiller.game.ai.llm.command.PlanInterpreter;
+import com.nuclearunicorn.serialkiller.game.ai.llm.sense.DialogueLog;
 import com.nuclearunicorn.serialkiller.game.ai.llm.sense.GameTurn;
 import com.nuclearunicorn.serialkiller.game.ai.llm.sense.Salience;
 import com.nuclearunicorn.serialkiller.game.ai.llm.sense.Stimulus;
@@ -51,6 +52,8 @@ public class LLMAgentAI extends BasicMobAI {
 
     // Serializable memory (§7). Everything else is rebuilt from the runtime.
     private StimulusMemory memory;
+    /** Dialogue in the order it happened (§8) — what memory's salience ranking cannot hold. */
+    private DialogueLog dialogue;
     /** Turn of the last submit; negative means never. Not a MIN_VALUE sentinel — subtracting
      *  that overflows, and a negative "elapsed" silently disables the cadence forever. */
     private long lastRequestTurn = -1;
@@ -84,6 +87,9 @@ public class LLMAgentAI extends BasicMobAI {
         if (memory == null) {
             memory = new StimulusMemory(LlmRuntime.config().memory.observations,
                     LlmRuntime.config().priority.decayPerTurn);
+        }
+        if (dialogue == null) {
+            dialogue = new DialogueLog(LlmRuntime.config().memory.dialogueLines);
         }
         if (interpreter == null) {
             interpreter = new PlanInterpreter();
@@ -134,9 +140,20 @@ public class LLMAgentAI extends BasicMobAI {
         }
 
         long elapsed = lastRequestTurn < 0 ? Long.MAX_VALUE : GameTurn.current() - lastRequestTurn;
+        boolean fresh = sensedSinceRequest();
         if (interpreter.isIdle() && elapsed >= cadenceTurns()) {
-            submit(service, Math.max(top, Salience.AMBIENT), "ambient re-plan");
+            submit(service, Math.max(top, Salience.AMBIENT),
+                    fresh ? "ambient re-plan" : "idle re-plan");
         }
+    }
+
+    /**
+     * Has anything actually happened since we last asked the model? Idle alone used to be
+     * enough, so an NPC next to the player re-planned every other turn with nothing to react
+     * to — and since the prompt forbids an empty reply, what came back was chatter.
+     */
+    private boolean sensedSinceRequest() {
+        return lastRequestTurn < 0 || memory.lastAddedTurn() > lastRequestTurn;
     }
 
     /**
@@ -160,7 +177,8 @@ public class LLMAgentAI extends BasicMobAI {
         LlmDebug.log("%s: %s -> submitting at %s (score %d, turn %d)",
                 uid, why, Salience.label(top == null ? priority : top.salience),
                 priority, GameTurn.current());
-        service.submit(uid, Perception.snapshot((EntityRLHuman) owner, memory, attentionName()), priority);
+        service.submit(uid,
+                Perception.snapshot((EntityRLHuman) owner, memory, dialogue, attentionName()), priority);
 
         // Consume at submit time, not at reply time: a round trip takes seconds, and a
         // stimulus left unconsumed re-fires the interrupt every turn until then.
@@ -202,8 +220,11 @@ public class LLMAgentAI extends BasicMobAI {
         return ent.isPlayerEnt() ? "the player" : ent.getName();
     }
 
-    /** Turns between ambient re-plans — tighter while holding a conversation. */
+    /** Turns between ambient re-plans — tighter in conversation, much slower with no input. */
     private int cadenceTurns() {
+        if (!sensedSinceRequest()) {
+            return LlmRuntime.config().priority.idleCadenceTurns;
+        }
         return hasAttention()
                 ? LlmRuntime.config().priority.attentionCadenceTurns
                 : LlmRuntime.config().reactor.cadenceTurns;
@@ -424,6 +445,31 @@ public class LLMAgentAI extends BasicMobAI {
     }
 
     /**
+     * A line this NPC heard, recorded verbatim and in order (§8). Separate from {@link #sense}
+     * because the two answer different questions: a stimulus decides whether to react at all,
+     * a transcript line decides what a reply should actually say.
+     */
+    public void hear(String speaker, String text, boolean directed) {
+        if (!LlmRuntime.isEnabled() || !ensureWired()) {
+            return;
+        }
+        dialogue.heard(GameTurn.current(), speaker, text, directed);
+    }
+
+    /** A line this NPC just spoke. Called by {@code AgentContext.say}, the one speech funnel. */
+    public void spoke(String text) {
+        if (!LlmRuntime.isEnabled() || !ensureWired()) {
+            return;
+        }
+        dialogue.said(GameTurn.current(), text);
+    }
+
+    /** Have we said this already? Last-resort guard, checked before the line reaches the world. */
+    public boolean alreadySaid(String text) {
+        return dialogue != null && dialogue.alreadySaid(text);
+    }
+
+    /**
      * Brain state for the replay log. This is the view that tells you <i>why</i> an NPC
      * ignored you: whether the stimulus arrived at all, what salience it carries now, and
      * whether the trigger or the queue is the thing holding the reaction back.
@@ -439,6 +485,7 @@ public class LLMAgentAI extends BasicMobAI {
                 + " busy=" + (LlmRuntime.reactor() != null && LlmRuntime.reactor().isBusy(owner.get_uid()))
                 + " sinceRequest=" + (lastRequestTurn < 0
                         ? "never" : String.valueOf(GameTurn.current() - lastRequestTurn))
+                + " dialogue=" + (dialogue == null ? 0 : dialogue.size())
                 + " attention=" + (hasAttention() ? attentionUid : "none")
                 + " fleeing=" + (isFleeing() ? threatUid : "no")
                 + " near=" + isNearPlayer();

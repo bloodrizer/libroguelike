@@ -19,15 +19,26 @@ public class StimulusMemory implements Serializable {
     private final List<Stimulus> entries = new ArrayList<>();
     private final int capacity;
     private final int decayPerTurn;
+    /** Turn of the most recent arrival; -1 when nothing has ever been sensed. */
+    private long lastAddedTurn = -1;
 
     public StimulusMemory(int capacity, int decayPerTurn) {
         this.capacity = Math.max(1, capacity);
         this.decayPerTurn = Math.max(0, decayPerTurn);
     }
 
+    /**
+     * When we last sensed anything at all. Eviction and consumption both erase the evidence
+     * that something happened, so "is there any reason to re-plan?" needs its own clock.
+     */
+    public long lastAddedTurn() {
+        return lastAddedTurn;
+    }
+
     /** Record a stimulus, evicting the least salient entry if that puts us over capacity. */
     public void add(Stimulus stimulus) {
         entries.add(stimulus);
+        lastAddedTurn = Math.max(lastAddedTurn, stimulus.turn);
         if (entries.size() <= capacity) {
             return;
         }

@@ -6,7 +6,7 @@
   "director": { "model": "models/phi-4.gguf",      "url": "https://huggingface.co/bartowski/phi-4-GGUF/resolve/main/phi-4-Q4_K_M.gguf",                        "port": 8082, "cadenceMs": 60000, "cadenceTurns": 120, "queueCapacity": 4, "maxTokens": 1024, "batch": true },
   "throttle": { "mode": "buckets", "nearRadius": 24 },
   "far":      { "teleport": false },
-  "memory":   { "observations": 8 },
-  "speech":   { "directedRadius": 4, "earshotRadius": 10 },
-  "priority": { "interruptAt": 60, "decayPerTurn": 2, "attentionTurns": 12, "attentionCadenceTurns": 2, "fleeTurns": 10, "fleeDistance": 12 }
+  "memory":   { "observations": 8, "dialogueLines": 6 },
+  "speech":   { "directedRadius": 4, "earshotRadius": 10, "maxSaysPerPlan": 1, "maxSayChars": 110 },
+  "priority": { "interruptAt": 60, "decayPerTurn": 2, "attentionTurns": 12, "attentionCadenceTurns": 2, "idleCadenceTurns": 30, "fleeTurns": 10, "fleeDistance": 12 }
 }

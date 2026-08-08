@@ -15,7 +15,7 @@ import com.nuclearunicorn.libroguelike.vgui.effects.FXTooltip;
  */
 public class TooltipSystem extends EffectsSystem {
     
-    static final long TOOLTIP_HOVER_TIME = 2000;    //number of ms to hold mouse over control before showing tooltip
+    static final long TOOLTIP_HOVER_TIME = 3500;    //number of ms to hold mouse over control before showing tooltip
     
     NE_GUI_System gui = null;
     NE_GUI_Element focused_element = null;

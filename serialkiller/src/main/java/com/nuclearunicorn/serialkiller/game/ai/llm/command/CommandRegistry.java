@@ -78,12 +78,23 @@ public class CommandRegistry {
         return grammar;
     }
 
-    /** Parse a model completion (JSON command array) into commands; unknown/malformed entries are skipped. */
+    /**
+     * Parse a model completion (JSON command array) into commands; unknown/malformed entries
+     * are skipped, and speech is capped at {@code speech.maxSaysPerPlan}.
+     *
+     * <p>The cap is enforced here rather than in the grammar because it is a runtime config
+     * value and the grammar is assembled once. It exists because a plan of four consecutive
+     * {@code say}s is not a plan — it is the model offering four drafts of one reply, which
+     * the interpreter then performs as a four-turn monologue.
+     */
     public List<NpcCommand> parse(String json) {
         List<NpcCommand> commands = new ArrayList<>();
         if (json == null) {
             return commands;
         }
+        int sayLimit = com.nuclearunicorn.serialkiller.game.ai.llm.LlmRuntime.config().speech.maxSaysPerPlan;
+        int says = 0;
+        int dropped = 0;
         try {
             JsonArray array = gson.fromJson(json, JsonArray.class);
             if (array == null) {
@@ -97,7 +108,12 @@ public class CommandRegistry {
                 if (!obj.has("verb")) {
                     continue;
                 }
-                CommandFactory factory = factories.get(obj.get("verb").getAsString());
+                String verb = obj.get("verb").getAsString();
+                if ("say".equals(verb) && ++says > sayLimit) {
+                    dropped++;
+                    continue;
+                }
+                CommandFactory factory = factories.get(verb);
                 if (factory != null) {
                     commands.add(factory.parse(obj));
                 }
@@ -105,6 +121,10 @@ public class CommandRegistry {
         } catch (RuntimeException e) {
             // Residual parse failure (§12) — drop; the AI re-submits next cadence.
             System.err.println("command parse failed: " + e);
+        }
+        if (dropped > 0) {
+            com.nuclearunicorn.serialkiller.game.ai.llm.LlmDebug.log(
+                    "  dropped %d extra say(s), limit is %d per plan", dropped, sayLimit);
         }
         return commands;
     }

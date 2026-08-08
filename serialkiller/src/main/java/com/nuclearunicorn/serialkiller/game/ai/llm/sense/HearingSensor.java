@@ -86,7 +86,11 @@ public class HearingSensor implements IEventListener {
                             ? speakerName + " is talking to you and just said: \"" + chat.message + "\""
                             : "you overheard " + speakerName + " say: \"" + chat.message + "\"");
 
-            ((LLMAgentAI) listener.getAI()).sense(stimulus);
+            // Two deliveries, two jobs: the stimulus decides whether to react and how hard,
+            // the transcript line is what a reply is actually built from.
+            LLMAgentAI brain = (LLMAgentAI) listener.getAI();
+            brain.hear(speakerName, chat.message, addressed);
+            brain.sense(stimulus);
         }
     }
 
