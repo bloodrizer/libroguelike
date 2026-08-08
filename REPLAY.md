@@ -45,6 +45,7 @@ Actions: `wait <frames>`, `walk <wasd> [n]`, `attack <wasd> [n]`, `say <text>`,
 | `-Dreplay.exitAtEnd` | `true` | quit once the tail elapses |
 | `SHOW=1` | off | show the window during playback |
 | `LLM=0` | off | force LLM NPCs off (fast, FSM only) |
+| `-Dreplay.seed=<long>` | recorded | override the seed; see [Determinism](#determinism) |
 
 `SPEED>1` fast-forwards the *input* only. Inference does not speed up with it, so a fast
 replay outruns the very NPC reactions you are trying to observe.
@@ -77,7 +78,7 @@ The `npc` record is the one that makes "the NPC ignored me" diagnosable:
 
 ```
 name=LAJUANA PITTS dist=1 ai=LLMAgentAI
-state=top=URGENT:the player just attacked you! topSalience=95 idle=false
+state=top=URGENT:the player just attacked you! topSalience=95 focus=same idle=false
       busy=false sinceRequest=2 dialogue=4 attention=712f9bec fleeing=712f9bec near=true
 ```
 
@@ -86,6 +87,11 @@ trigger or the queue is holding the reaction back. `dialogue` counts the lines h
 NPC's transcript: an NPC that talks like it has never met you while this reads non-zero is
 a prompt problem, not a memory one.
 
+`top` is what would *trigger* a re-plan; `focus` is what the prompt actually leads with, and
+reads `same` unless they differ. They diverge exactly when something is still true but has
+already been prompted about — `top=none focus=URGENT:…attacked you` is a victim being asked
+about the weather while bleeding, and is the shape to look for after any violence.
+
 `ai` is there because the first real bug found this way was not in the salience model at
 all: the NPC next to the player had **no AI object**, so nothing could reach it. Dump
 every human and name the AI class — filtering to LLM agents makes an inert NPC look like
@@ -93,11 +99,33 @@ an absent one, which is the one failure the log most needs to distinguish.
 
 ## Determinism
 
-World generation is seeded per chunk origin, so a replay regenerates the same town. NPC
-name rolls, FSM roaming and model sampling are **not** seeded — runs are comparable, not
-identical. Frames are recorded relative to `Replay.markReady()` (the frame the world
-becomes playable), so a replay recorded after a slow model download still plays back
-promptly on a warm start.
+Every gameplay roll comes from `Rng`, whose seed is written into the header and read back
+before the world is built. Replaying a file therefore regenerates the same town, the same
+names, the same roaming and the same combat rolls. Two runs of the same file with `LLM=0`
+are byte-identical.
+
+```json
+{"type":"header","version":2,"seed":424242,"recorded":"...","llmEnabled":"(config)"}
+```
+
+Pass `-Dreplay.seed=<n>` to override the recorded seed and re-roll one scenario
+deliberately; `mkreplay.py` takes `--seed` and otherwise rolls a fresh one per file. A v1
+file (no `seed`) still plays, it just picks a new seed each time.
+
+This matters more than it sounds. Before the seed, "walk up to your spouse and hit her"
+reproduced about half the time — whether the blow landed depended on whether she happened
+to drift a tile that run, and a scenario that silently becomes *"swing at empty air"* is
+worse than no scenario.
+
+**Model sampling** is seeded per request from `Rng.seed()`, the prompt text and the turn —
+not from queue position, which depends on how long inference took. In practice two runs of
+the same file produce identical dialogue, but this is not guaranteed the way the game
+thread is: whether a request is submitted at all can depend on wall-clock inference timing,
+and a diverged prompt gets a different seed.
+
+Frames are recorded relative to `Replay.markReady()` (the frame the world becomes
+playable), so a replay recorded after a slow model download still plays back promptly on a
+warm start.
 
 Records are flushed as they are written, so a killed process still leaves a usable file —
 one line shorter, still valid JSONL.

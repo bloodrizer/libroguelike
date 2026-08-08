@@ -5,6 +5,8 @@
 
 package com.nuclearunicorn.libroguelike.game.world;
 
+import com.nuclearunicorn.libroguelike.utils.Rng;
+
 import java.util.Calendar;
 
 /**
@@ -62,12 +64,12 @@ public class WorldTimer {
             //TODO: check if camera is not centered on this area and spawn a zombie
             //if !(WorldCamera.tile_in_fov()){ //etc
 
-            int chance = (int)(Math.random()*100);
+            int chance = (int)(Rng.random()*100);
             if(chance < 90 && Player.get_ent() != null){
                 
                 Point spawn_point = new Point(
-                        Player.get_ent().origin.getX() + (int)(Math.random()*60-30),
-                        Player.get_ent().origin.getY() +(int)(Math.random()*60-30));
+                        Player.get_ent().origin.getX() + (int)(Rng.random()*60-30),
+                        Player.get_ent().origin.getY() +(int)(Rng.random()*60-30));
                 
                 //do not allow zombie to spawn outside of the player cluster or in the camera rect
                 if (WorldCluster.tile_in_cluster(spawn_point.getX(), spawn_point.getY())){

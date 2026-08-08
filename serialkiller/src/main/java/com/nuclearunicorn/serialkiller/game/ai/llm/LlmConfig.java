@@ -80,6 +80,12 @@ public class LlmConfig {
          * produce something out of nothing, and what it produced was almost always talking.
          */
         public int idleCadenceTurns = 30;
+        /**
+         * Turns a parsed plan may sit unstarted before it is thrown away. The reflex owns
+         * the body while fleeing, so a line composed mid-attack was delivered seven turns
+         * later to a street the attacker had left — still answering the old scene.
+         */
+        public int planTtlTurns = 4;
         /** Turns the flee reflex keeps the body after being attacked (§3 layer 1). */
         public int fleeTurns = 10;
         /** Distance at which a fleeing NPC considers itself clear and stops running. */

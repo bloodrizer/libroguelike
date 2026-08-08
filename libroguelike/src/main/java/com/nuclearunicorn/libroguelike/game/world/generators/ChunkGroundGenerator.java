@@ -4,6 +4,8 @@
  */
 package com.nuclearunicorn.libroguelike.game.world.generators;
 
+import com.nuclearunicorn.libroguelike.utils.Rng;
+
 import com.nuclearunicorn.libroguelike.game.GameEnvironment;
 import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
@@ -35,7 +37,7 @@ public class ChunkGroundGenerator extends ChunkGenerator {
         NLTimer timer = new NLTimer();
         timer.push();
 
-        Random chunk_random = new Random();
+        Random chunk_random = Rng.derive();
         chunk_random.setSeed(chunk.origin.getX()*10000+chunk.origin.getY());    //set chunk-specific seed
 
         //Thread.currentThread().dumpStack();

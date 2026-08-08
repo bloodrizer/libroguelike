@@ -72,6 +72,8 @@ public class LLMAgentAI extends BasicMobAI {
     /** How far to look for an escape milestone. Bounded so A* is asked a routable question. */
     private static final int SEARCH_RADIUS = 20;
 
+    private static final String SCREAM = "AAAAAAAA!";
+
     private transient PlanInterpreter interpreter;
     private transient AgentContext context;
 
@@ -118,7 +120,7 @@ public class LLMAgentAI extends BasicMobAI {
             List<NpcCommand> plan = registry.parse(completion);
             if (!plan.isEmpty()) {
                 LlmDebug.log("%s: plan parsed (%d cmds): %s", uid, plan.size(), verbList(plan));
-                interpreter.setReactive(plan);
+                interpreter.setReactive(plan, GameTurn.current());
             } else {
                 // Empty array is a real failure mode on small models, not a no-op. Re-plan
                 // on the next cadence rather than letting the NPC look unresponsive.
@@ -177,8 +179,8 @@ public class LLMAgentAI extends BasicMobAI {
         LlmDebug.log("%s: %s -> submitting at %s (score %d, turn %d)",
                 uid, why, Salience.label(top == null ? priority : top.salience),
                 priority, GameTurn.current());
-        service.submit(uid,
-                Perception.snapshot((EntityRLHuman) owner, memory, dialogue, attentionName()), priority);
+        service.submit(uid, Perception.snapshot((EntityRLHuman) owner, memory, dialogue,
+                attentionName(), threatName()), priority);
 
         // Consume at submit time, not at reply time: a round trip takes seconds, and a
         // stimulus left unconsumed re-fires the interrupt every turn until then.
@@ -194,9 +196,14 @@ public class LLMAgentAI extends BasicMobAI {
         return 0;
     }
 
-    /** Hold conversation focus on whoever just addressed us (§8). */
+    /**
+     * Hold conversation focus on whoever just <i>spoke</i> to us (§8). Speech only: focusing
+     * on any high-salience source made a stabbing register as the opening of a conversation,
+     * and the prompt then told the victim to stay put and keep talking to her attacker.
+     */
     private void focusOn(Stimulus stimulus) {
-        if (stimulus == null || stimulus.sourceUid == null) {
+        if (stimulus == null || stimulus.sourceUid == null
+                || stimulus.channel != Stimulus.Channel.SPEECH) {
             return;
         }
         attentionUid = stimulus.sourceUid;
@@ -209,11 +216,20 @@ public class LLMAgentAI extends BasicMobAI {
 
     /** Display name of who we are attending to, or null when not in a conversation. */
     private String attentionName() {
-        if (!hasAttention()) {
+        return hasAttention() ? displayName(attentionUid) : null;
+    }
+
+    /** Display name of whoever we are currently running from, or null when not fleeing. */
+    private String threatName() {
+        return isFleeing() ? displayName(threatUid) : null;
+    }
+
+    private String displayName(String uid) {
+        if (uid == null) {
             return null;
         }
         com.nuclearunicorn.libroguelike.game.ent.Entity ent =
-                owner.getEnvironment().getEntityManager().get_entity(attentionUid);
+                owner.getEnvironment().getEntityManager().get_entity(uid);
         if (ent == null) {
             return null;
         }
@@ -259,7 +275,14 @@ public class LLMAgentAI extends BasicMobAI {
         // at all - otherwise an in-flight "goto home" walks the victim calmly past the
         // person stabbing them.
         if (flee()) {
+            interpreter.flushSpeech(context);   // running for your life does not make you mute
             return;
+        }
+        // Reflex may have held the body for a while; whatever was queued before that is a
+        // reply to a scene that has moved on. Re-plan instead of delivering it late.
+        if (interpreter.dropStaleReactive(GameTurn.current(),
+                LlmRuntime.config().priority.planTtlTurns)) {
+            lastRequestTurn = -1;
         }
         interpreter.tick(context);
     }
@@ -275,7 +298,7 @@ public class LLMAgentAI extends BasicMobAI {
         fleeUntilTurn = GameTurn.current() + LlmRuntime.config().priority.fleeTurns;
         interpreter.setReactive(java.util.Collections.<NpcCommand>emptyList());
         ((RLController) owner.controller).clearPath();   // wherever we were going is moot
-        focusOn(stimulus);
+        attentionUid = null;   // being attacked ends a conversation, it does not start one
         if (fresh) {
             scream();
         }
@@ -382,7 +405,11 @@ public class LLMAgentAI extends BasicMobAI {
         }
         com.nuclearunicorn.serialkiller.render.RLMessages.message(
                 owner.getName() + " screams!", org.newdawn.slick.Color.red);
-        ((com.nuclearunicorn.libroguelike.game.ent.EntityActor) owner).say_message("AAAAAAAA!");
+        ((com.nuclearunicorn.libroguelike.game.ent.EntityActor) owner).say_message(SCREAM);
+        // The reflex bypasses AgentContext.say(), so this used to be the one thing an NPC
+        // said that it had no record of saying — asked "why are you screaming?" it truthfully
+        // answered "I didn't hear anything".
+        dialogue.said(GameTurn.current(), SCREAM);
     }
 
     @Override
@@ -479,8 +506,12 @@ public class LLMAgentAI extends BasicMobAI {
             return "unwired";
         }
         Stimulus top = memory.peekTop();
+        Stimulus focus = memory.peekStrongest();
         return "top=" + (top == null ? "none" : Salience.label(top.salience) + ":" + top.text())
                 + " topSalience=" + memory.topSalience()
+                // What the prompt actually leads with, which is not always the trigger.
+                + " focus=" + (focus == null || focus == top
+                        ? "same" : Salience.label(focus.salience) + ":" + focus.text())
                 + " idle=" + interpreter.isIdle()
                 + " busy=" + (LlmRuntime.reactor() != null && LlmRuntime.reactor().isBusy(owner.get_uid()))
                 + " sinceRequest=" + (lastRequestTurn < 0

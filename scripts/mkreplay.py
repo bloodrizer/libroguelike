@@ -4,6 +4,9 @@ directly instead of needing someone to sit down and play it.
 
     ./scripts/mkreplay.py out.jsonl "wait 300; walk w 3; say hello there; attack d; wait 200"
 
+The file carries a seed, so replaying it regenerates the same town, names and rolls.
+Pass --seed to pin a specific one; otherwise a fresh seed is rolled per file.
+
 Actions:
     wait <frames>       do nothing (use one at the start: the world has to generate)
     walk <wasd> [n]     step n times
@@ -14,7 +17,7 @@ Actions:
 Frames are 1/60s. Actions are spaced by --gap frames (default 20) so each keypress
 lands on its own turn rather than arriving as a burst.
 """
-import json, sys, argparse
+import json, sys, argparse, random
 
 # GLFW codes - the org.lwjgl.input.Keyboard shim maps its KEY_* straight onto these.
 K = {
@@ -69,14 +72,22 @@ def main():
     ap.add_argument('script')
     ap.add_argument('--gap', type=int, default=20, help='frames between keypresses')
     ap.add_argument('--start', type=int, default=300, help='frames before the first input')
+    ap.add_argument('--seed', type=int, default=None,
+                    help='RNG seed to pin the run (default: a fresh random one)')
     a = ap.parse_args()
 
     records, last = build(a.script, a.gap, a.start)
+    # A generated scenario needs a seed as much as a recorded one does - without it the
+    # town, the names and every roll differ per run, and a scenario like "attack the
+    # person next to you" lands only when the target happens not to have wandered.
+    seed = a.seed if a.seed is not None else random.getrandbits(48)
     with open(a.out, 'w') as f:
-        f.write(json.dumps({"type": "header", "version": 1, "generated": a.script}) + "\n")
+        f.write(json.dumps({"type": "header", "version": 2,
+                            "seed": seed, "generated": a.script}) + "\n")
         for r in records:
             f.write(json.dumps(r) + "\n")
-    print(f"wrote {a.out}: {len(records)} inputs, last at frame {last} (~{last/60:.1f}s)")
+    print(f"wrote {a.out}: {len(records)} inputs, seed {seed}, "
+          f"last at frame {last} (~{last/60:.1f}s)")
 
 
 if __name__ == '__main__':

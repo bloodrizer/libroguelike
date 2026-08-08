@@ -77,11 +77,11 @@ public class Noise {
   public float noise(float x, float y, float z) {
     if (perlin == null) {
       if (perlinRandom == null) {
-        perlinRandom = new Random();
+        perlinRandom = Rng.derive();
       }
       perlin = new float[PERLIN_SIZE + 1];
       for (int i = 0; i < PERLIN_SIZE + 1; i++) {
-        perlin[i] = perlinRandom.nextFloat(); //(float)Math.random();
+        perlin[i] = perlinRandom.nextFloat(); //(float)Rng.random();
       }
       // [toxi 031112]
       // noise broke due to recent change of cos table in PGraphics
@@ -163,7 +163,7 @@ public class Noise {
   }
 
   public void noiseSeed(long what) {
-    if (perlinRandom == null) perlinRandom = new Random();
+    if (perlinRandom == null) perlinRandom = Rng.derive();
     perlinRandom.setSeed(what);
     // force table reset after changing the random number seed [0122]
     perlin = null;

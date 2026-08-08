@@ -1,5 +1,7 @@
 package com.nuclearunicorn.serialkiller.generators;
 
+import com.nuclearunicorn.libroguelike.utils.Rng;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -10,7 +12,7 @@ public class MapGenerator {
     private int MIN_BLOCK_SIZE = 1800;
     private boolean MERGE_BLOCKS = false;
 
-    private Random random = new Random();
+    private Random random = Rng.derive();
     public int chunkSeed = 123456;
 
     public MapGenerator(Block block){

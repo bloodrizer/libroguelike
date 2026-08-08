@@ -57,6 +57,29 @@ public class ReplayPlayer {
         this.lastInputFrame = frames.isEmpty() ? 0 : frames.get(frames.size() - 1).frame;
     }
 
+    /**
+     * The recorded seed, or null for a v1 file that predates it. Read on its own, before the
+     * rest of the file: seeding has to happen before the world is built, and by the time the
+     * player is constructed the first rolls are long spent.
+     */
+    static Long readSeed(String path) {
+        Gson gson = new Gson();
+        try {
+            for (String line : Files.readAllLines(Paths.get(path), StandardCharsets.UTF_8)) {
+                if (line.isEmpty()) {
+                    continue;
+                }
+                JsonObject obj = gson.fromJson(line, JsonObject.class);
+                if (obj != null && obj.has("type") && "header".equals(obj.get("type").getAsString())) {
+                    return obj.has("seed") ? obj.get("seed").getAsLong() : null;
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("replay: cannot read seed from " + path + ": " + e);
+        }
+        return null;
+    }
+
     static ReplayPlayer open(String path) {
         Gson gson = new Gson();
         java.util.ArrayList<Frame> frames = new java.util.ArrayList<>();

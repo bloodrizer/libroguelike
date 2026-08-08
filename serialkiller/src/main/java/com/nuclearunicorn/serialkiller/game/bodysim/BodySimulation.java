@@ -1,5 +1,7 @@
 package com.nuclearunicorn.serialkiller.game.bodysim;
 
+import com.nuclearunicorn.libroguelike.utils.Rng;
+
 import com.nuclearunicorn.libroguelike.game.combat.Damage;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
@@ -114,7 +116,7 @@ public class BodySimulation {
                 RLCombat inflictorCombat = ((RLCombat)damage.inflictor.get_combat());
 
                 int stunChance = inflictorCombat.getEquipBonus("stun_chance");
-                int chance = (int)(Math.random()*100);
+                int chance = (int)(Rng.random()*100);
 
                 System.out.println("stun chance: "+chance+"/"+stunChance);
 
@@ -144,7 +146,7 @@ public class BodySimulation {
             if (owner.get_combat().is_alive()){
 
                 //make blood more like drops rather than trail
-                if (Math.random()*100 < 75){
+                if (Rng.random()*100 < 75){
                     RLTile tile = (RLTile)owner.tile;
                     float bloodAmt = tile.getBloodAmt();
                     tile.setBloodAmt(bloodAmt + 0.5f);
@@ -188,7 +190,7 @@ public class BodySimulation {
         adjustAttribute("libido", 0.5f);
 
         if (getStamina() <= 20){         //stamina < 20% - you start skipping turns
-            if ( (int)(Math.random()*100) <= 10 ){        //10% chance to skip turn
+            if ( (int)(Rng.random()*100) <= 10 ){        //10% chance to skip turn
                 setFainted(true);
                 if (owner.isPlayerEnt()){
                     RLMessages.message("You feel tired", Color.orange);

@@ -67,7 +67,10 @@ public class CommandRegistry {
             tail.append(" ( ws \",\" ws command )?");
         }
 
-        return "root ::= \"[\" ws ( command" + tail + " )? ws \"]\"\n" +
+        // The first command is mandatory. "Never reply with an empty array" was only ever an
+        // instruction, and a small model handed a hard prompt still answered "[]" — silence
+        // exactly when there was most to react to. The decoder can simply forbid it.
+        return "root ::= \"[\" ws command" + tail + " ws \"]\"\n" +
                 command + "\n" +
                 "string ::= \"\\\"\" ( [^\"\\\\] )* \"\\\"\"\n" +
                 "number ::= [0-9]+\n" +

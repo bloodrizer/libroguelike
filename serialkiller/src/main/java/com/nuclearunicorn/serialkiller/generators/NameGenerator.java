@@ -1,5 +1,7 @@
 package com.nuclearunicorn.serialkiller.generators;
 
+import com.nuclearunicorn.libroguelike.utils.Rng;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +13,7 @@ public class NameGenerator {
 
     //.class.getResourceAsStream(FONT_PATH)
 
-    Random namesRandom = new Random();
+    Random namesRandom = Rng.derive();
 
     static List<String> male = new ArrayList<String>(1024);
     static List<String> female = new ArrayList<String>(1024);

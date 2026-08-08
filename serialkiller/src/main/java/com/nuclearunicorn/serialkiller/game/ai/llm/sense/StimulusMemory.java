@@ -79,6 +79,27 @@ public class StimulusMemory implements Serializable {
         return top;
     }
 
+    /**
+     * The strongest stimulus by current salience, <b>consumed or not</b>. Being prompted
+     * about something once does not make it stop being true: a stabbing folded into one
+     * prompt used to drop out of {@link #peekTop} entirely, so the next chat line — worth
+     * a third as much — took the "RIGHT NOW" slot and the victim answered it as small talk.
+     * Triggering needs unconsumed; framing the prompt needs whatever actually matters most.
+     */
+    public Stimulus peekStrongest() {
+        long now = GameTurn.current();
+        Stimulus best = null;
+        int bestScore = -1;
+        for (Stimulus s : entries) {
+            int score = s.effectiveSalience(now, decayPerTurn);
+            if (score > bestScore) {
+                bestScore = score;
+                best = s;
+            }
+        }
+        return best;
+    }
+
     /** Effective salience of the strongest unconsumed stimulus; 0 when there is none. */
     public int topSalience() {
         Stimulus top = peekTop();

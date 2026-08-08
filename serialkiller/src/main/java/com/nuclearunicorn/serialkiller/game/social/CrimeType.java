@@ -1,5 +1,7 @@
 package com.nuclearunicorn.serialkiller.game.social;
 
+import com.nuclearunicorn.libroguelike.utils.Rng;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -23,7 +25,7 @@ public enum CrimeType {
     private static final List<CrimeType> VALUES =
             Collections.unmodifiableList(Arrays.asList(values()));
     private static final int SIZE = VALUES.size();
-    private static final Random RANDOM = new Random();
+    private static final Random RANDOM = Rng.derive();
 
     CrimeType(String name) {
         this.displayName = name;

@@ -2,6 +2,7 @@ package com.nuclearunicorn.serialkiller.game.ai.llm;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.nuclearunicorn.serialkiller.game.ai.llm.sense.GameTurn;
 import com.nuclearunicorn.serialkiller.game.ai.llm.sense.Salience;
 
 import java.net.URI;
@@ -60,13 +61,29 @@ public class LlamaHttpInferenceService implements InferenceService {
         final String prompt;
         final int priority;
         final long seq;
+        final long seed;
 
         Request(String uid, String prompt, int priority, long seq) {
             this.uid = uid;
             this.prompt = prompt;
             this.priority = priority;
             this.seq = seq;
+            this.seed = samplingSeed(prompt);
         }
+    }
+
+    /**
+     * Sampling seed for one request. Derived from the session seed, the prompt and the turn —
+     * deliberately <i>not</i> from the queue position, which depends on how long inference
+     * happened to take. This is the only formulation that survives a replay: the same NPC
+     * asking the same question on the same turn gets the same answer, however the queue
+     * drained. Mixing the turn in keeps two identical idle prompts from producing one line
+     * forever, which the repeat filter would then swallow into silence.
+     */
+    private static long samplingSeed(String prompt) {
+        long seed = com.nuclearunicorn.libroguelike.utils.Rng.seed();
+        seed = seed * 1000003L + prompt.hashCode();
+        return Math.abs(seed * 31L + GameTurn.current());
     }
 
     public LlamaHttpInferenceService(int port, String grammar, int maxTokens, int queueCapacity) {
@@ -176,7 +193,7 @@ public class LlamaHttpInferenceService implements InferenceService {
             }
 
             try {
-                String completion = complete(request.prompt);
+                String completion = complete(request.prompt, request.seed);
                 if (completion != null) {
                     results.put(request.uid, completion);
                 }
@@ -191,11 +208,12 @@ public class LlamaHttpInferenceService implements InferenceService {
     }
 
     /** Blocking HTTP round-trip. Runs only on the worker thread. */
-    private String complete(String prompt) throws Exception {
+    private String complete(String prompt, long seed) throws Exception {
         JsonObject body = new JsonObject();
         body.addProperty("prompt", prompt);
         body.addProperty("n_predict", maxTokens);
         body.addProperty("temperature", 0.7);
+        body.addProperty("seed", seed);
         body.addProperty("cache_prompt", true);
         if (grammar != null && !grammar.isEmpty()) {
             body.addProperty("grammar", grammar);

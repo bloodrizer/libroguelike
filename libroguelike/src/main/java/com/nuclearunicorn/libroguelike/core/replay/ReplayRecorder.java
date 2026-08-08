@@ -45,8 +45,9 @@ public class ReplayRecorder {
             ReplayRecorder recorder = new ReplayRecorder(writer, target);
 
             recorder.write("header",
-                    "version", 1,
+                    "version", 2,
                     "recorded", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(new Date()),
+                    "seed", com.nuclearunicorn.libroguelike.utils.Rng.seed(),
                     "llmEnabled", System.getProperty("llm.enabled", "(config)"));
 
             Runtime.getRuntime().addShutdownHook(new Thread(recorder::close, "replay-close"));

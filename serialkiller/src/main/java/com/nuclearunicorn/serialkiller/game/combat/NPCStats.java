@@ -1,5 +1,7 @@
 package com.nuclearunicorn.serialkiller.game.combat;
 
+import com.nuclearunicorn.libroguelike.utils.Rng;
+
 
 import java.util.Random;
 
@@ -17,7 +19,7 @@ public class NPCStats {
 
     //TODO : seed initialization
     public NPCStats(){
-        rand = new Random();
+        rand = Rng.derive();
 
         str = rand.nextInt(7)+3;
         per = rand.nextInt(7)+3;

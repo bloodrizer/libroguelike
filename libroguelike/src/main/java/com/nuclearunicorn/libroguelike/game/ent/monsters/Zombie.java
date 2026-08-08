@@ -5,6 +5,8 @@
 
 package com.nuclearunicorn.libroguelike.game.ent.monsters;
 
+import com.nuclearunicorn.libroguelike.utils.Rng;
+
 import com.nuclearunicorn.libroguelike.game.combat.BasicCombat;
 import com.nuclearunicorn.libroguelike.game.combat.Damage;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
@@ -48,7 +50,7 @@ public class Zombie extends EntMonster {
              combat.take_damage(new Damage(1, Damage.DamageType.DMG_FIRE));
          }
 
-         if ((int)(Math.random()*100) < 3){
+         if ((int)(Rng.random()*100) < 3){
              say_message("Braaains!");
          }
          
@@ -59,7 +61,7 @@ public class Zombie extends EntMonster {
     public void die(Entity killer){
         drop_loot(killer,"bone",1,20);
         
-        int coin_count = (int)(Math.random()*5);
+        int coin_count = (int)(Rng.random()*5);
         drop_loot(killer,"copper_coin",1,10);
     }
 }

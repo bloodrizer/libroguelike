@@ -1,5 +1,7 @@
 package com.nuclearunicorn.serialkiller.game.modes.in_game;
 
+import com.nuclearunicorn.libroguelike.utils.Rng;
+
 import com.nuclearunicorn.libroguelike.core.Input;
 import com.nuclearunicorn.libroguelike.core.client.ClientEventManager;
 import com.nuclearunicorn.libroguelike.core.client.ClientGameEnvironment;
@@ -452,7 +454,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
             System.out.println("Player's item: " + item + " , container:" + item.get_container());
         }*/
 
-        NPCGenerator.generateNPCStats(new Random(), playerEnt);
+        NPCGenerator.generateNPCStats(Rng.derive(), playerEnt);
         playerEnt.setName("Player");
     }
 }

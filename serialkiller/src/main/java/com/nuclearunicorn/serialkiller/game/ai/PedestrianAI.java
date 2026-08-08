@@ -1,5 +1,7 @@
 package com.nuclearunicorn.serialkiller.game.ai;
 
+import com.nuclearunicorn.libroguelike.utils.Rng;
+
 import com.nuclearunicorn.libroguelike.core.client.ClientGameEnvironment;
 import com.nuclearunicorn.libroguelike.events.Event;
 import com.nuclearunicorn.libroguelike.game.ai.BasicMobAI;
@@ -102,7 +104,7 @@ public class PedestrianAI extends BasicMobAI {
                     }
                 }
                 //System.out.println("following path to @" + npcController.destination);
-                if ((int)(Math.random()*100) >= 15){
+                if ((int)(Rng.random()*100) >= 15){
                     npcController.follow_path();
                 }
             }
@@ -184,7 +186,7 @@ public class PedestrianAI extends BasicMobAI {
         }
 
         //add 10% chance of standing still, making it more natural for player to chase target
-        if ((int)(Math.random()*100) >= 15){
+        if ((int)(Rng.random()*100) >= 15){
             npcController.follow_path();
         }
     }
@@ -203,7 +205,7 @@ public class PedestrianAI extends BasicMobAI {
             //System.out.println("Invalid escape distance :"+disst+" to target '" + nearestEnemy.getName() + "'@"+nearestEnemy.origin);
         }
 
-        if (Math.random()*100 > 60){
+        if (Rng.random()*100 > 60){
 
             RLMessages.message(owner.getName() + " screams!", Color.red);
 
@@ -216,12 +218,12 @@ public class PedestrianAI extends BasicMobAI {
         RLWorldChunk chunk = (RLWorldChunk)(this.owner.get_chunk());
         List<Point> mst = chunk.getMilestones();
         
-        Point rndMilestone = mst.get((int) (Math.random() * mst.size()));
+        Point rndMilestone = mst.get((int) (Rng.random() * mst.size()));
         
         //get random point near the milestone node (more natural ai behavior)
         Point point = new Point(
-                rndMilestone.getX() + (int)Math.random()*4-2,
-                rndMilestone.getY() + (int)Math.random()*4-2
+                rndMilestone.getX() + (int)Rng.random()*4-2,
+                rndMilestone.getY() + (int)Rng.random()*4-2
         );
 
         //((RLController)npcController).calculateAdaptivePath(owner.origin, point);

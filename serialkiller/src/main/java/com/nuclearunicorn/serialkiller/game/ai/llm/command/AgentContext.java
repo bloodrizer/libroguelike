@@ -1,5 +1,7 @@
 package com.nuclearunicorn.serialkiller.game.ai.llm.command;
 
+import com.nuclearunicorn.libroguelike.utils.Rng;
+
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.ent.EntityActor;
 import com.nuclearunicorn.serialkiller.game.ai.LLMAgentAI;
@@ -23,7 +25,7 @@ public class AgentContext {
 
     private final EntityRLHuman owner;
     private final RLController controller;
-    private final Random rng = new Random();
+    private final Random rng = Rng.derive();
 
     public AgentContext(EntityRLHuman owner, RLController controller) {
         this.owner = owner;

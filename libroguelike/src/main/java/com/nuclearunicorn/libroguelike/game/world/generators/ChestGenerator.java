@@ -5,6 +5,8 @@
 
 package com.nuclearunicorn.libroguelike.game.world.generators;
 
+import com.nuclearunicorn.libroguelike.utils.Rng;
+
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import java.util.Random;
 
@@ -34,9 +36,9 @@ public class ChestGenerator extends ObjectGenerator {
 
 
         //chest loot
-        int chance = (int)(Math.random()*100.0f);
+        int chance = (int)(Rng.random()*100.0f);
         if (chance<70){
-            int count = (int)(Math.random()*15.0f);
+            int count = (int)(Rng.random()*15.0f);
             chest.container.add_item(
                     BaseItem.produce("copper_coin", count)
             );

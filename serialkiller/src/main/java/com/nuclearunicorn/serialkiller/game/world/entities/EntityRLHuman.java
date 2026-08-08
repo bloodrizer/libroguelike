@@ -1,5 +1,7 @@
 package com.nuclearunicorn.serialkiller.game.world.entities;
 
+import com.nuclearunicorn.libroguelike.utils.Rng;
+
 import com.nuclearunicorn.libroguelike.core.Game;
 import com.nuclearunicorn.libroguelike.events.Event;
 import com.nuclearunicorn.libroguelike.events.IEventListener;
@@ -42,7 +44,7 @@ public class EntityRLHuman extends EntityRLActor {
         private static final List<Race> VALUES =
                 Collections.unmodifiableList(Arrays.asList(values()));
         private static final int SIZE = VALUES.size();
-        private static final Random RANDOM = new Random();
+        private static final Random RANDOM = Rng.derive();
 
         Race(String name) {
             this.displayName = name;
@@ -68,7 +70,7 @@ public class EntityRLHuman extends EntityRLActor {
         private static final List<Religion> VALUES =
                 Collections.unmodifiableList(Arrays.asList(values()));
         private static final int SIZE = VALUES.size();
-        private static final Random RANDOM = new Random();
+        private static final Random RANDOM = Rng.derive();
 
         Religion(String name) {
             this.displayName = name;
@@ -366,7 +368,7 @@ public class EntityRLHuman extends EntityRLActor {
                 if (limbs.isEmpty()){
                     return; //no more limbs to cut
                 }
-                Limb limb = limbs.get((int)(Math.random()*limbs.size()));
+                Limb limb = limbs.get((int)(Rng.random()*limbs.size()));
                 limbs.remove(limb);
 
                 BaseItem limbItem = BaseItem.produce(owner.getName() + "'s "+limb.getName(),1);
@@ -407,7 +409,7 @@ public class EntityRLHuman extends EntityRLActor {
                 RLMessages.message( Player.get_ent().getName() + " rapes " + owner.getName(), Color.orange );
                 if (bodysim.isInfected()){
                     //~50% chance to catch STD
-                    if (new Random().nextInt(100) <= 50){
+                    if (Rng.derive().nextInt(100) <= 50){
                         ((EntityRLHuman)Player.get_ent()).bodysim.setInfected(true);
                     }
                 }

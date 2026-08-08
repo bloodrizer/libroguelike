@@ -375,6 +375,42 @@ consumption both erase the evidence that something arrived, which is why the clo
 separate from the entries. Cold start is unaffected — an NPC that has never planned still
 plans immediately.
 
+### 8.4 A condition is not an event `[DECIDED]` (r7)
+
+Everything the prompt carried was something that *happened*, and happenings decay. Stab a
+family member and she screams, runs — and thirty seconds later answers "everything is fine,
+what happened?", because by then the assault is a past-tense bullet under `Background` while
+the small talk in front of her holds the `RIGHT NOW` slot. Four separate mechanisms conspired,
+and all four are the same mistake in different places:
+
+- **`peekTop()` skips consumed stimuli.** Being *prompted* about a stabbing once does not make
+  it stop being true, but it dropped out of the block that frames the prompt, so a chat line
+  worth a third as much took the lead. Triggering a re-plan needs *unconsumed*; framing the
+  prompt needs *strongest*. `peekStrongest()` is the second question, and the two are rendered
+  together — the emergency leads, the question that triggered the re-plan follows it.
+- **The victim's own state was nowhere in the prompt.** Not wounded, not fleeing, not afraid
+  of anyone. `Perception.appendCondition()` states it directly, and it holds as long as the
+  condition does rather than decaying at 2/turn.
+- **Being attacked set the attacker as your conversation partner.** `engageReflex` called
+  `focusOn`, so a stabbing registered as the opening of a conversation and the prompt then
+  told the victim to *"stay where you are and keep talking, do not walk off"*. Conversation
+  focus comes from the SPEECH channel and nothing else; being attacked now clears it.
+- **The reflex silenced the plan it was reacting to.** While fleeing, the interpreter never
+  ticks, so a line composed mid-attack sat in the queue for seven turns and was delivered to
+  a street the attacker had left. Running away does not make you mute: `flushSpeech()` lets a
+  plan contribute its line and discards the rest, and `priority.planTtlTurns` throws away any
+  plan that never got the body in time.
+
+One more fell out of the fix. `root ::= "[" ws ( command tail )? ws "]"` made the empty array
+*grammatical*, and "never reply with an empty array" was only ever an instruction — handed a
+genuinely hard prompt, phi-4-mini answered `[]`, silence exactly when there was most to react
+to. The first command is now mandatory in the grammar.
+
+Measured against the recorded session that prompted this, same input stream: the victim now
+shouts "Help me, please, he hurt me!" *while running*, and answers "why are you screaming"
+with "He attacked me! Help me!" one turn later instead of "I didn't hear anything" eight
+turns later.
+
 **`[DECIDED]`** Emergent behavior — no dialogue manager, no turn-taking lock. `say`
 posts `EChatMessage`; nearby NPCs record it as an observation and may react on their
 next cadence. Focused exchanges, walking away, and reporting all emerge from perception

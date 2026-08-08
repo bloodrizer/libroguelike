@@ -5,6 +5,8 @@
 
 package com.nuclearunicorn.libroguelike.game.ai;
 
+import com.nuclearunicorn.libroguelike.utils.Rng;
+
 import com.nuclearunicorn.libroguelike.game.ent.controller.NpcController;
 import com.nuclearunicorn.libroguelike.game.player.Player;
 import org.lwjgl.util.Point;
@@ -68,9 +70,9 @@ public class BasicMobAI extends AI{
     }
 
     protected void actionRoaming(NpcController npc_ctrl){
-        if (npc_ctrl.path == null && (int)(Math.random() * 20) < 25 ){
-            int x = owner.origin.getX() + 5 - (int)(Math.random() * 10);
-            int y = owner.origin.getY() + 5 - (int)(Math.random() * 10);
+        if (npc_ctrl.path == null && (int)(Rng.random() * 20) < 25 ){
+            int x = owner.origin.getX() + 5 - (int)(Rng.random() * 10);
+            int y = owner.origin.getY() + 5 - (int)(Rng.random() * 10);
 
             npc_ctrl.set_destination(new Point(x,y));
         }

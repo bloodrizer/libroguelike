@@ -1,5 +1,7 @@
 package com.nuclearunicorn.libroguelike.core.replay;
 
+import com.nuclearunicorn.libroguelike.utils.Rng;
+
 /**
  * Deterministic-input replay: record a session's player input to a file, then drive a later
  * session from that file instead of the keyboard.
@@ -28,10 +30,12 @@ package com.nuclearunicorn.libroguelike.core.replay;
  *   -Dreplay.tailFrames=600       frames to keep running after the last input, so
  *                                 in-flight NPC reactions still land in the log
  *   -Dreplay.exitAtEnd=true       quit once the tail elapses (for the harness)
+ *   -Dreplay.seed=&lt;long&gt;          override the seed (playback uses the recorded one)
  * </pre>
  *
- * World generation is seeded per chunk origin, so a replay regenerates the same town. NPC
- * name/roam rolls and model sampling are not seeded, so runs are comparable, not identical.
+ * Every gameplay roll comes from {@link Rng}, whose seed is written into the header and read
+ * back on playback, so a replay reproduces the same town, the same names and the same rolls.
+ * Model sampling is the one thing outside that guarantee — see {@code LlamaHttpInferenceService}.
  */
 public final class Replay {
 
@@ -50,6 +54,18 @@ public final class Replay {
         }
         initialized = true;
 
+        // Seed first, and before anything builds a world: the seed only reproduces a run if
+        // it is in force for the very first roll. Playback inherits the recorded seed unless
+        // -Dreplay.seed overrides it, which is how you re-roll one scenario deliberately.
+        String play = System.getProperty("replay.play");
+        Long recorded = play == null || play.isEmpty() ? null : ReplayPlayer.readSeed(play);
+        String override = System.getProperty("replay.seed");
+        long seed = override != null && !override.isEmpty() ? Long.parseLong(override)
+                : recorded != null ? recorded : System.nanoTime();
+        Rng.seed(seed);
+        System.out.println("replay: seed " + seed
+                + (recorded != null && override == null ? " (from replay)" : ""));
+
         // Recording is on by default: the session worth replaying is always the one you
         // did not think to arm beforehand. Opt out with -Dreplay.record=false.
         String record = System.getProperty("replay.record", "true");
@@ -57,7 +73,6 @@ public final class Replay {
             recorder = ReplayRecorder.open(record);
         }
 
-        String play = System.getProperty("replay.play");
         if (play != null && !play.isEmpty()) {
             player = ReplayPlayer.open(play);
         }

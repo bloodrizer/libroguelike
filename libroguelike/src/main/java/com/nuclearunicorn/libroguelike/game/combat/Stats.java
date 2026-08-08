@@ -5,6 +5,8 @@
 
 package com.nuclearunicorn.libroguelike.game.combat;
 
+import com.nuclearunicorn.libroguelike.utils.Rng;
+
 import java.util.HashMap;
 
 /**
@@ -17,7 +19,7 @@ public class Stats {
 
     public Stats(){
         for(int i=0; i< stats.length; i++){
-            stats_val.put(stats[i], 5+(int)(Math.random()*5));
+            stats_val.put(stats[i], 5+(int)(Rng.random()*5));
         }
     }
 

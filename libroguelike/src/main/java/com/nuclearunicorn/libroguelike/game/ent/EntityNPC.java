@@ -5,6 +5,8 @@
 
 package com.nuclearunicorn.libroguelike.game.ent;
 
+import com.nuclearunicorn.libroguelike.utils.Rng;
+
 import com.nuclearunicorn.libroguelike.game.items.BaseItem;
 import com.nuclearunicorn.libroguelike.game.items.EquipContainer;
 import com.nuclearunicorn.libroguelike.render.EntityRenderer;
@@ -26,7 +28,7 @@ public class EntityNPC extends EntityActor {
     }
     public String race = "female";
     {
-        if (Math.random() > 0.25f){
+        if (Rng.random() > 0.25f){
            race = "male";
         }
     }

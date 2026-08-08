@@ -19,6 +19,11 @@ public class PlanInterpreter {
 
     private NpcCommand active;   // currently-stepping command (needs onEnter/onExit bookkeeping)
 
+    // When the reactive plan was installed, and whether it has ever had the body. A plan
+    // that never started is still a reply to the world as it was at that turn.
+    private long reactiveTurn = -1;
+    private boolean reactiveStarted;
+
     public void setAgenda(List<NpcCommand> commands) {
         clearActiveFrom(agenda);
         agenda.clear();
@@ -26,9 +31,53 @@ public class PlanInterpreter {
     }
 
     public void setReactive(List<NpcCommand> commands) {
+        setReactive(commands, -1);
+    }
+
+    public void setReactive(List<NpcCommand> commands, long turn) {
         clearActiveFrom(reactive);
         reactive.clear();
         reactive.addAll(commands);
+        reactiveTurn = turn;
+        reactiveStarted = false;
+    }
+
+    /**
+     * While the reflex owns the body, let a plan contribute its line and nothing else.
+     * Fleeing and shouting for help are not in conflict, but the interpreter is
+     * all-or-nothing — so a victim whose model produced "Help! Someone just attacked me!"
+     * ran away in silence, and the line was later dropped unspoken. Movement decided before
+     * the attack is moot by the time the reflex releases, so the rest of the plan goes.
+     */
+    public boolean flushSpeech(AgentContext ctx) {
+        active = null;
+        while (!reactive.isEmpty() && !"say".equals(reactive.peek().verb())) {
+            reactive.poll();
+        }
+        if (reactive.isEmpty()) {
+            return false;
+        }
+        NpcCommand say = reactive.poll();
+        say.onEnter(ctx);
+        say.step(ctx);
+        say.onExit(ctx);
+        reactive.clear();
+        return true;
+    }
+
+    /**
+     * Drop a reactive plan that was composed {@code ttl} turns ago and never got to run.
+     * The reflex owns the body while fleeing, so a reply written mid-stabbing sat in the
+     * queue for seven turns and was then delivered to an empty street, still in the past
+     * tense. A plan that has already started is left alone — a long walk is not stale.
+     */
+    public boolean dropStaleReactive(long now, int ttl) {
+        if (reactive.isEmpty() || reactiveStarted || reactiveTurn < 0 || now - reactiveTurn <= ttl) {
+            return false;
+        }
+        LlmDebug.log("  dropped stale plan (%d turns old, never ran)", now - reactiveTurn);
+        setReactive(java.util.Collections.<NpcCommand>emptyList());
+        return true;
     }
 
     public boolean isIdle() {
@@ -40,6 +89,9 @@ public class PlanInterpreter {
         if (queue.isEmpty()) {
             active = null;
             return;
+        }
+        if (queue == reactive) {
+            reactiveStarted = true;
         }
 
         NpcCommand head = queue.peek();
