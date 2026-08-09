@@ -37,6 +37,14 @@ public class Game {
 
     }
 
+    /*
+     * The mode currently on screen. Unlike get_game_mode() this has no lazy-activation side
+     * effects, so it is safe to ask from an event handler.
+     */
+    public static AbstractGameMode getActiveMode(){
+        return activeMode;
+    }
+
     public void resetState(String state) {
         AbstractGameMode mode = gameStates.get(state);
         try {

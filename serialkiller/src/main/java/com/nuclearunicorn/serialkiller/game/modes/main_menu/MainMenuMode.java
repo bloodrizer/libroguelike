@@ -40,7 +40,7 @@ public class MainMenuMode extends AbstractGameMode implements IEventListener {
         if (wgt!=null){
             return wgt;
         }
-        wgt = new MainMenuUI();
+        wgt = new MainMenuUI(this);
 
         return wgt;
     }

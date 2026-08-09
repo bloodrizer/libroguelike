@@ -3,6 +3,7 @@ package com.nuclearunicorn.serialkiller.game.modes.main_menu;
 import com.nuclearunicorn.libroguelike.core.client.ClientEventManager;
 import com.nuclearunicorn.libroguelike.core.client.ClientGameEnvironment;
 import com.nuclearunicorn.libroguelike.events.EMouseClick;
+import com.nuclearunicorn.libroguelike.events.EKeyPress;
 import com.nuclearunicorn.libroguelike.events.Event;
 import com.nuclearunicorn.libroguelike.events.IEventListener;
 import com.nuclearunicorn.libroguelike.game.ui.IUserInterface;
@@ -16,6 +17,7 @@ import com.nuclearunicorn.serialkiller.game.SkillerGame;
 import com.nuclearunicorn.serialkiller.utils.pathfinder.adaptive.AdaptivePathfinder;
 import com.nuclearunicorn.serialkiller.vgui.VGUICreateCharacterScreeen;
 import org.newdawn.slick.Color;
+import org.lwjgl.input.Keyboard;
 
 /**
 
@@ -25,13 +27,36 @@ public class MainMenuUI implements IUserInterface, IEventListener {
     public NE_GUI_System ui;
     private VGUICreateCharacterScreeen createCharScreen;
     final NE_GUI_FrameModern frame = new NE_GUI_FrameModern();
+    private final MainMenuMode mode;
 
-    public MainMenuUI(){
+    public MainMenuUI(MainMenuMode mode){
+        this.mode = mode;
         ui = new NE_GUI_System();
     }
 
     @Override
     public void e_on_event(Event event) {
+        //build_ui() subscribes us once and there is no unsubscribe, so keep our hands off
+        //input whenever the menu is not the mode on screen
+        if (!mode.isCurrent()){
+            return;
+        }
+
+        //allow esc to cycle game menu
+        if (event instanceof EKeyPress){
+            if (((EKeyPress) event).key == Keyboard.KEY_ESCAPE){
+                event.dispatch();
+                
+                SkillerGame game;
+                if (Main.game != null){
+                    game = Main.game;
+                }else{
+                    game = MainApplet.game;
+                }
+                game.set_state("inGame");
+                return;
+            }
+        }
     }
 
     @Override

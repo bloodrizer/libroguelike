@@ -24,6 +24,15 @@ public abstract class AbstractGameMode implements IGameMode, IEventListener {
         return isActive;
     }
 
+    /*
+     * True only while this mode is the one on screen. isActive() says "has been entered at
+     * least once" and never goes back to false, so every mode ever visited keeps handling
+     * input - which is how ESC ended up being handled by the menu and the game at once.
+     */
+    public boolean isCurrent() {
+        return Game.getActiveMode() == this;
+    }
+
     public void setActive(boolean active) {
         isActive = active;
     }

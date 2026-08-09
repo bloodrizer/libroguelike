@@ -192,7 +192,9 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
                 playerSkipTurn = true;
             }
         }
-        if (Input.key_state_shft || playerSkipTurn){
+        // Shift is hold-to-wait, so every shifted character typed in talk mode used to run the
+        // world for as long as the key was down. Composing a line is not a turn; sending it is.
+        if (!typeMode && (Input.key_state_shft || playerSkipTurn)){
             model.update();
         }
 
@@ -242,9 +244,10 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
     public void e_on_event(Event event) {
         boolean isNextTurn = false;
 
-        // Every mode stays subscribed, so ignore input until this one is actually running —
-        // otherwise keys pressed on the loading screen hit a world that doesn't exist yet.
-        if (!isActive()){
+        // Every mode stays subscribed for good, so ignore input unless this one is the mode
+        // on screen — otherwise keys pressed on the loading screen hit a world that doesn't
+        // exist yet, and ESC pressed in the menu is handled here as well as there.
+        if (!isCurrent()){
             return;
         }
 
@@ -257,6 +260,10 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         //allow to press ESC even if player is dead
         if (event instanceof EKeyPress){
             if (((EKeyPress) event).key == Keyboard.KEY_ESCAPE){
+                //consume it: the menu we are switching to listens for ESC as well, and this
+                //very event is still being handed down the listener chain
+                event.dispatch();
+
                 SkillerGame game;
                 if (Main.game != null){
                     game = Main.game;

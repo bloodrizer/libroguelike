@@ -42,6 +42,11 @@ public class EventManager {
         //use defensive copy of list and than iterate it
         //or be ready for obscure ConcurentModification exception
         for(IEventListener listener: listeners.toArray(new IEventListener[0])){
+            //a listener that consumed the event stops the rest of the chain, same as the gui
+            //overlay does above - without this, one ESC could be handled by two game modes
+            if (event.is_dispatched()){
+                return;
+            }
             listener.e_on_event(event);
         }
 
