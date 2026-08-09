@@ -105,7 +105,9 @@ single-threaded — no locks on game state.
 | `PlanInterpreter` | game | Per-NPC. Runs agenda (base) + reactive (preempting) command queues tick-by-tick. |
 | `AgentContext` | game | The command "tool surface": owner, `RLController`, symbol resolver (name→`Point`), world queries, memory. |
 | `Perception` | game | Builds reactor snapshot (rich/local) and director snapshot (identity/role/coarse). |
-| `LLMAgentAI extends BasicMobAI` | game | Wires reflex-override + interpreter tick + scheduler requests into the existing `update()`/`think()`. |
+| `TownAI extends BasicMobAI` | game | Composition root: owns `Knowledge`, `Voice` and `Deliberation`, selects a state from its subclass's impulses, runs the matching action. `PedestrianAI` and `PoliceAI` differ only in which impulses they register (§8.6). |
+| `Deliberation` | game | The LLM planner as a *component*, not a brain: pumps the inference queue, runs the plan when no reflex wants the body. Absent entirely when inference is off. |
+| `Knowledge` / `Percept` | game | Working memory: the ranked stimulus stream plus one belief per person, carrying when it was last seen and whether that is firsthand or hearsay (§8.6). |
 | `LlmConfig` | game | Loads json/properties (§10). `[DECIDED]` |
 
 ---
@@ -410,6 +412,85 @@ Measured against the recorded session that prompted this, same input stream: the
 shouts "Help me, please, he hurt me!" *while running*, and answers "why are you screaming"
 with "He attacked me! Help me!" one turn later instead of "I didn't hear anything" eight
 turns later.
+
+### 8.5 A role is not a name, and safety is not a stopwatch `[DECIDED]` (r8)
+
+Two reflex bugs, both of them the same shape: layer 1 (§3) was written once, for one kind of
+person, and then asked to cover everyone.
+
+**Panic ran on a timer.** `fleeUntilTurn = now + fleeTurns` was a *budget*, so a victim ran
+for ten turns, the player walked after her at exactly the same speed, and on turn eleven she
+stopped and went back to her errands with him standing next to her — measured at `dist`
+`1,2,1,1,1,1,1,2,3,2` for the whole flee. The deadline is now a **grace period**, pushed
+forward on every turn the attacker is still within `fleeDistance`; you stop running when you
+are clear, not when the clock says so. `fleeMaxTurns` caps one panic so a cornered NPC
+eventually gets its plan back, and the next blow re-engages the reflex on the same turn.
+
+**Switching the LLM on disbanded the police force.** `TownChunkGenerator` spawned policemen
+with `new LLMAgentAI()` in place of `PoliceAI` — same uniform, same stunstick, and none of
+the behaviour: no investigation, no chase, no strike on contact. What replaced it was the
+civilian brain, so an officer watched an assault happen in front of him, and when the
+attacker turned on him he screamed and ran. The first fix for this added a `Role` enum
+consulted by the prompt, the pain sensor, the crime handler and the reflex; §8.6 explains
+why that was the wrong shape and what replaced it.
+
+### 8.6 One brain per kind of person `[DECIDED]` (r9)
+
+`Role` lasted one revision. It answered "is this NPC a policeman" at four call sites, which
+is four chances to disagree, and the fifth site — the spawn point — still handed policemen
+the civilian brain whenever inference was on. A role flag is what you reach for when
+behaviour cannot vary by type; this codebase already had `PedestrianAI` and `PoliceAI`, so
+it could.
+
+The architecture is now the standard one, and each piece is standard for a reason:
+
+| Layer | What it does | Prior art |
+|---|---|---|
+| `Impulse` | Named trigger; selection walks them in priority order and takes the first relevant one | Halo 2 impulses + prioritised-list decision (Isla, GDC 2005) |
+| `IAIAction` | One behaviour, with `onEnter`/`onExit`/`onObstacle` | Halo 2 behaviours with per-behaviour short-term memory |
+| `Knowledge` | Ranked stimulus stream + a `Percept` per person, with a firsthand/hearsay distinction | F.E.A.R. working memory (Orkin, GDC 2006); Halo 2 *props*; Thief *sense links* (Leonard, GDC 2003) |
+| `Voice` | Every line spoken, and the record of having spoken it | — |
+| `Deliberation` | The LLM planner, one rung below every reflex | Brooks' subsumption (1986): a higher layer suppresses the ones under it |
+| `SocialController` | Town-wide crime board and police dispatch | F.E.A.R. squad blackboard; Thief peer propagation of sense links |
+
+**The role difference is now three lines in a constructor.** `PoliceAI` removes the inherited
+`threat` and `night` impulses — an officer does not flee a criminal and does not go home at
+dusk — and registers `suspect` (pursue) and `crime scene` (investigate) in their place. The
+prompt persona lives in the same file as the behaviour it describes, so the two cannot
+disagree about what a policeman is.
+
+**Arrest is a reflex, not a plan.** The verb set is `goto/say/wait`; the model said *"I'm
+taking him into custody"* and *"I need to call for backup"* with nothing behind either.
+`PursueAction` takes the body, closes on the suspect, and lets contact do the rest: walking
+into an occupied tile is how every melee in this game already happens, so `onObstacle` is the
+whole attack. Adding an `attack` verb was considered and rejected — policing should not wait
+on a round trip, and a general combat verb hands every NPC in town the ability to choose
+violence, which is a much larger design decision than this bug called for.
+
+**The police could not hear.** This was the real defect, and it survived the `Role` fix: an
+officer eleven tiles from a beating carried on asking a passer-by about a parked car, four
+separate assaults in a row. Every channel an NPC had was *perceptual* and short-ranged — the
+hearing sensor reaches ten tiles, the pain sensor's witness sweep reaches ten tiles, and
+`LLMAgentAI` dropped any point-based event landing outside that same ten. Nothing carried
+knowledge further than a person could shout. `SocialController.reportCrime` is the radio:
+civilians call in what they see or hear, and every officer in the layer is dispatched at any
+distance. The cascade control is Thief's — reports go to police and to nobody else.
+
+**Witnessing was the player's field of view.** `RLWorldModel` decided who saw a crime by
+testing `RLTile.isVisible()`, the flag the *renderer* sets on tiles the player can see. So a
+crate two tiles from the player witnessed a murder, and a policeman standing in an unlit
+street witnessed nothing. `CrimeSensor` asks each candidate witness about its own FOV
+instead. It also has to decide what counts as a crime at all, since every swing at a crate
+raises the same event and an officer's baton lands through the same code path as a murder —
+without both checks the first arrest starts a chain reaction in which the other three
+officers arrest *him*. Measured: eleven blows in a session became thirty-two.
+
+Measured after, with inference off (the reflexes are the same classes either way): the victim
+engages `FLEE` on the turn she is hit and releases with `clear`; the dispatch names the
+suspect and all four officers engage `PURSUE`; one closes and strikes the player five times;
+the rest give up at distance 46 and 61 as he runs. With inference on: no exceptions, no empty
+plans, `PoliceAI`/`PedestrianAI` both live, dispatch drives `INVESTIGATING`, and the officer
+introduces himself as one.
 
 **`[DECIDED]`** Emergent behavior — no dialogue manager, no turn-taking lock. `say`
 posts `EChatMessage`; nearby NPCs record it as an observation and may react on their

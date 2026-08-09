@@ -6,7 +6,7 @@ import com.nuclearunicorn.libroguelike.events.IEventListener;
 import com.nuclearunicorn.libroguelike.events.network.EChatMessage;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.utils.Fov;
-import com.nuclearunicorn.serialkiller.game.ai.LLMAgentAI;
+import com.nuclearunicorn.serialkiller.game.ai.TownAI;
 import com.nuclearunicorn.serialkiller.game.ai.llm.LlmDebug;
 import com.nuclearunicorn.serialkiller.game.ai.llm.LlmRuntime;
 
@@ -47,7 +47,7 @@ public class HearingSensor implements IEventListener {
 
     @Override
     public void e_on_event(Event event) {
-        if (!(event instanceof EChatMessage) || !LlmRuntime.isEnabled()) {
+        if (!(event instanceof EChatMessage)) {
             return;
         }
         EChatMessage chat = (EChatMessage) event;
@@ -69,7 +69,7 @@ public class HearingSensor implements IEventListener {
         Entity nearest = speaker.isPlayerEnt() ? nearestListener(speaker, nearby) : null;
 
         for (Entity listener : nearby) {
-            if (listener == speaker || !(listener.getAI() instanceof LLMAgentAI)) {
+            if (listener == speaker || !(listener.getAI() instanceof TownAI)) {
                 continue;
             }
             boolean addressed = listener == nearest
@@ -88,7 +88,7 @@ public class HearingSensor implements IEventListener {
 
             // Two deliveries, two jobs: the stimulus decides whether to react and how hard,
             // the transcript line is what a reply is actually built from.
-            LLMAgentAI brain = (LLMAgentAI) listener.getAI();
+            TownAI brain = (TownAI) listener.getAI();
             brain.hear(speakerName, chat.message, addressed);
             brain.sense(stimulus);
         }
@@ -99,7 +99,7 @@ public class HearingSensor implements IEventListener {
         Entity best = null;
         long bestDist = Long.MAX_VALUE;
         for (Entity listener : nearby) {
-            if (listener == speaker || !(listener.getAI() instanceof LLMAgentAI)) {
+            if (listener == speaker || !(listener.getAI() instanceof TownAI)) {
                 continue;
             }
             long dx = listener.origin.getX() - speaker.origin.getX();

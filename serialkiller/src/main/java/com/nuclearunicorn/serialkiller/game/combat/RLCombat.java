@@ -160,7 +160,7 @@ public class RLCombat extends BasicCombat {
     public void attack(Entity ent) {
         RLMessages.message(owner.getName() + " is attacking "+ent.getName(), new Color(253,126,126));
 
-        CriminalActionEvent event = new CriminalActionEvent(ent.origin, (EntityActor)owner);
+        CriminalActionEvent event = new CriminalActionEvent(ent.origin, (EntityActor)owner, ent);
         event.post();
 
         //TODO: temporary hack for player ent. TODO: rewrite for support of multiple criminals in town

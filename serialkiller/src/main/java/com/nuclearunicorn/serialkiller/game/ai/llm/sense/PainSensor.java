@@ -6,7 +6,7 @@ import com.nuclearunicorn.libroguelike.events.Event;
 import com.nuclearunicorn.libroguelike.events.IEventListener;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.utils.Fov;
-import com.nuclearunicorn.serialkiller.game.ai.LLMAgentAI;
+import com.nuclearunicorn.serialkiller.game.ai.TownAI;
 import com.nuclearunicorn.serialkiller.game.ai.llm.LlmDebug;
 import com.nuclearunicorn.serialkiller.game.ai.llm.LlmRuntime;
 
@@ -40,7 +40,9 @@ public class PainSensor implements IEventListener {
 
     @Override
     public void e_on_event(Event event) {
-        if (!(event instanceof ETakeDamage) || !LlmRuntime.isEnabled()) {
+        // Not gated on inference: the flee reflex is driven by what this writes into
+        // Knowledge, and a pedestrian runs from her attacker with the model off too.
+        if (!(event instanceof ETakeDamage)) {
             return;
         }
         ETakeDamage hit = (ETakeDamage) event;
@@ -52,8 +54,8 @@ public class PainSensor implements IEventListener {
         Entity attacker = hit.dmg.inflictor;
         String attackerUid = attacker == null ? null : attacker.get_uid();
 
-        if (victim.getAI() instanceof LLMAgentAI) {
-            ((LLMAgentAI) victim.getAI()).sense(new Stimulus(
+        if (victim.getAI() instanceof TownAI) {
+            ((TownAI) victim.getAI()).sense(new Stimulus(
                     GameTurn.current(), Stimulus.Channel.PAIN, Salience.URGENT, attackerUid,
                     Relations.describe(victim, attacker) + " just attacked you! You are hurt ("
                             + hit.dmg.amt + " damage) and in immediate danger."));
@@ -73,15 +75,18 @@ public class PainSensor implements IEventListener {
                 victim.origin, radius, victim.getLayerId());
 
         for (Entity witness : nearby) {
-            if (witness == victim || witness == attacker || !(witness.getAI() instanceof LLMAgentAI)) {
+            if (witness == victim || witness == attacker || !(witness.getAI() instanceof TownAI)) {
                 continue;
             }
             // Watching a stranger get hit and watching your own child get hit should not
             // arrive as the same sentence, so both parties are named from the witness's side.
+            // How hard it lands is the brain's own answer: family and duty both make it an
+            // emergency, and only the brain knows which of those it has.
+            TownAI brain = (TownAI) witness.getAI();
             boolean kin = Relations.relation(witness, victim) != null;
-            ((LLMAgentAI) witness.getAI()).sense(new Stimulus(
+            brain.sense(new Stimulus(
                     GameTurn.current(), Stimulus.Channel.SIGHT,
-                    kin ? Salience.URGENT : Salience.NOTABLE, attackerUid,
+                    kin ? Salience.URGENT : brain.witnessSalience(), attackerUid,
                     "you just saw " + Relations.describe(witness, attacker) + " attack "
                             + Relations.describe(witness, victim) + " right in front of you"));
         }

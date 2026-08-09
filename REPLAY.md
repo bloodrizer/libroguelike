@@ -77,15 +77,27 @@ Modifiers are recorded because attack is **ctrl+direction** — a replay that dr
 The `npc` record is the one that makes "the NPC ignored me" diagnosable:
 
 ```
-name=LAJUANA PITTS dist=1 ai=LLMAgentAI
+name=LAJUANA PITTS dist=1 ai=PedestrianAI
 state=top=URGENT:the player just attacked you! topSalience=95 focus=same idle=false
-      busy=false sinceRequest=2 dialogue=4 attention=712f9bec fleeing=712f9bec near=true
+      busy=false sinceRequest=2 dialogue=4 attention=712f9bec brain=PedestrianAI
+      state=ai_state_FLEEING threat=712f9bec suspect=no scene=no near=true
 ```
 
 — whether the stimulus arrived at all, what salience it carries *now*, and whether the
 trigger or the queue is holding the reaction back. `dialogue` counts the lines held in the
 NPC's transcript: an NPC that talks like it has never met you while this reads non-zero is
 a prompt problem, not a memory one.
+
+`brain` is the AI class and `state` the behaviour currently holding the body
+(`FLEEING` / `PURSUING` / `INVESTIGATING` / `PATROLLING` / `SLEEPING` / `DELIBERATE`).
+`threat`, `suspect` and `scene` are what the NPC *believes* — who hurt it, who is wanted,
+where the last unattended crime was — and they are the inputs the impulses read, so a
+`Policeman` sitting at `PATROLLING` with `suspect=no` never got told about the crime,
+whereas one at `PATROLLING` with a live `suspect` is a bug in the impulse. Each holds a uid
+or a coordinate, or `no`.
+
+When inference is off the whole planner block collapses to `llm=off`; the reflexes are the
+same either way, because they are the same classes.
 
 `top` is what would *trigger* a re-plan; `focus` is what the prompt actually leads with, and
 reads `same` unless they differ. They diverge exactly when something is still true but has

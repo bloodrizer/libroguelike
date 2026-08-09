@@ -5,7 +5,7 @@ import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_FrameModern;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_Text;
-import com.nuclearunicorn.serialkiller.game.ai.PedestrianAI;
+import com.nuclearunicorn.serialkiller.game.ai.behavior.SleepAction;
 import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
 import com.nuclearunicorn.serialkiller.game.combat.NPCStats;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
@@ -76,10 +76,7 @@ public class VGUIDetailedNPCInformation extends NE_GUI_FrameModern{
         }
         info.add_line("");
         if (ent.getAI() != null){
-            if (ent.getAI().getState() == PedestrianAI.AI_STATE_TIRED){
-                info.add_line(prefix + " looks tired");
-            }
-            if (ent.getAI().getState() == PedestrianAI.AI_STATE_SLEEPING){
+            if (ent.getAI().getState() == SleepAction.STATE){
                 info.add_line(prefix + " is sleeping with a happy smile on a face");    //todo: implement mood
             }
 

@@ -9,6 +9,8 @@ import com.nuclearunicorn.serialkiller.game.ai.llm.sense.DialogueLog;
 import com.nuclearunicorn.serialkiller.game.ai.llm.sense.Salience;
 import com.nuclearunicorn.serialkiller.game.ai.llm.sense.Stimulus;
 import com.nuclearunicorn.serialkiller.game.ai.llm.sense.StimulusMemory;
+import com.nuclearunicorn.serialkiller.game.ai.mind.Narrating;
+import com.nuclearunicorn.serialkiller.game.ai.mind.Persona;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
 
 import java.util.List;
@@ -30,20 +32,36 @@ public final class Perception {
 
     private Perception() {}
 
-    public static String snapshot(EntityRLHuman owner, StimulusMemory memory,
-                                  DialogueLog dialogue, String attending, String fleeingFrom) {
-        StringBuilder sb = new StringBuilder(768);
+    /**
+     * Who the NPC is and what it is already doing about its situation. Loose Strings in a
+     * row are a trap — every one of these is "a person's name", and swapping two of them
+     * silently produces a victim chatting with her attacker — so the framing travels as one
+     * named object, and each field is filled by whoever actually knows the answer.
+     */
+    public static class Situation {
+        /** Supplied by the brain: a policeman describes himself as one. */
+        public Persona persona;
+        /** In conversation with this person: a bias on cadence and framing, not an order. */
+        public String attending;
+        /** What the body is currently doing, from the behaviour doing it. See {@link Narrating}. */
+        public String doing;
+        /** True while a reflex owns the body, so conversational advice is suppressed. */
+        public boolean reflexive;
+    }
 
-        sb.append("You are ").append(owner.getName())
-          .append(", a ").append(owner.age).append("-year-old ")
-          .append(owner.race.diplayName()).append(" ")
-          .append(owner.getSex().toString().toLowerCase())
-          .append(" living in this town.\n");
+    public static String snapshot(EntityRLHuman owner, StimulusMemory memory,
+                                  DialogueLog dialogue, Situation situation) {
+        StringBuilder sb = new StringBuilder(768);
+        String attending = situation.attending;
+
+        if (situation.persona != null) {
+            situation.persona.describeSelf(sb, owner);
+        }
 
         sb.append("Time: ").append(WorldTimer.is_night() ? "night" : "day").append(".\n");
 
         appendNearby(sb, owner);
-        appendCondition(sb, owner, fleeingFrom);
+        appendCondition(sb, owner, situation);
         appendDialogue(sb, dialogue);
 
         // Two different questions: what earned this re-plan, and what matters most now.
@@ -66,7 +84,7 @@ public final class Perception {
           .append(" already greeted. Never repeat a line someone else said.\n");
         // Conversation focus is a bias, not an order to stand still while something is
         // happening to you — an NPC mid-flight was told to "keep talking, do not walk off".
-        if (attending != null && fleeingFrom == null) {
+        if (attending != null && !situation.reflexive) {
             sb.append("You are in the middle of a conversation with ").append(attending)
               .append(" - stay where you are and keep talking, do not walk off.\n");
         }
@@ -78,25 +96,41 @@ public final class Perception {
     }
 
     /**
+     * Name, age, species, sex — the part of a self-description that is true of everyone.
+     * What the NPC is <i>for</i> is appended by its own {@link Persona}, because a
+     * policeman used to be introduced as "you are Policeman, a 34-year-old human male
+     * living in this town" — no uniform, no duty, no authority — so the model played him as
+     * a bystander who happened to be called that.
+     */
+    public static void appendIdentity(StringBuilder sb, EntityRLHuman owner) {
+        sb.append("You are ").append(owner.getName())
+          .append(", a ").append(owner.age).append("-year-old ")
+          .append(owner.race.diplayName()).append(" ")
+          .append(owner.getSex().toString().toLowerCase());
+    }
+
+    /**
      * The NPC's own state — the block that was missing entirely. Everything else here is
      * something that <i>happened</i>, and happenings decay: a stabbing became a past-tense
      * bullet within a few turns, so a victim standing bleeding two tiles from her attacker
      * read her own situation as "everything is normal" and chatted. Being hurt and being
      * afraid are conditions, not events, and they belong in the prompt as long as they hold.
      */
-    private static void appendCondition(StringBuilder sb, EntityRLHuman owner, String fleeingFrom) {
+    private static void appendCondition(StringBuilder sb, EntityRLHuman owner, Situation situation) {
         Combat combat = owner.get_combat();
         if (combat != null && combat.get_max_hp() > 0 && combat.get_hp() < combat.get_max_hp()) {
             sb.append(combat.get_hp() * 2 >= combat.get_max_hp()
                     ? "You are hurt and bleeding.\n"
                     : "You are badly wounded and barely able to stand.\n");
         }
-        if (fleeingFrom != null) {
-            // Positive and actionable. "Do not chat as if nothing happened" is a prohibition
-            // with no alternative, and a 3.8B model handed one answered with an empty array.
-            sb.append("You are running away from ").append(fleeingFrom)
-              .append(", who attacked you. You are terrified. Anything you say to them now is")
-              .append(" a plea, an accusation or a cry for help - never small talk.\n");
+        // Positive and actionable, and written by the behaviour actually running. "Do not
+        // chat as if nothing happened" is a prohibition with no alternative, and a 3.8B
+        // model handed one answered with an empty array.
+        if (situation.doing != null) {
+            sb.append(situation.doing);
+            if (!situation.doing.endsWith("\n")) {
+                sb.append('\n');
+            }
         }
     }
 

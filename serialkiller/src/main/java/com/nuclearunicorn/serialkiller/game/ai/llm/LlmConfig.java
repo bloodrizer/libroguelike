@@ -86,10 +86,27 @@ public class LlmConfig {
          * later to a street the attacker had left — still answering the old scene.
          */
         public int planTtlTurns = 4;
-        /** Turns the flee reflex keeps the body after being attacked (§3 layer 1). */
+        /**
+         * Grace turns the flee reflex runs on <i>after the threat stops pressing</i>. This
+         * used to be a flat budget from the last blow, which made panic a stopwatch: the
+         * victim ran for ten turns and then strolled off with her attacker still standing
+         * one tile away. The clock only runs while you are already clear.
+         */
         public int fleeTurns = 10;
         /** Distance at which a fleeing NPC considers itself clear and stops running. */
         public int fleeDistance = 12;
+        /**
+         * Hard ceiling on one panic, however hard the attacker presses. Without it a victim
+         * cornered in a room flees for the rest of the session and never plans anything
+         * else; the next blow re-engages the reflex anyway.
+         */
+        public int fleeMaxTurns = 60;
+        /** Grace turns a policeman keeps chasing after losing sight of the suspect. */
+        public int pursueTurns = 15;
+        /** Distance past which a policeman gives up the chase. */
+        public int pursueDistance = 20;
+        /** Hard ceiling on one chase, so a cop that cannot close eventually returns to duty. */
+        public int pursueMaxTurns = 120;
     }
 
     public static class Throttle {

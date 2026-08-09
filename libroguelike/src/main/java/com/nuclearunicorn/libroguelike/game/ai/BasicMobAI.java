@@ -60,13 +60,7 @@ public class BasicMobAI extends AI{
             return;
         }
 
-        NpcController npc_ctrl = (NpcController)(owner.controller);
-        
-        IAIAction action = stateMap.get(state);
-        if (action != null){
-            action.act(npc_ctrl);
-        }
-
+        act((NpcController)(owner.controller));
     }
 
     protected void actionRoaming(NpcController npc_ctrl){

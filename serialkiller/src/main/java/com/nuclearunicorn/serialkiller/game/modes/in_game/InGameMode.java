@@ -34,10 +34,11 @@ import com.nuclearunicorn.serialkiller.game.Main;
 import com.nuclearunicorn.serialkiller.game.MainApplet;
 import com.nuclearunicorn.serialkiller.game.SkillerGame;
 import com.nuclearunicorn.libroguelike.core.replay.Replay;
-import com.nuclearunicorn.serialkiller.game.ai.LLMAgentAI;
+import com.nuclearunicorn.serialkiller.game.ai.TownAI;
 import com.nuclearunicorn.serialkiller.game.ai.PlayerAI;
 import com.nuclearunicorn.serialkiller.game.ai.llm.sense.GameTurn;
 import com.nuclearunicorn.serialkiller.game.ai.llm.sense.HearingSensor;
+import com.nuclearunicorn.serialkiller.game.ai.llm.sense.CrimeSensor;
 import com.nuclearunicorn.serialkiller.game.ai.llm.sense.PainSensor;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
 import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
@@ -158,6 +159,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         SocialController.init();
         HearingSensor.init();
         PainSensor.init();
+        CrimeSensor.init();
 
         //world is built and taking input - anchor replay playback here, not at frame 0
         Replay.markReady();
@@ -413,8 +415,8 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
                             Math.pow(ent.origin.getX() - playerEnt.origin.getX(), 2)
                           + Math.pow(ent.origin.getY() - playerEnt.origin.getY(), 2)),
                     "ai", ent.getAI() == null ? "none" : ent.getAI().getClass().getSimpleName(),
-                    "state", ent.getAI() instanceof LLMAgentAI
-                            ? ((LLMAgentAI) ent.getAI()).debugState() : "-");
+                    "state", ent.getAI() instanceof TownAI
+                            ? ((TownAI) ent.getAI()).debugState() : "-");
         }
     }
 

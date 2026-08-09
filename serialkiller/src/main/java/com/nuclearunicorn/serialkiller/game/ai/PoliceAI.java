@@ -1,144 +1,142 @@
 package com.nuclearunicorn.serialkiller.game.ai;
 
-import com.nuclearunicorn.libroguelike.core.client.ClientGameEnvironment;
-import com.nuclearunicorn.libroguelike.events.Event;
-import com.nuclearunicorn.libroguelike.game.ai.IAIAction;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
-import com.nuclearunicorn.libroguelike.game.ent.EntityActor;
-import com.nuclearunicorn.libroguelike.game.ent.controller.NpcController;
-import com.nuclearunicorn.libroguelike.game.player.Player;
+import com.nuclearunicorn.libroguelike.utils.Fov;
+import com.nuclearunicorn.serialkiller.game.ai.behavior.InvestigateAction;
+import com.nuclearunicorn.serialkiller.game.ai.behavior.PursueAction;
+import com.nuclearunicorn.serialkiller.game.ai.llm.Perception;
+import com.nuclearunicorn.serialkiller.game.ai.llm.sense.GameTurn;
+import com.nuclearunicorn.serialkiller.game.ai.llm.sense.Salience;
+import com.nuclearunicorn.serialkiller.game.ai.llm.sense.Stimulus;
+import com.nuclearunicorn.serialkiller.game.ai.mind.Percept;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
-import com.nuclearunicorn.serialkiller.game.controllers.RLController;
 import com.nuclearunicorn.serialkiller.game.events.NPCReportCrimeEvent;
-import com.nuclearunicorn.serialkiller.game.events.SuspiciousSoundEvent;
 import com.nuclearunicorn.serialkiller.game.social.SocialController;
-import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
-import com.nuclearunicorn.serialkiller.render.RLMessages;
-import com.nuclearunicorn.serialkiller.utils.RLMath;
-import org.lwjgl.util.Point;
-import org.newdawn.slick.Color;
-
-import java.util.List;
 
 /**
+ * A police officer: the same person as a {@link PedestrianAI} with three differences, each
+ * of them a line in the constructor rather than a branch somewhere downstream.
+ *
+ * <ol>
+ *   <li>He does not run from a criminal — the flee impulse is removed outright.</li>
+ *   <li>He chases and arrests one, at the priority a civilian gives to fleeing.</li>
+ *   <li>He attends crimes he only heard about, which is nearly all of them.</li>
+ * </ol>
+ *
+ * <p>This is what the {@code Role} enum was standing in for, and why it did not work.
+ * Deciding "is this NPC a policeman" at four separate call sites — the prompt, the pain
+ * sensor, the crime handler, the reflex — meant four chances to disagree, and they did: with
+ * inference on, the spawn site handed policemen the civilian brain, so the uniform, the vest
+ * and the stunstick were all still there while the behaviour behind them was a pedestrian's.
+ * A witness to a murder said "I'm taking him into custody" and then fled from the murderer.
  */
 public class PoliceAI extends PedestrianAI {
 
-    public static final String AI_STATE_INVESTIGATING = "ai_state_INVESTIGATING";
-
-    public PoliceAI(){
+    public PoliceAI() {
         super();
 
-        registerState(AI_STATE_INVESTIGATING, new IAIAction() {
-            @Override
-            public void act(NpcController npcController) {
-                actionInvestigate(npcController);
-            }
-        });
-    }
+        registerState(PursueAction.STATE, new PursueAction(this));
+        registerState(InvestigateAction.STATE, new InvestigateAction(this));
 
-    private void actionInvestigate(NpcController npcController) {
-        RLController controller = (RLController)npcController;
+        // An officer does not flee, and does not go home at dusk. Removing the inherited
+        // impulses says that once, here, instead of guarding every behaviour with a role test.
+        removeImpulse("threat");
+        removeImpulse("night");
 
-        List<Point> crimeplaces = SocialController.getCrimeplaces();
-        Point nearestCrimeplace = RLMath.getNearestPoint(crimeplaces, owner.origin);
-
-        if (nearestCrimeplace == null){
-            System.out.println("Failed to get nearest crimeplace of list"+crimeplaces);
-            state = AI_STATE_PATROLLING;
-            return;
-        }
-
-        if (nearestCrimeplace != null && !npcController.hasPath()){
-            controller.calculateAdaptivePath(owner.origin, nearestCrimeplace);
-        }
-        controller.follow_path();
-
-        if (owner.origin.equals(nearestCrimeplace)){
-            crimeplaces.remove(nearestCrimeplace);
-            RLMessages.message("Police has closed the case", Color.cyan);
-        }
-
-        //a little cheaty way to mark player as criminal if cop locate him near the crimeplace
-
-        int fovRadius = ((RLCombat)((EntityRLHuman)owner).get_combat()).getFovRadius();
-        if (RLMath.isPointInRadius(owner.origin, nearestCrimeplace, fovRadius)){
-            if (RLMath.isPointInRadius(owner.origin, Player.get_ent().origin, fovRadius)){
-                knowCriminals.add((EntityActor)Player.get_ent());
-            }
-        }
-    }
-
-    @Override
-    public void think() {
-        super.think();
+        registerImpulse(PRIORITY_SUSPECT, new PursueAction.Trigger(this));
+        registerImpulse(PRIORITY_CRIME_SCENE, new InvestigateAction.Trigger(this));
     }
 
     @Override
     public void update() {
-        //super.update();
+        if (ensureWired()) {
+            spotWantedPeople();
+        }
+        super.update();
+    }
 
-        //police never sleeps
-
-        //if (state != AI_STATE_INVESTIGATING) {
-        //    state = AI_STATE_PATROLLING;
-        //}
-
-        //rule 1. override behavior to chase if see criminal (max priority)
-
-        nearestEnemy = null;
-        //just get some criminal in fov
-        for (EntityActor enemy : knowCriminals){
-            if (enemy.get_combat() != null && !enemy.get_combat().is_alive()){
+    /**
+     * Look around for anyone we know is wanted. This is what upgrades a radio call into an
+     * arrest: a report names a suspect but only as hearsay, and {@link PursueAction} refuses
+     * to chase hearsay — otherwise an officer across town sprints unerringly at a player he
+     * has no way of having seen. Getting eyes on them is what makes the chase legitimate.
+     *
+     * <p>Deliberately the officer's own field of view, not {@code RLTile.isVisible()}. That
+     * flag is the <i>player's</i> lighting-and-FOV mask, so the old code's idea of a witness
+     * was "an entity standing somewhere the player can see" — which is how a crate ended up
+     * witnessing crimes, and how an officer in an unlit street witnessed nothing at all.
+     */
+    private void spotWantedPeople() {
+        int radius = human().get_combat() instanceof RLCombat
+                ? ((RLCombat) human().get_combat()).getFovRadius() : 8;
+        long now = GameTurn.current();
+        for (Percept percept : knowledge().beliefs().values()) {
+            if (percept.crimeTurn < 0 || percept.source == Percept.Source.SEEN) {
                 continue;
             }
-            if (((RLTile)enemy.tile).isVisible()){
-                nearestEnemy = enemy;
-
-                ((NpcController) this.owner.controller).clearPath();
-
-                state = AI_STATE_CHASING;
-                return;
+            Entity wanted = entity(percept.uid);
+            if (wanted == null || wanted.origin == null || !isAlive(wanted)) {
+                continue;
             }
-        }
-
-        //rule 2. if investigating, do no override
-
-        if (state != AI_STATE_INVESTIGATING) {
-
-            //rule 3. patrol if no investigation or criminal in fov
-            state = AI_STATE_PATROLLING;
-        }
-
-    }
-
-    @Override
-    public void e_on_obstacle(int x, int y) {
-        Entity actor = ClientGameEnvironment.getWorldLayer(Player.get_zindex()).get_tile(x, y).get_actor();
-        
-        if(actor!=null && owner.get_combat() !=null){
-            if (knowCriminals.contains(actor)){
-                owner.get_combat().inflict_damage(actor);
+            if (Fov.in_range(human().origin, wanted.origin, radius)) {
+                knowledge().saw(wanted, now);
+                sense(new Stimulus(now, Stimulus.Channel.SIGHT, Salience.URGENT, percept.uid,
+                        "you have spotted the person wanted for the crime you were sent to"));
             }
         }
     }
 
+    /**
+     * Being assaulted on duty is a crime with a named suspect and an eyewitness, so it goes
+     * in as one. The civilian handling — record a threat, run — is deliberately not reached:
+     * an officer who flees the person hitting him has stopped being an officer.
+     */
     @Override
-    public void e_on_event(Event event) {
-        System.out.println("Police AI: event handler for "+event);
+    public void sense(Stimulus stimulus) {
+        super.sense(stimulus);
+        if (stimulus.channel == Stimulus.Channel.PAIN && stimulus.sourceUid != null) {
+            knowledge().learnedOfCrime(stimulus.sourceUid, human().origin, stimulus.turn, true);
+        }
+    }
 
-        if (event instanceof NPCReportCrimeEvent){
-            System.out.println("Police AI: started investigation");
-            
-            state = AI_STATE_INVESTIGATING;
+    /** A crime in front of an officer is an emergency, not something to mention later. */
+    @Override
+    public int witnessSalience() {
+        return Salience.URGENT;
+    }
+
+    /**
+     * Dispatch. Everything an officer knows about a crime he did not see arrives here, and
+     * before {@link SocialController} started routing these he learned nothing at all — the
+     * report was a {@code PointBasedEvent}, and the LLM brain dropped point-based events
+     * that landed outside its ten-tile earshot. A police radio with a ten-tile range is a
+     * shout.
+     */
+    @Override
+    protected void onCrimeReport(NPCReportCrimeEvent report) {
+        String criminal = report.criminal == null ? null : report.criminal.get_uid();
+        if (criminal != null && criminal.equals(human().get_uid())) {
             return;
         }
+        knowledge().learnedOfCrime(criminal, report.getOrigin(), GameTurn.current(), false);
+        sense(new Stimulus(GameTurn.current(), Stimulus.Channel.EVENT, Salience.NOTABLE, criminal,
+                criminal == null
+                        ? "a crime has been reported nearby and you are on your way to look"
+                        : "a crime has been reported and you know who is wanted for it"));
+    }
 
-        if (event instanceof SuspiciousSoundEvent){
-            return;
-        }
-
-        super.e_on_event(event);
+    /**
+     * Who he is, told to the model in the same file as what he does about it. He used to be
+     * introduced as "a 34-year-old human male living in this town" — no uniform, no duty, no
+     * authority — so the model quite reasonably played him as a bystander.
+     */
+    @Override
+    public void describeSelf(StringBuilder sb, EntityRLHuman self) {
+        Perception.appendIdentity(sb, self);
+        sb.append(" and a police officer on duty in this town.\n")
+          .append("You are armed and trained. Your job is to protect people, to stop")
+          .append(" crimes you witness, and to arrest whoever commits them. You do not")
+          .append(" run from a criminal.\n");
     }
 }

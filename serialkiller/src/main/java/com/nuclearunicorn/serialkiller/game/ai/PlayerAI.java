@@ -1,5 +1,6 @@
 package com.nuclearunicorn.serialkiller.game.ai;
 
+import com.nuclearunicorn.libroguelike.game.ai.BasicMobAI;
 import com.nuclearunicorn.libroguelike.game.ai.IAIAction;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.ent.controller.NpcController;
@@ -17,8 +18,10 @@ import java.util.List;
     UNLESS player is sleepy or OUT OF CONTROL
  */
 
-public class PlayerAI extends PedestrianAI {
+public class PlayerAI extends BasicMobAI {
 
+    /** Asleep in a bed. The player's own, not a town NPC's - see EntityBed. */
+    public static final String AI_STATE_SLEEPING = "ai_state_SLEEPING";
     public static final String AI_STATE_CONTROLLABLE = "ai_state_CONTROLLABLE";
     public static final String AI_STATE_OUT_OF_CONTROL = "ai_state_OUT_OF_CONTROL";
 
@@ -46,6 +49,9 @@ public class PlayerAI extends PedestrianAI {
             }
         });
     }
+
+    /** Whoever bloodlust has picked out. Only ever set and read by this class. */
+    private EntityRLHuman nearestEnemy;
 
     private void actionSleep(NpcController npcController) {
         ((EntityRLHuman)owner).getBodysim().adjustAttribute("stamina",5f);

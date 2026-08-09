@@ -9,7 +9,6 @@ import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.generators.ChunkGenerator;
 import com.nuclearunicorn.libroguelike.utils.NLTimer;
 import com.nuclearunicorn.serialkiller.game.ItemFactory;
-import com.nuclearunicorn.serialkiller.game.ai.LLMAgentAI;
 import com.nuclearunicorn.serialkiller.game.ai.PedestrianAI;
 import com.nuclearunicorn.serialkiller.game.ai.PoliceAI;
 import com.nuclearunicorn.serialkiller.game.ai.llm.LlmRuntime;
@@ -764,13 +763,12 @@ public class TownChunkGenerator extends ChunkGenerator {
             EntityRLHuman police = new EntityRLHuman();
             placeEntity(coord.getX(), coord.getY(), police, "Policeman", "P", new Color(127, 127, 255));
 
-            if (LlmRuntime.isEnabled()){
-                police.set_ai(new LLMAgentAI());
-                com.nuclearunicorn.serialkiller.game.ai.llm.LlmDebug.log(
-                        "spawned LLM police %s at %d,%d", police.get_uid(), coord.getX(), coord.getY());
-            }else{
-                police.set_ai(new PoliceAI());
-            }
+            // One brain per kind of person, inference or not. Swapping the brain when the
+            // LLM came on used to quietly disband the police force: same uniform, same
+            // stunstick, civilian reflexes underneath.
+            police.set_ai(new PoliceAI());
+            com.nuclearunicorn.serialkiller.game.ai.llm.LlmDebug.log(
+                    "spawned police %s at %d,%d", police.get_uid(), coord.getX(), coord.getY());
             police.set_controller(new RLController());
             police.set_combat(new RLCombat());
 
@@ -916,14 +914,10 @@ public class TownChunkGenerator extends ChunkGenerator {
      * no sensors, so speech and being attacked both land on nothing.
      */
     private void giveBrain(EntityActor npc, String role) {
-        if (LlmRuntime.isEnabled()){
-            npc.set_ai(new LLMAgentAI());
-            com.nuclearunicorn.serialkiller.game.ai.llm.LlmDebug.log(
-                    "spawned LLM %s %s (%s) at %d,%d",
-                    role, npc.get_uid(), npc.getName(), npc.origin.getX(), npc.origin.getY());
-        }else{
-            npc.set_ai(new PedestrianAI());
-        }
+        npc.set_ai(new PedestrianAI());
+        com.nuclearunicorn.serialkiller.game.ai.llm.LlmDebug.log(
+                "spawned %s %s (%s) at %d,%d",
+                role, npc.get_uid(), npc.getName(), npc.origin.getX(), npc.origin.getY());
         npc.set_controller(new RLController());
         npc.set_combat(new RLCombat());
     }

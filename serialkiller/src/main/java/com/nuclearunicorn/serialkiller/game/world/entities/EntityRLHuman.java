@@ -11,7 +11,9 @@ import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.items.BaseItem;
 import com.nuclearunicorn.libroguelike.game.items.EquipContainer;
 import com.nuclearunicorn.libroguelike.game.player.Player;
-import com.nuclearunicorn.serialkiller.game.ai.PedestrianAI;
+import com.nuclearunicorn.libroguelike.game.ai.BasicMobAI;
+import com.nuclearunicorn.serialkiller.game.ai.behavior.FleeAction;
+import com.nuclearunicorn.serialkiller.game.ai.behavior.SleepAction;
 import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
 import com.nuclearunicorn.serialkiller.game.bodysim.Limb;
 import com.nuclearunicorn.serialkiller.game.events.ShowDetailedInformationEvent;
@@ -252,13 +254,13 @@ public class EntityRLHuman extends EntityRLActor {
 
         if (ai != null){
             //TODO: move into internal method
-            if (ai.getState() == PedestrianAI.AI_STATE_ESCAPING){
+            if (ai.getState() == FleeAction.STATE){
                 renderer.symbol = "!";
             }
-            if (ai.getState() == PedestrianAI.AI_STATE_CHASING){
+            if (ai.getState() == BasicMobAI.AI_STATE_CHASING){
                 renderer.symbol = "!";
             }
-            if (ai.getState() == PedestrianAI.AI_STATE_SLEEPING){
+            if (ai.getState() == SleepAction.STATE){
                 renderer.symbol = "Z";
             }
         }

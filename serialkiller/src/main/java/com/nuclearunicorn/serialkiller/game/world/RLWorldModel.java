@@ -115,26 +115,10 @@ public class RLWorldModel extends WorldModel implements ILosBoard {
     public void e_on_event(Event event) {
         super.e_on_event(event);
 
-        if (event instanceof CriminalActionEvent){
-
-            CriminalActionEvent criminalEvent = (CriminalActionEvent)event;
-
-            Entity[] entList = getEnvironment().getEntityManager().getList(Player.get_zindex()).toArray(new Entity[0]);
-            for (Entity ent : entList){
-                if (ent instanceof EntityRLActor){
-
-                    //TODO: replace it with bresinhem line from npc to player
-                    /*if ( ((RLTile)ent.tile).isVisible() &&
-                            ((RLTile)this.getLayer(Player.get_zindex()).get_tile(criminalEvent.origin)).isVisible()) {*/
-
-                    if ( ((RLTile)ent.tile).isVisible() && criminalEvent.criminal.isPlayerEnt()){
-                        System.out.println( ent.getName() + " is witnessing crime of " + criminalEvent.criminal.getName()+ "@"+criminalEvent.origin);
-                        NPCWitnessCrimeEvent witnessCrimeEvent = new NPCWitnessCrimeEvent(criminalEvent.origin, criminalEvent.criminal);
-                        ((EntityRLActor) ent).e_on_event(witnessCrimeEvent);
-                    }
-                }
-            }
-        }
+        // Crime witnessing moved to CrimeSensor. It used to happen here, by walking every
+        // actor in the layer and asking whether its tile was RLTile.isVisible() — the
+        // *player's* FOV mask. So a crate two tiles from the player "witnessed" a murder and
+        // a policeman standing in an unlit street eleven tiles away witnessed nothing.
     }
 
     public List<Apartment> getApartments() {
