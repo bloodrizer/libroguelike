@@ -30,7 +30,7 @@ public class PatrolAction implements IAIAction {
             routeToRandomMilestone(npcController);
         }
         //add 10% chance of standing still, making it more natural for player to chase target
-        if ((int) (Rng.random() * 100) >= 15) {
+        if ((int) (Rng.random(Rng.AI) * 100) >= 15) {
             npcController.follow_path();
         }
     }
@@ -62,13 +62,13 @@ public class PatrolAction implements IAIAction {
         if (milestones == null || milestones.isEmpty()) {
             return;
         }
-        Point milestone = milestones.get((int) (Rng.random() * milestones.size()));
+        Point milestone = milestones.get((int) (Rng.random(Rng.AI) * milestones.size()));
 
         //Random point near the milestone node (more natural ai behavior), but only if it is
         //somewhere one can stand. The cast used to bind to Rng.random() alone - always zero -
         //so every destination was the same two tiles up and left of a milestone, wall or not.
-        int dx = (int) (Rng.random() * 5) - 2;
-        int dy = (int) (Rng.random() * 5) - 2;
+        int dx = (int) (Rng.random(Rng.AI) * 5) - 2;
+        int dy = (int) (Rng.random(Rng.AI) * 5) - 2;
         Point near = new Point(milestone.getX() + dx, milestone.getY() + dy);
         RLTile tile = (RLTile) brain.human().getLayer().get_tile(near.getX(), near.getY());
         npcController.set_destination(tile != null && !tile.isPathBlocked()

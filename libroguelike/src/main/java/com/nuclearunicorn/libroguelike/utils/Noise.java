@@ -77,7 +77,7 @@ public class Noise {
   public float noise(float x, float y, float z) {
     if (perlin == null) {
       if (perlinRandom == null) {
-        perlinRandom = Rng.derive();
+        perlinRandom = Rng.derive(Rng.WORLDGEN);
       }
       perlin = new float[PERLIN_SIZE + 1];
       for (int i = 0; i < PERLIN_SIZE + 1; i++) {
@@ -163,7 +163,7 @@ public class Noise {
   }
 
   public void noiseSeed(long what) {
-    if (perlinRandom == null) perlinRandom = Rng.derive();
+    if (perlinRandom == null) perlinRandom = Rng.derive(Rng.WORLDGEN);
     perlinRandom.setSeed(what);
     // force table reset after changing the random number seed [0122]
     perlin = null;

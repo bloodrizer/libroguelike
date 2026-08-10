@@ -44,6 +44,8 @@ import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
 import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
 import com.nuclearunicorn.serialkiller.game.controllers.RLPlayerController;
+import com.nuclearunicorn.serialkiller.game.debug.TownScenario;
+import com.nuclearunicorn.serialkiller.game.debug.WorldProbe;
 import com.nuclearunicorn.serialkiller.game.social.SocialController;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldModel;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLPlayer;
@@ -160,6 +162,12 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         HearingSensor.init();
         PainSensor.init();
         CrimeSensor.init();
+
+        WorldProbe.atReady();   //-Ddebug.world=ready: is this town one connected place?
+
+        //scenario verbs for replay-driven sessions - see TownScenario
+        TownScenario.install();
+        TownScenario.TurnPump.bind(this::makeTurn);
 
         //world is built and taking input - anchor replay playback here, not at frame 0
         Replay.markReady();
@@ -376,6 +384,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
     void makeTurn(){
         turnNumber++;
         GameTurn.advance();
+        WorldProbe.tick();   //-Ddebug.census=<n>: what is the whole town doing?
         NLTimer timer = new NLTimer();
         timer.push();
 
@@ -463,7 +472,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
             System.out.println("Player's item: " + item + " , container:" + item.get_container());
         }*/
 
-        NPCGenerator.generateNPCStats(Rng.derive(), playerEnt);
+        NPCGenerator.generateNPCStats(Rng.derive(Rng.COMBAT), playerEnt);
         playerEnt.setName("Player");
     }
 }

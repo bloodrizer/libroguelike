@@ -37,7 +37,7 @@ public class ChunkGroundGenerator extends ChunkGenerator {
         NLTimer timer = new NLTimer();
         timer.push();
 
-        Random chunk_random = Rng.derive();
+        Random chunk_random = Rng.derive(Rng.WORLDGEN);
         chunk_random.setSeed(chunk.origin.getX()*10000+chunk.origin.getY());    //set chunk-specific seed
 
         //Thread.currentThread().dumpStack();

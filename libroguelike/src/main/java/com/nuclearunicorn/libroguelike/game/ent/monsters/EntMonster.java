@@ -20,7 +20,7 @@ public class EntMonster extends EntityNPC {
         if(killer==null || killer.getContainer() == null){
             return;
         }
-        int chance = (int)(Rng.random()*100);
+        int chance = (int)(Rng.random(Rng.COMBAT)*100);
 
         if (chance<rate){
             killer.getContainer().add_item(

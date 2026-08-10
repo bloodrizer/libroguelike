@@ -36,9 +36,9 @@ public class ChestGenerator extends ObjectGenerator {
 
 
         //chest loot
-        int chance = (int)(Rng.random()*100.0f);
+        int chance = (int)(Rng.random(Rng.WORLDGEN)*100.0f);
         if (chance<70){
-            int count = (int)(Rng.random()*15.0f);
+            int count = (int)(Rng.random(Rng.WORLDGEN)*15.0f);
             chest.container.add_item(
                     BaseItem.produce("copper_coin", count)
             );

@@ -24,7 +24,7 @@ public class AgentContext {
     private final EntityRLHuman owner;
     private final RLController controller;
     private final Voice voice;
-    private final Random rng = Rng.derive();
+    private final Random rng = Rng.derive(Rng.AI);
 
     public AgentContext(EntityRLHuman owner, RLController controller, Voice voice) {
         this.owner = owner;

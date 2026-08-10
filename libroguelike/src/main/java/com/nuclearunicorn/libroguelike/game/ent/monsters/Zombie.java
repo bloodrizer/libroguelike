@@ -50,7 +50,7 @@ public class Zombie extends EntMonster {
              combat.take_damage(new Damage(1, Damage.DamageType.DMG_FIRE));
          }
 
-         if ((int)(Rng.random()*100) < 3){
+         if ((int)(Rng.random(Rng.WORLD)*100) < 3){
              say_message("Braaains!");
          }
          
@@ -61,7 +61,7 @@ public class Zombie extends EntMonster {
     public void die(Entity killer){
         drop_loot(killer,"bone",1,20);
         
-        int coin_count = (int)(Rng.random()*5);
+        int coin_count = (int)(Rng.random(Rng.COMBAT)*5);
         drop_loot(killer,"copper_coin",1,10);
     }
 }

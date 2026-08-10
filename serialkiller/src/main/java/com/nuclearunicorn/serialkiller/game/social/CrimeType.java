@@ -25,7 +25,7 @@ public enum CrimeType {
     private static final List<CrimeType> VALUES =
             Collections.unmodifiableList(Arrays.asList(values()));
     private static final int SIZE = VALUES.size();
-    private static final Random RANDOM = Rng.derive();
+    private static final Random RANDOM = Rng.derive(Rng.AI);
 
     CrimeType(String name) {
         this.displayName = name;

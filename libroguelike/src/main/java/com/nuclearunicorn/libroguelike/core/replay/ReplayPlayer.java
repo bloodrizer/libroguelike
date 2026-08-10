@@ -1,6 +1,7 @@
 package com.nuclearunicorn.libroguelike.core.replay;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.nuclearunicorn.libroguelike.core.Game;
 import com.nuclearunicorn.libroguelike.core.Input;
@@ -35,6 +36,9 @@ public class ReplayPlayer {
         boolean ctrl;
         boolean shift;
         boolean alt;
+        /** Set for a scenario record; when present the frame is a command, not a keypress. */
+        String verb;
+        String[] args;
     }
 
     private final Deque<Frame> pending = new ArrayDeque<>();
@@ -89,7 +93,23 @@ public class ReplayPlayer {
                     continue;
                 }
                 JsonObject obj = gson.fromJson(line, JsonObject.class);
-                if (obj == null || !obj.has("type") || !"input".equals(obj.get("type").getAsString())) {
+                if (obj == null || !obj.has("type")) {
+                    continue;
+                }
+                String type = obj.get("type").getAsString();
+                if ("cmd".equals(type)) {
+                    Frame c = new Frame();
+                    c.frame = obj.get("frame").getAsInt();
+                    c.verb = obj.get("cmd").getAsString();
+                    JsonArray raw = obj.has("args") ? obj.getAsJsonArray("args") : new JsonArray();
+                    c.args = new String[raw.size()];
+                    for (int i = 0; i < raw.size(); i++) {
+                        c.args[i] = raw.get(i).getAsString();
+                    }
+                    frames.add(c);
+                    continue;
+                }
+                if (!"input".equals(type)) {
                     continue;
                 }
                 Frame f = new Frame();
@@ -106,7 +126,7 @@ public class ReplayPlayer {
             System.err.println("replay: cannot read " + path + ": " + e);
             return null;
         }
-        System.out.println("replay: playing " + path + " (" + frames.size() + " inputs)");
+        System.out.println("replay: playing " + path + " (" + frames.size() + " records)");
         return new ReplayPlayer(frames);
     }
 
@@ -122,6 +142,10 @@ public class ReplayPlayer {
 
         while (!pending.isEmpty() && pending.peek().frame <= elapsed) {
             Frame f = pending.poll();
+            if (f.verb != null) {
+                dispatch(f);
+                continue;
+            }
             // Modifier state first: attack is ctrl+direction, and the controller reads the
             // flag when the direction key is handled, not when ctrl was pressed.
             Input.key_state_ctrl = f.ctrl;
@@ -131,6 +155,32 @@ public class ReplayPlayer {
             Replay.observe("replay-input", "frame", Replay.frame(), "key", f.key,
                     "chr", f.chr == 0 ? "" : String.valueOf(f.chr), "ctrl", f.ctrl);
         }
+    }
+
+    /**
+     * Hand a scenario command to the game. Nothing here is reachable outside playback: the
+     * records only exist in a replay file and only this class reads them.
+     */
+    private void dispatch(Frame f) {
+        Scenario handler = Scenario.handler();
+        String line = f.verb + " " + String.join(" ", f.args);
+        if (handler == null) {
+            System.err.println("replay: no scenario handler for '" + line + "'");
+            return;
+        }
+        boolean ok;
+        try {
+            ok = handler.run(f.verb, f.args);
+        } catch (RuntimeException e) {
+            System.err.println("replay: scenario '" + line + "' failed: " + e);
+            Replay.observe("scenario", "cmd", line, "ok", false, "error", String.valueOf(e));
+            return;
+        }
+        if (!ok) {
+            System.err.println("replay: unknown scenario command '" + line + "'");
+        }
+        System.out.println("replay: scenario " + line + (ok ? "" : " (UNKNOWN)"));
+        Replay.observe("scenario", "cmd", line, "ok", ok);
     }
 
     /** Anchor the replay clock to the frame the world became playable. */

@@ -82,15 +82,22 @@ public class FleeAction implements IAIAction, Narrating {
      */
     @Override
     public boolean onObstacle(NpcController npcController, Entity blocker) {
-        if (!(blocker instanceof EntityFurniture) || blocker instanceof EntityDoor) {
-            return false;   // shoving past a bystander is not an escape, and doors just open
-        }
-        if (brain.human().get_combat() == null) {
+        if (!breaksThrough(blocker) || brain.human().get_combat() == null) {
             return false;
         }
         LlmDebug.log("%s: FLEE breaks through %s", brain.human().get_uid(), blocker.getName());
         brain.human().get_combat().inflict_damage(blocker);
         return true;
+    }
+
+    /**
+     * Is this something a panicking person goes <i>through</i>? Furniture and glass, yes.
+     * A door opens, so there is nothing to break; a bystander is a person to be shoved past
+     * rather than attacked, and mistaking one for the other turns every crowded escape into
+     * a massacre.
+     */
+    static boolean breaksThrough(Entity blocker) {
+        return blocker instanceof EntityFurniture && !(blocker instanceof EntityDoor);
     }
 
     @Override

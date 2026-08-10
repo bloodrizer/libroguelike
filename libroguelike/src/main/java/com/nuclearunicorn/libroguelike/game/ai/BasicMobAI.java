@@ -64,9 +64,9 @@ public class BasicMobAI extends AI{
     }
 
     protected void actionRoaming(NpcController npc_ctrl){
-        if (npc_ctrl.path == null && (int)(Rng.random() * 20) < 25 ){
-            int x = owner.origin.getX() + 5 - (int)(Rng.random() * 10);
-            int y = owner.origin.getY() + 5 - (int)(Rng.random() * 10);
+        if (npc_ctrl.path == null && (int)(Rng.random(Rng.AI) * 20) < 25 ){
+            int x = owner.origin.getX() + 5 - (int)(Rng.random(Rng.AI) * 10);
+            int y = owner.origin.getY() + 5 - (int)(Rng.random(Rng.AI) * 10);
 
             npc_ctrl.set_destination(new Point(x,y));
         }

@@ -19,7 +19,7 @@ public class NPCStats {
 
     //TODO : seed initialization
     public NPCStats(){
-        rand = Rng.derive();
+        rand = Rng.derive(Rng.COMBAT);
 
         str = rand.nextInt(7)+3;
         per = rand.nextInt(7)+3;

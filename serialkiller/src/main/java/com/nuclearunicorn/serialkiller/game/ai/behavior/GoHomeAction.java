@@ -56,7 +56,7 @@ public class GoHomeAction implements IAIAction {
         if (!npcController.hasPath()) {
             routeToBed(npcController, apt);
         }
-        if ((int) (Rng.random() * 100) >= 15) {
+        if ((int) (Rng.random(Rng.AI) * 100) >= 15) {
             npcController.follow_path();
         }
     }

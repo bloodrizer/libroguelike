@@ -9,6 +9,7 @@ import com.nuclearunicorn.serialkiller.game.world.RLWorldChunk;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntLadder;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLActor;
 import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
+import com.nuclearunicorn.libroguelike.utils.Rng;
 import org.lwjgl.util.Point;
 import org.newdawn.slick.Color;
 
@@ -21,7 +22,7 @@ import java.util.Random;
  */
 public class BasementGenerator extends ChunkGenerator {
 
-    int seed;
+    long seed;
     Random chunk_random;
     RLWorldChunk chunk;
 
@@ -35,7 +36,9 @@ public class BasementGenerator extends ChunkGenerator {
             throw new RuntimeException("trying to generate non-RLWorldChunk element");
         }
 
-        seed = chunk.origin.getX()*10000 + chunk.origin.getY();
+        //per chunk so regenerating one reproduces it, and per session seed so the seed means
+        //something - it used to be x*10000+y alone, making every seed the same town
+        seed = Rng.chunkSeed(Rng.WORLDGEN, chunk.origin.getX(), chunk.origin.getY());
         chunk_random = new Random(seed);
 
 

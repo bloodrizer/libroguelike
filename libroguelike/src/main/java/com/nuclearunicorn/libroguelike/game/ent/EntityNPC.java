@@ -28,7 +28,7 @@ public class EntityNPC extends EntityActor {
     }
     public String race = "female";
     {
-        if (Rng.random() > 0.25f){
+        if (Rng.random(Rng.WORLDGEN) > 0.25f){
            race = "male";
         }
     }

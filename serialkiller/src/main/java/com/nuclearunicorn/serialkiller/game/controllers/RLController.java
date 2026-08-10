@@ -70,7 +70,7 @@ public class RLController extends NpcController {
                 return;
             }
             prefixPath.remove(0);
-            debugPath.addAll(prefixPath);
+            append(debugPath, prefixPath);
         }
 
         this.adaptivePathPool.clear();
@@ -105,7 +105,7 @@ public class RLController extends NpcController {
                         tmpPath.remove(0);
                     }
                 }
-                debugPath.addAll(tmpPath);
+                append(debugPath, tmpPath);
             }
             prevNode = node;
         }
@@ -119,12 +119,32 @@ public class RLController extends NpcController {
                 return;
             }
             postfixPath.remove(0);
-            debugPath.addAll(postfixPath);
+            append(debugPath, postfixPath);
         }
 
         quietAstar = false;
+        checkPath(debugPath, "adaptive");   //the assembled route, not just its legs
         this.path = debugPath;
         this.destination = target;
+    }
+
+    /**
+     * Add a leg to the route, dropping its first point if we are already standing on it.
+     *
+     * <p>A Bresenham leg starts at the milestone the previous leg ended on, so joining them
+     * naively repeats every junction. A repeated point is a step to where you already are:
+     * the walker spends a turn deciding not to move, once per milestone, for the length of
+     * the trip. Cheap to lose, invisible without {@code -Ddebug.path=validate}.
+     */
+    private static void append(List<Point> route, List<Point> leg) {
+        int from = 0;
+        if (!route.isEmpty() && !leg.isEmpty()
+                && route.get(route.size() - 1).equals(leg.get(0))) {
+            from = 1;
+        }
+        for (int i = from; i < leg.size(); i++) {
+            route.add(leg.get(i));
+        }
     }
 
     /**

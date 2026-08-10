@@ -13,7 +13,7 @@ public class NameGenerator {
 
     //.class.getResourceAsStream(FONT_PATH)
 
-    Random namesRandom = Rng.derive();
+    Random namesRandom = Rng.derive(Rng.NAMES);
 
     static List<String> male = new ArrayList<String>(1024);
     static List<String> female = new ArrayList<String>(1024);

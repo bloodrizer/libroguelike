@@ -17,7 +17,10 @@ import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.utils.NLTimer;
 import com.nuclearunicorn.libroguelike.utils.Timer;
+import com.nuclearunicorn.libroguelike.core.debug.DebugFlags;
+import com.nuclearunicorn.libroguelike.utils.pathfinder.PathCheck;
 import com.nuclearunicorn.libroguelike.utils.pathfinder.astar.Mover;
+import com.nuclearunicorn.libroguelike.utils.pathfinder.astar.TileBasedMap;
 import com.nuclearunicorn.libroguelike.utils.pathfinder.astar.implementation.AStarPathFinder;
 import org.lwjgl.util.Point;
 
@@ -56,26 +59,24 @@ public class NpcController extends BaseController implements Mover, IEventListen
     static int MAX_SEARCH_DISTANCE = 120;
 
     private AStarPathFinder finder;
-    
+    /** The pathfinder's own view of the world, kept so a route can be checked against it. */
+    private TileBasedMap navMap;
+
     public static int pathfinderRequests = 0;
     public static long totalAstarCalculationTime = 0;
 
     public NpcController(){
         ClientEventManager.subscribe(this);
 
-        finder = new AStarPathFinder( 
-            ClientGameEnvironment.getWorldLayer(Player.get_zindex()).tile_map,
-            MAX_SEARCH_DISTANCE,
-            ALLOW_DIAGONAL_MOVEMENT);
+        navMap = ClientGameEnvironment.getWorldLayer(Player.get_zindex()).tile_map;
+        finder = new AStarPathFinder(navMap, MAX_SEARCH_DISTANCE, ALLOW_DIAGONAL_MOVEMENT);
     }
 
     public NpcController(GameEnvironment env){
         env.getEventManager().subscribe(this);
         
-        finder = new AStarPathFinder(
-            env.getWorldLayer(Player.get_zindex()).tile_map,
-            50,
-            ALLOW_DIAGONAL_MOVEMENT);
+        navMap = env.getWorldLayer(Player.get_zindex()).tile_map;
+        finder = new AStarPathFinder(navMap, 50, ALLOW_DIAGONAL_MOVEMENT);
     }
     
     public boolean hasPath(){
@@ -160,7 +161,8 @@ public class NpcController extends BaseController implements Mover, IEventListen
         }
 
         NpcController.totalAstarCalculationTime += astarTimer.popDiff();
-        
+
+        checkPath(astarPath, "astar", true);
         return astarPath;
     }
 
@@ -272,6 +274,45 @@ public class NpcController extends BaseController implements Mover, IEventListen
         );
     }
 
+
+    /**
+     * Hold a route to the two things a route has to be — contiguous, and clear of anything the
+     * pathfinder itself calls blocked. Off unless {@code -Ddebug.path=validate}; see
+     * {@link PathCheck} for why these two and not others.
+     */
+    public void checkPath(List<Point> candidate, String where) {
+        checkPath(candidate, where, false);
+    }
+
+    /**
+     * @param orthogonalOnly the route came straight out of A*, which runs with diagonal
+     *                       movement off - so a diagonal step in it is a defect, where in an
+     *                       assembled milestone route it is just a straight line.
+     */
+    public void checkPath(List<Point> candidate, String where, boolean orthogonalOnly) {
+        if (!DebugFlags.validatePaths() || candidate == null) {
+            return;
+        }
+        if (orthogonalOnly) {
+            int diagonal = PathCheck.firstDiagonal(candidate);
+            if (diagonal >= 0) {
+                DebugFlags.violation("path-diagonal", where + " step " + diagonal + " cuts from "
+                        + candidate.get(diagonal - 1) + " to " + candidate.get(diagonal)
+                        + " (ent " + owner.get_uid() + ")");
+            }
+        }
+        int gap = PathCheck.firstGap(candidate);
+        if (gap >= 0) {
+            DebugFlags.violation("path-gap", where + " step " + gap + " jumps from "
+                    + candidate.get(gap - 1) + " to " + candidate.get(gap)
+                    + " (ent " + owner.get_uid() + ")");
+        }
+        int blocked = PathCheck.firstBlocked(candidate, navMap, this);
+        if (blocked >= 0) {
+            DebugFlags.violation("path-blocked", where + " step " + blocked + " at "
+                    + candidate.get(blocked) + " is impassable (ent " + owner.get_uid() + ")");
+        }
+    }
 
     /**
      * Someone has been standing in our way for {@link #BLOCKED_PATIENCE} turns. Whether we may

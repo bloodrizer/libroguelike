@@ -7,12 +7,20 @@ directly instead of needing someone to sit down and play it.
 The file carries a seed, so replaying it regenerates the same town, names and rolls.
 Pass --seed to pin a specific one; otherwise a fresh seed is rolled per file.
 
-Actions:
+Actions (keyboard):
     wait <frames>       do nothing (use one at the start: the world has to generate)
     walk <wasd> [n]     step n times
     attack <wasd> [n]   step n times with ctrl held (ctrl+direction is the attack)
     say <text>          open talk mode, type the line, press Enter
     key <name> [n]      raw key by name, n times
+
+Actions (scenario) - state the situation instead of navigating to it. These are honoured
+only while a replay is driving the session, so they cannot be used as a console:
+    tp <x> <y>          put the player here
+    hurt <who> [times]  the player strikes them; who is "nearest", a name, or a uid prefix
+    spawn <kind> <x> <y>  kind is pedestrian|police
+    settime <hour>      0-23
+    tick [n]            advance n turns without needing a keypress to do it
 
 Frames are 1/60s. Actions are spaced by --gap frames (default 20) so each keypress
 lands on its own turn rather than arriving as a burst.
@@ -30,6 +38,9 @@ K = {
 DIRS = {'w': 'w', 'a': 'a', 's': 's', 'd': 'd',
         'up': 'up', 'down': 'down', 'left': 'left', 'right': 'right'}
 
+# Verbs handled by the game rather than the keyboard - see TownScenario.
+SCENARIO = {'tp', 'hurt', 'spawn', 'settime', 'tick'}
+
 
 def build(script, gap, start):
     out, frame = [], start
@@ -38,6 +49,11 @@ def build(script, gap, start):
         nonlocal frame
         out.append({"type": "input", "frame": frame, "key": key,
                     "chr": chr_, "ctrl": ctrl, "shift": False, "alt": False})
+        frame += gap
+
+    def cmd(verb, args):
+        nonlocal frame
+        out.append({"type": "cmd", "frame": frame, "cmd": verb, "args": list(args)})
         frame += gap
 
     for raw in script.split(';'):
@@ -61,6 +77,8 @@ def build(script, gap, start):
             name = args[0].lower()
             for _ in range(int(args[1]) if len(args) > 1 else 1):
                 press(K[name], name if len(name) == 1 else '')
+        elif verb in SCENARIO:
+            cmd(verb, args)
         else:
             raise SystemExit(f"unknown action: {verb}")
     return out, frame
@@ -86,7 +104,9 @@ def main():
                             "seed": seed, "generated": a.script}) + "\n")
         for r in records:
             f.write(json.dumps(r) + "\n")
-    print(f"wrote {a.out}: {len(records)} inputs, seed {seed}, "
+    inputs = sum(1 for r in records if r['type'] == 'input')
+    cmds = len(records) - inputs
+    print(f"wrote {a.out}: {inputs} inputs, {cmds} scenario cmds, seed {seed}, "
           f"last at frame {last} (~{last/60:.1f}s)")
 
 

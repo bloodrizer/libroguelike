@@ -274,11 +274,13 @@ public class Block {
         RLTile tile = (RLTile)(layer.get_tile(x,y));
 
         if ( tile!=null ){
-            //a doorway counts as taken: dropping a prop in one seals the room behind it
+            //a doorway counts as taken: dropping a prop in one seals the room behind it,
+            //and so does a tile that already holds a prop - a bed is walkable, which used
+            //to make it a perfectly good place to set down a crate
             if (tile.isWall() || tile.isWallGap() || tile.isBlocked()){
                 return true;
             }
-            return false;
+            return tile.has_ent(com.nuclearunicorn.serialkiller.game.world.entities.EntityFurniture.class);
         }
 
         return true;

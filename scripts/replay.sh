@@ -17,6 +17,7 @@
 #   SPEED=1.0     playback rate. >1 fast-forwards the *input*; async inference does not
 #                 speed up with it, so a fast replay will outrun the NPC brains.
 #   TAIL=600      frames to keep running after the last input (10s at 60fps)
+#   DEBUG=...     extra -D flags, e.g. DEBUG="world=ready census=50 path=validate strict=true"
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -28,12 +29,18 @@ MODE="${1:-}"
 llm_flag=()
 [ "${LLM:-1}" = "0" ] && llm_flag=(-Dllm.enabled=false)
 
+# DEBUG="world=ready census=50" -> -Ddebug.world=ready -Ddebug.census=50. See DebugFlags.
+debug_flags=()
+for opt in ${DEBUG:-}; do
+  debug_flags+=("-Ddebug.${opt}")
+done
+
 case "$MODE" in
   record)
     OUT="${2:-replays/$(date +%m-%d-%H:%M).jsonl}"
     mkdir -p "$(dirname "$OUT")"
     echo "recording to $OUT - play, then quit (Esc to menu, or close the window)"
-    exec java -Dreplay.record="$OUT" "${llm_flag[@]}" -jar "$JAR"
+    exec java -Dreplay.record="$OUT" "${llm_flag[@]}" "${debug_flags[@]}" -jar "$JAR"
     ;;
   play)
     IN="${2:-}"
@@ -48,11 +55,11 @@ case "$MODE" in
       -Dreplay.speed="${SPEED:-1.0}" \
       -Dreplay.tailFrames="${TAIL:-600}" \
       -Dreplay.exitAtEnd=true \
-      "${hidden[@]}" "${llm_flag[@]}" \
+      "${hidden[@]}" "${llm_flag[@]}" "${debug_flags[@]}" \
       -jar "$JAR"
     ;;
   *)
-    sed -n '2,16p' "$0" | sed 's/^# \{0,1\}//'
+    sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'
     exit 1
     ;;
 esac

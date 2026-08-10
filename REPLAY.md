@@ -34,6 +34,30 @@ Scenarios can also be written directly, which is what tests should do:
 Actions: `wait <frames>`, `walk <wasd> [n]`, `attack <wasd> [n]`, `say <text>`,
 `key <name> [n]`. Frames are 1/60s.
 
+### Scenario commands
+
+A scenario can also **state its situation** instead of navigating to it:
+
+```sh
+./scripts/mkreplay.py flee.jsonl "tick 2; tp 77 44; hurt nearest 3; tick 40"
+```
+
+| verb | effect |
+|---|---|
+| `tp <x> <y>` | put the player here |
+| `hurt <who> [times]` | the player strikes them; `who` is `nearest`, a name, or a uid prefix |
+| `spawn <kind> <x> <y>` | `kind` is `pedestrian` or `police` |
+| `settime <hour>` | 0-23. The clock starts at 21:00, so daytime otherwise costs 600 turns of waiting |
+| `tick [n]` | advance n turns — **the only way to pass time without a keypress**, since turns advance on player input and `wait` burns frames, not turns |
+
+These are honoured **only while a replay is driving the session**. There is no console; the
+records do nothing in a normal run.
+
+`hurt` is the one that earns its keep. Panic, flight, the police report and the whole crime
+pipeline hang off one NPC being struck by the player. Scripted through the keyboard that
+means solving the building as a maze and hoping the swing connects — an earlier attempt took
+six runs and never landed a blow. As `tp` then `hurt` it is two lines and it works every time.
+
 ### Options
 
 | Flag / env | Default | Meaning |
@@ -46,15 +70,38 @@ Actions: `wait <frames>`, `walk <wasd> [n]`, `attack <wasd> [n]`, `say <text>`,
 | `SHOW=1` | off | show the window during playback |
 | `LLM=0` | off | force LLM NPCs off (fast, FSM only) |
 | `-Dreplay.seed=<long>` | recorded | override the seed; see [Determinism](#determinism) |
+| `DEBUG="..."` | off | debug flags, e.g. `DEBUG="world=ready census=50 path=validate"` |
 
 `SPEED>1` fast-forwards the *input* only. Inference does not speed up with it, so a fast
 replay outruns the very NPC reactions you are trying to observe.
+
+## Debug probes
+
+Standing instruments, off by default. Findings go to stderr as `DEBUG-*` lines and into the
+replay log as observations. `DEBUG="a=b c=d"` on `replay.sh` becomes `-Ddebug.a=b -Ddebug.c=d`.
+
+| flag | what it answers |
+|---|---|
+| `path=validate` | is every route contiguous, non-diagonal where A* built it, and clear of anything the pathfinder itself calls blocked? |
+| `world=ready` | is the town **one connected place**, and can everyone reach a bed? One dump at world-ready |
+| `census=<n>` | every n turns, a town-wide tally: states, who is in bed, who holds a route, and **who actually moved** |
+| `strict=true` | a violated check throws instead of printing — for a CI run |
+
+`census` exists because the `npc` record only covers humans within twelve tiles of the
+player, which answers "did this NPC react to me" and not "does the town work". Measuring a
+commute from a near-player sample reads as broken whenever the player walks somewhere quiet.
+The telling column is `moving`: NPCs holding a route but not advancing along it are queued
+behind something that will never shift.
+
+`world=ready` earns its place too — it is what found that furniture placed in doorways had
+split the town into four components with 3 of 46 beds reachable, a generator bug that was
+invisible until an NPC needed to walk through it.
 
 ## File format
 
 JSONL, two kinds of record.
 
-**`input`** — the only thing played back:
+**`input`** — a keypress, played back at its recorded frame:
 
 ```json
 {"type":"input","frame":700,"key":84,"chr":"t","ctrl":false,"shift":false,"alt":false}
@@ -62,6 +109,12 @@ JSONL, two kinds of record.
 
 Modifiers are recorded because attack is **ctrl+direction** — a replay that dropped
 `key_state_ctrl` would silently turn every attack into a walk.
+
+**`cmd`** — a scenario command, dispatched at its frame (playback only):
+
+```json
+{"type":"cmd","frame":320,"cmd":"tp","args":["77","44"]}
+```
 
 **Observations** — never replayed; this is the output you read and diff:
 
@@ -72,6 +125,9 @@ Modifiers are recorded because attack is **ctrl+direction** — a replay that dr
 | `say` | every line spoken, by anyone |
 | `damage` | attacker, target, amount, type |
 | `trace` | LLM pipeline lines — sensing, queueing, plans, resolution |
+| `census` | town-wide tally, with `-Ddebug.census` |
+| `world` | connectivity summary, with `-Ddebug.world=ready` |
+| `scenario` | each command that ran, and whether it was understood |
 | `ready` / `replay-end` / `footer` | session boundaries |
 
 The `npc` record is the one that makes "the NPC ignored me" diagnosable:
@@ -119,6 +175,13 @@ before the world is built. Replaying a file therefore regenerates the same town,
 names, the same roaming and the same combat rolls. Two runs of the same file with `LLM=0`
 are byte-identical.
 
+Randomness is split into **independent named streams** — `worldgen`, `names`, `ai`,
+`combat`, `world`. A stream is a function of the seed and its name alone, not of what any
+other stream has consumed. With one shared sequence, changing where a crate goes reshuffled
+the names, the combat and the AI too, so a fixed seed stopped meaning "the same town" the
+moment anyone touched the generator — which is exactly when a before/after comparison is
+worth most.
+
 ```json
 {"type":"header","version":2,"seed":424242,"recorded":"...","llmEnabled":"(config)"}
 ```
@@ -126,6 +189,13 @@ are byte-identical.
 Pass `-Dreplay.seed=<n>` to override the recorded seed and re-roll one scenario
 deliberately; `mkreplay.py` takes `--seed` and otherwise rolls a fresh one per file. A v1
 file (no `seed`) still plays, it just picks a new seed each time.
+
+The seed reaches the town itself. Chunk generation used to seed from `x*10000 + y` — the map
+coordinates and nothing else — so every seed built the identical town and `--seed` varied
+only the names and the rolls. It now mixes the session seed in, keeping the property the
+generators actually relied on (regenerating a chunk reproduces it) while making the seed
+mean something. Run a few seeds before trusting a result: a bug that reproduces on one town
+and not the next is a bug about that town's shape.
 
 This matters more than it sounds. Before the seed, "walk up to your spouse and hit her"
 reproduced about half the time — whether the blow landed depended on whether she happened

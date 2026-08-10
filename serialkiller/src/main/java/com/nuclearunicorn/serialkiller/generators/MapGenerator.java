@@ -12,14 +12,14 @@ public class MapGenerator {
     private int MIN_BLOCK_SIZE = 1800;
     private boolean MERGE_BLOCKS = false;
 
-    private Random random = Rng.derive();
-    public int chunkSeed = 123456;
+    private Random random = Rng.derive(Rng.WORLDGEN);
+    public long chunkSeed = 123456;
 
     public MapGenerator(Block block){
         refSize = block.getArea();
     }
 
-    public void setSeed(int seed){
+    public void setSeed(long seed){
         chunkSeed = seed;
         random.setSeed(seed);
     }
