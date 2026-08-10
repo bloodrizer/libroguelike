@@ -42,7 +42,8 @@ public class PoliceAI extends PedestrianAI {
         // An officer does not flee, and does not go home at dusk. Removing the inherited
         // impulses says that once, here, instead of guarding every behaviour with a role test.
         removeImpulse("threat");
-        removeImpulse("night");
+        removeImpulse("night");    //the walk home...
+        removeImpulse("asleep");   //...and the bed at the end of it
 
         registerImpulse(PRIORITY_SUSPECT, new PursueAction.Trigger(this));
         registerImpulse(PRIORITY_CRIME_SCENE, new InvestigateAction.Trigger(this));

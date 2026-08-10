@@ -2,18 +2,17 @@ package com.nuclearunicorn.serialkiller.game.ai.behavior;
 
 import com.nuclearunicorn.libroguelike.game.ai.IAIAction;
 import com.nuclearunicorn.libroguelike.game.ai.Impulse;
-import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.ent.controller.NpcController;
-import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.WorldTimer;
-import com.nuclearunicorn.libroguelike.utils.Rng;
 import com.nuclearunicorn.serialkiller.game.ai.TownAI;
-import com.nuclearunicorn.serialkiller.game.controllers.RLController;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityBed;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
-import com.nuclearunicorn.serialkiller.generators.Apartment;
 
-/** Go home and get into bed. Runs from nightfall until something more pressing happens. */
+/**
+ * In bed, out for the night. Getting there is {@link GoHomeAction} — this state means the
+ * NPC is actually on the bed, which is what makes it safe for the renderer and the info
+ * panel to say so.
+ */
 public class SleepAction implements IAIAction {
 
     public static final String STATE = "ai_state_SLEEPING";
@@ -26,55 +25,18 @@ public class SleepAction implements IAIAction {
 
     @Override
     public void act(NpcController npcController) {
-        if (npcController == null) {
-            return;
-        }
-        Apartment apt = brain.human().getApartment();
-        if (apt == null) {
-            if (npcController.hasPath()) {
-                npcController.clearPath();
-            }
-            return;   //little optimization for homeless npc
-        }
-        if (inBed()) {
-            npcController.clearPath();
-            return;
-        }
-
-        //force NPC to switch old path and move to bed
-        if (npcController.hasPath()) {
-            WorldTile target = brain.human().getLayer().getTile(npcController.destination);
-            boolean headingForFreeBed = target != null
-                    && target.has_ent(EntityBed.class) && !target.has_ent(EntityRLHuman.class);
-            if (!headingForFreeBed) {
-                npcController.clearPath();   //otherwise, recalculate new path
-            }
-        }
-        if (!npcController.hasPath()) {
-            routeToBed(npcController, apt);
-        }
-        if ((int) (Rng.random() * 100) >= 15) {
-            npcController.follow_path();
+        if (npcController != null && npcController.hasPath()) {
+            npcController.clearPath();   //asleep: wherever we were going can wait for morning
         }
     }
 
-    private void routeToBed(NpcController npcController, Apartment apt) {
-        if (apt.beds == null || apt.beds.isEmpty()) {
-            return;
-        }
-        for (Entity bed : apt.beds) {
-            if (!bed.tile.has_ent(EntityRLHuman.class)) {
-                ((RLController) npcController).calculateAdaptivePath(brain.human().origin, bed.origin);
-                return;
-            }
-        }
+    /** Standing on a bed at home. The one condition under which a Z is not a lie. */
+    public static boolean inBed(EntityRLHuman human) {
+        return human.getApartment() != null
+                && human.tile != null && human.tile.has_ent(EntityBed.class);
     }
 
-    private boolean inBed() {
-        return brain.human().getApartment() != null && brain.human().tile.has_ent(EntityBed.class);
-    }
-
-    /** Night, and somewhere to sleep. Police decline this one — see PoliceAI. */
+    /** Night, and already in bed. Police decline this one — see PoliceAI. */
     public static class Trigger implements Impulse {
 
         private final TownAI brain;
@@ -85,7 +47,7 @@ public class SleepAction implements IAIAction {
 
         @Override
         public String name() {
-            return "night";
+            return "asleep";
         }
 
         @Override
@@ -95,7 +57,7 @@ public class SleepAction implements IAIAction {
 
         @Override
         public boolean isRelevant() {
-            return WorldTimer.is_night() && brain.human().getApartment() != null;
+            return WorldTimer.is_night() && inBed(brain.human());
         }
     }
 }

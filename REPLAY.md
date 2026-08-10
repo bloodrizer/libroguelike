@@ -89,7 +89,10 @@ NPC's transcript: an NPC that talks like it has never met you while this reads n
 a prompt problem, not a memory one.
 
 `brain` is the AI class and `state` the behaviour currently holding the body
-(`FLEEING` / `PURSUING` / `INVESTIGATING` / `PATROLLING` / `SLEEPING` / `DELIBERATE`).
+(`FLEEING` / `PURSUING` / `INVESTIGATING` / `PATROLLING` / `GOING_HOME` / `SLEEPING` /
+`DELIBERATE`). `GOING_HOME` is the walk home at dusk and `SLEEPING` is being in the bed at
+the end of it — an NPC that moves while `SLEEPING` is a bug, one that moves while
+`GOING_HOME` is a commute.
 `threat`, `suspect` and `scene` are what the NPC *believes* — who hurt it, who is wanted,
 where the last unattended crime was — and they are the inputs the impulses read, so a
 `Policeman` sitting at `PATROLLING` with `suspect=no` never got told about the crime,

@@ -3,6 +3,7 @@ package com.nuclearunicorn.serialkiller.game.ai;
 import com.nuclearunicorn.libroguelike.events.Event;
 import com.nuclearunicorn.serialkiller.game.ai.behavior.DeliberateAction;
 import com.nuclearunicorn.serialkiller.game.ai.behavior.FleeAction;
+import com.nuclearunicorn.serialkiller.game.ai.behavior.GoHomeAction;
 import com.nuclearunicorn.serialkiller.game.ai.behavior.PatrolAction;
 import com.nuclearunicorn.serialkiller.game.ai.behavior.SleepAction;
 import com.nuclearunicorn.serialkiller.game.ai.llm.sense.GameTurn;
@@ -33,6 +34,7 @@ public class PedestrianAI extends TownAI {
         super();
 
         registerState(FleeAction.STATE, new FleeAction(this));
+        registerState(GoHomeAction.STATE, new GoHomeAction(this));
         registerState(SleepAction.STATE, new SleepAction(this));
         registerState(PatrolAction.STATE, new PatrolAction(this));
         registerState(DeliberateAction.STATE, new DeliberateAction(this));
@@ -42,7 +44,10 @@ public class PedestrianAI extends TownAI {
         // drift home only once the plan runs out. Below it and a town with inference on
         // simply goes to bed at dusk and stops being worth watching.
         registerImpulse(PRIORITY_PLAN, new DeliberateAction.Trigger(this));
+        // The night is two states, not one: walking home, then being in the bed. They split
+        // on "are we there yet", so only one of the pair is ever relevant.
         registerImpulse(PRIORITY_NIGHT, new SleepAction.Trigger(this));
+        registerImpulse(PRIORITY_NIGHT, new GoHomeAction.Trigger(this));
         registerImpulse(PRIORITY_PATROL, new PatrolAction.Trigger());
     }
 

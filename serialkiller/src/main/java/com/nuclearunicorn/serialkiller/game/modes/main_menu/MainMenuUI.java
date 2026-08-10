@@ -46,7 +46,7 @@ public class MainMenuUI implements IUserInterface, IEventListener {
         if (event instanceof EKeyPress){
             if (((EKeyPress) event).key == Keyboard.KEY_ESCAPE){
                 event.dispatch();
-                
+
                 SkillerGame game;
                 if (Main.game != null){
                     game = Main.game;

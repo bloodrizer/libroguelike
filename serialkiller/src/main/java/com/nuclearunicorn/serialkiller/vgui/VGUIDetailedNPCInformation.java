@@ -5,6 +5,7 @@ import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_FrameModern;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_Text;
+import com.nuclearunicorn.serialkiller.game.ai.behavior.GoHomeAction;
 import com.nuclearunicorn.serialkiller.game.ai.behavior.SleepAction;
 import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
 import com.nuclearunicorn.serialkiller.game.combat.NPCStats;
@@ -78,6 +79,9 @@ public class VGUIDetailedNPCInformation extends NE_GUI_FrameModern{
         if (ent.getAI() != null){
             if (ent.getAI().getState() == SleepAction.STATE){
                 info.add_line(prefix + " is sleeping with a happy smile on a face");    //todo: implement mood
+            }
+            if (ent.getAI().getState() == GoHomeAction.STATE){
+                info.add_line(prefix + " is on the way home to bed");
             }
 
             if (Input.key_state_alt){
