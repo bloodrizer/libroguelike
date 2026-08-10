@@ -612,9 +612,15 @@ public class TownChunkGenerator extends ChunkGenerator {
         return candidates.get(chunk_random.nextInt(candidates.size()));
     }
 
+    /**
+     * Somewhere a prop may stand. Doorways and window frames are excluded: furnishing runs
+     * after the doors are punched, so a gap in a wall is not a wall and is next to one —
+     * exactly what {@link #wallAdjacentFreeTile} looks for. A crate in the only doorway
+     * seals the room behind it, and the pathfinder can do nothing but declare it unreachable.
+     */
     private boolean isFreeFloor(int x, int y) {
         RLTile tile = (RLTile)(getLayer().get_tile(x, y));
-        return tile != null && !tile.isWall() && !tile.isBlocked();
+        return tile != null && !tile.isWall() && !tile.isWallGap() && !tile.isBlocked();
     }
 
     private boolean nextToWall(int x, int y) {
@@ -625,6 +631,17 @@ public class TownChunkGenerator extends ChunkGenerator {
     private boolean isWallTile(int x, int y) {
         RLTile tile = (RLTile)(getLayer().get_tile(x, y));
         return tile != null && tile.isWall();
+    }
+
+    /** True if a door or window opens onto this tile — the one square that must stay clear. */
+    private boolean nextToWallGap(int x, int y) {
+        return isWallGapTile(x - 1, y) || isWallGapTile(x + 1, y)
+            || isWallGapTile(x, y - 1) || isWallGapTile(x, y + 1);
+    }
+
+    private boolean isWallGapTile(int x, int y) {
+        RLTile tile = (RLTile)(getLayer().get_tile(x, y));
+        return tile != null && tile.isWallGap();
     }
 
     private void generateRoads(Block block) {
@@ -1225,7 +1242,8 @@ public class TownChunkGenerator extends ChunkGenerator {
                 }
                 boolean adjacentToWall = m.getWorld(wx-1, wy) || m.getWorld(wx+1, wy)
                                       || m.getWorld(wx, wy-1) || m.getWorld(wx, wy+1);
-                if (adjacentToWall && chunk_random.nextInt(100) < 5){
+                //never right outside a door or window - a crate on the step is a locked house
+                if (adjacentToWall && !nextToWallGap(wx, wy) && chunk_random.nextInt(100) < 5){
                     EntityFurniture crate = new EntityFurniture();
                     placeEntity(wx, wy, crate, "crate", "x", new Color(150, 110, 60));
                     crate.get_combat().set_hp(15);

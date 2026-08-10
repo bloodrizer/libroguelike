@@ -12,6 +12,8 @@ import com.nuclearunicorn.serialkiller.game.ai.mind.Percept;
 import com.nuclearunicorn.serialkiller.game.ai.mind.Tuning;
 import com.nuclearunicorn.serialkiller.game.controllers.RLController;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldChunk;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntityDoor;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntityFurniture;
 import org.lwjgl.util.Point;
 
 import java.util.List;
@@ -70,6 +72,25 @@ public class FleeAction implements IAIAction, Narrating {
         if (brain.deliberation() != null) {
             brain.deliberation().flushSpeech();   // running for your life does not make you mute
         }
+    }
+
+    /**
+     * Cornered. The pathfinder will not route anyone through a window, so a panicking NPC only
+     * ever walks into one when {@link NpcController#escapeTarget} has backed them into a dead
+     * end — and someone with a knife behind them goes through the glass rather than turn round.
+     * The commute does not get this; see {@link TownAI#e_on_obstacle}.
+     */
+    @Override
+    public boolean onObstacle(NpcController npcController, Entity blocker) {
+        if (!(blocker instanceof EntityFurniture) || blocker instanceof EntityDoor) {
+            return false;   // shoving past a bystander is not an escape, and doors just open
+        }
+        if (brain.human().get_combat() == null) {
+            return false;
+        }
+        LlmDebug.log("%s: FLEE breaks through %s", brain.human().get_uid(), blocker.getName());
+        brain.human().get_combat().inflict_damage(blocker);
+        return true;
     }
 
     @Override

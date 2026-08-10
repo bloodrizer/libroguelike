@@ -1,5 +1,6 @@
 package com.nuclearunicorn.serialkiller.game.world;
 
+import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
 import org.newdawn.slick.Color;
@@ -134,6 +135,29 @@ public class RLTile extends WorldTile {
             return true;
         }
         return super.isBlocked();
+    }
+
+    /**
+     * Blocked by something that will not move out of the way on its own: a wall, a tree, a
+     * crate, a shut door, a window. This is the question a <i>route</i> asks, and it is not
+     * the same as {@link #isBlocked()}, which also counts people.
+     *
+     * <p>People are excluded deliberately. They walk on; a pathfinder that treats the
+     * neighbour standing in the doorway as masonry declares the house sealed and sends the
+     * whole household in through a window instead.
+     */
+    public boolean isPathBlocked(){
+        if (isWall){
+            return true;
+        }
+        Object[] list = ent_list.toArray();
+        for (int i = list.length-1; i >= 0; i--){
+            Entity entity = (Entity)list[i];
+            if (entity.is_blocking() && entity.controller == null){
+                return true;
+            }
+        }
+        return false;
     }
 
     public float getBloodAmt() {

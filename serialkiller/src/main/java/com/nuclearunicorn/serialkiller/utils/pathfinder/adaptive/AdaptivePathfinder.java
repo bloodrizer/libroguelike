@@ -65,7 +65,10 @@ public class AdaptivePathfinder {
         for (Point step: line){
             i++;
             RLTile rlTile = (RLTile)chunk.tile_data.get(step);
-            if (rlTile.isWall() || rlTile.has_ent(EntityTree.class)){
+            //Deliberately coarse: only masonry and trees break an edge. A lamppost or a crate
+            //on the line is routed around per-segment by RLController.calculateAdaptivePath -
+            //rejecting the edge over one instead shreds the road graph and strands NPCs.
+            if (rlTile == null || rlTile.isWall() || rlTile.has_ent(EntityTree.class)){
                 //System.out.println("debug: bresinham collision on step #"+i);
                 return -1;
             }

@@ -109,6 +109,18 @@ public class RLWorldLayer extends WorldLayer {
             super(layer);
         }
 
+        /**
+         * What a route may not cross. Walls and anything solid that will not move on its own -
+         * a tree, a crate, a window, a shut door.
+         *
+         * <p>This used to answer {@code tile.isWall()} alone, with solid furniture expressed as
+         * mere <i>cost</i>. That made every window a legal one-tile shortcut into a house whose
+         * door was on the far side, so A* deliberately routed residents through the glass; the
+         * step then failed, the obstacle handler broke whatever was in the way, and the shortcut
+         * became real. NPCs burgled their own homes nightly and the town lost its windows.
+         *
+         * <p>People stay passable on purpose - see {@link RLTile#isPathBlocked()}.
+         */
         @Override
         public boolean blocked(Mover mover, int x, int y) {
 
@@ -117,44 +129,47 @@ public class RLWorldLayer extends WorldLayer {
                 return true;
             }
 
-            return tile.isWall();   //tile.isBlocked() ||
-
+            return tile.isPathBlocked();
         }
 
         @Override
         public int getScaleFactor() {
             return 2;
         }
-        
+
+        /**
+         * Preference among the tiles that are passable at all. Your own floor is free, a
+         * doorway is cheap, and someone standing in the way costs enough to walk around them
+         * when there is room and not enough to call the route impossible when there is not.
+         */
         @Override
         public float getCost(Mover mover, int sx, int sy, int tx, int ty) {
-            
+
             Entity owner = ((BaseController)mover).getOwner();
             RLTile tile = getTile(tx, ty);
-
-            EntityRLActor actor = (EntityRLActor)tile.get_actor();
-
-            if (actor == null || !actor.is_blocking()){
-                if (tile.owners.contains(owner)){
-                    return 1/getScaleFactor();
-                }else{
-                    return 4/getScaleFactor();
-                }
-            }
-            if (actor instanceof EntityTree){
-                return 1000/getScaleFactor();
-            }
-            if ( actor instanceof EntityDoor){
-                return 1/getScaleFactor();
-            }
-            if ( actor instanceof EntityFurniture){    //TODO: check EntWindow there
-                return 30/getScaleFactor();
+            if (tile == null){
+                return COST_OPEN / getScaleFactor();
             }
 
-            return 60/getScaleFactor(); //some unknown actor type, better not touch
-
-            //TODO: calculate different terrain types there
+            Entity actor = tile.get_actor();
+            if (actor != null && actor.is_blocking() && actor.controller != null){
+                return COST_OCCUPIED / getScaleFactor();   //a person: wait or go around, never a wall
+            }
+            if (actor instanceof EntityDoor){
+                return COST_DOOR / getScaleFactor();
+            }
+            if (tile.owners.contains(owner)){
+                return COST_HOME / getScaleFactor();
+            }
+            return COST_OPEN / getScaleFactor();
         }
+
+        //Ratios, not absolutes: COST_OCCUPIED/COST_OPEN is how far an NPC detours around a
+        //person before deciding to queue behind them instead.
+        private static final float COST_HOME = 1f;
+        private static final float COST_DOOR = 2f;
+        private static final float COST_OPEN = 4f;
+        private static final float COST_OCCUPIED = 16f;
 
         @Override
         public int getWidthInTiles() {

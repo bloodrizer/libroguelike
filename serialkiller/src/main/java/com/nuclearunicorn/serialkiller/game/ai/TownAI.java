@@ -229,6 +229,13 @@ public abstract class TownAI extends BasicMobAI implements Persona {
      * Contact. The controller reports every blocked step here, and walking into an occupied
      * tile is how every melee in this game happens — so contact is offered to the behaviour
      * that asked for the step first, and only then falls back to the things anybody does.
+     *
+     * <p>Which is now almost nothing. This used to break any furniture it walked into, and
+     * since the pathfinder was routing people through windows on purpose, the two together
+     * had the town smashing its own glass on the way to bed. Walking into something solid is
+     * a stale route, not an intention: drop the step and let the behaviour ask for another.
+     * Breaking things is left to the behaviour that means it — see {@link
+     * com.nuclearunicorn.serialkiller.game.ai.behavior.FleeAction#onObstacle}.
      */
     @Override
     public void e_on_obstacle(int x, int y) {
@@ -247,8 +254,6 @@ public abstract class TownAI extends BasicMobAI implements Persona {
         }
         if (blocker instanceof EntityDoor) {
             ((EntityDoor) blocker).unlock();   // an agent brain must not be worse at doors
-        } else if (blocker instanceof EntityFurniture && owner.get_combat() != null) {
-            owner.get_combat().inflict_damage(blocker);
         }
     }
 

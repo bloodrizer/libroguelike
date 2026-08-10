@@ -274,7 +274,8 @@ public class Block {
         RLTile tile = (RLTile)(layer.get_tile(x,y));
 
         if ( tile!=null ){
-            if (tile.isWall() || tile.isBlocked()){
+            //a doorway counts as taken: dropping a prop in one seals the room behind it
+            if (tile.isWall() || tile.isWallGap() || tile.isBlocked()){
                 return true;
             }
             return false;

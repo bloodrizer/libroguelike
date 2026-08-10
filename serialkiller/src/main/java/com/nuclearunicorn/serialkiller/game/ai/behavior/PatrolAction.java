@@ -4,6 +4,7 @@ import com.nuclearunicorn.libroguelike.game.ai.IAIAction;
 import com.nuclearunicorn.libroguelike.game.ent.controller.NpcController;
 import com.nuclearunicorn.libroguelike.utils.Rng;
 import com.nuclearunicorn.serialkiller.game.ai.TownAI;
+import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldChunk;
 import org.lwjgl.util.Point;
 
@@ -63,9 +64,14 @@ public class PatrolAction implements IAIAction {
         }
         Point milestone = milestones.get((int) (Rng.random() * milestones.size()));
 
-        //get random point near the milestone node (more natural ai behavior)
-        npcController.set_destination(new Point(
-                milestone.getX() + (int) Rng.random() * 4 - 2,
-                milestone.getY() + (int) Rng.random() * 4 - 2));
+        //Random point near the milestone node (more natural ai behavior), but only if it is
+        //somewhere one can stand. The cast used to bind to Rng.random() alone - always zero -
+        //so every destination was the same two tiles up and left of a milestone, wall or not.
+        int dx = (int) (Rng.random() * 5) - 2;
+        int dy = (int) (Rng.random() * 5) - 2;
+        Point near = new Point(milestone.getX() + dx, milestone.getY() + dy);
+        RLTile tile = (RLTile) brain.human().getLayer().get_tile(near.getX(), near.getY());
+        npcController.set_destination(tile != null && !tile.isPathBlocked()
+                ? near : new Point(milestone));
     }
 }

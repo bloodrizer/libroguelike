@@ -39,6 +39,13 @@ public class NpcController extends BaseController implements Mover, IEventListen
     public Point step = null;
 
 
+    //consecutive turns spent waiting for someone to step out of the way
+    private int blocked_turns = 0;
+    private static final int BLOCKED_PATIENCE = 3;
+
+    //set while a caller is probing for a route it can do without, to keep the log honest
+    protected boolean quietAstar = false;
+
     int path_synch_counter = 0;
     public int NEXT_FRAME_DELAY = 100;
     public float MOVE_SPEED = 0.50f;
@@ -145,9 +152,11 @@ public class NpcController extends BaseController implements Mover, IEventListen
             ex.printStackTrace();
         }
 
-        if (astarPath == null || astarPath.size()<=1){
-            System.err.println("Astar pathfinder failed to calculate the path, took " + astarTimer.popDiff()+" ms");
-            System.err.println("Seaching from @"+source+" to @"+target+" for ent '" + owner.get_uid());
+        //A route longer than MAX_SEARCH_DISTANCE is a normal outcome, not a fault - it is why
+        //the milestone pathfinder exists. Only say so when nothing is going to retry.
+        if (astarPath == null && !quietAstar){
+            System.err.println("Astar pathfinder failed from @"+source+" to @"+target
+                    +" for ent '" + owner.get_uid() + "', took " + astarTimer.popDiff() + " ms");
         }
 
         NpcController.totalAstarCalculationTime += astarTimer.popDiff();
@@ -205,8 +214,6 @@ public class NpcController extends BaseController implements Mover, IEventListen
         //wachky-hacky safe switch
         if(tile.isBlocked()){
 
-            System.err.println("Tile is blocked, resetting path for ent #" + owner.get_uid());
-
             if (owner.tile == tile){
                 step = null;
                 if (path != null && path.size()>0){
@@ -216,12 +223,37 @@ public class NpcController extends BaseController implements Mover, IEventListen
             }
 
             step = null;
+
+            /*
+             * Someone standing in the way is a queue, not a wall - they walk on. Throwing the
+             * route away over it meant one neighbour in a doorway sent everybody behind him
+             * looking for another way in, every single turn. Wait a few turns first; only a
+             * genuine obstacle (or a queue that never clears) is worth re-routing for.
+             */
+            Entity blocker = tile.get_obstacle();
+            if (blocker != null && blocker.controller != null){
+                e_on_obstacle(x,y);     //still the melee trigger
+                if (++blocked_turns < BLOCKED_PATIENCE){
+                    return;             //give them a moment to walk on
+                }
+                blocked_turns = 0;
+                if (squeezePast(blocker)){
+                    return;
+                }
+                path = null;
+                destination = null;
+                return;
+            }
+
+            blocked_turns = 0;
             path = null;
             destination = null;
 
             e_on_obstacle(x,y);
             return;
         }
+
+        blocked_turns = 0;
 
         //actually change tile
 
@@ -240,6 +272,55 @@ public class NpcController extends BaseController implements Mover, IEventListen
         );
     }
 
+
+    /**
+     * Someone has been standing in our way for {@link #BLOCKED_PATIENCE} turns. Whether we may
+     * edge round them is a game rule, not an engine one — the default is no.
+     */
+    protected boolean squeezePast(Entity blocker){
+        return false;
+    }
+
+    /**
+     * Trade places with the entity in front of us. Two people meeting in a one-tile hallway is
+     * otherwise a permanent standoff: each is the other's obstacle, neither route is wrong, and
+     * no amount of re-planning helps because A* is right both times.
+     *
+     * <p>The blocker is lifted out of the way for the length of our own step, because
+     * {@code EEntityMove} refuses to move onto an occupied tile — and once we have vacated,
+     * theirs is free for them.
+     */
+    protected boolean swapWith(Entity blocker){
+        Point mine = new Point(owner.origin);
+        Point theirs = new Point(blocker.origin);
+
+        boolean wasBlocking = blocker.is_blocking();
+        blocker.set_blocking(false);
+        owner.move_to(theirs);
+        blocker.set_blocking(wasBlocking);
+
+        if (!owner.origin.equals(theirs)){
+            return false;   //the move was refused for some other reason; nothing has changed
+        }
+        blocker.move_to(mine);
+        blocker.dx = 0.0f;
+        blocker.dy = 0.0f;
+
+        owner.dx = 0.0f;
+        owner.dy = 0.0f;
+        step = null;
+        if (path != null && path.size()>0){
+            path.remove(0);   //we are standing on it now
+        }
+        //their route started from the tile they no longer occupy
+        if (blocker.controller instanceof NpcController){
+            NpcController theirCtrl = (NpcController) blocker.controller;
+            theirCtrl.step = null;
+            theirCtrl.path = null;
+            theirCtrl.blocked_turns = 0;
+        }
+        return true;
+    }
 
     public void follow_path(){
         //safe switch

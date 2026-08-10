@@ -61,13 +61,21 @@ public class GoHomeAction implements IAIAction {
         }
     }
 
+    /**
+     * Head for a bed nobody is in. Every free bed gets a try, not just the first: one
+     * unroutable bed used to leave the NPC with no path at all, standing wherever they
+     * happened to be — which, in a hallway, plugs it for everyone walking home behind them.
+     */
     private void routeToBed(NpcController npcController, Apartment apt) {
         if (apt.beds == null || apt.beds.isEmpty()) {
             return;
         }
         for (Entity bed : apt.beds) {
-            if (!bed.tile.has_ent(EntityRLHuman.class)) {
-                ((RLController) npcController).calculateAdaptivePath(brain.human().origin, bed.origin);
+            if (bed.tile.has_ent(EntityRLHuman.class)) {
+                continue;
+            }
+            ((RLController) npcController).calculateAdaptivePath(brain.human().origin, bed.origin);
+            if (npcController.hasPath()) {
                 return;
             }
         }
