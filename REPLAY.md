@@ -83,7 +83,8 @@ replay log as observations. `DEBUG="a=b c=d"` on `replay.sh` becomes `-Ddebug.a=
 | flag | what it answers |
 |---|---|
 | `path=validate` | is every route contiguous, non-diagonal where A* built it, and clear of anything the pathfinder itself calls blocked? |
-| `world=ready` | is the town **one connected place**, and can everyone reach a bed? One dump at world-ready |
+| `world=ready` | is the town **one connected place**, and can everyone reach a bed? One dump at world-ready, naming anyone stranded outside it |
+| `world=map` | the finished town as ASCII, one `DEBUG-MAP` line per row — the picture, not the tally |
 | `census=<n>` | every n turns, a town-wide tally: states, who is in bed, who holds a route, and **who actually moved** |
 | `strict=true` | a violated check throws instead of printing — for a CI run |
 
@@ -96,6 +97,35 @@ behind something that will never shift.
 `world=ready` earns its place too — it is what found that furniture placed in doorways had
 split the town into four components with 3 of 46 beds reachable, a generator bug that was
 invisible until an NPC needed to walk through it.
+
+`world=map` is the one to reach for when a town is *connected* and still wrong. A count cannot
+tell you that a room came out ringed with doors, its windows torn out, or that a house was
+furnished as a dormitory — those read at a glance in the picture and nowhere else. Both of
+those were live bugs; the map dump is how they were found and how the fix was checked:
+
+```sh
+DEBUG="world=map" ./scripts/replay.sh play r.jsonl 2>&1 | grep DEBUG-MAP | sed 's/^DEBUG-MAP //'
+```
+
+Tiles are the entity's own render symbol where there is one (`/` open door, `+` locked, `=`
+window, `B` bed, `T` tree), else `#` wall, `.` indoor floor, `,` outdoors.
+
+## World-gen invariants, without a replay
+
+The probes above need a session. §C of [INVARIANTS.md](INVARIANTS.md) does not:
+
+```sh
+mvn -o test -Dtest=TownInvariantsTest
+```
+
+`TownFixture` builds a whole town in the test JVM — no window, no game loop, no input — and
+`TownInvariantsTest` asserts C1 (no prop in a doorway or under a window), C2 (no two openings
+adjacent) and C3 (every non-police NPC starts in a room of their own home) over six seeds,
+the last being the one off the replay that produced the house full of beds.
+
+Six, not one, because every world-gen bug so far has been a rule that holds on most layouts
+and fails on the one in front of you. A failure names the seed and the tile, so the town can
+be walked with `-Dreplay.seed=<n>` and looked at with `DEBUG="world=map"`.
 
 ## File format
 

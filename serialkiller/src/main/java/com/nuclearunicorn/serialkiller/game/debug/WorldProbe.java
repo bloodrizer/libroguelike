@@ -10,8 +10,10 @@ import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
 import com.nuclearunicorn.libroguelike.game.world.WorldCluster;
 import com.nuclearunicorn.libroguelike.game.world.layers.WorldLayer;
 import com.nuclearunicorn.serialkiller.game.ai.llm.sense.GameTurn;
+import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityBed;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntityDoor;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
 import org.lwjgl.util.Point;
 
@@ -55,6 +57,47 @@ public final class WorldProbe {
         if (DebugFlags.dumpWorldAtReady()) {
             dumpAtReady();
         }
+        if (DebugFlags.dumpMapAtReady()) {
+            dumpMap();
+        }
+    }
+
+    /**
+     * Print the finished town as ASCII, one line per row. A connectivity count says a town is
+     * wrong; only the picture says <i>how</i> — a room ringed with doors or a house of nothing
+     * but beds reads at a glance here and is invisible in any tally.
+     */
+    public static void dumpMap() {
+        WorldLayer layer = ClientGameEnvironment.getWorldLayer(Player.get_zindex());
+        int size = WorldCluster.CLUSTER_SIZE * WorldChunk.CHUNK_SIZE;
+
+        StringBuilder out = new StringBuilder();
+        for (int y = 0; y < size; y++) {
+            StringBuilder row = new StringBuilder();
+            for (int x = 0; x < size; x++) {
+                row.append(glyph(tileAt(layer, x, y)));
+            }
+            out.append("DEBUG-MAP ").append(row).append('\n');
+        }
+        System.err.print(out);
+    }
+
+    /** One character per tile: the topmost entity's own render symbol, else wall/floor. */
+    private static char glyph(RLTile tile) {
+        if (tile == null) {
+            return ' ';
+        }
+        for (int i = tile.ent_list.size() - 1; i >= 0; i--) {
+            Entity ent = tile.ent_list.get(i);
+            if (ent.get_render() instanceof AsciiEntRenderer) {
+                String s = ((AsciiEntRenderer) ent.get_render()).symbol;
+                if (s != null && s.length() > 0) {
+                    return s.charAt(0);
+                }
+            }
+        }
+        if (tile.isWall()) { return '#'; }
+        return tile.isIndoor() ? '.' : ',';
     }
 
     /** Called every frame; does its work only on census turns. */
@@ -83,7 +126,11 @@ public final class WorldProbe {
         for (int x = 0; x < size; x++) {
             for (int y = 0; y < size; y++) {
                 RLTile tile = tileAt(layer, x, y);
-                open[x][y] = tile != null && !tile.isPathBlocked();
+                //a door is an opening, shut or locked - "a door opens, there is nothing to
+                //break". The question here is whether the generator walled something off in
+                //masonry or furniture; a locked bank is locked, and that is not the same bug
+                open[x][y] = tile != null
+                        && (!tile.isPathBlocked() || tile.has_ent(EntityDoor.class));
             }
         }
 
@@ -120,6 +167,13 @@ public final class WorldProbe {
             } else if (ent instanceof EntityRLHuman) {
                 people++;
                 if (main) { peopleReachable++; }
+                //a bare count says someone is stuck but not who or where, which is the half
+                //that costs an afternoon: name them, and the tile usually explains itself
+                if (!main) {
+                    System.err.println("DEBUG-WORLD stranded " + ent.getName() + " at "
+                            + ent.origin.getX() + "," + ent.origin.getY()
+                            + " component=" + component[ent.origin.getX()][ent.origin.getY()]);
+                }
             }
         }
 

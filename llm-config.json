@@ -7,6 +7,6 @@
   "throttle": { "mode": "buckets", "nearRadius": 24 },
   "far":      { "teleport": false },
   "memory":   { "observations": 8, "dialogueLines": 6 },
-  "speech":   { "directedRadius": 4, "earshotRadius": 10, "maxSaysPerPlan": 1, "maxSayChars": 110 },
+  "speech":   { "directedRadius": 4, "earshotRadius": 8, "maxSaysPerPlan": 1, "maxSayChars": 60 },
   "priority": { "interruptAt": 60, "decayPerTurn": 2, "attentionTurns": 12, "planTtlTurns": 4, "attentionCadenceTurns": 2, "idleCadenceTurns": 30, "fleeTurns": 10, "fleeDistance": 12, "fleeMaxTurns": 60, "pursueTurns": 15, "pursueDistance": 20, "pursueMaxTurns": 120 }
 }

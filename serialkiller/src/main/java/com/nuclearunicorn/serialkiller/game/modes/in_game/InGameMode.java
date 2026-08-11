@@ -442,7 +442,9 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         playerEnt.set_combat(new RLCombat());
 
         playerEnt.setName("Player");
-        playerEnt.setEnvironment(clientGameEnvironment);
+        //the same object run() installs, reached the way everything else reaches it: the
+        //private static was only ever set by run(), so nothing could build a town without one
+        playerEnt.setEnvironment(ClientGameEnvironment.getEnvironment());
         playerEnt.setRenderer(new AsciiEntRenderer("@"));
 
         //TODO: extract player information from the event

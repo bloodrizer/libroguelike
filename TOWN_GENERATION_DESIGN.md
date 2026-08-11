@@ -39,9 +39,9 @@ so you don't need to re-explore the codebase.
    punched at room–room intersection walls, each room gets a window **or** an
    exterior door at the midpoint of any wall segment touching the building perimeter
    (80% window / 20% door).
-7. `populateMap()`: pedestrians spawned on roads (35% per road segment), each NPC is
-   assigned a random `Apartment` and stamped as `owner` on every tile of it; 4
-   policemen with vest + stunstick.
+7. `populateMap()`: one resident per road segment (35%), assigned a home by
+   `claimHome()`, spawned in a room of it and stamped as `owner` on every tile of it;
+   4 policemen with vest + stunstick, who are the only people outdoors at turn zero.
 8. `fillApartmentRooms()`: one KITCHEN (fridge + food), one STOREROOM (descending
    ladder → registered with `BasementGenerator`), N BEDROOM beds where N = owner
    count read back from tile owners.
@@ -379,11 +379,17 @@ Keep `populateMap()` behaviour, with two changes:
    lot rect (current code stamps the whole district rect —
    `TownChunkGenerator.java:431-435`).
 2. Only `APARTMENT` buildings receive resident owners/beds via
-   `fillApartmentRooms`-equivalent logic. Commercial buildings get 0–2 "staff" NPCs
-   spawned inside during generation (pedestrian AI is fine for now), and are valid
+   `fillApartmentRooms`-equivalent logic. Commercial buildings are valid
    `setApartment` targets only if nothing residential exists (avoid: filter the
    apartment list to residential before `chunk_random.nextInt(...)` — note the
    current code crashes with `nextInt(0)` if the list is empty, guard it).
+3. **Everyone is spawned at home** (INVARIANTS C3). The road rate, the park's idlers
+   and a commercial building's 0–2 staff still set how many people the town holds,
+   but all of them are housed by `claimHome()` and placed in a room of that home.
+   The clock opens at 21:00, so a street full of citizens standing outside their own
+   front doors was wrong on the face of it, and it hid two faults: an NPC the layout
+   had walled off from home looked merely slow, and staff spawned inside a bank were
+   sealed in by its locked entrance, which A\* will not route through.
 
 Police count: keep `MAX_POLICEMAN_COUNT=4`, but if a POLICE_STATION was generated,
 spawn them at its LOBBY instead of random roads.

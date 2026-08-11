@@ -9,6 +9,8 @@ import com.nuclearunicorn.libroguelike.core.Game;
 import com.nuclearunicorn.libroguelike.events.Event;
 import com.nuclearunicorn.libroguelike.events.EventManager;
 import com.nuclearunicorn.libroguelike.events.IEventListener;
+import com.nuclearunicorn.libroguelike.game.modes.AbstractGameMode;
+import com.nuclearunicorn.libroguelike.game.ui.IUserInterface;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_System;
 
 import java.util.ArrayList;
@@ -23,9 +25,14 @@ public class ClientEventManager {
     private static EventManager eventManager = new EventManager(){
         
         @Override
-        public void notify_event(Event event){  
-            
-            NE_GUI_System ui =  Game.get_game_mode().get_ui().get_nge_ui();
+        public void notify_event(Event event){
+
+            //a headless run - a unit test building a town, a replay with no window - has no
+            //game mode and therefore no overlay to offer the event to first. Asking for one
+            //through get_game_mode() does not merely return null, it boots the client.
+            AbstractGameMode mode = Game.getActiveMode();
+            IUserInterface gameUi = (mode == null) ? null : mode.get_ui();
+            NE_GUI_System ui = (gameUi == null) ? null : gameUi.get_nge_ui();
             if(ui!=null){
                 ui.e_on_event(event);
             }

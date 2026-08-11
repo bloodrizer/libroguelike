@@ -42,6 +42,7 @@ import org.lwjgl.util.Point;
 import org.newdawn.slick.Color;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -53,6 +54,7 @@ public class TownChunkGenerator extends ChunkGenerator {
 
     private static final int NPC_PER_ROAD_RATE = 35;    //50% is a hell lot of npc , 35 is sorta ok
     private static final int MAX_POLICEMAN_COUNT = 4;
+    private static final int MAX_HOUSEHOLD = 4;         //people per home, however big the house
 
     long seed;
     Random chunk_random;
@@ -61,9 +63,15 @@ public class TownChunkGenerator extends ChunkGenerator {
     List<Block> roads = new ArrayList<Block>();
     private static final int ROAD_SIZE = 3;
 
-    //per-chunk building-type picker and the police station (if one was placed)
+    //per-chunk building-type picker, the police station and the player's own home
     private TypeSelector typeSelector;
     private Building policeStation;
+    private Building playerHome;
+
+    //everything that has to wait until the whole street is built - see generate()
+    private final List<Point> lampposts = new ArrayList<Point>();
+    private final List<Building> yards = new ArrayList<Building>();
+    private int loiterers;
 
     //List<Block> apartments = new ArrayList<Block>();
 
@@ -129,6 +137,10 @@ public class TownChunkGenerator extends ChunkGenerator {
 
         typeSelector = new TypeSelector();
         policeStation = null;
+        playerHome = null;
+        lampposts.clear();
+        yards.clear();
+        loiterers = 0;
 
         for(Block district: districts){
 
@@ -183,7 +195,12 @@ public class TownChunkGenerator extends ChunkGenerator {
                 continue;   //too small to build on; that lot is now yard
             }
             typeSelector.forceRecord(BuildingType.APARTMENT);
-            getApartments().add(safehouse);
+            //deliberately NOT in getApartments(): that list is "homes going spare", and it is
+            //read twice below - once to house pedestrians, once to furnish. The safehouse has
+            //already housed and furnished itself for the player's family, so being on it a
+            //second time billeted strangers in the player's flat and laid a second set of beds
+            //on top of the family's, which is the room full of beds you start the game in.
+            playerHome = safehouse;
             break;
         }
 
@@ -196,6 +213,16 @@ public class TownChunkGenerator extends ChunkGenerator {
             if (generateBuilding(building, lot, false)){
                 getApartments().add(building);
             }
+        }
+
+        //-----------------------------------------------------------
+        //		outdoor props, now that every door and window is cut
+        //-----------------------------------------------------------
+        for (Building building : yards){
+            decorateYard(building);
+        }
+        for (Point post : lampposts){
+            placeLamppost(post.getX(), post.getY());
         }
 
         populateMap();
@@ -237,6 +264,7 @@ public class TownChunkGenerator extends ChunkGenerator {
      * plugs it for everyone walking home behind them.
      */
     private void repairConnectivity(int x0, int y0, int size) {
+        int repaired = 0;
         for (int pass = 0; pass < 12; pass++){
             int[][] component = new int[size][size];
             int biggest = 0, biggestId = 0, count = 0;
@@ -253,10 +281,18 @@ public class TownChunkGenerator extends ChunkGenerator {
                 }
             }
             if (count <= 1){
+                //this is a net, not a design: every tile it opens is a room some placement
+                //rule sealed, and the count is the only sign of it before a player walks in
+                if (repaired > 0){
+                    System.err.println("town: repaired " + repaired + " sealed tile(s)");
+                }
                 return;   //one place, nothing to do
             }
-            if (openPockets(component, biggestId, x0, y0, size) == 0){
-                System.err.println("town: " + (count - 1) + " sealed pocket(s) left after repair");
+            int opened = openPockets(component, biggestId, x0, y0, size);
+            repaired += opened;
+            if (opened == 0){
+                System.err.println("town: " + (count - 1) + " sealed pocket(s) left after repair"
+                        + " (" + repaired + " tile(s) opened)");
                 return;
             }
         }
@@ -284,11 +320,36 @@ public class TownChunkGenerator extends ChunkGenerator {
     }
 
     /**
-     * Open every blocked tile with a cut-off pocket on one side and the main area on the
-     * other. Furniture is removed; bare masonry gets a door punched through it. Returns how
-     * many were opened — zero means the remaining pockets are beyond helping.
+     * Join every cut-off pocket back onto the main area, opening <b>one</b> tile per pocket.
+     *
+     * <p>The one-per-pocket part is the whole point. The component map is a snapshot taken
+     * before any of this ran, so every tile around a sealed room still reads as "pocket on one
+     * side, town on the other" long after the first one was opened — carry on down the list
+     * and the room comes out ringed with doors, its windows torn out, which is exactly what a
+     * player sees and calls nonsense. Once a pocket is joined it is struck off and the rest of
+     * its perimeter is left alone.
+     *
+     * <p>Props go first and masonry second, for the same reason: what usually seals a room is
+     * a crate set down in the doorway, and lifting the crate is the repair. Knocking a fresh
+     * hole in a wall is the fallback for a room the layout genuinely never doored.
+     *
+     * @return how many tiles were opened — zero means the remaining pockets are beyond helping
      */
     private int openPockets(int[][] component, int mainId, int x0, int y0, int size) {
+        Set<Integer> joined = new HashSet<Integer>();
+        int opened = sweepPockets(component, mainId, x0, y0, size, joined, LIFT_PROP);
+        opened += sweepPockets(component, mainId, x0, y0, size, joined, DOOR_CLEAR);
+        opened += sweepPockets(component, mainId, x0, y0, size, joined, DOOR_ANYWHERE);
+        return opened;
+    }
+
+    private static final int LIFT_PROP     = 0;   //take the crate out of the doorway
+    private static final int DOOR_CLEAR    = 1;   //punch a door where no gap adjoins (C2)
+    private static final int DOOR_ANYWHERE = 2;   //last resort: reachable beats tidy
+
+    /** One sweep of {@link #openPockets} in the given repair mode. */
+    private int sweepPockets(int[][] component, int mainId, int x0, int y0, int size,
+                             Set<Integer> joined, int mode) {
         int opened = 0;
         int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}};
         for (int i = 1; i < size - 1; i++){
@@ -297,16 +358,17 @@ public class TownChunkGenerator extends ChunkGenerator {
                 if (walkable(wx, wy)){
                     continue;
                 }
-                //does opening this tile join two different components?
-                Set<Integer> touching = new HashSet<Integer>();
+                //does opening this tile join the main area to a pocket still cut off?
+                boolean touchesMain = false;
+                Set<Integer> pockets = new HashSet<Integer>();
                 for (int[] d : dirs){
                     int ni = i + d[0], nj = j + d[1];
                     if (ni < 0 || nj < 0 || ni >= size || nj >= size){ continue; }
-                    if (component[ni][nj] != 0){
-                        touching.add(component[ni][nj]);
-                    }
+                    int id = component[ni][nj];
+                    if (id == 0 || joined.contains(id)){ continue; }
+                    if (id == mainId){ touchesMain = true; } else { pockets.add(id); }
                 }
-                if (touching.size() < 2 || !touching.contains(mainId)){
+                if (!touchesMain || pockets.isEmpty()){
                     continue;
                 }
                 RLTile tile = (RLTile)(getLayer().get_tile(wx, wy));
@@ -314,22 +376,45 @@ public class TownChunkGenerator extends ChunkGenerator {
                     continue;
                 }
                 Entity obstacle = tile.get_obstacle();
-                if (obstacle != null && obstacle.controller == null){
+                if (mode == LIFT_PROP){
+                    if (obstacle == null || obstacle.controller != null){
+                        continue;   //masonry: leave it for the later sweeps
+                    }
+                    if (tile.isWallGap()){
+                        //a window or a shut door is the building, not the thing plugging it.
+                        //Deleting one leaves the hole in the wall the repair was meant to
+                        //avoid, and the real culprit - a crate in the alley outside - is
+                        //still standing two tiles away, waiting to be lifted instead.
+                        continue;
+                    }
                     tile.remove_entity(obstacle);
                     environment.getEntityManager().remove_entity(obstacle);
-                    opened++;
-                } else if (tile.isWall()){
+                } else if (obstacle == null && tile.isWall()){
+                    if (mode == DOOR_CLEAR && nextToWallGap(wx, wy)){
+                        continue;   //would sit against another gap; try elsewhere first (C2)
+                    }
                     punchDoor(wx, wy, false);   //a room the layout forgot to give a door
-                    opened++;
+                } else {
+                    continue;
                 }
+                joined.addAll(pockets);
+                opened++;
             }
         }
         return opened;
     }
 
+    /**
+     * Walkable as far as the repair pass is concerned. A door counts even when it is shut and
+     * locked: a bank is <i>locked</i>, not walled off, and calling it a wall sent the repair
+     * hunting for another way in — which it found, by deleting the bank's front door.
+     */
     private boolean walkable(int x, int y) {
         RLTile tile = (RLTile)(getLayer().get_tile(x, y));
-        return tile != null && !tile.isPathBlocked();
+        if (tile == null){
+            return false;
+        }
+        return !tile.isPathBlocked() || tile.has_ent(EntityDoor.class);
     }
 
     /*
@@ -360,7 +445,7 @@ public class TownChunkGenerator extends ChunkGenerator {
         playerEnt.setName(familyGen.generateName(playerEnt.getSex() == EntityRLHuman.Sex.MALE));
         moveIn(playerEnt, safehouseBlock);
 
-        Point mateOrigin = safehouseBlock.getFreeTileSafe(chunk_random, getLayer());
+        Point mateOrigin = homeTile(safehouseBlock);
         if (mateOrigin != null && chunk_random.nextInt(100) <= 60){    //60% you have a mate
 
             //TODO: change family layout if you are a child
@@ -393,7 +478,7 @@ public class TownChunkGenerator extends ChunkGenerator {
         //  children
         //===========================
 
-        Point child1Origin = safehouseBlock.getFreeTileSafe(chunk_random, getLayer());
+        Point child1Origin = homeTile(safehouseBlock);
         if (child1Origin != null && chunk_random.nextInt(100) <= 40){    //40% you have a one child
             Point origin = child1Origin;
             EntityRLHuman child = NPCGenerator.generateNPC(chunk_random, this, origin.getX(), origin.getY());
@@ -407,7 +492,7 @@ public class TownChunkGenerator extends ChunkGenerator {
             playerEnt.addChild(child);
         }
 
-        Point child2Origin = safehouseBlock.getFreeTileSafe(chunk_random, getLayer());
+        Point child2Origin = homeTile(safehouseBlock);
         if (child2Origin != null && chunk_random.nextInt(100) <= 15){    //15% you have a second child
             Point origin = child2Origin;
             EntityRLHuman child = NPCGenerator.generateNPC(chunk_random, this, origin.getX(), origin.getY());
@@ -424,7 +509,7 @@ public class TownChunkGenerator extends ChunkGenerator {
         fillApartmentRooms(safehouseBlock, true);
 
         //store safehouse to place player there later
-        Point playerPosition = safehouseBlock.getFreeTileSafe(chunk_random, getLayer());
+        Point playerPosition = homeTile(safehouseBlock);
         if (playerPosition == null){
             playerPosition = new Point(safehouseBlock.getX()+1, safehouseBlock.getY()+1);
         }
@@ -436,9 +521,7 @@ public class TownChunkGenerator extends ChunkGenerator {
 
 
 
-        getApartments().remove(safehouseBlock);  //no one dares to live in my house!
-
-        return true;
+        return true;   //the caller keeps it out of getApartments(): no one lives in my house!
     }
 
     private void fillApartmentRooms(Apartment apt) {
@@ -525,22 +608,10 @@ public class TownChunkGenerator extends ChunkGenerator {
     //  Commercial / civic furnishing (TOWN_GENERATION_DESIGN.md 5.6)
     //-----------------------------------------------------------------------
 
-    /** Furnish a non-residential building room-by-type, then drop in a little staff. */
+    /** Furnish a non-residential building room-by-type. Its staff live elsewhere in town. */
     private void furnishCommercial(Building building) {
         for (Room room : building.roomList){
             furnishRoom(building, room);
-        }
-
-        //0-2 staff NPCs milling about. These are the NPCs the player meets *indoors* -
-        //including in the building they start in - so they get the same brain pedestrians
-        //do. They were hardwired to PedestrianAI, which is why the nearest NPC at spawn
-        //ignored both speech and being attacked: it had no LLM brain to sense either.
-        int staff = chunk_random.nextInt(3);
-        for (int i = 0; i < staff; i++){
-            Point coord = interiorFreeTile(building);
-            if (coord == null){ break; }
-            EntityRLHuman npc = (EntityRLHuman) placeNPC(coord.getX(), coord.getY());
-            giveBrain(npc, "staff");
         }
     }
 
@@ -620,7 +691,9 @@ public class TownChunkGenerator extends ChunkGenerator {
     }
 
     private void placeLadder(Block room) {
-        Point coord = room.getFreeTileSafe(chunk_random, getLayer());
+        //a ladder does not need a wall behind it, but it is still solid, and a solid thing
+        //on the threshold is the barricade C1 forbids - this was the commonest one left
+        Point coord = clearFreeTile(room);
         if (coord == null){ return; }
         EntLadder ladder = new EntLadder(); //desc ladder
         placeEntity(coord.getX(), coord.getY(), ladder, "ladder", ">", Color.green);
@@ -700,48 +773,49 @@ public class TownChunkGenerator extends ChunkGenerator {
         counter.get_combat().set_hp(20);
     }
 
-    /** A random free interior tile of the building (prefers non-corridor rooms). */
-    private Point interiorFreeTile(Building building) {
-        List<Room> rooms = building.roomList;
-        if (rooms == null || rooms.isEmpty()){
-            return null;
-        }
-        for (int attempt = 0; attempt < 8; attempt++){
-            Room r = rooms.get(chunk_random.nextInt(rooms.size()));
-            if (r.isCorridor()){ continue; }
-            Point p = r.getFreeTileSafe(chunk_random, getLayer());
-            if (p != null){ return p; }
-        }
-        return null;
-    }
-
     /**
      * A free interior tile next to a wall (furniture-against-walls look,
-     * TOWN_GENERATION_DESIGN.md 5.6). Falls back to any free interior tile.
+     * TOWN_GENERATION_DESIGN.md 5.6), never one a door or window opens onto.
+     *
+     * <p>There used to be a fallback here for the room with no clean spot against a wall —
+     * first the doorway's own mouth, then any free tile at all. Both put a fridge on the
+     * threshold, which is the barricade INVARIANTS C1 exists to forbid, and it is the one
+     * placement a player reads as broken from across the street. A room that cannot hold the
+     * thing tidily does without it: {@link #clearFreeTile} tries the middle of the floor, and
+     * every caller already handles a null.
      */
     private Point wallAdjacentFreeTile(Block room) {
         List<Point> clear = new ArrayList<Point>();
-        List<Point> nearDoorway = new ArrayList<Point>();
         for (int i = 1; i < room.getW(); i++){
             for (int j = 1; j < room.getH(); j++){
                 int wx = room.getX() + i, wy = room.getY() + j;
-                if (!isFreeFloor(wx, wy) || !nextToWall(wx, wy)){
+                if (!isFreeFloor(wx, wy) || !nextToWall(wx, wy) || nextToWallGap(wx, wy)){
                     continue;
                 }
-                //furniture in the doorway's mouth reads as a barricade and narrows the
-                //only way through; keep the threshold clear where the room allows it
-                if (nextToWallGap(wx, wy)){
-                    nearDoorway.add(new Point(wx, wy));
-                } else {
-                    clear.add(new Point(wx, wy));
+                clear.add(new Point(wx, wy));
+            }
+        }
+        List<Point> candidates = notSealing(clear, room);
+        if (candidates.isEmpty()){
+            return clearFreeTile(room);
+        }
+        return candidates.get(chunk_random.nextInt(candidates.size()));
+    }
+
+    /** Any free tile of the room clear of doorways and window frames, or null (C1). */
+    private Point clearFreeTile(Block room) {
+        List<Point> free = new ArrayList<Point>();
+        for (int i = 1; i < room.getW(); i++){
+            for (int j = 1; j < room.getH(); j++){
+                int wx = room.getX() + i, wy = room.getY() + j;
+                if (isFreeFloor(wx, wy) && !nextToWallGap(wx, wy)){
+                    free.add(new Point(wx, wy));
                 }
             }
         }
-        //...but a kitchen too small to hold a fridge anywhere else still gets one
-        List<Point> candidates = !clear.isEmpty() ? clear : nearDoorway;
-        candidates = notSealing(candidates, room);
+        List<Point> candidates = notSealing(free, room);
         if (candidates.isEmpty()){
-            return room.getFreeTileSafe(chunk_random, getLayer());
+            return null;
         }
         return candidates.get(chunk_random.nextInt(candidates.size()));
     }
@@ -766,51 +840,60 @@ public class TownChunkGenerator extends ChunkGenerator {
         return safe;
     }
 
-    /** True if blocking this tile would leave part of the room unreachable from the rest. */
+    /**
+     * True if blocking this tile would leave part of the room unreachable from the rest.
+     *
+     * <p>The region reasoned over is the room <i>and its own walls</i> — {@code Block} is
+     * inclusive of its perimeter, so the doorways are already on that boundary. Reaching a
+     * tile further out was the earlier attempt, and it answered the wrong question: the extra
+     * ring is street and neighbouring rooms, which are of course not reachable from in here,
+     * so every candidate came back "seals" and every prop in town fell through to the
+     * unguarded fallback — the opposite of what the check was added for.
+     */
     private boolean sealsRoom(Point blocked, Block room) {
-        //one tile of margin so the room's doorways are inside the area we reason about
         int x0 = room.getX(), y0 = room.getY();
         int w = room.getW() + 1, h = room.getH() + 1;
 
-        List<Point> open = new ArrayList<Point>();
-        for (int i = 0; i <= w; i++){
-            for (int j = 0; j <= h; j++){
+        boolean[][] open = new boolean[w][h];
+        int total = 0, si = 0, sj = 0;
+        for (int i = 0; i < w; i++){
+            for (int j = 0; j < h; j++){
                 int x = x0 + i, y = y0 + j;
                 if (x == blocked.getX() && y == blocked.getY()){
                     continue;
                 }
                 RLTile tile = (RLTile)(getLayer().get_tile(x, y));
-                if (tile != null && !tile.isPathBlocked()){
-                    open.add(new Point(x, y));
+                if (tile == null || tile.isPathBlocked()){
+                    continue;
                 }
+                open[i][j] = true;
+                total++;
+                si = i;
+                sj = j;
             }
         }
-        if (open.size() < 2){
+        if (total < 2){
             return false;   //nothing left to disconnect
         }
 
-        java.util.Set<String> reached = new java.util.HashSet<String>();
-        java.util.ArrayDeque<Point> queue = new java.util.ArrayDeque<Point>();
-        java.util.Set<String> walkable = new java.util.HashSet<String>();
-        for (Point p : open){
-            walkable.add(p.getX() + "," + p.getY());
-        }
-        queue.add(open.get(0));
-        reached.add(open.get(0).getX() + "," + open.get(0).getY());
+        java.util.ArrayDeque<int[]> queue = new java.util.ArrayDeque<int[]>();
+        boolean[][] seen = new boolean[w][h];
+        queue.add(new int[]{si, sj});
+        seen[si][sj] = true;
+        int reached = 0;
         int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}};
         while (!queue.isEmpty()){
-            Point at = queue.poll();
+            int[] at = queue.poll();
+            reached++;
             for (int[] d : dirs){
-                int nx = at.getX() + d[0], ny = at.getY() + d[1];
-                String key = nx + "," + ny;
-                if (!walkable.contains(key) || reached.contains(key)){
-                    continue;
-                }
-                reached.add(key);
-                queue.add(new Point(nx, ny));
+                int ni = at[0] + d[0], nj = at[1] + d[1];
+                if (ni < 0 || nj < 0 || ni >= w || nj >= h){ continue; }
+                if (!open[ni][nj] || seen[ni][nj]){ continue; }
+                seen[ni][nj] = true;
+                queue.add(new int[]{ni, nj});
             }
         }
-        return reached.size() != open.size();
+        return reached != total;
     }
 
     /**
@@ -904,14 +987,17 @@ public class TownChunkGenerator extends ChunkGenerator {
             markSidewalk(x + w, y + j);
         }
 
+        //where the lampposts go, not the lampposts themselves: the buildings they stand
+        //outside do not exist yet, so at this point there is no telling which of these spots
+        //will turn out to be somebody's doorstep. See the deferred pass in generate().
         int step = TownGenConfig.LAMPPOST_SPACING;
         for (int i = 0; i <= w; i += step){
-            placeLamppost(x + i, y);
-            placeLamppost(x + i, y + h);
+            lampposts.add(new Point(x + i, y));
+            lampposts.add(new Point(x + i, y + h));
         }
         for (int j = step; j < h; j += step){
-            placeLamppost(x, y + j);
-            placeLamppost(x + w, y + j);
+            lampposts.add(new Point(x, y + j));
+            lampposts.add(new Point(x + w, y + j));
         }
     }
 
@@ -925,8 +1011,8 @@ public class TownChunkGenerator extends ChunkGenerator {
 
     private void placeLamppost(int i, int j) {
         RLTile tile = (RLTile)(getLayer().get_tile(i, j));
-        if (tile == null || tile.isWall()){
-            return;
+        if (tile == null || tile.isWall() || tile.isBlocked() || nextToWallGap(i, j)){
+            return;   //C1: not on somebody's doorstep, and not stacked on another prop
         }
         EntityFurniture lamp = new EntityFurniture();
         placeEntity(i, j, lamp, "lamppost", "i", new Color(210, 210, 140));
@@ -935,39 +1021,55 @@ public class TownChunkGenerator extends ChunkGenerator {
     }
 
     /**
-     As legacy code says:
-     #FILL MAP WITH NPC
-     #this method should be called BEFORE room structure generation!
+     * Everyone who lives here, put where they live.
+     *
+     * <p>The town used to be populated by scattering people along the roads and posting each
+     * one a house afterwards. That reads wrong the moment you look at the clock — the game
+     * opens at 21:00, so the streets came up full of citizens standing about in the dark
+     * outside their own front doors — and it hid two real faults. Anyone the layout had
+     * walled off from their home simply never arrived, which looks identical to an NPC that
+     * is merely slow; and the shop staff spawned indoors could be sealed in by their
+     * building's own locked entrance, since A* will not route through a locked door.
+     * Spawning people at home instead (INVARIANTS C3) makes both loud: an NPC in the wrong
+     * place at turn zero is a generator bug, not a pathfinding one.
+     *
+     * <p>The road, park and shop rolls are kept exactly as they were, so the town holds the
+     * same number of people as before — they just start indoors.
      */
     private void populateMap() {
         //residents live only in APARTMENT buildings (5.7); if a chunk somehow has
         //no residential building, fall back to any apartment so we never nextInt(0).
         List<Apartment> residential = getResidentialApartments();
+        Collections.shuffle(residential, chunk_random);   //whose house takes the odd lodger
+        int[] taken = new int[residential.size()];
 
+        int population = loiterers;     //the park's idlers: rolled before any house existed
         for (Block road: roads){
-
-            //add pedestrians to the road
-
-            int npcCount = 0;
-
             if (chunk_random.nextInt(100) < NPC_PER_ROAD_RATE){
-                npcCount = 1;
+                population++;
             }
-            for (int i = 0; i< npcCount; i++){
-                Point coord = road.getFreeTileSafe(chunk_random, getLayer());
-                if (coord == null){ continue; }
-
-                EntityRLHuman npc = (EntityRLHuman)placeNPC(coord.getX(), coord.getY());
-                //Every pedestrian is an LLM agent when inference is enabled; the reactor
-                //self-throttles to the near bucket so far NPCs cost nothing (§11).
-                giveBrain(npc, "agent");
-
-                if (residential.isEmpty()){ continue; }   //nowhere to live (all parks)
-                Apartment apt = residential.get(chunk_random.nextInt(residential.size()));
-
-                npc.setApartment(apt);
-                stampOwnership(apt, npc);
+        }
+        //shop and office staff. The roll stays where it always was in the sequence, but a
+        //shop at 21:00 is shut, so its staff are at home with everybody else.
+        for (Apartment apt : getApartments()){
+            if (apt instanceof Building && !((Building)apt).isResidential()){
+                population += chunk_random.nextInt(3);
             }
+        }
+
+        for (int i = 0; i < population; i++){
+            if (residential.isEmpty()){ break; }   //nowhere to live (all parks)
+            Apartment apt = claimHome(residential, taken);
+            Point coord = homeTile(apt);
+            if (coord == null){ continue; }        //a home with no room to stand in
+
+            EntityRLHuman npc = (EntityRLHuman)placeNPC(coord.getX(), coord.getY());
+            //Every pedestrian is an LLM agent when inference is enabled; the reactor
+            //self-throttles to the near bucket so far NPCs cost nothing (§11).
+            giveBrain(npc, "agent");
+
+            npc.setApartment(apt);
+            stampOwnership(apt, npc);
         }
 
         //police — spawn at the police station lobby if one exists, else on roads
@@ -1018,6 +1120,74 @@ public class TownChunkGenerator extends ChunkGenerator {
         }
     }
 
+    /**
+     * The emptiest home still under its capacity, or the emptiest one of all when the town has
+     * more people than beds.
+     *
+     * <p>Homes used to be drawn uniformly at random and independently, which is not "everyone
+     * lives somewhere" but a balls-into-bins draw: with sixty pedestrians over twenty-odd
+     * houses the busiest reliably collects six or seven of them, and since a resident is what
+     * {@link #fillApartmentRooms} counts beds from, that house is furnished as a dormitory —
+     * seven beds crammed into three rooms, next door to an empty one.
+     */
+    private Apartment claimHome(List<Apartment> homes, int[] taken) {
+        int best = -1;
+        for (int i = 0; i < homes.size(); i++){
+            if (taken[i] >= sleeps(homes.get(i))){
+                continue;
+            }
+            if (best < 0 || taken[i] < taken[best]){
+                best = i;
+            }
+        }
+        if (best < 0){   //every house is full: the emptiest one takes one more anyway
+            for (int i = 0; i < homes.size(); i++){
+                if (best < 0 || taken[i] < taken[best]){
+                    best = i;
+                }
+            }
+        }
+        taken[best]++;
+        return homes.get(best);
+    }
+
+    /**
+     * Somewhere inside the home to stand — a tile of one of its <i>rooms</i> (INVARIANTS C3).
+     *
+     * <p>Not the home's rect: for a {@link Building} that is the lot it was cut from, yard
+     * and all, and picking a free tile out of it put the player's own family on the lawn as
+     * often as in the house.
+     */
+    private Point homeTile(Apartment apt) {
+        if (apt.rooms == null || apt.rooms.isEmpty()){
+            return null;
+        }
+        List<Point> free = new ArrayList<Point>();
+        for (Block room : apt.rooms){
+            for (int i = 1; i < room.getW(); i++){
+                for (int j = 1; j < room.getH(); j++){
+                    int wx = room.getX() + i, wy = room.getY() + j;
+                    if (isFreeFloor(wx, wy)){
+                        free.add(new Point(wx, wy));
+                    }
+                }
+            }
+        }
+        if (free.isEmpty()){
+            return null;
+        }
+        return free.get(chunk_random.nextInt(free.size()));
+    }
+
+    /** How many residents a home holds: a room each, less one for the kitchen. */
+    private int sleeps(Apartment apt) {
+        int rooms = (apt.rooms == null) ? 1 : apt.rooms.size();
+        int cap = rooms - 1;
+        if (cap < 1){ cap = 1; }
+        if (cap > MAX_HOUSEHOLD){ cap = MAX_HOUSEHOLD; }
+        return cap;
+    }
+
     /** Apartments that actually house residents (APARTMENT type / legacy Apartment). */
     private List<Apartment> getResidentialApartments() {
         List<Apartment> res = new ArrayList<Apartment>();
@@ -1028,6 +1198,9 @@ public class TownChunkGenerator extends ChunkGenerator {
         }
         if (res.isEmpty()){
             res.addAll(getApartments());   //degrade gracefully, never nextInt(0)
+        }
+        if (res.isEmpty() && playerHome != null){
+            res.add(playerHome);           //a town of nothing but shops: lodgers after all
         }
         return res;
     }
@@ -1096,12 +1269,17 @@ public class TownChunkGenerator extends ChunkGenerator {
 
         for(int i = 0; i<=block.getW(); i++ )
             for(int j = 0; j<=block.getH(); j++ ){
+                //a person, not a place: parks are laid out before any house exists, so there
+                //is nowhere to put him yet. populateMap houses him with everyone else (C3)
                 if (chunk_random.nextInt(200) < 1){
-                    EntityActor npc = placeNPC(block.getX()+i, block.getY()+j);
-                    giveBrain(npc, "loiterer");
+                    loiterers++;
                 }
 
-                if (chunk_random.nextInt(100) < 2){
+                //not on an occupied tile: the loiterer rolled just above shares this square,
+                //and a tree is solid, so planting one on him walls him inside it for good -
+                //he shows up in the world probe as a person outside the town's one component
+                if (chunk_random.nextInt(100) < 2
+                        && isFreeFloor(block.getX() + i, block.getY() + j)){
                     Entity tree = new Entity();
                     placeEntity(block.getX() + i, block.getY() + j, tree, "tree", "T");
                     //((RLTile)tree.tile).set
@@ -1209,8 +1387,10 @@ public class TownChunkGenerator extends ChunkGenerator {
         //street-facing windows + a guaranteed exterior entrance
         placeExteriorFeatures(building, lot, rooms);
 
-        //yard: grass and the odd crate against exterior walls (mock look)
-        decorateYard(building, lot);
+        //the yard is decorated in generate(), once the neighbours are up: a crate here is
+        //clear of this building's doors, and then the house across the boundary punches its
+        //own front door beside it. Nothing local to one building can see that coming.
+        yards.add(building);   //the building's own rect is the lot it was cut from
 
         building.rooms = new ArrayList<Block>(rooms);
         building.roomList = rooms;
@@ -1306,7 +1486,7 @@ public class TownChunkGenerator extends ChunkGenerator {
         if (doors.isEmpty()){
             return false;
         }
-        Point d = doors.get(doors.size() / 2);
+        Point d = pickDoorTile(doors);
         long key = ((long) d.getX() << 32) ^ (d.getY() & 0xffffffffL);
         if (!punched.contains(key)){
             boolean secure = isSecure(a) || isSecure(b);
@@ -1320,6 +1500,26 @@ public class TownChunkGenerator extends ChunkGenerator {
 
     private boolean isSecure(Room r) {
         return r.type != null && r.type.isSecure();
+    }
+
+    /**
+     * The most central tile on a shared wall that keeps this door clear of any gap already
+     * knocked through (INVARIANTS C2) — walking outwards from the middle, so the door still
+     * lands centrally when it can. A wall with nowhere clean left takes the middle anyway:
+     * the room has to be reachable, and that outranks tidiness.
+     */
+    private Point pickDoorTile(List<Point> doors) {
+        int mid = doors.size() / 2;
+        for (int off = 0; off < 2 * doors.size(); off++){
+            int i = (off % 2 == 0) ? mid + off / 2 : mid - (off / 2 + 1);
+            if (i < 0 || i >= doors.size()){
+                continue;
+            }
+            if (!nextToWallGap(doors.get(i).getX(), doors.get(i).getY())){
+                return doors.get(i);
+            }
+        }
+        return doors.get(mid);
     }
 
     /**
@@ -1368,7 +1568,9 @@ public class TownChunkGenerator extends ChunkGenerator {
             if (!roomAllowsWindow(e.room)){
                 continue;
             }
-            if (counter % TownGenConfig.WINDOW_SPACING == 0){
+            //the tiles arrive room by room and side by side, so consecutive entries can meet
+            //around a corner: spacing alone lets two gaps end up touching (INVARIANTS C2)
+            if (counter % TownGenConfig.WINDOW_SPACING == 0 && !nextToWallGap(e.p.getX(), e.p.getY())){
                 placeWindow(e.p.getX(), e.p.getY());
             }
             counter++;
@@ -1377,6 +1579,17 @@ public class TownChunkGenerator extends ChunkGenerator {
 
     /** Best available entrance wall, in descending order of desirability. */
     private ExtTile pickEntrance(List<ExtTile> exterior) {
+        //an entrance beside an interior door punched by connect() breaks C2 just as surely
+        List<ExtTile> clear = new ArrayList<ExtTile>();
+        for (ExtTile e : exterior){
+            if (!nextToWallGap(e.p.getX(), e.p.getY())){
+                clear.add(e);
+            }
+        }
+        if (!clear.isEmpty()){
+            exterior = clear;
+        }
+
         List<ExtTile> streetEntrance = new ArrayList<ExtTile>();
         List<ExtTile> street = new ArrayList<ExtTile>();
         List<ExtTile> entranceRoom = new ArrayList<ExtTile>();
@@ -1444,19 +1657,22 @@ public class TownChunkGenerator extends ChunkGenerator {
 
     /** Scatter grass across the yard (lot cells outside the footprint) and the
      *  occasional crate against an exterior wall, echoing the mock's street look. */
-    private void decorateYard(Building building, Lot lot) {
+    private void decorateYard(Building building) {
         GridMask m = building.footprint;
-        for (int i = 0; i <= lot.getW(); i++){
-            for (int j = 0; j <= lot.getH(); j++){
-                int wx = lot.getX() + i;
-                int wy = lot.getY() + j;
+        for (int i = 0; i <= building.getW(); i++){
+            for (int j = 0; j <= building.getH(); j++){
+                int wx = building.getX() + i;
+                int wy = building.getY() + j;
                 if (m.getWorld(wx, wy)){
                     continue;   //inside the building
                 }
                 boolean adjacentToWall = m.getWorld(wx-1, wy) || m.getWorld(wx+1, wy)
                                       || m.getWorld(wx, wy-1) || m.getWorld(wx, wy+1);
-                //never right outside a door or window - a crate on the step is a locked house
-                if (adjacentToWall && !nextToWallGap(wx, wy) && chunk_random.nextInt(100) < 5){
+                //never right outside a door or window - a crate on the step is a locked house.
+                //isFreeFloor also keeps two lots from each dropping a crate on the shared
+                //column between them: stacked, the repair pass has to lift them one per pass
+                if (adjacentToWall && !nextToWallGap(wx, wy) && chunk_random.nextInt(100) < 5
+                        && isFreeFloor(wx, wy)){
                     EntityFurniture crate = new EntityFurniture();
                     placeEntity(wx, wy, crate, "crate", "x", new Color(150, 110, 60));
                     crate.get_combat().set_hp(15);

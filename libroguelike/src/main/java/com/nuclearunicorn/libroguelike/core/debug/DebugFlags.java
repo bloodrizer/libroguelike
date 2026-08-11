@@ -12,6 +12,7 @@ package com.nuclearunicorn.libroguelike.core.debug;
  *   -Ddebug.path=validate    every route returned by A* is checked: contiguous, and never
  *                            crossing a tile the pathfinder itself calls blocked
  *   -Ddebug.world=ready      one dump of the map and its connected components at world-ready
+ *   -Ddebug.world=map        one ASCII picture of the finished town at world-ready
  *   -Ddebug.census=&lt;n&gt;       every n turns, a town-wide tally of what the NPCs are doing
  *   -Ddebug.strict=true      a violated check throws instead of printing (for CI)
  * </pre>
@@ -34,6 +35,11 @@ public final class DebugFlags {
 
     public static boolean dumpWorldAtReady() {
         return "ready".equalsIgnoreCase(world) || "1".equals(world) || "true".equalsIgnoreCase(world);
+    }
+
+    /** {@code -Ddebug.world=map}: print the finished town as ASCII, one line per row. */
+    public static boolean dumpMapAtReady() {
+        return "map".equalsIgnoreCase(world);
     }
 
     /** Turns between censuses, or 0 for off. */

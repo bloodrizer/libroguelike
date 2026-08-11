@@ -13,6 +13,8 @@ B2. should chase player who is chansed by other police npc
 #C. World gen
 
 C1. Furniture should not spawn adjacent to windows or doors.
+C2. This includes doors and windows themselves (can not be adjacent to each other)
+C3. Non-police NPC should spawn at their home rooms
 
 #D. AI
 
