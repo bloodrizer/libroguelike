@@ -14,6 +14,7 @@ import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldModel;
 import com.nuclearunicorn.serialkiller.generators.layerGenerators.TownChunkGenerator;
 import com.nuclearunicorn.serialkiller.render.RLMessages;
+import com.nuclearunicorn.serialkiller.utils.pathfinder.adaptive.AdaptivePathfinder;
 import org.lwjgl.util.Point;
 
 import java.util.ArrayList;
@@ -107,6 +108,9 @@ public final class TownFixture {
         WorldCluster.origin.setLocation(0, 0);
         Timer.init();
         Rng.seed(seed);
+        //the nav graph is a static, and the generator only ever adds to it: without this every
+        //town after the first is routed against the union of itself and its predecessors
+        AdaptivePathfinder.reset();
 
         final EventManager events = new EventManager();
         GameEnvironment env = new GameEnvironment("town-fixture-" + seed) {

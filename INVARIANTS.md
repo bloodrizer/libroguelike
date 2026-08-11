@@ -19,3 +19,10 @@ C3. Non-police NPC should spawn at their home rooms
 #D. AI
 
 D1. AI should not output text longer then two sentences or 30 chars.
+
+#E. Pathfinding
+
+E1. Every milestone must be a node of the nav graph (a doorway is a milestone too)
+E2. Every milestone must be routable from every other one
+E3. A route handed to a walker must be contiguous - no step may be a leap
+E4. An NPC sent to the far side of town must get a route, not a straight line at it

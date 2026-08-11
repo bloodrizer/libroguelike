@@ -23,17 +23,31 @@ import java.util.List;
 
 public class RLController extends NpcController {
 
-    /*
-        Calculate normal a-star path.
-        If failed to find optimal route, use adaptive pathfinding, which works better on longer routes
+    /**
+     * Calculate normal a-star path. If it failed to find an optimal route, use adaptive
+     * pathfinding, which works better on longer routes.
+     *
+     * <p>The fallback is the difference between a town you can cross and one you cannot. A*
+     * gives up past {@code MAX_SEARCH_DISTANCE}, which on a 128-tile map is most journeys
+     * worth making: measured over six towns it plans about a fifth of the trips longer than
+     * a hundred tiles, where the milestone route plans nearly all of them. What the callers
+     * do with "no path" is walk straight at the target instead — which is a policeman
+     * shouldering into the side of a building for the length of a chase.
+     *
+     * <p>This was commented out for a long time, and rightly: the milestone route it called
+     * could return one with a hole in the middle, and a hole is walked as a straight line
+     * through everything in between. It cannot any more — see {@link #fallbackDirect}.
      */
     @Override
     public void set_destination(Point destination) {
+        //the first A* is a probe, and a route too long for it is the normal reason to be here
+        quietAstar = true;
         super.set_destination(destination);
+        quietAstar = false;
 
-        /*if (!this.hasPath()){
+        if (!this.hasPath()){
             calculateAdaptivePath(owner.origin, destination);
-        }*/
+        }
     }
 
     /*
@@ -55,11 +69,13 @@ public class RLController extends NpcController {
         AdaptivePathfinder.calculateAdaptiveRoutes(fromMS);
         List<AdaptiveNode> adaptivePath = AdaptivePathfinder.getShortestPathTo(toMS);
 
-
-        /*System.out.println("moving from " + owner.origin + " to " + target + " path: " + adaptivePath);
-        System.out.println("(using " + fromMS + " to " + toMS + " as adaptive nodes)");
-        System.out.println("");*/
-
+        //No milestone route, or one that starts somewhere other than where we do. Either way
+        //the legs below would be joined to each other across open country: the prefix walks us
+        //to fromMS, the postfix picks up at toMS, and nothing goes between them.
+        if (adaptivePath.isEmpty() || !adaptivePath.get(0).point.equals(fromMS)){
+            fallbackDirect(target);
+            return;
+        }
 
         List<Point> debugPath = new ArrayList<Point>();
 
