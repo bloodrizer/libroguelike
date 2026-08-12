@@ -37,11 +37,53 @@ final class PixelCanvas {
         return argb(a, r, g, b);
     }
 
+    /** Linear interpolation between two opaque colours. */
+    static int mix(int a, int b, float t) {
+        int ar = (a >> 16) & 0xFF, ag = (a >> 8) & 0xFF, ab = a & 0xFF;
+        int br = (b >> 16) & 0xFF, bg = (b >> 8) & 0xFF, bb = b & 0xFF;
+        return argb(255,
+                (int) (ar + (br - ar) * t),
+                (int) (ag + (bg - ag) * t),
+                (int) (ab + (bb - ab) * t));
+    }
+
     void set(int x, int y, int color) {
         if (x < 0 || y < 0 || x >= w || y >= h) {
             return;
         }
         px[y * w + x] = color;
+    }
+
+    /** Alpha-composite one pixel over whatever is already there. */
+    void blend(int x, int y, int color) {
+        int a = (color >>> 24) & 0xFF;
+        if (a == 0 || x < 0 || y < 0 || x >= w || y >= h) {
+            return;
+        }
+        if (a == 255) {
+            px[y * w + x] = color;
+            return;
+        }
+        int dst = px[y * w + x];
+        int da = (dst >>> 24) & 0xFF;
+        float sa = a / 255.0f;
+        int outA = (int) (a + da * (1 - sa));
+        int r = (int) (((color >> 16) & 0xFF) * sa + ((dst >> 16) & 0xFF) * (1 - sa));
+        int g = (int) (((color >> 8) & 0xFF) * sa + ((dst >> 8) & 0xFF) * (1 - sa));
+        int b = (int) ((color & 0xFF) * sa + (dst & 0xFF) * (1 - sa));
+        px[y * w + x] = argb(outA, r, g, b);
+    }
+
+    void blendRect(int x, int y, int rw, int rh, int color) {
+        for (int j = 0; j < rh; j++) {
+            for (int i = 0; i < rw; i++) {
+                blend(x + i, y + j, color);
+            }
+        }
+    }
+
+    boolean opaque(int x, int y) {
+        return ((get(x, y) >>> 24) & 0xFF) > 40;
     }
 
     int get(int x, int y) {
@@ -98,6 +140,71 @@ final class PixelCanvas {
         hline(x, y + rh - 1, rw, color);
         vline(x, y, rh, color);
         vline(x + rw - 1, y, rh, color);
+    }
+
+    /** Bresenham segment — the diagonal braces on crates and ladders. */
+    void line(int x0, int y0, int x1, int y1, int color) {
+        int dx = Math.abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
+        int dy = -Math.abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+        int err = dx + dy;
+        while (true) {
+            set(x0, y0, color);
+            if (x0 == x1 && y0 == y1) {
+                return;
+            }
+            int e2 = 2 * err;
+            if (e2 >= dy) {
+                err += dy;
+                x0 += sx;
+            }
+            if (e2 <= dx) {
+                err += dx;
+                y0 += sy;
+            }
+        }
+    }
+
+    /**
+     * Trace a 1px dark rim just outside whatever is already drawn in the box.
+     * Every object sprite gets one — it is what makes the pixel layer read as
+     * shapes rather than as smudges once the light pass has multiplied over it.
+     */
+    void rim(int x, int y, int rw, int rh, int color) {
+        int[] copy = new int[rw * rh];
+        for (int j = 0; j < rh; j++) {
+            for (int i = 0; i < rw; i++) {
+                copy[j * rw + i] = opaque(x + i, y + j) ? 1 : 0;
+            }
+        }
+        for (int j = 0; j < rh; j++) {
+            for (int i = 0; i < rw; i++) {
+                if (copy[j * rw + i] != 0) {
+                    continue;
+                }
+                boolean touches = (i > 0 && copy[j * rw + i - 1] != 0)
+                        || (i < rw - 1 && copy[j * rw + i + 1] != 0)
+                        || (j > 0 && copy[(j - 1) * rw + i] != 0)
+                        || (j < rh - 1 && copy[(j + 1) * rw + i] != 0);
+                if (touches) {
+                    blend(x + i, y + j, color);
+                }
+            }
+        }
+    }
+
+    /**
+     * Re-draw a source sprite as a flat silhouette with a bright rim — how an
+     * actor the player remembers but cannot currently see is shown.
+     */
+    void silhouette(int sx, int sy, int dx, int dy, int rw, int rh, int fill, int rimColor) {
+        for (int j = 0; j < rh; j++) {
+            for (int i = 0; i < rw; i++) {
+                if (opaque(sx + i, sy + j)) {
+                    set(dx + i, dy + j, fill);
+                }
+            }
+        }
+        rim(dx, dy, rw, rh, rimColor);
     }
 
     void ellipse(float cx, float cy, float rx, float ry, int color) {

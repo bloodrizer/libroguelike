@@ -11,8 +11,8 @@ package com.nuclearunicorn.serialkiller.render;
  */
 public final class RenderConfig {
 
-    /** Screen pixels per grid step. */
-    public static int CELL = 24;
+    /** Screen pixels per grid step — the zoom level. Art re-bakes when it changes. */
+    public static int CELL = Integer.getInteger("lrl.cell", 32);
 
     /** Object box aspect: width 2 : height 3. */
     public static final float SPRITE_ASPECT = 1.5f;

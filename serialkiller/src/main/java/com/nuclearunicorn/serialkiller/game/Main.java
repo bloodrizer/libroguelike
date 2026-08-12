@@ -19,6 +19,14 @@ public class Main {
     public static InGameMode inGameMode;
 
     public static void main(String[] args) {
+        // -Dlrl.seed=N fixes the town, so two builds can be screenshotted side
+        // by side; without it the run picks its own and reports it as before.
+        String seed = System.getProperty("lrl.seed");
+        if (seed != null) {
+            com.nuclearunicorn.libroguelike.utils.Rng.seed(Long.parseLong(seed.trim()));
+            System.out.println("[rng] seeded " + seed.trim());
+        }
+
         inGameMode = new InGameMode();
 
         game = new SkillerGame();
