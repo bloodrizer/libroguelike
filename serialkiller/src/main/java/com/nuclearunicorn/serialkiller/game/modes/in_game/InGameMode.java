@@ -232,9 +232,13 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
 
     }
 
+    /** -Dlrl.fov=N pins the player's sight radius, for testing what memory looks like. */
+    private static final int FOV_OVERRIDE = Integer.getInteger("lrl.fov", 0);
+
     private void fovUpdate() {
         model.resetFov();
-        int fovRadius = ((RLCombat)Player.get_ent().get_combat()).getFovRadius();
+        int fovRadius = FOV_OVERRIDE > 0 ? FOV_OVERRIDE
+                : ((RLCombat)Player.get_ent().get_combat()).getFovRadius();
         fov.visitFieldOfView(model, Player.get_ent().x(), Player.get_ent().y(), fovRadius);
     }
 

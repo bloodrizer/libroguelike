@@ -131,12 +131,30 @@ public class SceneRenderer {
     private void renderRows(int x0, int y0, int x1, int y1) {
         for (int j = y0; j <= y1; j++) {
             renderWallRow(x0, x1, j);
-            for (Entity ent : rows.get(j - y0)) {
-                EntityRenderer renderer = ent.get_render();
-                if (renderer != null) {
-                    renderer.render();
+            // props first, actors after: an NPC asleep in a bed shares the bed's
+            // tile, and spawn order used to decide which of the two you saw
+            List<Entity> row = rows.get(j - y0);
+            for (Entity ent : row) {
+                if (!isActor(ent)) {
+                    draw(ent);
                 }
             }
+            for (Entity ent : row) {
+                if (isActor(ent)) {
+                    draw(ent);
+                }
+            }
+        }
+    }
+
+    private static boolean isActor(Entity ent) {
+        return ent instanceof com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
+    }
+
+    private static void draw(Entity ent) {
+        EntityRenderer renderer = ent.get_render();
+        if (renderer != null) {
+            renderer.render();
         }
     }
 
@@ -196,8 +214,12 @@ public class SceneRenderer {
                 }
                 if (SocialController.hasCrimeplace(tile.origin)) {
                     Glyphs.draw(i, j, "X", Color.red);
-                } else if (!tile.getTileModel().isEmpty() && tile.getTileModelColor() != null) {
-                    Glyphs.draw(i, j, tile.getTileModel(), tile.getTileModelColor());
+                } else if (!RenderConfig.PIXEL_SPRITES || RenderConfig.ASCII_OVER_SPRITES) {
+                    // the terrain glyph is what the floor material says now; drawing
+                    // both scatters stray '"' and '.' over the pixel layer
+                    if (!tile.getTileModel().isEmpty() && tile.getTileModelColor() != null) {
+                        Glyphs.draw(i, j, tile.getTileModel(), tile.getTileModelColor());
+                    }
                 }
             }
         }
