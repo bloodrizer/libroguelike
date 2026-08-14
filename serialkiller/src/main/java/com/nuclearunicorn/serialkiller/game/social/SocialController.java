@@ -9,10 +9,7 @@ import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.serialkiller.game.ai.PoliceAI;
 import com.nuclearunicorn.serialkiller.game.ai.llm.LlmDebug;
 import com.nuclearunicorn.serialkiller.game.events.NPCReportCrimeEvent;
-import com.nuclearunicorn.serialkiller.game.events.SuspiciousSoundEvent;
-import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLActor;
 import com.nuclearunicorn.serialkiller.render.RLMessages;
-import com.nuclearunicorn.serialkiller.utils.RLMath;
 import org.lwjgl.util.Point;
 import org.newdawn.slick.Color;
 
@@ -111,14 +108,6 @@ public class SocialController implements IEventListener{
             Point origin = ((NPCReportCrimeEvent) event).getOrigin();
             if (!crimeplaces.contains(origin)){
                 addCrimeplace(origin);
-            }
-        }
-        if (event instanceof SuspiciousSoundEvent){
-            List<Entity> ents = RLMath.getEntitiesInRadius(((SuspiciousSoundEvent) event).getOrigin(), ((SuspiciousSoundEvent) event).radius);
-            for (Entity ent: ents){
-                if (ent instanceof EntityRLActor){
-                    ((EntityRLActor)ent).e_on_event(event);
-                }
             }
         }
     }

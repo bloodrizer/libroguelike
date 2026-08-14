@@ -8,8 +8,8 @@ import com.nuclearunicorn.serialkiller.game.ai.behavior.PatrolAction;
 import com.nuclearunicorn.serialkiller.game.ai.behavior.SleepAction;
 import com.nuclearunicorn.serialkiller.game.ai.llm.sense.GameTurn;
 import com.nuclearunicorn.serialkiller.game.events.NPCWitnessCrimeEvent;
-import com.nuclearunicorn.serialkiller.game.events.SuspiciousSoundEvent;
 import com.nuclearunicorn.serialkiller.game.social.SocialController;
+import com.nuclearunicorn.serialkiller.game.sound.SoundHeard;
 
 /**
  * An ordinary person: patrols the streets, goes home at night, runs from anyone who hurts
@@ -67,10 +67,19 @@ public class PedestrianAI extends TownAI {
             SocialController.reportCrime(crime.origin, crime.criminal, human(), GameTurn.current());
             return;
         }
-        if (event instanceof SuspiciousSoundEvent) {
+        if (event instanceof SoundHeard) {
+            SoundHeard heard = (SoundHeard) event;
+            if (!heard.kind().isSuspicious()) {
+                return;     // footsteps and chatter are heard and ignored
+            }
             // Heard, not seen: no suspect to name, so this only ever produces a scene to
             // go and look at. Naming one from a noise is how a rumour becomes an arrest.
-            SocialController.reportCrime(((SuspiciousSoundEvent) event).getOrigin(), null,
+            //
+            // The place reported is the sound's true origin, which is more than this NPC
+            // actually knows — they have a direction, not a map reference. Correcting that
+            // means walking heard.fromDir, and belongs with InvestigateAction rather than
+            // here, where it would silently break every existing crime-scene consumer.
+            SocialController.reportCrime(heard.getOrigin(), null,
                     human(), GameTurn.current());
         }
     }

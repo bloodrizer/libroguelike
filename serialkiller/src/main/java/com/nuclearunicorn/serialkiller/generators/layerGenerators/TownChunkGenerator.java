@@ -15,6 +15,7 @@ import com.nuclearunicorn.serialkiller.game.ai.llm.LlmRuntime;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
 import com.nuclearunicorn.serialkiller.game.controllers.RLController;
 import com.nuclearunicorn.serialkiller.game.modes.in_game.InGameMode;
+import com.nuclearunicorn.serialkiller.game.sound.SoundConfig;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldChunk;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldModel;
@@ -1334,6 +1335,32 @@ public class TownChunkGenerator extends ChunkGenerator {
 
         ent.setLayerId(z_index);
         ent.spawn(new Point(x,y));
+
+        bakeSoundLoss(x, y, ent);
+    }
+
+    /**
+     * Fold a placed prop's muffling into its tile, so {@link SoundConfig} values reach the
+     * acoustic flood without it ever touching an entity list (SOUND_DESIGN.md 9.2).
+     *
+     * <p>People are skipped deliberately, exactly as they are in {@code isPathBlocked}: a
+     * neighbour standing in the doorway does not soundproof the house. Doors and windows
+     * are skipped too — they overwrite the tile with their own, larger value immediately
+     * after this returns, and a door's value has to track its lock state anyway.
+     */
+    private void bakeSoundLoss(int x, int y, Entity ent){
+        if (ent instanceof EntityRLHuman || ent instanceof EntityDoor){
+            return;
+        }
+        RLTile tile = (RLTile)(getLayer().get_tile(x, y));
+        if (tile == null){
+            return;
+        }
+        if (ent instanceof EntityTree){
+            tile.raiseSoundLoss(SoundConfig.TL_TREE);
+        } else if (ent instanceof EntityFurniture){
+            tile.raiseSoundLoss(SoundConfig.TL_PROP);
+        }
     }
 
     /**
@@ -1407,7 +1434,8 @@ public class TownChunkGenerator extends ChunkGenerator {
         for (int i = 0; i < m.w; i++){
             for (int j = 0; j < m.h; j++){
                 if (m.isEdge(i, j)){
-                    placeWall(m.ox + i, m.oy + j);
+                    //the mask edge IS the street-facing shell, so this is the expensive one
+                    placeWall(m.ox + i, m.oy + j, SoundConfig.TL_WALL_OUTER);
                 } else if (m.isInterior(i, j)){
                     //flag the floor so the renderer gives it an interior material
                     RLTile tile = (RLTile)(getLayer().get_tile(m.ox + i, m.oy + j));
@@ -1707,6 +1735,9 @@ public class TownChunkGenerator extends ChunkGenerator {
         window.get_combat().set_hp(1);
         window.setBlockSight(false);
         clearWall(x, y);
+        //after clearWall, which zeroes the tile: glass is the thinnest thing in the shell,
+        //and it is how a scream indoors ever reaches the street
+        ((RLTile)getLayer().get_tile(x, y)).setSoundLoss(SoundConfig.TL_WINDOW);
     }
 
 
@@ -1716,18 +1747,21 @@ public class TownChunkGenerator extends ChunkGenerator {
      */
     private void traceBlock(Block block){
         for (int i = 0; i< block.getH()+1; i++){
-            placeWall(block.getX(), block.getY()+i);
-            placeWall(block.getX()+block.getW(), block.getY()+i);
+            placeWall(block.getX(), block.getY()+i, SoundConfig.TL_WALL_INNER);
+            placeWall(block.getX()+block.getW(), block.getY()+i, SoundConfig.TL_WALL_INNER);
         }
         for (int j = 0; j< block.getW()+1; j++){
-            placeWall(block.getX()+j, block.getY());
-            placeWall(block.getX()+j, block.getY()+block.getH());
+            placeWall(block.getX()+j, block.getY(), SoundConfig.TL_WALL_INNER);
+            placeWall(block.getX()+j, block.getY()+block.getH(), SoundConfig.TL_WALL_INNER);
         }
     }
 
-    private void placeWall(int i, int j){
+    private void placeWall(int i, int j, int soundLoss){
         RLTile tile = (RLTile)(getLayer().get_tile(i,j));
         tile.setWall(true);
+        //raise, never set: room perimeters are traced over the building shell, and an
+        //exterior wall must not be downgraded to an interior one where a room touches it
+        tile.raiseSoundLoss(soundLoss);
         //TODO: add isBlockSight to RLTile
 
         //self.tiles[(x,y)].blocked = True
@@ -1743,6 +1777,8 @@ public class TownChunkGenerator extends ChunkGenerator {
         RLTile tile = (RLTile)(getLayer().get_tile(i,j));
         tile.setWall(false);
         tile.setWallGap(true);
+        //the masonry is gone; whatever plugs the hole sets its own loss after this
+        tile.setSoundLoss(SoundConfig.TL_OPEN);
     }
 
 

@@ -34,6 +34,17 @@ public class RLTile extends WorldTile {
     //how much blood this tile is covered with
     float bloodAmt = 0.0f;
 
+    /**
+     * dB a sound loses on entering this tile (SOUND_DESIGN.md 4.1). Zero for open ground.
+     *
+     * <p>Baked rather than derived. {@link Acoustics} floods thousands of cells per gunshot
+     * and its inner loop must stay a flat array read — walking {@code ent_list} to ask
+     * whether the thing standing here is a door would put an allocation and a type check
+     * inside it. The generator knows the answer at build time and writes it once; the two
+     * things that change it later (a door locking, a window breaking) write it themselves.
+     */
+    private byte soundLoss = 0;
+
     private TileType tileType;
     
     private String tileModel = "";
@@ -158,6 +169,27 @@ public class RLTile extends WorldTile {
             }
         }
         return false;
+    }
+
+    public int getSoundLoss() {
+        return soundLoss;
+    }
+
+    public void setSoundLoss(int loss) {
+        soundLoss = (byte) Math.max(0, Math.min(127, loss));
+    }
+
+    /**
+     * Set the loss only if it is louder-stopping than what is already here.
+     *
+     * <p>Room perimeters are traced after the building outline and the two overlap wherever
+     * a room touches the street, so a plain setter would quietly downgrade an exterior wall
+     * to an interior one along every such run — and rooms touch the outer wall constantly.
+     */
+    public void raiseSoundLoss(int loss) {
+        if (loss > soundLoss) {
+            setSoundLoss(loss);
+        }
     }
 
     public float getBloodAmt() {

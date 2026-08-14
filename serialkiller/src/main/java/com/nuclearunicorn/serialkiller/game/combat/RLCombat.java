@@ -7,7 +7,8 @@ import com.nuclearunicorn.libroguelike.game.ent.EntityActor;
 import com.nuclearunicorn.libroguelike.game.items.BaseItem;
 import com.nuclearunicorn.libroguelike.game.world.WorldTimer;
 import com.nuclearunicorn.serialkiller.game.events.CriminalActionEvent;
-import com.nuclearunicorn.serialkiller.game.events.SuspiciousSoundEvent;
+import com.nuclearunicorn.serialkiller.game.sound.SoundEvent;
+import com.nuclearunicorn.serialkiller.game.sound.SoundKind;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
 import com.nuclearunicorn.serialkiller.render.RLMessages;
 import org.newdawn.slick.Color;
@@ -150,7 +151,12 @@ public class RLCombat extends BasicCombat {
             if (inflictor instanceof EntityRLHuman){
                 ((EntityRLHuman)inflictor).kill(rlOwner);
             }
-
+            new SoundEvent(owner.origin, SoundKind.BODY_FALL, rlOwner,
+                    owner.getLayerId()).emit();
+        } else if (damage.amt > 0) {
+            // The loudest thing in any murder is the victim, and at 70dB it is the one
+            // noise that reliably gets out of a building through a window or an open door.
+            new SoundEvent(owner.origin, SoundKind.SCREAM, rlOwner, owner.getLayerId()).emit();
         }
     }
 
@@ -163,10 +169,22 @@ public class RLCombat extends BasicCombat {
         CriminalActionEvent event = new CriminalActionEvent(ent.origin, (EntityActor)owner, ent);
         event.post();
 
-        //TODO: temporary hack for player ent. TODO: rewrite for support of multiple criminals in town
-        if (owner.isPlayerEnt()){
-            SuspiciousSoundEvent soundEvent = new SuspiciousSoundEvent(ent.origin, 10); //TODO: differend sound modifiers
-            soundEvent.post();
+        // Every blow makes a noise, whoever throws it. This used to fire only for the player,
+        // which meant a mugging two streets over was silent and the town's sensor net only
+        // ever detected the one criminal it already knew about.
+        new SoundEvent(ent.origin, attackSound(), (EntityActor)owner, owner.getLayerId()).emit();
+    }
+
+    /**
+     * What the blow sounds like. A knife is quieter than a fist, which is quieter than
+     * something breaking — so the weapon that makes a murder easy is also the one that makes
+     * it quiet, and that is a choice worth having.
+     */
+    private SoundKind attackSound() {
+        switch (getDamageType()) {
+            case DMG_CUT:    return SoundKind.KNIFE;
+            case DMG_BLUNT:  return SoundKind.BONE_BREAK;
+            default:         return SoundKind.PUNCH;
         }
     }
 
