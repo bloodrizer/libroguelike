@@ -33,20 +33,33 @@ public class EntityDoor extends EntityFurniture {
     }
 
     /**
+     * Whether this door is standing open.
+     *
+     * <p>{@code locked} is this class's only state and it is really "shut": {@link #lock}
+     * draws "+", blocks movement and casts a shadow, {@link #unlock} draws "/", lets people
+     * walk through and lets light past. So an unlocked door is an <i>open</i> door — which
+     * is also why most doors in a generated town are open, {@code punchDoor} only passes
+     * {@code locked=true} for bank/office entrances and vault rooms.
+     */
+    public boolean isOpen() {
+        return !locked;
+    }
+
+    /**
      * Push this door's transmission loss down onto its tile, so the acoustic flood can
      * read it as a plain array value (SOUND_DESIGN.md 9.2).
      *
-     * <p>An unlocked door is still a <i>shut</i> door as far as sound is concerned. There
-     * is no open/closed state in this class — {@code unlocked} means "passable", and
-     * everyone walks through without ever opening anything — so treating unlocked as open
-     * would make every interior in town acoustically roofless. Shut is the right default;
-     * a real open/close action can lower it later.
+     * <p>An open door is a hole in a wall and has to sound like one — anything else means
+     * two people talking either side of a doorway cannot hear each other. A shut one costs
+     * the same whether or not it is locked: mass is what stops sound, and the lock only
+     * decides whether you can walk through. If reinforced doors ever become their own
+     * object, that is when they earn their own constant.
      */
     public void applySoundLoss() {
         if (!(tile instanceof RLTile)) {
             return;     //not spawned yet; punchDoor calls lock()/unlock() after spawn
         }
         ((RLTile) tile).setSoundLoss(
-                locked ? SoundConfig.TL_DOOR_LOCKED : SoundConfig.TL_DOOR_SHUT);
+                locked ? SoundConfig.TL_DOOR_SHUT : SoundConfig.TL_DOOR_OPEN);
     }
 }

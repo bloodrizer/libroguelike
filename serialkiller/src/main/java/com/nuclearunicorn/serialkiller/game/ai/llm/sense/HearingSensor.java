@@ -39,11 +39,18 @@ public class HearingSensor implements IEventListener {
 
     private static HearingSensor instance;
 
+    /**
+     * Subscribe for this world. Called on every entry to the game mode, and it has to
+     * <i>re</i>-subscribe: "New game" runs {@code ClientGameEnvironment.reset()}, which
+     * empties the event manager's listener list. Guarding on {@code instance != null} meant
+     * the sensor survived as an object but not as a subscriber, so the second town of a
+     * session was deaf — no NPC heard the player or each other, with no error anywhere.
+     * {@code subscribe()} already ignores a duplicate, so this is safe to call repeatedly.
+     */
     public static void init() {
-        if (instance != null) {
-            return;
+        if (instance == null) {
+            instance = new HearingSensor();
         }
-        instance = new HearingSensor();
         ClientGameEnvironment.getEnvironment().getEventManager().subscribe(instance);
         LlmDebug.log("hearing sensor subscribed (speech %ddB, directed at >=%ddB)",
                 SoundKind.TALK.db(), SoundConfig.DIRECTED_LEVEL);
@@ -59,14 +66,20 @@ public class HearingSensor implements IEventListener {
         Entity speaker = ClientGameEnvironment.getEnvironment()
                 .getEntityManager().get_entity(chat.uid);
         if (speaker == null) {
+            // Silent here means every line that speaker ever says vanishes, with the bubble
+            // still drawn over their head. Say so.
+            LlmDebug.log("hearing: no entity for uid %s - nobody can hear them", chat.uid);
             return;
         }
 
         SoundField field = Acoustics.propagate(speaker.origin, SoundKind.TALK.db(),
                 speaker.getLayerId());
         if (field == null) {
+            LlmDebug.log("hearing: no field for %s on layer %d",
+                    chat.uid, speaker.getLayerId());
             return;
         }
+        int delivered = 0;
 
         Entity[] ents = ClientGameEnvironment.getEnvironment()
                 .getEntityManager().getEntities(speaker.getLayerId());
@@ -107,7 +120,14 @@ public class HearingSensor implements IEventListener {
             TownAI brain = (TownAI) listener.getAI();
             brain.hear(speakerName, chat.message, addressed);
             brain.sense(stimulus);
+            delivered++;
         }
+
+        // The failure mode this whole class has is silence, and silence is indistinguishable
+        // from "nobody was near enough". Name the speaker and the count so a replay shows
+        // which of the two happened.
+        LlmDebug.log("hearing: %s spoke, %d listener(s) heard it",
+                Relations.name(speaker), delivered);
     }
 
     private static RLTile tileOf(Entity ent) {

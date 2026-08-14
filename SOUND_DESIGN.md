@@ -218,6 +218,7 @@ exact tie is inaudible; the numbers below are the last audible `d`.
 | Talk (32) outdoors, night (ambient 8 → thr 12) | `32 − 2d ≥ 13` | **9 tiles** — today's `earshotRadius` is 10 |
 | Talk (32), DIRECTED band | `32 − 2d ≥ 26` | **3 tiles** — today's `directedRadius` is 4 |
 | Talk (32) through an interior wall | `32 − (2+32) < 0` | **inaudible** |
+| Talk (32), speaker and listener each flanking an **open** door | `32 − (2+1) − 2 = 27`, then `−2d ≥ 13` | **7 more tiles** — the next room hears you plainly |
 | Talk (32), speaker and listener each flanking a closed door | `32 − (2+14) − 2 = 14` | **audible** — eavesdropping works |
 | …same, listener one tile further back | `14 − 2 = 12` | **inaudible** — a one-tile knife edge |
 | Scream (70) through an open door onto the street | `70 − (2+1) = 67`, then `−2d ≥ 13` | **27 tiles** — the whole street |
@@ -413,8 +414,7 @@ public class SoundConfig {
     public static int TL_WINDOW     = 14;
     public static int TL_WINDOW_BROKEN = 2;
     public static int TL_DOOR_OPEN  = 1;
-    public static int TL_DOOR_SHUT  = 14;
-    public static int TL_DOOR_LOCKED= 22;
+    public static int TL_DOOR_SHUT  = 14;   // locked or not; see pitfall 4
     public static int TL_WALL_INNER = 32;
     public static int TL_WALL_OUTER = 46;
 
@@ -458,12 +458,22 @@ left out rather than left dead.
    scratch after a generated town and asserts it matches the incrementally
    maintained value — this class of drift bug is otherwise invisible.
 
-4. **`EntityDoor` has no open/closed state.** `lock()` = blocking, `unlock()` =
-   permanently non-blocking. There is no "shut but unlocked", which is what most
-   doors should be acoustically. Phase 1 approximation: treat every unlocked door as
-   `TL_DOOR_SHUT` unless an actor is standing on its tile (a body in the doorway
-   means it is open) — cheap, free, and roughly right. A real open/close action is
-   Phase 4 and out of scope until then.
+4. **`EntityDoor.locked` *is* the open/shut state, and it is one-way.** Read the two
+   methods rather than their names: `lock()` draws `+`, blocks movement and casts a
+   shadow; `unlock()` draws `/`, lets people through and lets light past. That is
+   shut and open. Sound keys off it directly — open pays `TL_DOOR_OPEN`, shut pays
+   `TL_DOOR_SHUT` — and the *first cut of this got it backwards*, baking every door
+   as shut, which sealed rooms that are physically connected and is the one bug you
+   will actually notice in play. `SoundInvariantsTest.openDoorsLetSoundThrough` and
+   `AcousticsTest.conversationCarriesThroughAnOpenDoor` exist to stop it recurring.
+
+   `TL_DOOR_LOCKED` is gone: locking a door adds no mass, so it cannot change the
+   transmission loss. What is genuinely missing is a *close* action — `unlock()` is
+   one-way, so once an NPC opens a door it stays open forever, and the world contains
+   no shut-but-unlocked door at all. Every generated door is open except bank/office
+   entrances and vault rooms. Until closing exists, "shut the door before you start"
+   is not a move the player can make, and that is the interesting half of the
+   mechanic (Phase 4).
 
 5. **Fix the player-only gate.** `RLCombat.java:167` emits sound only when the
    attacker is the player. Remove the condition — NPC-on-NPC violence must be
@@ -499,6 +509,15 @@ left out rather than left dead.
 11. **Z-layers.** Flood within one layer only. Basements are acoustically isolated
     until someone specifies stair coupling; do not silently leak across `zindex`.
 
+12. **`HearingSensor` must re-subscribe on every world.** Not an acoustics problem, but
+    it presents as one: "New game" runs `ClientGameEnvironment.reset()`, which empties
+    the event manager's listener list, and the sensor's `init()` used to return early
+    when its static instance already existed. The second town of a session was therefore
+    completely deaf — NPCs heard neither the player nor each other — while every layer
+    below (field, thresholds, doors) was working perfectly. Pinned by
+    `SensorRewiringTest` and `EnvironmentResetTest`. The general rule: a service outside
+    the environment re-subscribes on the way in; it never guards on having been created.
+
 ---
 
 ## 10. Implementation phases (each independently shippable & testable)
@@ -528,8 +547,9 @@ does report it once the door is unlocked; police still get dispatched; tests 2, 
 behaviour outdoors is unchanged from before Phase 3.
 
 **Phase 4 — Investigation uses the direction field.** *(not started)*
-`InvestigateAction` follows `dir` instead of pathing to the raw origin. Real door
-open/close state (pitfall 4). Optional: room-portal coarse propagation (§11).
+`InvestigateAction` follows `dir` instead of pathing to the raw origin. A door *close*
+action, so shutting one is a move the player and the AI can make (pitfall 4).
+Optional: room-portal coarse propagation (§11).
 *Accept:* an NPC hearing a noise through a doorway walks to the doorway first;
 screen-recorded before/after.
 

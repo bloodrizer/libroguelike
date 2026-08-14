@@ -36,11 +36,11 @@ public class CrimeSensor implements IEventListener {
     /** Fallback sight range for anyone without combat stats to ask. */
     private static final int DEFAULT_FOV = 8;
 
+    /** Re-subscribes on every world; see {@link HearingSensor#init} for why that matters. */
     public static void init() {
-        if (instance != null) {
-            return;
+        if (instance == null) {
+            instance = new CrimeSensor();
         }
-        instance = new CrimeSensor();
         ClientGameEnvironment.getEnvironment().getEventManager().subscribe(instance);
         LlmDebug.log("crime sensor subscribed");
     }

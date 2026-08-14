@@ -68,9 +68,21 @@ public abstract class GameEnvironment {
         return getWorld().getWorldLayer(layerId);
     }
 
+    /**
+     * Tear the world down for a "New game".
+     *
+     * <p>Note what {@code getEventManager().reset()} does: it clears the <i>listener list</i>,
+     * so everything subscribed during startup is silently unsubscribed. The entity manager
+     * subscribes exactly once, when it is lazily built, so it has to be re-attached here or
+     * it stops seeing spawns and moves and never re-sorts for render order again. Services
+     * outside the environment are their own owner's problem — they must re-subscribe on the
+     * way in rather than guard on "have I ever been created", which is what left the second
+     * town of a session with no working senses.
+     */
     public void reset() {
         getEventManager().reset();
         getEntityManager().reset();
         getWorld().reset();
+        getEntityManager().setEnviroment(this);
     }
 }

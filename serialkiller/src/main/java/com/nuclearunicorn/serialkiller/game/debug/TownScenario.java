@@ -3,6 +3,7 @@ package com.nuclearunicorn.serialkiller.game.debug;
 import com.nuclearunicorn.libroguelike.core.client.ClientGameEnvironment;
 import com.nuclearunicorn.libroguelike.core.replay.Scenario;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
+import com.nuclearunicorn.libroguelike.game.ent.EntityActor;
 import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.libroguelike.game.world.WorldTimer;
 import com.nuclearunicorn.serialkiller.game.ai.PedestrianAI;
@@ -23,6 +24,7 @@ import java.util.Calendar;
  * <pre>
  *   tp &lt;x&gt; &lt;y&gt;              put the player here
  *   hurt &lt;who&gt; [times]      the player hits them; "who" is nearest, a name, or a uid prefix
+ *   say &lt;words...&gt;          the player speaks aloud, as pressing 't' does
  *   spawn &lt;kind&gt; &lt;x&gt; &lt;y&gt;   kind is pedestrian|police
  *   settime &lt;hour&gt;          0-23, so daytime is testable without waiting out the night
  *   tick [n]                advance n turns
@@ -54,6 +56,10 @@ public class TownScenario implements Scenario {
         }
         if ("spawn".equals(verb)) {
             spawn(args.length > 0 ? args[0] : "pedestrian", intArg(args, 1), intArg(args, 2));
+            return true;
+        }
+        if ("say".equals(verb)) {
+            say(String.join(" ", args));
             return true;
         }
         if ("settime".equals(verb)) {
@@ -89,6 +95,20 @@ public class TownScenario implements Scenario {
         for (int i = 0; i < times; i++) {
             Player.get_ent().get_combat().inflict_damage(target);
         }
+    }
+
+    /**
+     * The player says something out loud, exactly as pressing {@code t} does.
+     *
+     * <p>Worth a verb of its own: "walk up to someone and talk to them" is the single most
+     * common thing to want to test and the hardest to script through the keyboard, because
+     * it needs a text buffer typed one keycode at a time and an NPC who has not wandered off
+     * by the time you finish. It is also the path that was silently dropping every line the
+     * player said, which nothing could reproduce until this existed.
+     */
+    private void say(String text) {
+        ((EntityActor) Player.get_ent()).say_message(text);
+        TurnPump.advance();     //speaking costs a turn, so the listener gets to think
     }
 
     /** Mirrors the police spawn in TownChunkGenerator - brain, body, controller, then place. */

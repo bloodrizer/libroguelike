@@ -44,6 +44,11 @@ public class SocialController implements IEventListener{
     public static SocialController instance = new SocialController();
 
     public static void init(){
+        // Both of these are per-world, and this is the only place a new world announces
+        // itself. Without the clear, "New game" starts you in a town that already has the
+        // previous town's murder sites on the map and its reports deduplicated away.
+        crimeplaces.clear();
+        dispatched.clear();
         ClientGameEnvironment.getEnvironment().getEventManager().subscribe(instance);
     }
 

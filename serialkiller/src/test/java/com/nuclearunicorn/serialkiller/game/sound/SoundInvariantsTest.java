@@ -37,6 +37,7 @@ class SoundInvariantsTest {
 
         int walls = 0;
         int doors = 0;
+        int openDoors = 0;
         int windows = 0;
 
         for (int y = 0; y < town.size; y++) {
@@ -57,8 +58,11 @@ class SoundInvariantsTest {
                 EntityDoor door = door(tile);
                 if (door != null) {
                     doors++;
-                    assertEquals(door.isLocked() ? SoundConfig.TL_DOOR_LOCKED
-                                                 : SoundConfig.TL_DOOR_SHUT,
+                    if (door.isOpen()) {
+                        openDoors++;
+                    }
+                    assertEquals(door.isOpen() ? SoundConfig.TL_DOOR_OPEN
+                                               : SoundConfig.TL_DOOR_SHUT,
                             loss, "door at " + town.describe(x, y));
                     continue;
                 }
@@ -75,6 +79,44 @@ class SoundInvariantsTest {
         assertTrue(walls > 100, "expected a town with walls, found " + walls);
         assertTrue(doors > 0, "expected a town with doors");
         assertTrue(windows > 0, "expected a town with windows");
+        // and against the open-door branch above never being taken: most interior doors
+        // are unlocked, which in this game means standing open
+        assertTrue(openDoors > 0, "expected a town with open doors, found none of " + doors);
+    }
+
+    /**
+     * An open door is a hole in a wall. Talking in a room with one must reach further than
+     * the same conversation with that door shut.
+     *
+     * <p>The regression this exists for: door tiles were baked as {@code TL_DOOR_SHUT}
+     * regardless of state, so every doorway in town — nearly all of which stand open —
+     * muffled 14dB and rooms that are physically connected were acoustically sealed.
+     */
+    @ParameterizedTest
+    @MethodSource("seeds")
+    void openDoorsLetSoundThrough(long seed) {
+        TownFixture.Town town = TownFixture.town(seed);
+
+        int[] door = firstOpenDoorway(town);
+        assertNotNull(door, "no open doorway with passable tiles either side");
+        int dx = door[0];
+        int dy = door[1];
+        int sx = door[2];       // speaker, one side of the doorway
+        int sy = door[3];
+        int lx = door[4];       // listener, directly opposite
+        int ly = door[5];
+
+        SoundField open = Acoustics.propagate(town.layer, sx, sy, SoundKind.TALK.db(), 0);
+        // two air steps and the doorway itself: 32 - (2+1) - 2. Nothing can be cheaper,
+        // so this is exact regardless of what else the building is shaped like.
+        assertEquals(27, open.received(lx, ly),
+                "talking beside an open doorway must carry through it");
+
+        town.tile(dx, dy).setSoundLoss(SoundConfig.TL_DOOR_SHUT);
+        SoundField shut = Acoustics.propagate(town.layer, sx, sy, SoundKind.TALK.db(), 0);
+        assertTrue(shut.received(lx, ly) < 27,
+                "shutting the door must cost something, got "
+                        + shut.received(lx, ly) + " either way");
     }
 
     /**
@@ -149,6 +191,35 @@ class SoundInvariantsTest {
             }
         }
         return null;
+    }
+
+    /**
+     * An open door with open floor directly opposite each other across it, as
+     * {@code {doorX, doorY, aX, aY, bX, bY}}. Doors sit in walls, so the pair straddles
+     * the wall and there is no two-step route between them that avoids the doorway.
+     */
+    private static int[] firstOpenDoorway(TownFixture.Town town) {
+        for (int y = 10; y < town.size - 10; y++) {
+            for (int x = 10; x < town.size - 10; x++) {
+                RLTile tile = town.tile(x, y);
+                EntityDoor d = tile == null ? null : door(tile);
+                if (d == null || !d.isOpen()) {
+                    continue;
+                }
+                if (passable(town, x - 1, y) && passable(town, x + 1, y)) {
+                    return new int[]{x, y, x - 1, y, x + 1, y};
+                }
+                if (passable(town, x, y - 1) && passable(town, x, y + 1)) {
+                    return new int[]{x, y, x, y - 1, x, y + 1};
+                }
+            }
+        }
+        return null;
+    }
+
+    private static boolean passable(TownFixture.Town town, int x, int y) {
+        RLTile tile = town.tile(x, y);
+        return tile != null && !tile.isWall() && tile.getSoundLoss() == SoundConfig.TL_OPEN;
     }
 
     private static EntityDoor door(RLTile tile) {

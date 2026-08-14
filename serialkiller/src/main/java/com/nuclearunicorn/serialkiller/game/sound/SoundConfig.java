@@ -40,10 +40,12 @@ public final class SoundConfig {
     public static int TL_TREE = 3;
     public static int TL_WINDOW = 14;
     public static int TL_WINDOW_BROKEN = 2;
+    /** A doorway with the door standing open: an aperture, near enough to a hole. */
     public static int TL_DOOR_OPEN = 1;
 
     /**
-     * A shut but unlocked door.
+     * A shut door, locked or not — the lock decides who can walk through, not what gets
+     * past the panel.
      *
      * <p>Set by the eavesdrop case in SOUND_DESIGN.md 4.5, not picked for roundness:
      * speaker and listener flanking a shut door gives {@code 32 - (2+14) - 2 = 14},
@@ -54,7 +56,6 @@ public final class SoundConfig {
      */
     public static int TL_DOOR_SHUT = 14;
 
-    public static int TL_DOOR_LOCKED = 22;
     public static int TL_WALL_INNER = 32;
 
     /** The primary tuning knob: how private a building is. */

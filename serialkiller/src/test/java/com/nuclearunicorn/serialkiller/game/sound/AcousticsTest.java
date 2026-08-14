@@ -64,6 +64,21 @@ class AcousticsTest {
         assertEquals(12, f.received(3, 2));
     }
 
+    /**
+     * The regression: every door in town was baked as shut, so two people either side of an
+     * open doorway could not hear each other. An open door is a hole in a wall.
+     */
+    @Test
+    void conversationCarriesThroughAnOpenDoor() {
+        SoundField f = talk(doorway(SoundConfig.TL_DOOR_OPEN), 0, 2);
+        assertEquals(27, f.received(2, 2), "the next room over hears you clearly");
+        assertEquals(13, f.received(9, 2), "and it stays audible seven tiles beyond");
+        // the same wall with the door shut kills it inside two tiles - that is the mechanic
+        SoundField shut = talk(doorway(SoundConfig.TL_DOOR_SHUT), 0, 2);
+        assertEquals(14, shut.received(2, 2));
+        assertEquals(SILENT, shut.received(9, 2));
+    }
+
     @Test
     void screamPoursThroughAnOpenDoor() {
         SoundField f = field(doorway(SoundConfig.TL_DOOR_OPEN, 35), 0, 2, SoundKind.SCREAM);

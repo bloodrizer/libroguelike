@@ -28,11 +28,11 @@ public class PainSensor implements IEventListener {
 
     private static PainSensor instance;
 
+    /** Re-subscribes on every world; see {@link HearingSensor#init} for why that matters. */
     public static void init() {
-        if (instance != null) {
-            return;
+        if (instance == null) {
+            instance = new PainSensor();
         }
-        instance = new PainSensor();
         ClientGameEnvironment.getEnvironment().getEventManager().subscribe(instance);
         LlmDebug.log("pain sensor subscribed (witness radius %d)",
                 LlmRuntime.config().speech.earshotRadius);
