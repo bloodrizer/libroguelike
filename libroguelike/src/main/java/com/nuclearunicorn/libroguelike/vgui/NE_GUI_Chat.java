@@ -6,10 +6,13 @@
 package com.nuclearunicorn.libroguelike.vgui;
 
 import com.nuclearunicorn.libroguelike.core.Console;
+import com.nuclearunicorn.libroguelike.core.client.ClientGameEnvironment;
 import com.nuclearunicorn.libroguelike.events.EMouseClick;
 import com.nuclearunicorn.libroguelike.events.Event;
 import com.nuclearunicorn.libroguelike.events.network.EChatMessage;
+import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.player.Player;
+import com.nuclearunicorn.libroguelike.game.player.PlayerSpeech;
 
 /**
  *
@@ -90,8 +93,25 @@ public class NE_GUI_Chat extends NE_GUI_FrameModern {
         super.notify_event(e);
 
         if (e instanceof EChatMessage){
-            EChatMessage chat_event = (EChatMessage)e;
-            chat_history.add_line(chat_event.uid + " says: " + chat_event.message);
+            log_speech((EChatMessage)e);
         }
+    }
+
+    /**
+     * A line in the log for anything the player made out the words of.
+     *
+     * <p>Chat events go to the whole layer, so this used to transcribe every conversation in
+     * town — through walls, across the map — and attribute it to a raw entity uid. What you
+     * could not hear does not belong in your log, and what you could is worth a name.
+     */
+    private void log_speech(EChatMessage chat){
+        Entity speaker = ClientGameEnvironment.getEnvironment()
+                .getEntityManager().get_entity(chat.uid);
+        if (speaker == null || !PlayerSpeech.audible(chat, speaker)){
+            return;
+        }
+        String who = speaker.getName() == null || speaker.getName().isEmpty()
+                ? chat.uid : speaker.getName();
+        chat_history.add_line(who + " says: " + chat.message);
     }
 }

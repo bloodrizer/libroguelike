@@ -17,8 +17,8 @@ import com.nuclearunicorn.serialkiller.game.ai.llm.LlmRuntime;
  * <p>{@code ETakeDamage} existed only as a client-side FX cue — the damage number floating
  * over a head. Nothing routed it to the victim's brain, so {@link Stimulus.Channel#PAIN}
  * had no producer at all and being punched in the face was, to an LLM NPC, silence. The
- * only thing that did fire was a {@code SuspiciousSoundEvent} arriving as
- * <i>"something happened nearby"</i> at AMBIENT, which is not a reason to stop walking.
+ * only thing that did fire was a suspicious-noise event arriving as <i>"something happened
+ * nearby"</i> at AMBIENT, which is not a reason to stop walking.
  *
  * <p>Being attacked is the one signal that must outrank an in-flight plan unconditionally,
  * so it enters above {@code priority.interruptAt} and carries the attacker's uid — the
@@ -28,11 +28,11 @@ public class PainSensor implements IEventListener {
 
     private static PainSensor instance;
 
+    /** Re-subscribes on every world; see {@link HearingSensor#init} for why that matters. */
     public static void init() {
-        if (instance != null) {
-            return;
+        if (instance == null) {
+            instance = new PainSensor();
         }
-        instance = new PainSensor();
         ClientGameEnvironment.getEnvironment().getEventManager().subscribe(instance);
         LlmDebug.log("pain sensor subscribed (witness radius %d)",
                 LlmRuntime.config().speech.earshotRadius);

@@ -57,13 +57,30 @@ class ImpulseArbitrationTest {
                 "an irrelevant higher impulse must be skipped, not block the list");
     }
 
-    /** Equal priorities keep registration order — how the sleep/commute pair splits. */
+    /** Equal priorities keep registration order, so a tie is decided where it is written. */
     @Test
     void tiesKeepRegistrationOrder() {
         TestBrain brain = new TestBrain();
-        brain.add(30, new Urge("asleep", true));
+        brain.add(30, new Urge("night", true));
+        brain.add(30, new Urge("patrol", true));
+        assertEquals("night", brain.choose().name());
+    }
+
+    /**
+     * The planner sits between the two halves of bedtime: it may interrupt the walk home,
+     * but not the bed at the end of it. Below sleep and an NPC talks in its sleep; above the
+     * commute and a town with inference on goes to bed at dusk. See SleepIsQuietTest.
+     */
+    @Test
+    void aPlanInterruptsTheCommuteButNotTheBed() {
+        TestBrain brain = new TestBrain();
+        brain.add(60, new Urge("asleep", true));
+        brain.add(40, new Urge("plan", true));
         brain.add(30, new Urge("night", true));
         assertEquals("asleep", brain.choose().name());
+
+        brain.drop("asleep");
+        assertEquals("plan", brain.choose().name());
     }
 
     @Test

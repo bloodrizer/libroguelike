@@ -11,6 +11,7 @@ import com.nuclearunicorn.serialkiller.game.ai.llm.sense.Stimulus;
 import com.nuclearunicorn.serialkiller.game.ai.llm.sense.StimulusMemory;
 import com.nuclearunicorn.serialkiller.game.ai.mind.Narrating;
 import com.nuclearunicorn.serialkiller.game.ai.mind.Persona;
+import com.nuclearunicorn.serialkiller.game.world.Sight;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
 
 import java.util.List;
@@ -187,6 +188,19 @@ public final class Perception {
         }
     }
 
+    /**
+     * Who this NPC can actually see from where they stand.
+     *
+     * <p>{@code Fov.in_range} is a squared-distance test and nothing more, so this list used
+     * to include everyone within eight tiles through any number of walls — and being told
+     * "Nearby: BRET MAYNARD" is an invitation to address him. That is most of what "they talk
+     * to each other through walls" was: not a hearing bug (speech has gone through the sound
+     * field since {@code HearingSensor} was rewritten) but a seeing one, in the prompt.
+     *
+     * <p>Sight rather than earshot on purpose. Someone silent in the next room is not
+     * perceivable at all; someone talking in the next room arrives as a transcript line from
+     * the hearing sensor, which is the honest way to learn they are there.
+     */
     private static void appendNearby(StringBuilder sb, EntityRLHuman owner) {
         Entity[] ents = Fov.get_entity_in_radius(
                 owner.getEnvironment().getEntityManager(),
@@ -195,6 +209,9 @@ public final class Perception {
         boolean any = false;
         for (Entity ent : ents) {
             if (ent == owner) {
+                continue;
+            }
+            if (!Sight.canSee(owner, ent)) {
                 continue;
             }
             if (ent.isPlayerEnt() || ent instanceof EntityRLHuman) {
@@ -211,7 +228,11 @@ public final class Perception {
             sb.append(".\n");
         }
 
-        if (Player.get_ent() != null && Fov.in_range(owner.origin, Player.get_origin(), NEARBY_RADIUS)) {
+        //"watching" needs eyes on both ends - an NPC indoors was told this about a player
+        //standing in the street outside, and behaved as though observed while alone
+        if (Player.get_ent() != null
+                && Fov.in_range(owner.origin, Player.get_origin(), NEARBY_RADIUS)
+                && Sight.canSee(owner, Player.get_ent())) {
             sb.append("The player is watching you.\n");
         }
     }

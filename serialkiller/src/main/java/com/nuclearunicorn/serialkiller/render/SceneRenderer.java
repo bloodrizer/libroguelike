@@ -8,6 +8,7 @@ import com.nuclearunicorn.libroguelike.render.EntityRenderer;
 import com.nuclearunicorn.libroguelike.render.overlay.OverlaySystem;
 import com.nuclearunicorn.serialkiller.game.social.SocialController;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
+import com.nuclearunicorn.serialkiller.render.overlays.DebugSoundField;
 import org.newdawn.slick.Color;
 
 import java.util.ArrayList;
@@ -63,6 +64,9 @@ public class SceneRenderer {
         if (RenderConfig.SMOOTH_LIGHT) {
             light.render(x0, y0, x1, y1);
         }
+
+        //ALT debug layer, drawn over the lit frame while the camera matrix is still applied
+        DebugSoundField.render();
     }
 
     // ------------------------------------------------------------------ floor

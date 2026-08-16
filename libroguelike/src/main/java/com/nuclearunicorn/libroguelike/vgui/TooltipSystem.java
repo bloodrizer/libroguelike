@@ -27,6 +27,18 @@ public class TooltipSystem extends EffectsSystem {
     void set_gui(NE_GUI_System gui) {
         this.gui = gui;
     }
+
+    /**
+     * Tooltips only.
+     *
+     * <p>This subscribes to the same event manager as the real {@link EffectsSystem} and
+     * inherited its handler, so every chat bubble and damage number was built twice and
+     * rendered twice from two roots — visible as double-struck text and doubled alpha on
+     * every line anyone speaks.
+     */
+    @Override
+    public void e_on_event(com.nuclearunicorn.libroguelike.events.Event event) {
+    }
     
     public static void set_tooltip(FXTooltip fx_tooltip){
         TooltipSystem.fx_tooltip = fx_tooltip;

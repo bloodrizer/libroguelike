@@ -19,6 +19,7 @@ only while a replay is driving the session, so they cannot be used as a console:
     tp <x> <y>          put the player here
     hurt <who> [times]  the player strikes them; who is "nearest", a name, or a uid prefix
     spawn <kind> <x> <y>  kind is pedestrian|police
+    saidby <who> <text> somebody other than the player says something out loud
     settime <hour>      0-23
     tick [n]            advance n turns without needing a keypress to do it
 
@@ -39,7 +40,7 @@ DIRS = {'w': 'w', 'a': 'a', 's': 's', 'd': 'd',
         'up': 'up', 'down': 'down', 'left': 'left', 'right': 'right'}
 
 # Verbs handled by the game rather than the keyboard - see TownScenario.
-SCENARIO = {'tp', 'hurt', 'spawn', 'settime', 'tick'}
+SCENARIO = {'tp', 'hurt', 'spawn', 'settime', 'tick', 'saidby'}
 
 
 def build(script, gap, start):

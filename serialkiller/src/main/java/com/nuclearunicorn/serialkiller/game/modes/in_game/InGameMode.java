@@ -40,6 +40,7 @@ import com.nuclearunicorn.serialkiller.game.ai.llm.sense.GameTurn;
 import com.nuclearunicorn.serialkiller.game.ai.llm.sense.HearingSensor;
 import com.nuclearunicorn.serialkiller.game.ai.llm.sense.CrimeSensor;
 import com.nuclearunicorn.serialkiller.game.ai.llm.sense.PainSensor;
+import com.nuclearunicorn.serialkiller.game.sound.PlayerEars;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
 import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
@@ -162,6 +163,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         HearingSensor.init();
         PainSensor.init();
         CrimeSensor.init();
+        PlayerEars.init();       //the player is a listener too, on the same acoustic terms
 
         WorldProbe.atReady();   //-Ddebug.world=ready: is this town one connected place?
 
