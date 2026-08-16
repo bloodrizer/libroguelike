@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>serialkiller — wasm</title>
+<style>
+  html, body { margin: 0; min-height: 100%; background: #0b0c10; color: #c9d1d9;
+               font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
+  #wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 16px; }
+  canvas { background: #000; image-rendering: pixelated; border: 1px solid #222;
+           max-width: 100%; outline: none; }
+  #status { white-space: pre-wrap; max-width: 1024px; }
+  .err { color: #ff7b72; }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="gl" width="1024" height="768" tabindex="0"></canvas>
+  <div id="status">loading…</div>
+</div>
+<script type="module">
+  import { preloadAssets } from './boot.js';
+
+  const status = document.getElementById('status');
+  const canvas = document.getElementById('gl');
+  // Signals for the headless harness; see scripts/webtest.sh.
+  window.__sk = { booted: false, error: null };
+
+  const say = (msg, isErr) => {
+    status.textContent = msg;
+    status.className = isErr ? 'err' : '';
+  };
+
+  try {
+    say('preloading assets…');
+    const counts = await preloadAssets();
+    say(`starting wasm (${counts.images} images, ${counts.text} data files)…`);
+
+    const { load } = await import('./serialkiller.wasm-runtime.js');
+    const teavm = await load('./serialkiller.wasm', {
+      stackDeobfuscator: { enabled: true }
+    });
+    teavm.exports.main([]);
+    window.__sk.booted = true;
+    canvas.focus();
+  } catch (e) {
+    window.__sk.error = String((e && e.stack) || e);
+    say('BOOT FAILED\n' + window.__sk.error, true);
+    console.error(e);
+  }
+</script>
+</body>
+</html>

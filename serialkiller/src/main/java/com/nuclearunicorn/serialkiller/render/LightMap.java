@@ -10,8 +10,9 @@ import com.nuclearunicorn.libroguelike.game.world.layers.WorldLayer;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLActor;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
+import com.nuclearunicorn.serialkiller.game.world.fov.FovFactory;
+import rlforj.los.IFovAlgorithm;
 import rlforj.los.ILosBoard;
-import rlforj.los.PrecisePermissive;
 
 import java.util.HashMap;
 import java.util.List;
@@ -54,7 +55,7 @@ public class LightMap {
     private float[] hb = new float[0];
 
     private final Map<Long, Mask> masks = new HashMap<Long, Mask>();
-    private final PrecisePermissive fov = new PrecisePermissive();
+    private final IFovAlgorithm fov = FovFactory.create();
 
     // -------------------------------------------------------------- emitters
 

@@ -279,3 +279,121 @@ What's next (M2b — see [PORTING.md §5](PORTING.md)):
 - Wire `glfwSetCursor` so `Mouse.setNativeCursor` shim isn't a no-op.
 - Audit `Cursor` shim — currently the cursor texture upload is no-op so the in-game cursor is the OS default.
 
+---
+
+## Milestone 3 — TeaVM WebAssembly
+
+Goal: compile the game to wasm and run it in a browser. Decision taken during the
+work: **skip libGDX**. PORTING.md §6 assumed the renderer would be ported onto
+libGDX's API to get a web backend for free, but an audit showed the game issues
+only ~45 distinct GL calls from 19 `glBegin` sites, all fixed-function 2D. Writing
+a GL 1.1 emulation over WebGL was smaller than a libGDX migration and left every
+gameplay and renderer file untouched.
+
+Full detail lives in [PORTING.md §10](PORTING.md); this is the sequence and what
+each step cost.
+
+### Step 1 — Prove the toolchain before porting anything
+
+TeaVM 0.15.0, `targetType=WEBASSEMBLY_GC`. A hello-world that touched WebGL,
+collections and `String.format` compiled to a 213KB wasm and ran under headless
+Chromium. Only then was any game code involved.
+
+Wrote [scripts/webtest.sh](scripts/webtest.sh) at this point — it serves
+`web/target/web`, loads it in headless Chromium and reads a verdict out of the
+page's `#status` element. Every step below was checked with it.
+
+**Bug encountered and fixed — sandboxed network namespaces.** The static server
+and Chromium must start in the *same* shell invocation; a server backgrounded in
+one command was unreachable from the next. The script also waits for the listener
+before launching Chromium, which otherwise lands on an error page and reports a
+confusing "no #status found".
+
+### Step 2 — Module layout
+
+`web/` copies the engine and game sources into `target/generated-sources/game`
+with an exclude list and compiles them next to `web/src/main/java`. Copy-with-
+excludes rather than `build-helper:add-source` over the original trees, because
+the wasm build has to replace desktop-only classes *under the same FQN* — a
+compiler `<excludes>` pattern would have matched both copies.
+
+The exclusion list is the honest statement of what a browser cannot do, and each
+entry either has a replacement in `web/src/main/java` or is documented as absent.
+
+### Step 3 — GL 1.1 over WebGL
+
+`org.lwjgl.opengl.GL11` in the web module accumulates `glBegin`…`glEnd` into a
+float array and flushes one `glDrawArrays` per `glEnd`, keeps its own
+projection/modelview matrix stacks, expands `GL_QUADS` to triangles (WebGL has no
+quads), and maps GL's integer texture names onto `WebGLTexture` objects. One
+shader — vertex colour × optional texture — covers every draw the game makes.
+The renderer already batched long runs between one begin/end pair, so per-flush
+draw calls were never a concern.
+
+### Step 4 — Making the shared code platform-neutral
+
+Six small refactors, all behaviour-preserving on the desktop; see PORTING.md §10
+for the list. The two worth repeating: `Game.run()`'s blocking `while` was split
+so the browser can drive `runFrame()` from `requestAnimationFrame`, and
+`TrueTypeFont` now takes a `FontSpec` rather than a `java.awt.Font`, which is what
+freed `OverlaySystem` and `Glyphs` from AWT and avoided duplicating them.
+
+### Step 5 — Getting TeaVM to link
+
+Four rounds, each surfacing one class of gap: slf4j's provider binding, Gson's
+reflective type adapters, `Runtime.addShutdownHook` in the replay recorder, and
+three missing JDK classes that Gson's `TypeAdapters` initialiser references.
+
+The last needed `--patch-module java.base=...` in a dedicated compile pass, since
+javac otherwise refuses to define a class in a `java.*` package. Swapping
+`Gson.fromJson` for `JsonParser.parseString` in `CommandRegistry` removed the
+reflective path entirely — tree parsing needs no type adapters, and this is
+better code on the desktop too.
+
+### Step 6 — Making it actually render
+
+Two silent failures, neither of which threw where the fault was:
+
+1. **Texture uploads did nothing.** Handing a `java.nio.ByteBuffer` to WebGL's
+   `texImage2D` relies on a by-reference view Wasm GC does not provide; the call
+   succeeded and the texture stayed empty. This rendered as a world with correct
+   lighting and no tiles at all. `GL11.glTexImage2D` now copies into a
+   `Uint8Array` explicitly.
+2. **Missing textures returned null.** The web `Render` skipped the desktop's
+   invalid-texture fallback, so callers that dereference the result crashed.
+
+**Bug encountered and fixed — rlforj is miscompiled by TeaVM.**
+`PrecisePermissive.visitFieldOfView` null-derefs inside its own scan on any board
+with walls at radius ≳12. Ruling it in took a dedicated diagnostic entry point
+(`-Dweb.mainClass=...WebProbe`) plus a JavaScript-backend build whose traces keep
+Java frames, both of which are now permanent debugging tools:
+
+- the same call succeeds on the JVM, so it is not the algorithm;
+- it fails with the vendored Java 5 jar *and* with its sources recompiled by
+  javac 17, so it is not the bytecode vintage;
+- `LinkedList`/`ListIterator` semantics under TeaVM match the JDK exactly in every
+  pattern rlforj uses, so it is not the collections.
+
+The web build substitutes `Shadowcast`, a self-contained recursive shadowcaster,
+through a new `FovFactory` seam. `ShadowcastTest` covers the invariants that
+matter (radius, wall shadows, a sealed room leaking nothing, a doorway letting
+sight through). **This is a genuine behavioural difference** from the desktop
+build around corners, and the first thing to revisit if TeaVM fixes the defect.
+
+Also learned: the rlforj jar's bundled `.java` sources are not in sync with its
+`.class` files, so recompiling it from what it ships is not a safe swap.
+
+### Milestone 3 — done
+
+- `mvn -pl web package` produces `web/target/web`: an 880KB wasm plus runtime,
+  page and assets, servable by any static host.
+- The game boots in Chromium, generates a town, spawns ~320 entities, and renders
+  tiles, sprites, lighting, the ASCII layer, the GUI and the console at the same
+  fidelity as the desktop build (verified by screenshot against `scripts/shot.sh`).
+- Keyboard and mouse are wired through DOM events.
+- All 162 desktop tests still pass; 7 new tests cover the web FOV.
+
+What's next:
+- Measure performance on a real GPU; the headless software-GL numbers say nothing.
+- Revisit `Shadowcast` if TeaVM's rlforj defect is fixed, and report it upstream.
+- Custom TTFs, bitmap cursors, and `-D` debug flags remain unimplemented on web.

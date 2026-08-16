@@ -1,0 +1,55 @@
+# Publish the wasm build (web/target/web) to GitHub Pages.
+#
+# One-time repo setup: Settings -> Pages -> Source: "GitHub Actions".
+# After that every push to master republishes the site.
+name: pages
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+# Pages deployment needs these; the default token grants neither.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never cancel a deploy midway; queue instead.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      # slick-util and rlforj are not on Central; they ship in libroguelike/lib/.
+      - name: Install vendored jars
+        run: ./scripts/install-local-jars.sh
+
+      # Tests are headless (none touch Display or GL), so CI runs them.
+      - name: Build desktop + wasm
+        run: mvn -B -ntp package
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/target/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

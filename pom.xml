@@ -20,6 +20,7 @@
     <modules>
         <module>libroguelike</module>
         <module>serialkiller</module>
+        <module>web</module>
     </modules>
 
     <properties>

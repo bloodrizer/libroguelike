@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.nuclearunicorn</groupId>
+        <artifactId>libroguelike-parent</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>web</artifactId>
+    <name>serialkiller (web/wasm)</name>
+    <description>
+        TeaVM WebAssembly build. Compiles the engine + game sources directly
+        (see build-helper source roots) so no desktop-only class ever reaches
+        the wasm classpath. Platform shims live in src/main/java/org/lwjgl.
+    </description>
+
+    <properties>
+        <teavm.version>0.15.0</teavm.version>
+        <!-- Override to compile a diagnostic entry point instead of the game,
+             e.g. -Dweb.mainClass=com.nuclearunicorn.web.WebProbe -->
+        <web.mainClass>com.nuclearunicorn.web.WebMain</web.mainClass>
+    </properties>
+
+    <profiles>
+        <!--
+          Debug aid: wasm GC stack traces bottom out at WasmGCSupport.npe, which
+          says nothing about where the fault was. The JavaScript backend keeps
+          full Java frames, so `mvn -pl web -Pdebug-js package` plus
+          scripts/webtest.sh js gives a readable trace for the same code.
+        -->
+        <profile>
+            <id>debug-js</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.teavm</groupId>
+                        <artifactId>teavm-maven-plugin</artifactId>
+                        <version>${teavm.version}</version>
+                        <executions>
+                            <execution>
+                                <id>web-js</id>
+                                <phase>package</phase>
+                                <goals><goal>compile</goal></goals>
+                                <configuration>
+                                    <targetType>JAVASCRIPT</targetType>
+                                    <mainClass>${web.mainClass}</mainClass>
+                                    <targetDirectory>${project.build.directory}/web</targetDirectory>
+                                    <targetFileName>serialkiller.js</targetFileName>
+                                    <optimizationLevel>SIMPLE</optimizationLevel>
+                                    <debugInformationGenerated>true</debugInformationGenerated>
+                                    <sourceMapsGenerated>true</sourceMapsGenerated>
+                                    <sourceFilesCopied>true</sourceFilesCopied>
+                                    <minifying>false</minifying>
+                                    <jsModuleType>UMD</jsModuleType>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.teavm</groupId>
+            <artifactId>teavm-classlib</artifactId>
+            <version>${teavm.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.teavm</groupId>
+            <artifactId>teavm-jso-apis</artifactId>
+            <version>${teavm.version}</version>
+        </dependency>
+
+        <!-- Same libraries the engine compiles against on the desktop. -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-pool</groupId>
+            <artifactId>commons-pool</artifactId>
+        </dependency>
+        <!-- slf4j-api is deliberately absent: its provider binding needs
+             ServiceLoader + a SecurityManager stack walk, so web/src/main/java
+             carries a console-backed org.slf4j shim instead. -->
+        <dependency>
+            <groupId>net.sourceforge.rlforj</groupId>
+            <artifactId>rlforj</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>serialkiller-web</finalName>
+
+        <!--
+          Same jar layout the desktop modules produce (targetPath "resources"), so
+          every getResourceAsStream("/resources/...") callsite resolves unchanged.
+        -->
+        <resources>
+            <resource>
+                <directory>${project.basedir}/../libroguelike/src/main/resources</directory>
+                <targetPath>resources</targetPath>
+                <excludes>
+                    <exclude>logback.xml</exclude>
+                </excludes>
+            </resource>
+            <resource>
+                <directory>${project.basedir}/../serialkiller/src/main/resources</directory>
+                <targetPath>resources</targetPath>
+            </resource>
+        </resources>
+
+        <plugins>
+            <!--
+              The engine and game sources are compiled into this module rather than
+              consumed as jars: the wasm build must swap out desktop-only classes
+              (GLFW, AWT, STB, sockets) for browser ones under the SAME package and
+              class name. Copying with an exclude list keeps exactly one definition
+              of each class on the compiler's source path.
+
+              Anything excluded here has a replacement in web/src/main/java, or is
+              deliberately absent from the web build — see PORTING.md §10.
+            -->
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-game-sources</id>
+                        <phase>generate-sources</phase>
+                        <goals><goal>copy-resources</goal></goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/generated-sources/game</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}/../libroguelike/src/main/java</directory>
+                                    <excludes>
+                                        <!-- GLFW-backed window/input; replaced by canvas + DOM events -->
+                                        <exclude>org/lwjgl/opengl/Display.java</exclude>
+                                        <exclude>org/lwjgl/opengl/GLContext.java</exclude>
+                                        <exclude>org/lwjgl/opengl/ContextCapabilities.java</exclude>
+                                        <exclude>org/lwjgl/input/InputBridge.java</exclude>
+                                        <exclude>org/lwjgl/input/Keyboard.java</exclude>
+                                        <exclude>org/lwjgl/input/Mouse.java</exclude>
+                                        <!-- AWT/STB asset loading; replaced by Canvas2D + HTMLImageElement -->
+                                        <exclude>org/newdawn/slick/TrueTypeFont.java</exclude>
+                                        <exclude>org/newdawn/slick/opengl/TextureLoader.java</exclude>
+                                        <!-- classpath resource reads; the page preloads instead -->
+                                        <exclude>com/nuclearunicorn/libroguelike/utils/Resources.java</exclude>
+                                        <exclude>com/nuclearunicorn/libroguelike/render/WindowRender.java</exclude>
+                                        <exclude>com/nuclearunicorn/libroguelike/render/Render.java</exclude>
+                                        <exclude>com/nuclearunicorn/libroguelike/render/ScreenCapture.java</exclude>
+                                        <exclude>com/nuclearunicorn/libroguelike/render/FBO.java</exclude>
+                                        <!-- java.applet: removed from the JDK, no browser analogue needed -->
+                                        <exclude>com/nuclearunicorn/libroguelike/core/MainApplet.java</exclude>
+                                        <!-- JSONL traces on disk + a JVM shutdown hook; Replay itself is portable -->
+                                        <exclude>com/nuclearunicorn/libroguelike/core/replay/ReplayRecorder.java</exclude>
+                                        <exclude>com/nuclearunicorn/libroguelike/core/replay/ReplayPlayer.java</exclude>
+                                    </excludes>
+                                </resource>
+                                <resource>
+                                    <directory>${project.basedir}/../serialkiller/src/main/java</directory>
+                                    <excludes>
+                                        <exclude>com/nuclearunicorn/serialkiller/game/MainApplet.java</exclude>
+                                        <!-- writes PNGs to disk from a dev-only debug path -->
+                                        <exclude>com/nuclearunicorn/serialkiller/render/AtlasDump.java</exclude>
+                                        <!--
+                                          Only the four LLM classes that spawn processes, do HTTP or
+                                          touch disk. The sense/ and command/ layers, Perception and
+                                          the FSM brain are portable and stay in the web build.
+                                        -->
+                                        <exclude>com/nuclearunicorn/serialkiller/game/ai/llm/LlmConfigLoader.java</exclude>
+                                        <exclude>com/nuclearunicorn/serialkiller/game/ai/llm/LlamaServerManager.java</exclude>
+                                        <exclude>com/nuclearunicorn/serialkiller/game/ai/llm/LlamaHttpInferenceService.java</exclude>
+                                        <exclude>com/nuclearunicorn/serialkiller/game/ai/llm/ModelDownloader.java</exclude>
+                                        <!-- picks rlforj's PrecisePermissive, which TeaVM miscompiles -->
+                                        <exclude>com/nuclearunicorn/serialkiller/game/world/fov/FovFactory.java</exclude>
+                                    </excludes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <!-- Static page sits next to the generated wasm so target/web is servable as-is. -->
+                    <execution>
+                        <id>copy-webapp</id>
+                        <phase>package</phase>
+                        <goals><goal>copy-resources</goal></goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/web</outputDirectory>
+                            <resources>
+                                <resource><directory>src/main/webapp</directory></resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <!-- Images must also be fetchable by the page: the browser decodes
+                         them and hands the engine ready HTMLImageElements. -->
+                    <execution>
+                        <id>copy-web-assets</id>
+                        <phase>package</phase>
+                        <goals><goal>copy-resources</goal></goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/web/resources</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}/../libroguelike/src/main/resources</directory>
+                                </resource>
+                                <resource>
+                                    <directory>${project.basedir}/../serialkiller/src/main/resources</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!--
+              The page must know what to preload before wasm starts, because image
+              decoding is async and the engine's texture loading is not. This lists
+              whatever actually shipped into target/web/resources.
+            -->
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>asset-manifest</id>
+                        <phase>package</phase>
+                        <goals><goal>run</goal></goals>
+                        <configuration>
+                            <target>
+                                <fileset id="webimages"
+                                         dir="${project.build.directory}/web/resources"
+                                         includes="**/*.png"/>
+                                <pathconvert property="imagelist" refid="webimages" pathsep="&quot;,&quot;">
+                                    <globmapper from="${project.build.directory}/web/resources/*"
+                                                to="*"/>
+                                </pathconvert>
+                                <!-- Text data the engine reads through utils.Resources. -->
+                                <fileset id="webtext"
+                                         dir="${project.build.directory}/web/resources"
+                                         includes="**/*.txt,**/*.csv,**/*.json,**/*.vert"/>
+                                <pathconvert property="textlist" refid="webtext" pathsep="&quot;,&quot;">
+                                    <globmapper from="${project.build.directory}/web/resources/*"
+                                                to="*"/>
+                                </pathconvert>
+                                <echo file="${project.build.directory}/web/assets.json"
+                                      message="{&quot;images&quot;:[&quot;${imagelist}&quot;],&quot;text&quot;:[&quot;${textlist}&quot;]}"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <id>add-game-sources</id>
+                        <phase>generate-sources</phase>
+                        <goals><goal>add-source</goal></goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/generated-sources/game</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <release>17</release>
+                </configuration>
+                <executions>
+                    <!--
+                      TeaVM's class library omits java.util.concurrent.atomic's array
+                      types, and Gson's TypeAdapters static initialiser references them,
+                      which makes all of Gson unreachable. src/jdk-patch supplies them.
+                      They compile in their own pass because javac only permits defining
+                      a class in a java.* package under the patch-module flag, which must
+                      not apply to the rest of this module's sources.
+                    -->
+                    <execution>
+                        <id>compile-jdk-patch</id>
+                        <phase>generate-sources</phase>
+                        <goals><goal>compile</goal></goals>
+                        <configuration>
+                            <compileSourceRoots>
+                                <root>${project.basedir}/src/jdk-patch</root>
+                            </compileSourceRoots>
+                            <release>17</release>
+                            <compilerArgs>
+                                <arg>--patch-module</arg>
+                                <arg>java.base=${project.basedir}/src/jdk-patch</arg>
+                            </compilerArgs>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.teavm</groupId>
+                <artifactId>teavm-maven-plugin</artifactId>
+                <version>${teavm.version}</version>
+                <executions>
+                    <execution>
+                        <id>wasm-runtime</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-webassembly-gc-runtime</goal>
+                        </goals>
+                        <configuration>
+                            <targetDirectory>${project.build.directory}/web</targetDirectory>
+                            <modular>true</modular>
+                            <minified>false</minified>
+                            <!-- Emits the companion module that maps wasm frames back to Java.
+                                 The runtime derives its URL from the wasm name, so both files
+                                 must be named after serialkiller.wasm for it to be found. -->
+                            <deobfuscator>true</deobfuscator>
+                            <runtimeFileName>serialkiller.wasm-runtime.js</runtimeFileName>
+                            <deobfuscatorFileName>serialkiller.wasm-deobfuscator.wasm</deobfuscatorFileName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>web-wasm</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <targetType>WEBASSEMBLY_GC</targetType>
+                            <mainClass>${web.mainClass}</mainClass>
+                            <targetDirectory>${project.build.directory}/web</targetDirectory>
+                            <targetFileName>serialkiller.wasm</targetFileName>
+                            <optimizationLevel>ADVANCED</optimizationLevel>
+                            <!-- Keeps Java frames in browser stack traces; worth the size here. -->
+                            <debugInformationGenerated>true</debugInformationGenerated>
+                            <!-- Surface every unsupported JDK call instead of failing late at runtime. -->
+                            <strict>true</strict>
+                            <stopOnErrors>true</stopOnErrors>
+                            <minHeapSize>32</minHeapSize>
+                            <maxHeapSize>512</maxHeapSize>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+</project>

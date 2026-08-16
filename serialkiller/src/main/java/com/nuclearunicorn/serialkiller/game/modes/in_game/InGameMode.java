@@ -31,7 +31,6 @@ import com.nuclearunicorn.libroguelike.utils.Timer;
 import com.nuclearunicorn.libroguelike.vgui.effects.EffectsSystem;
 import com.nuclearunicorn.serialkiller.game.ItemFactory;
 import com.nuclearunicorn.serialkiller.game.Main;
-import com.nuclearunicorn.serialkiller.game.MainApplet;
 import com.nuclearunicorn.serialkiller.game.SkillerGame;
 import com.nuclearunicorn.libroguelike.core.replay.Replay;
 import com.nuclearunicorn.serialkiller.game.ai.TownAI;
@@ -60,8 +59,8 @@ import com.nuclearunicorn.serialkiller.render.RLMessages;
 import org.newdawn.slick.Color;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.Point;
+import com.nuclearunicorn.serialkiller.game.world.fov.FovFactory;
 import rlforj.los.IFovAlgorithm;
-import rlforj.los.PrecisePermissive;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -79,7 +78,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
     private EffectsSystem fx;
 
     //IFovAlgorithm fov = new ShadowCasting();
-    IFovAlgorithm fov = new PrecisePermissive();
+    IFovAlgorithm fov = FovFactory.create();
 
 
     private static GameEnvironment clientGameEnvironment;
@@ -278,12 +277,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
                 //very event is still being handed down the listener chain
                 event.dispatch();
 
-                SkillerGame game;
-                if (Main.game != null){
-                    game = Main.game;
-                }else{
-                    game = MainApplet.game;
-                }
+                SkillerGame game = Main.game;
                 game.set_state("mainMenu");
                 game.initStateUI();
                 return;

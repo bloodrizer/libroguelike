@@ -20,7 +20,6 @@ import com.nuclearunicorn.libroguelike.utils.Timer;
 import org.lwjgl.util.Point;
 import org.newdawn.slick.Color;
 
-import java.awt.*;
 import java.io.InputStream;
 
 

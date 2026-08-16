@@ -11,10 +11,8 @@ import com.nuclearunicorn.libroguelike.game.world.layers.WorldLayer;
 import com.nuclearunicorn.libroguelike.render.Render;
 import org.lwjgl.util.Point;
 import org.newdawn.slick.Color;
+import org.newdawn.slick.FontSpec;
 import org.newdawn.slick.TrueTypeFont;
-
-import java.awt.*;
-import java.io.InputStream;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -32,7 +30,7 @@ public class OverlaySystem {
     
     public DebugOverlay debug = null;
 
-    public static Font font = null;
+    public static FontSpec font = null;
     public static TrueTypeFont ttf = null;
 
     public static final int FONT_SIZE = 15;
@@ -41,18 +39,7 @@ public class OverlaySystem {
     static String FONT_PATH = "/resources/fonts/arialMonospaced.ttf";
 
     public OverlaySystem() {
-
-        try {
-            /*font = Font.createFont(Font.TRUETYPE_FONT, OverlaySystem.class.getResourceAsStream(FONT_PATH));
-            font = font.deriveFont((float)FONT_SIZE); */
-
-            font = new Font("Arial", Font.BOLD, FONT_SIZE);
-
-        } catch (Exception e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
-
-
+        font = new FontSpec("Arial", FONT_SIZE, true);
         ttf = new TrueTypeFont(font, true);
     }
 
@@ -71,18 +58,7 @@ public class OverlaySystem {
 
     public static TrueTypeFont precacheFont(int size, String fontPath){
         System.out.println("trying to precache font '"+ fontPath + "'");
-        
-        Font _font = null;
-        try {
-            _font = Font.createFont(Font.TRUETYPE_FONT, OverlaySystem.class.getResourceAsStream(FONT_PATH));
-            _font = font.deriveFont((float)FONT_SIZE);
-        } catch (Exception e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
-
-        TrueTypeFont _ttf = new TrueTypeFont(_font, true);
-
-        return _ttf;
+        return new TrueTypeFont(new FontSpec("Arial", size, true, fontPath), true);
     }
     
     /**
@@ -133,17 +109,8 @@ public class OverlaySystem {
     }
 
     public static TrueTypeFont precache_font(String filename, int size){
-        try {
-            InputStream is = Render.class.getResourceAsStream(filename);
-            Font __font = Font.createFont(Font.TRUETYPE_FONT, is);
-
-            TrueTypeFont _ttf = new TrueTypeFont(__font.deriveFont(Font.PLAIN, size), true);
-            return _ttf;
-        }
-        catch(Exception e){
-            System.err.println(filename + " not loaded.  Using serif font.");
-            return precacheFont(size);
-        }
+        // The TTF is optional: TrueTypeFont falls back to the family if it is missing.
+        return new TrueTypeFont(new FontSpec("Serif", size, false, filename), true);
     }
 
     //render whole overlay

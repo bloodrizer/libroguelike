@@ -1,13 +1,6 @@
 package com.nuclearunicorn.serialkiller.game.ai.llm;
 
-import com.google.gson.Gson;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 
 /**
  * LLM-NPC configuration (see LLM_NPC_SPEC.md §10). Plain Gson POJO — field names
@@ -15,10 +8,6 @@ import java.nio.file.Files;
  */
 public class LlmConfig {
 
-    /** Bundled default template, copied out by scripts/stage-llm-models.sh. */
-    private static final String BUNDLED = "/resources/llm/config.json";
-    /** External override next to the run script; edited by users, wins if present. */
-    private static final String EXTERNAL = "llm-config.json";
     /** System property that forces "enabled" either way, whatever the files say. */
     private static final String OVERRIDE = "llm.enabled";
 
@@ -143,7 +132,7 @@ public class LlmConfig {
      * disabled default so the game runs unaffected.
      */
     public static LlmConfig load() {
-        LlmConfig config = read();
+        LlmConfig config = LlmConfigLoader.read();
 
         // Escape hatch for tooling that wants the plain game: -Dllm.enabled=false skips
         // model staging and the servers entirely (see scripts/shot.sh).
@@ -154,27 +143,4 @@ public class LlmConfig {
         return config;
     }
 
-    private static LlmConfig read() {
-        Gson gson = new Gson();
-
-        File external = new File(EXTERNAL);
-        if (external.isFile()) {
-            try {
-                String json = new String(Files.readAllBytes(external.toPath()), StandardCharsets.UTF_8);
-                return gson.fromJson(json, LlmConfig.class);
-            } catch (IOException e) {
-                System.err.println("LlmConfig: failed to read " + EXTERNAL + ", falling back to bundled: " + e);
-            }
-        }
-
-        try (InputStream is = LlmConfig.class.getResourceAsStream(BUNDLED)) {
-            if (is != null) {
-                return gson.fromJson(new InputStreamReader(is, StandardCharsets.UTF_8), LlmConfig.class);
-            }
-        } catch (IOException e) {
-            System.err.println("LlmConfig: failed to read bundled template: " + e);
-        }
-
-        return new LlmConfig();   // disabled default
-    }
 }

@@ -2,9 +2,8 @@ package com.nuclearunicorn.serialkiller.render;
 
 import com.nuclearunicorn.libroguelike.render.overlay.OverlaySystem;
 import org.newdawn.slick.Color;
+import org.newdawn.slick.FontSpec;
 import org.newdawn.slick.TrueTypeFont;
-
-import java.awt.Font;
 
 /**
  * The ASCII layer. Glyphs are centred in their cell horizontally and sit on the
@@ -23,7 +22,7 @@ public final class Glyphs {
     public static TrueTypeFont font() {
         if (font == null || fontCell != RenderConfig.CELL) {
             int size = Math.max(10, Math.round(RenderConfig.CELL * 0.85f));
-            font = new TrueTypeFont(new Font("Monospaced", Font.BOLD, size), true);
+            font = new TrueTypeFont(new FontSpec("Monospaced", size, true), true);
             fontCell = RenderConfig.CELL;
         }
         return font;

@@ -1,9 +1,9 @@
 package com.nuclearunicorn.serialkiller.game.ai.llm.command;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.nuclearunicorn.serialkiller.game.ai.llm.command.commands.GotoCommand;
 import com.nuclearunicorn.serialkiller.game.ai.llm.command.commands.SayCommand;
 import com.nuclearunicorn.serialkiller.game.ai.llm.command.commands.WaitCommand;
@@ -22,7 +22,6 @@ import java.util.Map;
 public class CommandRegistry {
 
     private final Map<String, CommandFactory> factories = new LinkedHashMap<>();
-    private final Gson gson = new Gson();
     private final String grammar;
 
     public CommandRegistry() {
@@ -99,10 +98,13 @@ public class CommandRegistry {
         int says = 0;
         int dropped = 0;
         try {
-            JsonArray array = gson.fromJson(json, JsonArray.class);
-            if (array == null) {
+            // JsonParser, not Gson.fromJson: parsing straight to a tree needs no
+            // reflective type adapters, which is what lets this run under TeaVM.
+            JsonElement root = JsonParser.parseString(json);
+            if (root == null || !root.isJsonArray()) {
                 return commands;
             }
+            JsonArray array = root.getAsJsonArray();
             for (JsonElement element : array) {
                 if (!element.isJsonObject()) {
                     continue;

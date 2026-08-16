@@ -18,7 +18,6 @@ import com.nuclearunicorn.libroguelike.vgui.NE_GUI_System;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 
-import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -79,38 +78,53 @@ public class Game {
          return activeMode;
     }
 
-    public static Canvas display_parent = null;
-    public static void set_canvas(Canvas display_parent){
+    /* Typed as Object, not java.awt.Canvas, so core has no AWT dependency — the
+     * browser build has no java.desktop at all. WindowRender casts it back. */
+    public static Object display_parent = null;
+    public static void set_canvas(Object display_parent){
         Game.display_parent = display_parent;
     }
 
     //TODO: refact me
     public static boolean running = true;
 
-    public void run(){
-        IGameMode mode = null;
+    /*
+     * One iteration of the main loop. Split out of run() so a caller that does not
+     * own the loop can drive frames itself — the browser build ticks this from
+     * requestAnimationFrame, since a blocking while() would freeze the page.
+     */
+    public void runFrame(){
+        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+        IGameMode mode = get_game_mode();
 
+        Timer.tick();
+        Replay.nextFrame();
+        mode.update();
+
+        ScreenCapture.tick();
+
+        Display.sync(60);
+        Display.update();
+
+        if (Display.isCloseRequested()){
+            onCloseDisplay();
+            running = false;
+        }
+    }
+
+    /* Boot the render context and replay recorder. Separate from the loop so the
+     * browser build can start up without entering one. */
+    public void init() throws Exception {
+        WindowRender.create();
+        Replay.init();
+    }
+
+    public void run(){
         try {
-            WindowRender.create();
-            Replay.init();
+            init();
 
             while(running) {
-               GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
-               mode = get_game_mode();
-
-               Timer.tick();
-               Replay.nextFrame();
-               mode.update();
-
-               ScreenCapture.tick();
-
-               Display.sync(60);
-               Display.update();
-
-               if (Display.isCloseRequested()){
-                    onCloseDisplay();
-                    running = false;
-               }
+                runFrame();
             }
 
             System.out.println("Game stopped, destroying lwjgl render...");
@@ -121,7 +135,7 @@ public class Game {
         catch(Exception e){
             e.printStackTrace();
         }
-        
+
     }
 
     /*

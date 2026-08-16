@@ -31,6 +31,27 @@ public class TrueTypeFont {
     private final int lineHeight;
     private int ascent;
 
+    /** Builds the AWT face described by the spec, falling back to the family name. */
+    private static Font toAwt(FontSpec spec) {
+        int style = spec.bold ? Font.BOLD : Font.PLAIN;
+        if (spec.resource != null) {
+            try (java.io.InputStream is =
+                         TrueTypeFont.class.getResourceAsStream(spec.resource)) {
+                if (is != null) {
+                    return Font.createFont(Font.TRUETYPE_FONT, is)
+                            .deriveFont(style, (float) spec.size);
+                }
+            } catch (Exception e) {
+                System.err.println(spec.resource + " not loaded, using " + spec.family);
+            }
+        }
+        return new Font(spec.family, style, spec.size);
+    }
+
+    public TrueTypeFont(FontSpec spec, boolean antiAlias) {
+        this(toAwt(spec), antiAlias);
+    }
+
     public TrueTypeFont(Font font, boolean antiAlias) {
         this.font = font;
 

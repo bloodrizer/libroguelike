@@ -35,6 +35,9 @@ public class MainApplet extends Applet {
                 running = true;
 
                 game = new SkillerGame();
+                // Publish through Main so callers have a single place to look for
+                // the live game, regardless of which entry point started it.
+                Main.game = game;
                 game.set_canvas(display_parent);
 
 

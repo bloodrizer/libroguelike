@@ -12,7 +12,6 @@ import com.nuclearunicorn.libroguelike.vgui.NE_GUI_FrameModern;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_Label;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_System;
 import com.nuclearunicorn.serialkiller.game.Main;
-import com.nuclearunicorn.serialkiller.game.MainApplet;
 import com.nuclearunicorn.serialkiller.game.SkillerGame;
 import com.nuclearunicorn.serialkiller.utils.pathfinder.adaptive.AdaptivePathfinder;
 import com.nuclearunicorn.serialkiller.vgui.VGUICreateCharacterScreeen;
@@ -47,12 +46,7 @@ public class MainMenuUI implements IUserInterface, IEventListener {
             if (((EKeyPress) event).key == Keyboard.KEY_ESCAPE){
                 event.dispatch();
 
-                SkillerGame game;
-                if (Main.game != null){
-                    game = Main.game;
-                }else{
-                    game = MainApplet.game;
-                }
+                SkillerGame game = Main.game;
                 game.set_state("inGame");
                 return;
             }
@@ -63,12 +57,7 @@ public class MainMenuUI implements IUserInterface, IEventListener {
     public void build_ui() {
         ClientEventManager.subscribe(this);
 
-        final SkillerGame game;
-        if (Main.game != null){
-            game = Main.game;
-        }else{
-            game = MainApplet.game;
-        }
+        final SkillerGame game = Main.game;
 
 
         NE_GUI_Label loadingLabel = new NE_GUI_Label();

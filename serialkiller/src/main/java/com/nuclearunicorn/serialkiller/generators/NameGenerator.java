@@ -1,5 +1,6 @@
 package com.nuclearunicorn.serialkiller.generators;
 
+import com.nuclearunicorn.libroguelike.utils.Resources;
 import com.nuclearunicorn.libroguelike.utils.Rng;
 
 import java.io.*;
@@ -31,38 +32,16 @@ public class NameGenerator {
     }
 
     private static void parseSurnames() {
-        InputStream is = NameGenerator.class.getResourceAsStream("/resources/namegen/surnames.csv");
-
-        DataInputStream in = new DataInputStream(is);
-        BufferedReader br = new BufferedReader(new InputStreamReader(in));
-        String strLine;
-
-        try {
-            while ((strLine = br.readLine()) != null)   {
-                String[] line = strLine.replace("\"","").split(",");
-                surnames.add(line[0]);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        for (String strLine : Resources.lines("/resources/namegen/surnames.csv")) {
+            String[] line = strLine.replace("\"","").split(",");
+            surnames.add(line[0]);
         }
     }
 
     private static void parseNames(List<String> names, String sex){
-        InputStream is = NameGenerator.class.getResourceAsStream("/resources/namegen/"+sex+".txt");
-
-        DataInputStream in = new DataInputStream(is);
-        BufferedReader br = new BufferedReader(new InputStreamReader(in));
-        String strLine;
-
-        try {
-            while ((strLine = br.readLine()) != null)   {
-                String[] line = strLine.split(" ");
-                names.add(line[0]);
-            }
-
-            in.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        for (String strLine : Resources.lines("/resources/namegen/"+sex+".txt")) {
+            String[] line = strLine.split(" ");
+            names.add(line[0]);
         }
     }
     

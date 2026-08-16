@@ -33,7 +33,7 @@ public class WindowRender {
 
     public static void create() throws LWJGLException {
 
-        Canvas parent = Game.display_parent;
+        Canvas parent = (Canvas) Game.display_parent;
 
         if(parent != null){
             System.out.println("setting render parent");

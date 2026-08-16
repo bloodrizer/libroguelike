@@ -97,9 +97,13 @@ There are three increasingly aggressive milestones. Each one is independently sh
 ```
 M1: CLI build           ─►  ✅ done (Maven multi-module)
 M2: LWJGL 3 + GLFW      ─►  ✅ done (runs on macOS arm64; still GL 2.1 compat)
-M2b: GL3 core / VBO     ─►  next (immediate mode → VBO+shaders)
-M3: libGDX + TeaVM      ─►  later (single source compiles to desktop JAR + WebGL/wasm)
+M2b: GL3 core / VBO     ─►  partly done on the web side (see §10)
+M3: TeaVM wasm          ─►  ✅ done, without libGDX (see §10)
 ```
+
+**§10 supersedes the M3 plan below.** The web build shipped via TeaVM directly,
+with a GL 1.1 emulation layer over WebGL, and no libGDX migration. §6's
+recommendation is kept for the record but was not the path taken.
 
 You can stop at M2 and have a healthy desktop game. M3 is what unlocks the "ship a URL" distribution story.
 
@@ -324,3 +328,141 @@ Each step is mergeable on its own:
 - For web/wasm: **libGDX + TeaVM** is the only mature path that fits this codebase. The renderer rewrite you'd do for desktop modernisation is reusable here, so the marginal cost of adding a web build is ~3-5 days *if* you do M2 with libGDX-shaped APIs in mind.
 - Avoid CheerpJ for this codebase — its OpenGL story is the wrong fit.
 - Skip the IDEA project files; Maven (or Gradle) handles import for any modern IDE.
+
+---
+
+## 10. The web build (as shipped)
+
+`web/` compiles the whole game to WebAssembly with [TeaVM](https://teavm.org/)
+0.15 and runs it in the browser. No libGDX: §6 assumed the renderer would be
+rewritten onto libGDX's API, but it turned out cheaper to emulate the GL 1.1
+subset the game actually uses directly on WebGL — the game only ever issues ~45
+distinct GL calls from 19 `glBegin` sites.
+
+```bash
+mvn -pl web package            # -> web/target/web (static, servable as-is)
+./scripts/webtest.sh 20 shot.png   # headless Chromium boot check + screenshot
+```
+
+### How the module is put together
+
+The wasm build must replace desktop-only classes with browser ones *under the
+same fully-qualified name*, so `web/pom.xml` copies the engine and game sources
+into `target/generated-sources/game` with an exclude list, and compiles them
+alongside `web/src/main/java`. Every exclusion has a replacement in the web
+module, or is listed as absent below. Nothing about the desktop build changes.
+
+| Layer | Desktop | Web |
+|---|---|---|
+| Window / GL context | GLFW via `Display` shim | canvas + `GLES` (WebGL 1) |
+| Draw calls | GL 1.1 immediate mode | `GL11` emulation: batches `glBegin`…`glEnd` into one `glDrawArrays`, keeps its own matrix stack, quads expanded to triangles |
+| Input | GLFW callbacks | DOM key/mouse events, same polling API |
+| Frame loop | `while (running)` in `Game.run()` | `Game.runFrame()` from `requestAnimationFrame` |
+| Textures | STB decode from a stream | browser-decoded `HTMLImageElement` |
+| Fonts | AWT `Graphics2D` glyph atlas | Canvas2D glyph atlas |
+| Text data | `getResourceAsStream` | preloaded by the page (`utils.Resources`) |
+| Logging | slf4j + logback | console-backed `org.slf4j` shim |
+
+### Shared-code changes this required
+
+Small and platform-neutral; the desktop build keeps its behaviour:
+
+- `Game.runFrame()` / `Game.init()` split out of `Game.run()`, which now calls them.
+- `Game.display_parent` typed `Object` rather than `java.awt.Canvas`, so core has
+  no AWT dependency. `WindowRender` casts it back.
+- `TrueTypeFont` takes a `FontSpec` (family/size/bold/optional TTF) instead of a
+  `java.awt.Font`, so `OverlaySystem` and `Glyphs` are platform-neutral.
+- `utils.Resources` wraps bundled text reads.
+- `LlmConfigLoader` split out of `LlmConfig`, isolating the filesystem part.
+- `CommandRegistry` parses plans with `JsonParser` instead of `Gson.fromJson`;
+  tree parsing needs no reflective type adapters (see below).
+- `MainApplet` publishes through `Main.game`, removing the applet fallback from
+  `InGameMode` / `MainMenuUI`.
+- FOV is constructed through `FovFactory` (see the rlforj note below).
+
+### What is deliberately absent from the web build
+
+- **LLM NPCs.** They need a local `llama-server` process; NPCs run the FSM brain,
+  which is the same path the desktop takes with no model staged. The four
+  process/HTTP/disk classes have browser stubs; `sense/`, `command/`,
+  `Perception` and the rest of the brain compile and run unchanged.
+- **Replay record/playback.** JSONL traces on disk plus a JVM shutdown hook.
+- **Screenshot capture** (`-Dlrl.capture.*`) and `AtlasDump`.
+- **`MainApplet`**, on both platforms' account — `java.applet` is gone from the JDK.
+
+### TeaVM gotchas worth knowing
+
+1. **Gson's reflective path does not work.** `Gson.fromJson(json, T.class)` reaches
+   `Class.getGenericSuperclass`, `isAnonymousClass`, `ObjectInputStream` and
+   `java.sql.Date`, none of which TeaVM implements. `JsonParser.parseString` —
+   parsing to a `JsonElement` tree — needs none of it and does work.
+2. **`java.util.concurrent.atomic.AtomicIntegerArray` / `AtomicLongArray` and
+   `java.net.InetAddress` are missing from the class library**, and Gson's
+   `TypeAdapters` static initialiser references all three, which makes *any* Gson
+   entry point unlinkable. `web/src/jdk-patch` supplies them; javac only allows
+   defining classes in `java.*` packages under `--patch-module`, so they compile
+   in their own pass (see `compile-jdk-patch` in the POM).
+3. **slf4j-api cannot bind.** Provider lookup uses `ServiceLoader`,
+   `ClassLoader.getResources` and a `SecurityManager` stack walk. The web module
+   ships its own `org.slf4j.Logger`/`LoggerFactory` instead.
+4. **`@JSByRef` is unsupported on Wasm GC.** `Float32Array.fromJavaArray` fails to
+   compile; use `copyFromJavaArray`.
+5. **Handing `java.nio` buffers to WebGL silently uploads nothing.** The
+   `texImage2D(..., Buffer)` overload relies on a by-reference view Wasm GC does
+   not provide — the call succeeds and the texture stays empty, which showed up as
+   a world with lighting but no tiles. `GL11.glTexImage2D` copies into a
+   `Uint8Array` explicitly.
+6. **rlforj's `PrecisePermissive` is miscompiled.** It null-derefs inside its own
+   FOV scan on any board with walls at radius ≳12. The same call succeeds on the
+   JVM, for both the vendored jar *and* its recompiled sources, so this is a TeaVM
+   backend defect rather than the jar's Java 5 bytecode. `WebProbe` reproduces it
+   in isolation and rules out `LinkedList`/`ListIterator` semantics, which match
+   the JDK exactly. The web build therefore substitutes `Shadowcast`
+   (`web/src/main/java/.../game/world/fov/Shadowcast.java`, tested in
+   `ShadowcastTest`) via `FovFactory`. **This is a real behavioural difference:**
+   recursive shadowcasting and permissive FOV disagree slightly around corners.
+
+Note the jar's bundled `.java` sources are *not* in sync with its `.class` files
+(`Point2I.distance(double,double)` exists only in the bytecode), so recompiling
+rlforj from the sources it ships is not a safe swap.
+
+### Debugging harness
+
+Wasm GC stack traces bottom out at `WasmGCSupport.npe`. Two tools exist for that:
+
+- `mvn -pl web -Pdebug-js package` builds the same code with TeaVM's JavaScript
+  backend, whose exceptions keep Java frames; `./scripts/webtest.sh 20 "" js`
+  loads it via `debug.html`.
+- `-Dweb.mainClass=com.nuclearunicorn.web.WebProbe` compiles a diagnostic entry
+  point instead of the game, for isolating a runtime difference from a
+  game-sized stack trace. This is how the rlforj defect above was pinned down.
+
+### Deploying
+
+`web/target/web` is a plain static directory — no server, no headers. Two
+properties make that true, and both are worth preserving:
+
+- **Every URL in the page is relative** (`./boot.js`, `./serialkiller.wasm`,
+  `./resources/…`), so the site works under a subpath such as
+  `user.github.io/libroguelike/`. An absolute `/resources/…` would break it.
+- **No cross-origin isolation is required.** Nothing uses threads or
+  `SharedArrayBuffer`, so a host that cannot set COOP/COEP headers is fine.
+
+The host must serve `.wasm` as `application/wasm` — the runtime uses
+`WebAssembly.compileStreaming`. GitHub Pages, Netlify and Cloudflare all do.
+
+[.github/workflows/pages.yml](.github/workflows/pages.yml) publishes to GitHub
+Pages on every push to master: install the vendored jars, `mvn package`, upload
+`web/target/web`. It needs the repo setting *Settings → Pages → Source: GitHub
+Actions* once. The artifact keeps `serialkiller.wasm.teadbg` (184 KB of 1.6 MB)
+so that stack traces from a live browser still carry Java frame names.
+
+### Still open
+
+- **Performance is unmeasured.** The headless software-GL numbers are meaningless;
+  it needs a look on a real GPU.
+- **Custom TTFs are ignored** — `FontSpec.resource` falls back to the family name,
+  since loading font bytes needs the async `FontFace` API.
+- **Mouse cursors** are the CSS default; the GL bitmap cursor has no analogue.
+- **`-D` system properties** that gate debug features are all absent in a browser,
+  so those paths are simply off.
