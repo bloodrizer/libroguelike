@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.nuclearunicorn</groupId>
+    <artifactId>libroguelike-parent</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>libroguelike (parent)</name>
+    <description>
+        Multi-module aggregator for the libroguelike engine and the
+        serialkiller game. Milestone 1: CLI build only — keeps the
+        original LWJGL 2.7.1 / slick-util / rlforj dependency stack so
+        sources compile unchanged.
+    </description>
+
+    <modules>
+        <module>libroguelike</module>
+        <module>serialkiller</module>
+        <module>web</module>
+    </modules>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <lwjgl.version>3.3.6</lwjgl.version>
+        <!-- Native classifier resolved per OS via build profiles below. -->
+    </properties>
+
+    <profiles>
+        <profile>
+            <id>natives-macos-arm64</id>
+            <activation>
+                <os><family>mac</family><arch>aarch64</arch></os>
+            </activation>
+            <properties><lwjgl.natives>natives-macos-arm64</lwjgl.natives></properties>
+        </profile>
+        <profile>
+            <id>natives-macos-x86_64</id>
+            <activation>
+                <os><family>mac</family><arch>x86_64</arch></os>
+            </activation>
+            <properties><lwjgl.natives>natives-macos</lwjgl.natives></properties>
+        </profile>
+        <profile>
+            <id>natives-linux-x86_64</id>
+            <activation>
+                <os><family>unix</family><name>Linux</name><arch>amd64</arch></os>
+            </activation>
+            <properties><lwjgl.natives>natives-linux</lwjgl.natives></properties>
+        </profile>
+        <profile>
+            <id>natives-linux-arm64</id>
+            <activation>
+                <os><family>unix</family><name>Linux</name><arch>aarch64</arch></os>
+            </activation>
+            <properties><lwjgl.natives>natives-linux-arm64</lwjgl.natives></properties>
+        </profile>
+        <profile>
+            <id>natives-windows-x86_64</id>
+            <activation>
+                <os><family>windows</family><arch>amd64</arch></os>
+            </activation>
+            <properties><lwjgl.natives>natives-windows</lwjgl.natives></properties>
+        </profile>
+    </profiles>
+
+    <repositories>
+        <!-- File-based local repo committed to the tree so the build is
+             self-contained. Run scripts/install-local-jars.sh to repopulate. -->
+        <repository>
+            <id>project-local</id>
+            <url>file://${maven.multiModuleProjectDirectory}/local-repo</url>
+            <releases>
+                <enabled>true</enabled>
+                <checksumPolicy>ignore</checksumPolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- LWJGL 3 BOM -->
+            <dependency>
+                <groupId>org.lwjgl</groupId>
+                <artifactId>lwjgl-bom</artifactId>
+                <version>${lwjgl.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.newdawn.slick</groupId>
+                <artifactId>slick-util</artifactId>
+                <version>1.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sourceforge.rlforj</groupId>
+                <artifactId>rlforj</artifactId>
+                <version>0.2</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>2.10.1</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-pool</groupId>
+                <artifactId>commons-pool</artifactId>
+                <version>1.6</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>2.0.13</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>1.5.12</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>5.10.2</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <!-- Every module gets the test harness; see INVARIANTS.md for what belongs in it. -->
+    <dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.13.0</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.4.2</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>3.3.1</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>3.8.1</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.5.4</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

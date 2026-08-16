@@ -1,0 +1,12 @@
+{
+  "enabled": true,
+  "debug": true,
+  "serverBinary": "llama-server",
+  "reactor":  { "model": "models/phi-4-mini.gguf", "url": "https://huggingface.co/unsloth/Phi-4-mini-instruct-GGUF/resolve/main/Phi-4-mini-instruct-Q4_K_M.gguf", "port": 8081, "cadenceMs": 4000,  "cadenceTurns": 8, "queueCapacity": 12, "maxTokens": 512 },
+  "director": { "model": "models/phi-4.gguf",      "url": "https://huggingface.co/bartowski/phi-4-GGUF/resolve/main/phi-4-Q4_K_M.gguf",                        "port": 8082, "cadenceMs": 60000, "cadenceTurns": 120, "queueCapacity": 4, "maxTokens": 1024, "batch": true },
+  "throttle": { "mode": "buckets", "nearRadius": 24 },
+  "far":      { "teleport": false },
+  "memory":   { "observations": 8, "dialogueLines": 6 },
+  "speech":   { "directedRadius": 4, "earshotRadius": 8, "maxSaysPerPlan": 1, "maxSayChars": 60 },
+  "priority": { "interruptAt": 60, "decayPerTurn": 2, "attentionTurns": 12, "planTtlTurns": 4, "attentionCadenceTurns": 2, "idleCadenceTurns": 30, "fleeTurns": 10, "fleeDistance": 12, "fleeMaxTurns": 60, "pursueTurns": 15, "pursueDistance": 20, "pursueMaxTurns": 120 }
+}

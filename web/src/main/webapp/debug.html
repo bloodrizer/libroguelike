@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>serialkiller — js debug build</title>
+<style>
+  html, body { margin: 0; background: #0b0c10; color: #c9d1d9;
+               font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
+  #wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 16px; }
+  canvas { background: #000; image-rendering: pixelated; border: 1px solid #222; outline: none; }
+  #status { white-space: pre-wrap; max-width: 1024px; }
+  .err { color: #ff7b72; }
+</style>
+</head>
+<body>
+<!--
+  Same page as index.html but loads the JavaScript build (mvn -Pdebug-js), whose
+  exceptions carry full Java stack frames. Kept separate so the wasm page stays
+  the shipping artifact.
+-->
+<div id="wrap">
+  <canvas id="gl" width="1024" height="768" tabindex="0"></canvas>
+  <div id="status">loading js build…</div>
+</div>
+<script src="./serialkiller.js"></script>
+<script type="module">
+  import { preloadAssets } from './boot.js';
+
+  const status = document.getElementById('status');
+  window.__sk = { booted: false, error: null };
+
+  try {
+    await preloadAssets();
+    status.textContent = 'starting js build…';
+    main();
+    window.__sk.booted = true;
+    document.getElementById('gl').focus();
+  } catch (e) {
+    window.__sk.error = String((e && e.stack) || e);
+    status.className = 'err';
+    status.textContent = 'BOOT FAILED\n' + window.__sk.error;
+    console.error(e);
+  }
+</script>
+</body>
+</html>

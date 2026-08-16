@@ -1,0 +1,223 @@
+package com.nuclearunicorn.serialkiller.generators;
+
+import com.nuclearunicorn.libroguelike.utils.Rng;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+public class MapGenerator {
+
+    private int refSize;
+    private int MIN_BLOCK_SIZE = 1800;
+    private boolean MERGE_BLOCKS = false;
+
+    private Random random = Rng.derive(Rng.WORLDGEN);
+    public long chunkSeed = 123456;
+
+    public MapGenerator(Block block){
+        refSize = block.getArea();
+    }
+
+    public void setSeed(long seed){
+        chunkSeed = seed;
+        random.setSeed(seed);
+    }
+    
+    public int getMinBlockSize(){
+        return MIN_BLOCK_SIZE;
+    }
+
+
+    public void setMinBlockSize(int size) {
+        MIN_BLOCK_SIZE = size;
+    }
+
+    public ArrayList<Block> mergeBlocks(Block tl, Block tr, Block br, Block bl){
+        Block[] blocks = new Block[] {tl, tr, br, bl};
+        ArrayList<Block> mergedBlocks = new ArrayList<Block>();
+
+        if (!MERGE_BLOCKS){
+
+            mergedBlocks.add(tl);
+            mergedBlocks.add(tr);
+            mergedBlocks.add(br);
+            mergedBlocks.add(bl);
+
+            return mergedBlocks;
+        }
+
+        blocks[0].setNeighbors(new Block[]{tr,bl});     //tl    //<---- ???         shouldn't it be (tr,bl), (tr,br), (tl, bl), (tl, bl)?
+        blocks[1].setNeighbors(new Block[]{tl,br});     //tr
+        blocks[2].setNeighbors(new Block[]{tr,bl});     //br
+        blocks[3].setNeighbors(new Block[]{tl,br});     //bl
+
+        for(Block block : blocks){
+            if(block != null && block.getArea() < getMinBlockSize()){
+                /*
+                    This code block is cheasy.
+                    Why 4 at all, why not nextInt(block.size) ?
+                    etc, etc
+                 */
+                int i = random.nextInt(4);
+                if (blocks[i] != null && block.hasNeighbour(blocks[i])){
+                    //if (block.isMergable(blocks[i])) {
+                        block.merge(blocks[i]);
+                        blocks[i] = null;
+                    //}
+                }
+            }
+        }
+        
+        for (Block block: blocks){
+            //debug blocks there
+        }
+
+        for (Block block: blocks){
+            if (block != null){
+                mergedBlocks.add(block);
+            }
+        }
+        return mergedBlocks;
+    }
+
+    /*
+        Merge small town blocks until resulted blocks are not big enough
+     */
+    public List<Block> process(List<Block> blocks){
+        if (blocks.size() == 1 && blocks.get(0).getArea() < getMinBlockSize()){
+            return blocks;
+        }
+        
+        List<Block> dividedBlocks = new ArrayList<Block>();
+        for(Block subBlock: blocks){
+            
+            List<Block> splited;
+            if ((Math.min(subBlock.getW(), subBlock.getH())*3) < Math.max(subBlock.getW(), subBlock.getH())){
+                splited = halfSplit(subBlock);
+            } else {
+                splited = quadSplit(subBlock);
+            }
+            //splited = halfSplit(subBlock);
+            
+            if (splited != null){
+                for (Block block: splited ){
+                    dividedBlocks.add(block);
+                }
+            }else{
+                dividedBlocks.add(subBlock);
+            }
+        }
+        
+        if (dividedBlocks.size() <= blocks.size()){    //# or equals?
+            return blocks;
+        }
+
+        dividedBlocks = process(dividedBlocks);
+        
+        return dividedBlocks;
+    }
+    
+    public List<Block> halfSplit(Block block){
+
+        if (block.getArea() < getMinBlockSize()){
+            return null;
+        }
+        List<Block> blocks = new ArrayList<Block>();
+        
+        int x = block.getX();
+        int y = block.getY();
+        int w = block.getW();
+        int h = block.getH();
+
+        //horisontal split
+        if (block.getH() > block.getW() ){
+
+            int topOffset = (int)(h * ((float)(random.nextInt(20) + 40) / 100));
+
+            blocks.add(new Block(x, y, w, topOffset));  //top
+            blocks.add(new Block(x, y+topOffset, w, h-topOffset));   //bottom
+        }else{
+        //vertical split
+
+            int leftOffset = (int)(w * ((float)(random.nextInt(20) + 40) / 100));
+
+            blocks.add(new Block(x, y, leftOffset, h));  //left
+            blocks.add(new Block(x+leftOffset, y, w-leftOffset, h));   //right
+        }
+        return blocks;
+    }
+
+    public List<Block> quadSplit(Block block){
+
+        if (block.getArea() < getMinBlockSize()){
+            return null;
+        }
+        List<Block> blocks = new ArrayList<Block>();
+
+        int x = block.getX();
+        int y = block.getY();
+        int w = block.getW();
+        int h = block.getH();
+
+        int topOffset = (int)(h * ((float)(random.nextInt(20) + 40) / 100));
+        int leftOffset = (int)(w * ((float)(random.nextInt(20) + 40) / 100));
+
+        Block tl = new Block(x, y, leftOffset, topOffset);
+        Block tr = new Block(x + leftOffset, y, w-leftOffset, topOffset);
+        Block br = new Block(x + leftOffset, y+topOffset, (w-leftOffset), (h-topOffset));
+        Block bl = new Block(x, y+topOffset, leftOffset, (h-topOffset));
+
+        blocks = mergeBlocks(tl, tr, br, bl);
+
+        return blocks;
+    }
+
+  
+
+    public List<Block> roomProcess(List<Block> blocks, int depth) {
+        //#some tricky algorythms there
+
+        List<Block> rooms = new ArrayList<Block>();
+        List<Block> nullRooms = new ArrayList<Block>();
+        List<Block> splited = new ArrayList<Block>();
+
+        //#TODO: make me a neat room
+        for (Block subBlock : blocks){
+            if (Math.min(subBlock.getW(),subBlock.getH())*1.5f < Math.max(subBlock.getW(), subBlock.getH())){
+                splited = halfSplit(subBlock);    
+            } else {
+                splited = quadSplit(subBlock);
+            }
+
+            if (splited != null){
+                for(Block sb: splited){
+                    rooms.add(sb);
+                }
+                splited.clear();
+            }else{
+                //nullRooms.add(subBlock);
+                rooms.add(subBlock);
+            }
+        }
+
+        /*if (nullRooms.size() == 1){
+            rooms.add(nullRooms.get(0));
+        }else if (nullRooms.size() > 1){
+            Block nullRoomRoot = nullRooms.get(0);
+            for(int i = 1; i < nullRooms.size(); i++){
+                nullRoomRoot.merge(nullRooms.get(i));
+            }
+            rooms.add(nullRoomRoot);
+        }*/
+
+        if (rooms.size() <= blocks.size()){
+            return blocks;
+        }
+
+        //if (depth<2){
+            rooms = roomProcess(rooms, depth+1);
+        //}
+        return rooms;
+    }
+}
