@@ -1,5 +1,7 @@
 # libroguelike + serialkiller
 
+<img width="2054" height="1589" alt="image" src="https://github.com/user-attachments/assets/77cc19d2-0e53-41e8-b5ac-6c0383600e8a" />
+
 A small roguelike engine (`libroguelike`) and the game built on it
 Deps:
 
