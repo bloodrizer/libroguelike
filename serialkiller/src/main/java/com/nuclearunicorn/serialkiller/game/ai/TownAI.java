@@ -7,6 +7,7 @@ import com.nuclearunicorn.libroguelike.game.ai.Impulse;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.ent.controller.NpcController;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
+import com.nuclearunicorn.serialkiller.game.ai.behavior.SleepAction;
 import com.nuclearunicorn.serialkiller.game.ai.llm.LlmDebug;
 import com.nuclearunicorn.serialkiller.game.ai.llm.LlmRuntime;
 import com.nuclearunicorn.serialkiller.game.ai.llm.Perception;
@@ -121,10 +122,19 @@ public abstract class TownAI extends BasicMobAI implements Persona {
             return;
         }
         if (deliberation != null) {
-            deliberation.pump(situation());
+            deliberation.pump(situation(), isAsleep());
         }
         Impulse impulse = selectImpulse();
         setState(impulse == null ? AI_STATE_IDLE : impulse.state());
+    }
+
+    /**
+     * In bed for the night. Asleep is not a mood — it gates the senses, the planner and the
+     * impulse list together, and every one of them has to agree or the NPC talks in its
+     * sleep. See {@link SleepAction}.
+     */
+    public boolean isAsleep() {
+        return SleepAction.STATE.equals(state);
     }
 
     @Override
@@ -168,6 +178,16 @@ public abstract class TownAI extends BasicMobAI implements Persona {
         if (!ensureWired()) {
             return;
         }
+        // Asleep is deaf, and it is the second half of a rule the ears started: Acoustics
+        // already raised this listener's threshold by HEAR_ASLEEP, and this says that what
+        // still gets through is not something to answer with your eyes shut. Only PAIN
+        // reaches a sleeper — which is the whole of "you wake someone up by hurting them",
+        // and it works because the flee reflex outranks bedtime and fires on the same turn
+        // as the blow.
+        if (isAsleep() && stimulus.channel != Stimulus.Channel.PAIN) {
+            LlmDebug.log("%s slept through %s", owner.get_uid(), stimulus);
+            return;
+        }
         knowledge.record(stimulus);
         LlmDebug.log("%s sensed %s", owner.get_uid(), stimulus);
 
@@ -176,10 +196,10 @@ public abstract class TownAI extends BasicMobAI implements Persona {
         }
     }
 
-    /** A line this NPC heard, recorded verbatim and in order (§8). */
+    /** A line this NPC heard, recorded verbatim and in order (§8). Not while asleep. */
     public void hear(String speaker, String text, boolean directed) {
-        if (!ensureWired()) {
-            return;
+        if (!ensureWired() || isAsleep()) {
+            return;   // a conversation you slept through is not one you can quote in the morning
         }
         voice.heard(speaker, text, directed);
     }

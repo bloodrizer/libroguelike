@@ -5,8 +5,6 @@
 
 package com.nuclearunicorn.libroguelike.vgui.effects;
 
-import com.nuclearunicorn.libroguelike.core.client.ClientGameEnvironment;
-import com.nuclearunicorn.libroguelike.events.network.EChatMessage;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.world.WorldView;
 import com.nuclearunicorn.libroguelike.game.world.WorldViewCamera;
@@ -38,19 +36,17 @@ public class FXTextBubble extends Effect_Element {
         }
     };
 
-    FXTextBubble(EChatMessage eChatMessage) {
-        if(eChatMessage == null){
-            return; //solves compatability issues with child class
-        }
-
-        Entity player_ent = ClientGameEnvironment.getEnvironment().getEntityManager().get_entity(eChatMessage.uid);
-        if (player_ent!=null){
-            ent = player_ent;
-            message = eChatMessage.message;
-        }else{
-            System.err.println("Failed to aquire entity #"+eChatMessage.uid);
-        }
-
+    /**
+     * A line floating over someone's head.
+     *
+     * <p>The bubble used to resolve the speaker itself, straight out of the chat event, and
+     * so drew unconditionally. Who is worth drawing a bubble for is a question about the
+     * player's senses, which the caller answers - see {@code PlayerSpeech}. Both arguments
+     * are nullable only for {@link FXTooltip}, which reuses the sprite and nothing else.
+     */
+    FXTextBubble(Entity speaker, String text) {
+        ent = speaker;
+        message = text;
         life_time = 2000;
     }
 
@@ -60,7 +56,7 @@ public class FXTextBubble extends Effect_Element {
     @Override
     public void render(){
 
-        if (ent == null){
+        if (ent == null || get_message() == null){
             return;
         }
         int ent_screen_x = WorldView.world2local_x(

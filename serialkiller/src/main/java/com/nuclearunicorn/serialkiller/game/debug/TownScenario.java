@@ -25,6 +25,7 @@ import java.util.Calendar;
  *   tp &lt;x&gt; &lt;y&gt;              put the player here
  *   hurt &lt;who&gt; [times]      the player hits them; "who" is nearest, a name, or a uid prefix
  *   say &lt;words...&gt;          the player speaks aloud, as pressing 't' does
+ *   saidby &lt;who&gt; &lt;words...&gt; somebody else speaks; "who" as for hurt
  *   spawn &lt;kind&gt; &lt;x&gt; &lt;y&gt;   kind is pedestrian|police
  *   settime &lt;hour&gt;          0-23, so daytime is testable without waiting out the night
  *   tick [n]                advance n turns
@@ -60,6 +61,11 @@ public class TownScenario implements Scenario {
         }
         if ("say".equals(verb)) {
             say(String.join(" ", args));
+            return true;
+        }
+        if ("saidby".equals(verb)) {
+            saidBy(args.length > 0 ? args[0] : "nearest",
+                   String.join(" ", java.util.Arrays.copyOfRange(args, 1, args.length)));
             return true;
         }
         if ("settime".equals(verb)) {
@@ -111,6 +117,21 @@ public class TownScenario implements Scenario {
         TurnPump.advance();     //speaking costs a turn, so the listener gets to think
     }
 
+    /**
+     * Somebody else says something. The counterpart to {@code say}, and the only way to test
+     * the receiving end without a language model in the loop: what the <i>player</i> makes of
+     * a line depends on where the speaker is standing, and every one of the four answers
+     * ({@code PlayerEars}) needs a speaker you can put somewhere on purpose.
+     */
+    private void saidBy(String who, String text) {
+        Entity speaker = find(who);
+        if (speaker == null) {
+            throw new IllegalArgumentException("no such entity: " + who);
+        }
+        ((EntityActor) speaker).say_message(text);
+        TurnPump.advance();
+    }
+
     /** Mirrors the police spawn in TownChunkGenerator - brain, body, controller, then place. */
     private void spawn(String kind, int x, int y) {
         boolean police = "police".equalsIgnoreCase(kind);
@@ -156,7 +177,10 @@ public class TownScenario implements Scenario {
             if (ent.get_uid() != null && ent.get_uid().startsWith(who)) {
                 return ent;
             }
-            if (who.equalsIgnoreCase(ent.getName())) {
+            //a prefix, not the whole name: everyone in town has two of them and writing
+            //"saidby MARCUS" and getting "no such entity" is a pure waste of a run
+            if (ent.getName() != null
+                    && ent.getName().toLowerCase().startsWith(who.toLowerCase())) {
                 return ent;
             }
         }

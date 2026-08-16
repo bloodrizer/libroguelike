@@ -3,6 +3,7 @@ package com.nuclearunicorn.serialkiller.game.sound;
 import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.layers.WorldLayer;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
+import com.nuclearunicorn.serialkiller.generators.TileGrid;
 import org.junit.jupiter.api.Test;
 import org.lwjgl.util.Point;
 
@@ -240,17 +241,12 @@ class AcousticsTest {
 
     /** All-open grid. Everything outside it is sealed, so nothing leaks round the edges. */
     private static WorldLayer open(int w, int h) {
-        return new TestLayer(w, h);
+        return TileGrid.open(w, h);
     }
 
-    /** A full-height barrier at {@code wallX}, optionally with one gap punched in it. */
     private static WorldLayer barrier(int w, int h, int wallX, int gapY, int gapLoss,
                                       int wallLoss) {
-        TestLayer layer = new TestLayer(w, h);
-        for (int y = 0; y < h; y++) {
-            layer.set(wallX, y, y == gapY ? gapLoss : wallLoss);
-        }
-        return layer;
+        return TileGrid.barrier(w, h, wallX, gapY, gapLoss, wallLoss);
     }
 
     private static WorldLayer wall(int loss) {
@@ -258,70 +254,14 @@ class AcousticsTest {
     }
 
     private static WorldLayer doorway(int gapLoss) {
-        return doorway(gapLoss, 25);
+        return TileGrid.doorway(gapLoss, 25);
     }
 
     private static WorldLayer doorway(int gapLoss, int w) {
-        return barrier(w, 5, 1, 2, gapLoss, SoundConfig.TL_WALL_OUTER);
+        return TileGrid.doorway(gapLoss, w);
     }
 
-    /**
-     * A grid from ASCII. {@code .} open, {@code #} interior wall, {@code =} exterior wall,
-     * {@code +} shut door, {@code S}/{@code L} open floor markers for readability.
-     */
     private static WorldLayer parse(String... rows) {
-        TestLayer layer = new TestLayer(rows[0].length(), rows.length);
-        for (int y = 0; y < rows.length; y++) {
-            for (int x = 0; x < rows[y].length(); x++) {
-                layer.set(x, y, lossOf(rows[y].charAt(x)));
-            }
-        }
-        return layer;
-    }
-
-    private static int lossOf(char c) {
-        switch (c) {
-            case '#': return SoundConfig.TL_WALL_INNER;
-            case '=': return SoundConfig.TL_WALL_OUTER;
-            case '+': return SoundConfig.TL_DOOR_SHUT;
-            case '/': return SoundConfig.TL_DOOR_OPEN;
-            case 'w': return SoundConfig.TL_WINDOW;
-            default:  return SoundConfig.TL_OPEN;
-        }
-    }
-
-    /**
-     * A bare grid of tiles with no chunks, no generator and no environment.
-     *
-     * <p>{@link TownFixture} exists for properties of a whole finished town; these are
-     * properties of the arithmetic, and a synthetic grid is the only way to state them
-     * exactly. Out of bounds returns null, which the flood treats as sealed — so a barrier
-     * spanning the grid really is a barrier and sound cannot creep round its ends.
-     */
-    private static final class TestLayer extends WorldLayer {
-        private final int w;
-        private final int h;
-        private final RLTile[] tiles;
-
-        TestLayer(int w, int h) {
-            this.w = w;
-            this.h = h;
-            this.tiles = new RLTile[w * h];
-            for (int i = 0; i < tiles.length; i++) {
-                tiles[i] = new RLTile();
-            }
-        }
-
-        void set(int x, int y, int loss) {
-            tiles[y * w + x].setSoundLoss(loss);
-        }
-
-        @Override
-        public WorldTile get_tile(int x, int y) {
-            if (x < 0 || y < 0 || x >= w || y >= h) {
-                return null;
-            }
-            return tiles[y * w + x];
-        }
+        return TileGrid.parse(rows);
     }
 }

@@ -18,7 +18,7 @@ public class FXTooltip extends FXTextBubble {
     NE_GUI_Element gui_elem;
     
     public FXTooltip(NE_GUI_Element gui_elem){
-        super(null);    //no message event for tooltip
+        super(null, null);    //no speaker and no line for a tooltip
         life_time = 1500;   //1.5k ms for nice opaque rendering
         
         this.gui_elem = gui_elem;

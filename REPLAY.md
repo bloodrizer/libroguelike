@@ -45,13 +45,21 @@ A scenario can also **state its situation** instead of navigating to it:
 | verb | effect |
 |---|---|
 | `tp <x> <y>` | put the player here |
-| `hurt <who> [times]` | the player strikes them; `who` is `nearest`, a name, or a uid prefix |
+| `hurt <who> [times]` | the player strikes them; `who` is `nearest`, a name prefix, or a uid prefix |
+| `saidby <who> <text...>` | somebody other than the player says something out loud |
 | `spawn <kind> <x> <y>` | `kind` is `pedestrian` or `police` |
 | `settime <hour>` | 0-23. The clock starts at 21:00, so daytime otherwise costs 600 turns of waiting |
 | `tick [n]` | advance n turns — **the only way to pass time without a keypress**, since turns advance on player input and `wait` burns frames, not turns |
 
 These are honoured **only while a replay is driving the session**. There is no console; the
 records do nothing in a normal run.
+
+`saidby` is the receiving end of `say`, and the only way to test it without a language model
+in the loop. What the *player* makes of a line depends entirely on where the speaker is
+standing — all four answers in SOUND_DESIGN.md 4.6 are reachable within a few tiles of each
+other — so testing it needs a speaker you can place on purpose and a trace of the verdict,
+which `[LLM] player ears:` prints per line. Note that NPCs walk: a `tp`/`saidby` pair ten
+seconds into a run does not find the target where it spawned.
 
 `hurt` is the one that earns its keep. Panic, flight, the police report and the whole crime
 pipeline hang off one NPC being struck by the player. Scripted through the keyboard that
@@ -179,6 +187,13 @@ a prompt problem, not a memory one.
 `DELIBERATE`). `GOING_HOME` is the walk home at dusk and `SLEEPING` is being in the bed at
 the end of it — an NPC that moves while `SLEEPING` is a bug, one that moves while
 `GOING_HOME` is a commute.
+
+Read `state` down the turns, not per line: the bug that had a whole dormitory chatting at
+3am showed up as one turn of `DELIBERATE` between two of `SLEEPING`, which is a plan winning
+the body for exactly as long as it takes to say something. `SLEEPING` flickering at all is
+the shape to look for, and `grep -c "dropped - asleep"` on the trace says how often a
+completion arrived for someone already in bed.
+
 `threat`, `suspect` and `scene` are what the NPC *believes* — who hurt it, who is wanted,
 where the last unattended crime was — and they are the inputs the impulses read, so a
 `Policeman` sitting at `PATROLLING` with `suspect=no` never got told about the crime,

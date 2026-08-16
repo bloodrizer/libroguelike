@@ -69,8 +69,13 @@ public class Deliberation {
      * Collect any finished plan and decide whether to ask for a new one. Called every turn
      * from the brain's {@code update()}, whatever behaviour currently owns the body — an
      * officer mid-chase still gets to compose the next thing he shouts.
+     *
+     * <p>{@code asleep} is the one exception, and it is not an optimisation. The impulse list
+     * already keeps a sleeper from <i>running</i> a plan, but a planner left pumping goes on
+     * asking the model for lines all night and hands over a stack of them at dawn — a reply
+     * to a conversation that ended eight hours ago. Asleep, the queue is drained and dropped.
      */
-    public void pump(Perception.Situation situation) {
+    public void pump(Perception.Situation situation, boolean asleep) {
         InferenceService service = LlmRuntime.reactor();
         if (service == null) {
             return;
@@ -78,6 +83,15 @@ public class Deliberation {
         String uid = owner.get_uid();
 
         String completion = service.poll(uid);
+        if (asleep) {
+            if (completion != null) {
+                LlmDebug.log("%s: completion dropped - asleep", uid);
+            }
+            // Nothing pending and no cadence held over, so waking re-plans on the first turn
+            // the NPC is actually awake to have a thought.
+            lastRequestTurn = -1;
+            return;
+        }
         if (completion != null) {
             LlmDebug.log("%s: completion received: %s", uid, completion.replace('\n', ' '));
             List<NpcCommand> plan = LlmRuntime.registry().parse(completion);

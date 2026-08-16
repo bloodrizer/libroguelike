@@ -240,6 +240,39 @@ Rows 4 and 5 are what sets `TL_DOOR_SHUT` at 14 rather than 16. At 16 the eavesd
 case computes to exactly 12 and fails the strict test, and pressing your ear to a
 door stops working. If you retune door loss, recheck this pair first.
 
+### 4.6 What the *player* hears
+
+The player is a listener like anyone else, and gets the same `received > threshold`
+test at their own tile. What is different is that they also have a screen, so speech
+reaches them through two senses that can disagree — and the cases where they disagree
+are the interesting ones. `PlayerEars` crosses them:
+
+|  | **heard** | **not heard** |
+|---|---|---|
+| **seen** | `WORDS` — the line, in a bubble over their head | `LIPS` — a `...` bubble: you can see them talking and that is all |
+| **unseen** | `EARSHOT` — a message-log line with a bearing, no bubble | `NOTHING` |
+
+Seeing is `RLTile.isVisible()`, the renderer's own FOV mask — deliberately, because
+the question a bubble asks is *"is there anything on screen to hang this on"*, and
+that flag is the exact answer. (It is the wrong flag for anyone else: see pitfall 6
+and `CrimeSensor`, where using the player's mask for an NPC made a crate a witness.)
+
+`EARSHOT` is anonymous — *"You hear someone to the south-west say: …"*. Hearing gives
+you the words, not the face, and naming the speaker would hand the player an
+identification through a wall that they never earned. The bearing comes free from the
+direction field, so it points at the doorway the voice came out of rather than at the
+speaker.
+
+Before this the player was wired straight to the raw `EChatMessage`, which is
+broadcast to the whole layer: every line anyone said anywhere in town produced a
+bubble, frequently floating in the black void outside the player's FOV, and a chat log
+transcript of conversations four streets away through two exterior walls.
+
+Note what falls out of §4.4 with no extra rules: on the high street at noon (ambient
+22 → threshold 25) speech carries three tiles, so most of what you can see people
+saying arrives as `LIPS`. The same conversation at 3am is `WORDS` across the road.
+Getting close enough to hear is a thing the player now has to do.
+
 ---
 
 ## 5. Algorithm
@@ -320,6 +353,7 @@ New package `serialkiller/src/main/java/com/nuclearunicorn/serialkiller/game/sou
 | `Acoustics` | The flood. `SoundField propagate(Point origin, int loudness, int layerId)`, plus `emit(SoundEvent)` which floods, then delivers to every audible listener |
 | `Ambient` | `int at(RLTile)` — §4.4 |
 | `SoundConfig` | Tunables, §8 |
+| `PlayerEars` | The player's own hearing, §4.6. Crosses sight with `received` and answers `WORDS`/`LIPS`/`EARSHOT`/`NOTHING` |
 
 `SuspiciousSoundEvent` is **deleted**; `SoundEvent` replaces it. Consumers switch on
 `SoundKind` where they currently assume "suspicious".
@@ -341,6 +375,21 @@ for (Entity ent : entitiesInBox(field.bounds)) {
 `SoundHeard` is what the AI actually sees: the original event plus *this listener's*
 received level and arrival direction. That is the Project Acoustics parameterisation
 (loudness + direction), which is all a game AI needs.
+
+Speech does not go through `emit()`. It arrives as an `EChatMessage`, which the world
+already broadcasts, and three listeners independently ask what to do with it:
+
+| Listener | Question | Answer |
+|---|---|---|
+| `HearingSensor` | who in town heard this | a `Stimulus` + a transcript line per NPC in earshot |
+| `PlayerEars` | what did *the player* get | §4.6's four-way verdict |
+| `EffectsSystem` / `NE_GUI_Chat` | what do we draw | whatever `PlayerSpeech` says |
+
+`PlayerSpeech` is the seam: an engine-side interface with a "hear everything" default,
+because `libroguelike` has neither acoustics nor a field of view and must not grow
+either. `PlayerEars` installs itself into it per world. The verdict is memoised against
+the chat event, so three consumers asking in an order set by the listener list still
+cost one flood.
 
 ---
 
@@ -518,11 +567,38 @@ left out rather than left dead.
     `SensorRewiringTest` and `EnvironmentResetTest`. The general rule: a service outside
     the environment re-subscribes on the way in; it never guards on having been created.
 
+13. **"They talk to each other through walls" is two separate bugs, and only one of
+    them is acoustic.** Hearing is `HearingSensor` and goes through the field. Being
+    *told someone is there* was `Perception.appendNearby`, which used
+    `Fov.in_range` — a class named for field of view containing no field of view, only
+    a squared-distance test. An NPC handed `Nearby: BRET MAYNARD` through a bedroom
+    wall will address him, and no amount of correct acoustics stops it. Fixed with
+    `Sight.canSee`, a Bresenham ray (`SightTest`); the same check now gates *"The
+    player is watching you"*, which used to fire on a player standing in the street
+    outside.
+
+    Two things to know about `Sight`. Its board treats **actors as transparent** —
+    otherwise a crowded street makes everyone in it invisible to everyone else — and
+    it exempts both endpoints, because an actor's own tile counts as blocked and
+    rlforj tests the starting cell. And it uses `BresLos(false)` with the reverse ray
+    cast by hand: rlforj's own `symmetric` branch dereferences the projection path it
+    was told not to compute, so it throws the first time a ray is blocked and then
+    silently stops throwing, because the failed attempt left the field non-null.
+
+14. **One chat event, three consumers, no ordering.** `EffectsSystem` (bubble),
+    `NE_GUI_Chat` (log) and `PlayerEars` (message line) all see the same
+    `EChatMessage`, and the GUI overlay is notified before the listener list, so
+    "compute it in the event handler and read it in the renderer" is not a thing that
+    works. The verdict is memoised against the event instance instead; whoever asks
+    first pays for the flood. While you are in there: `TooltipSystem extends
+    EffectsSystem` and inherited its handler, so every bubble and damage number was
+    built and drawn **twice**, from two roots.
+
 ---
 
 ## 10. Implementation phases (each independently shippable & testable)
 
-> **Status:** Phases 1–3 are implemented and green (126 tests). Phase 4 is not started.
+> **Status:** Phases 1–3 are implemented and green (153 tests). Phase 4 is not started.
 > Two deliberate scope cuts inside 1–3, both listed at the end of this section.
 
 **Phase 1 — The field, and the ability to see it.**
@@ -542,9 +618,12 @@ does report it once the door is unlocked; police still get dispatched; tests 2, 
 **Phase 3 — Ambient masking, speech, and the player's ears.**
 `Ambient`, listener thresholds incl. asleep/drunk, `HearingSensor` banding on
 `received`, directional messages to the player via `RLMessages`, player noise ring.
+Then §4.6: `PlayerEars` behind the `PlayerSpeech` seam, so bubbles and the chat log are
+gated by what the player can see and hear rather than by the broadcast.
 *Accept:* a knife kill on a daytime street goes unreported while the same kill in a
 3am stairwell is reported; sleeping NPCs ignore what waking ones notice; speech
-behaviour outdoors is unchanged from before Phase 3.
+behaviour outdoors is unchanged from before Phase 3; no bubble is ever drawn on a tile
+the player cannot see.
 
 **Phase 4 — Investigation uses the direction field.** *(not started)*
 `InvestigateAction` follows `dir` instead of pathing to the raw origin. A door *close*

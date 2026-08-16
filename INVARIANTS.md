@@ -18,7 +18,8 @@ C3. Non-police NPC should spawn at their home rooms
 
 #D. AI
 
-D1. AI should not output text longer then two sentences or 30 chars.
+D1. AI should not output text longer then two sentences or 30 chars.\
+D2. NPC should not talk, move, listen or act when they are sleeping
 
 #E. Pathfinding
 
