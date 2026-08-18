@@ -7,6 +7,7 @@ import com.nuclearunicorn.libroguelike.game.ent.controller.NpcController;
 import com.nuclearunicorn.serialkiller.game.ai.TownAI;
 import com.nuclearunicorn.serialkiller.game.ai.llm.LlmDebug;
 import com.nuclearunicorn.serialkiller.game.ai.llm.sense.GameTurn;
+import com.nuclearunicorn.serialkiller.game.ai.llm.sense.Relations;
 import com.nuclearunicorn.serialkiller.game.ai.mind.Narrating;
 import com.nuclearunicorn.serialkiller.game.ai.mind.Percept;
 import com.nuclearunicorn.serialkiller.game.ai.mind.Tuning;
@@ -54,7 +55,7 @@ public class PursueAction implements IAIAction, Narrating {
         if (suspect == null) {
             return;
         }
-        suspectName = suspect.isPlayerEnt() ? "the player" : suspect.getName();
+        suspectName = Relations.describe(brain.human(), suspect);
 
         RLController ctrl = brain.ctrl();
         int distance = ctrl.distanceToTarget(suspect.origin);

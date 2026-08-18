@@ -10,6 +10,8 @@ public class LlmConfig {
 
     /** System property that forces "enabled" either way, whatever the files say. */
     private static final String OVERRIDE = "llm.enabled";
+    /** Same, for the prompt dump — so a debugging run needs no edit to a checked-in file. */
+    private static final String PROMPT_OVERRIDE = "llm.debugPrompts";
 
     public static class Tier {
         public String model;
@@ -118,6 +120,12 @@ public class LlmConfig {
 
     public boolean enabled = false;
     public boolean debug = false;
+    /**
+     * Mirror every submitted prompt into the trace, in full. Separate from {@code debug}
+     * because it is a different order of volume — one multi-line block per submit against
+     * one line per event — and you want it on only while you are reading prompts.
+     */
+    public boolean debugPrompts = false;
     public String serverBinary = "llama-server";
     public Tier reactor = new Tier();
     public Tier director = new Tier();
@@ -139,6 +147,10 @@ public class LlmConfig {
         String override = System.getProperty(OVERRIDE);
         if (override != null) {
             config.enabled = Boolean.parseBoolean(override);
+        }
+        String prompts = System.getProperty(PROMPT_OVERRIDE);
+        if (prompts != null) {
+            config.debugPrompts = Boolean.parseBoolean(prompts);
         }
         return config;
     }

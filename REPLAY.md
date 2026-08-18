@@ -45,6 +45,7 @@ A scenario can also **state its situation** instead of navigating to it:
 | verb | effect |
 |---|---|
 | `tp <x> <y>` | put the player here |
+| `tp <who>` | put the player next to them — `mate` (the player's spouse), `nearest`, a name or uid prefix. The seed decides where everyone lives, so a conversation scenario cannot use coordinates |
 | `hurt <who> [times]` | the player strikes them; `who` is `nearest`, a name prefix, or a uid prefix |
 | `saidby <who> <text...>` | somebody other than the player says something out loud |
 | `spawn <kind> <x> <y>` | `kind` is `pedestrian` or `police` |

@@ -5,6 +5,7 @@ import com.nuclearunicorn.libroguelike.core.replay.Scenario;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.ent.EntityActor;
 import com.nuclearunicorn.libroguelike.game.player.Player;
+import com.nuclearunicorn.libroguelike.game.world.WorldTile;
 import com.nuclearunicorn.libroguelike.game.world.WorldTimer;
 import com.nuclearunicorn.serialkiller.game.ai.PedestrianAI;
 import com.nuclearunicorn.serialkiller.game.ai.PoliceAI;
@@ -23,6 +24,7 @@ import java.util.Calendar;
  *
  * <pre>
  *   tp &lt;x&gt; &lt;y&gt;              put the player here
+ *   tp &lt;who&gt;                put the player next to them; "who" as for hurt, plus "mate"
  *   hurt &lt;who&gt; [times]      the player hits them; "who" is nearest, a name, or a uid prefix
  *   say &lt;words...&gt;          the player speaks aloud, as pressing 't' does
  *   saidby &lt;who&gt; &lt;words...&gt; somebody else speaks; "who" as for hurt
@@ -47,7 +49,11 @@ public class TownScenario implements Scenario {
     @Override
     public boolean run(String verb, String[] args) {
         if ("tp".equals(verb)) {
-            teleport(intArg(args, 0), intArg(args, 1));
+            if (args.length == 1) {
+                teleportBeside(args[0]);
+            } else {
+                teleport(intArg(args, 0), intArg(args, 1));
+            }
             return true;
         }
         if ("hurt".equals(verb)) {
@@ -85,6 +91,46 @@ public class TownScenario implements Scenario {
 
     private void teleport(int x, int y) {
         Player.get_ent().move_to(new Point(x, y));
+    }
+
+    /**
+     * Stand next to somebody — {@code tp mate}, {@code tp BERTHA}, {@code tp nearest}.
+     *
+     * <p>Conversation is the thing hardest to script and the thing most worth scripting, and
+     * the coordinate form cannot do it: who your wife is and where she is standing are both
+     * decided by the town seed, so a scenario written against one seed talks to a wall on the
+     * next. Being <i>close enough</i> is not incidental either — the band a line arrives in
+     * is set by its received level, so two tiles further away turns a question addressed to
+     * you into one you overheard, and the NPC answers something else entirely.
+     */
+    private void teleportBeside(String who) {
+        Entity target = find(who);
+        if (target == null) {
+            throw new IllegalArgumentException("no such entity: " + who);
+        }
+        Point at = adjacentFreeTile(target);
+        if (at == null) {
+            throw new IllegalStateException("nowhere to stand next to " + who);
+        }
+        Player.get_ent().move_to(at);
+    }
+
+    /** A free tile touching {@code target}, or null when they are walled in on all eight sides. */
+    private Point adjacentFreeTile(Entity target) {
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dy = -1; dy <= 1; dy++) {
+                if (dx == 0 && dy == 0) {
+                    continue;
+                }
+                int x = target.origin.getX() + dx;
+                int y = target.origin.getY() + dy;
+                WorldTile tile = target.getLayer() == null ? null : target.getLayer().get_tile(x, y);
+                if (tile != null && !tile.isBlocked()) {
+                    return new Point(x, y);
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -152,8 +198,17 @@ public class TownScenario implements Scenario {
         }
     }
 
-    /** "nearest", a uid (or a unique prefix of one), or a name — whichever the scenario used. */
+    /**
+     * "mate", "nearest", a uid (or a unique prefix of one), or a name — whichever the
+     * scenario used. {@code mate} is here because the player's spouse is the one person the
+     * town is guaranteed to generate and the only one a scenario can refer to without
+     * knowing the seed.
+     */
     private Entity find(String who) {
+        if ("mate".equalsIgnoreCase(who)) {
+            return Player.get_ent() instanceof EntityRLHuman
+                    ? ((EntityRLHuman) Player.get_ent()).getMate() : null;
+        }
         if ("nearest".equalsIgnoreCase(who)) {
             Entity best = null;
             int bestDistance = Integer.MAX_VALUE;
