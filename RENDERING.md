@@ -128,10 +128,52 @@ Each layer can be switched at run time or from the command line:
 | F2 | `-Dlrl.light=false` | light pass off — flat albedo |
 | F3 | `-Dlrl.asciiOver=true` | draw glyphs on top of sprites too |
 | F4 | `-Dlrl.reveal=true` | draw the map as if fully explored |
+| F5 | | pin the NPC inspector to whoever it is showing |
+| F6 | | inspect the next NPC on screen |
+| F7 | | dump the inspected NPC's whole brain to stdout and the replay |
+| | `-Dlrl.npc=true` | force the NPC inspector on with no key held |
 | | `-Dlrl.walls=false` | `#` glyphs instead of connected slabs |
 | | `-Dlrl.cell=32` | zoom: screen pixels per tile, and the art resolution |
 | | `-Dlrl.fov=6` | pin the player's sight radius (what memory looks like) |
 | | `-Dlrl.seed=7` | fix the town, so two builds can be compared |
+
+## The NPC brain inspector
+
+Hold **ALT**. Every NPC on screen gets a tag over its head — name, the state that owns its
+body, and a letter-plus-number for whatever is currently shouting loudest at it (`U91` an
+urgent stimulus, `D68` a directed one), plus `~` for a model request in flight and `>` for a
+plan waiting to run. A street reads at a glance, and a reaction spreading through it is
+visible as it happens.
+
+One NPC at a time also gets the full panel on the right:
+
+- **who and what** — name, age, race, brain class, hp, position, injuries, crime record;
+- **doing** — the state, the behaviour holding the body, and the sentence that behaviour
+  gives the model about what it is doing;
+- **impulses** — every trigger, in priority order, with the answer it gave on the last turn
+  and the one that won. `-` means *never asked*: selection stops at the first yes;
+- **mind** — the ranked stimulus stream with each entry's decayed salience, channel, age and
+  whether it has been folded into a prompt yet, against the interrupt threshold;
+- **beliefs** — one row per person this NPC has an opinion about: when it last saw them,
+  how sure it still is, whether they attacked it or are wanted;
+- **planner** — near/busy/idle, turns since the last request against the cadence, who it is
+  attending to, why it last asked, the model's reply verbatim, and the plan queue;
+- **talk** — the tail of the conversation, its own lines marked.
+
+The panel follows the mouse; **F5** pins it so an NPC can be watched across turns, **F6**
+cycles, **F7** prints the lot — the last prompt included — to stdout and into the replay.
+
+Nothing in the panel is computed by looking: the impulse table is *recorded* during the AI's
+own walk down the list rather than re-evaluated on demand, because triggers are stateful (the
+flee trigger starts its own stopwatch the first time it says yes) and a render pass asking
+them sixty times a second would be changing what it claims to be observing.
+
+For a screenshot, `-Dlrl.npc=true` forces it on with no key held, and `-Dlrl.npc=<text>`
+also pins it to the first NPC whose name or uid contains that text:
+
+```sh
+LRL_OPTS="-Dlrl.npc=hester" ./scripts/shot.sh /tmp/npc.png 300
+```
 
 ## Working on the art
 

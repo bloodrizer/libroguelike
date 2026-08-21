@@ -58,6 +58,14 @@ public class Deliberation {
     private String attentionUid;
     private long attentionUntilTurn;
 
+    // The last round trip, kept verbatim for the ALT overlay. This is the closest thing an
+    // NPC has to a thought you can read: the exact question it was asked and the exact
+    // answer that came back. Held on the game thread only, one round trip deep.
+    private String lastPrompt;
+    private String lastCompletion;
+    private String lastReason;
+    private long lastCompletionTurn = -1;
+
     public Deliberation(EntityRLHuman owner, RLController controller, Knowledge knowledge, Voice voice) {
         this.owner = owner;
         this.controller = controller;
@@ -95,6 +103,8 @@ public class Deliberation {
         }
         boolean planJustLanded = false;
         if (completion != null) {
+            lastCompletion = completion;
+            lastCompletionTurn = GameTurn.current();
             LlmDebug.log("%s: completion received: %s", uid, completion.replace('\n', ' '));
             List<NpcCommand> plan = LlmRuntime.registry().parse(completion);
             if (!plan.isEmpty()) {
@@ -197,6 +207,8 @@ public class Deliberation {
                 uid, why, Salience.label(top == null ? priority : top.salience),
                 priority, GameTurn.current());
         String prompt = Perception.snapshot(owner, knowledge, voice.log(), situation);
+        lastPrompt = prompt;
+        lastReason = why;
         LlmDebug.prompt(uid, prompt);
         service.submit(uid, prompt, priority);
 
@@ -280,6 +292,57 @@ public class Deliberation {
             sb.append(c.verb());
         }
         return sb.toString();
+    }
+
+    // --------------------------------------------------------------- debug view
+
+    /** The exact prompt last submitted, or null if this NPC has never asked the model. */
+    public String lastPrompt() {
+        return lastPrompt;
+    }
+
+    /** The model's last reply, verbatim and unparsed. */
+    public String lastCompletion() {
+        return lastCompletion;
+    }
+
+    /** Why the last prompt was sent: "interrupt", "ambient re-plan", "idle re-plan". */
+    public String lastReason() {
+        return lastReason;
+    }
+
+    public long lastCompletionTurn() {
+        return lastCompletionTurn;
+    }
+
+    /** Turns since the last submit, or -1 if there has never been one. */
+    public long turnsSinceRequest() {
+        return lastRequestTurn < 0 ? -1 : GameTurn.current() - lastRequestTurn;
+    }
+
+    /** Turns that have to pass before the next ambient re-plan. */
+    public int debugCadence() {
+        return cadenceTurns();
+    }
+
+    /** A request is in flight for this NPC — the model, not the body, is the holdup. */
+    public boolean isBusy() {
+        InferenceService service = LlmRuntime.reactor();
+        return service != null && service.isBusy(owner.get_uid());
+    }
+
+    /** The plan as it stands, one line per step, head marked. */
+    public List<String> plan() {
+        return interpreter.debugPlan();
+    }
+
+    /** Turn the running plan was composed on, or -1 when there is no plan. */
+    public long planTurn() {
+        return interpreter.debugReactiveTurn();
+    }
+
+    public boolean planStarted() {
+        return interpreter.debugReactiveStarted();
     }
 
     /** Queue state for the replay log — whether the model, not the body, is the holdup. */

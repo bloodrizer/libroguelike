@@ -278,6 +278,16 @@ public abstract class TownAI extends BasicMobAI implements Persona {
     }
 
     /**
+     * What the behaviour holding the body says it is doing, in its own words, or null. The
+     * same sentence the prompt gets — so the overlay shows the legs and the words together,
+     * which is the pair that has to match.
+     */
+    public String debugDoing() {
+        IAIAction action = debugActiveAction();
+        return action instanceof Narrating ? ((Narrating) action).narrate() : null;
+    }
+
+    /**
      * Brain state for the replay log. This is the view that tells you <i>why</i> an NPC
      * ignored you: whether the stimulus arrived at all, what salience it carries now, and
      * whether the trigger or the queue is the thing holding the reaction back.

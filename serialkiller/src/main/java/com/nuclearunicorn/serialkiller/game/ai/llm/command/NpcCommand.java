@@ -12,6 +12,14 @@ public interface NpcCommand {
 
     String verb();
 
+    /**
+     * The command with its argument, for logs and the debug overlay. A plan shown as
+     * "goto -> say" is not a plan you can check against what the NPC actually did.
+     */
+    default String describe() {
+        return verb();
+    }
+
     default void onEnter(AgentContext ctx) {}
 
     /** Called each tick while this command is active. */

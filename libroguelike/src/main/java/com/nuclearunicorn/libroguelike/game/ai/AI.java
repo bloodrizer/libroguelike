@@ -40,6 +40,17 @@ public class AI implements Serializable, IEventListener{
     /** The action currently holding the body, so entry/exit fire exactly once each. */
     private transient IAIAction active;
 
+    /** The last walk down the impulse list, for the debug overlay. Rebuilt every update. */
+    private transient List<ImpulseView> walk;
+
+    /** Transient, so it comes back null from a save: build it on demand. */
+    private List<ImpulseView> walk(){
+        if (walk == null){
+            walk = new ArrayList<ImpulseView>();
+        }
+        return walk;
+    }
+
     protected void registerState(String name, IAIAction action){
         stateMap.put(name, action);
     }
@@ -64,14 +75,29 @@ public class AI implements Serializable, IEventListener{
         impulses.removeIf(ranked -> ranked.impulse.name().equals(name));
     }
 
-    /** First relevant impulse, or null when nothing applies. */
+    /**
+     * First relevant impulse, or null when nothing applies. The walk is recorded as it
+     * happens — see {@link #debugImpulses()}.
+     */
     protected Impulse selectImpulse(){
+        List<ImpulseView> walk = walk();
+        walk.clear();
+        Impulse selected = null;
         for (RankedImpulse ranked : impulses){
-            if (ranked.impulse.isRelevant()){
-                return ranked.impulse;
+            if (selected != null){
+                // Never asked: selection stops at the first yes, and a debug view that
+                // asked anyway would report a decision that was not taken.
+                walk.add(new ImpulseView(ranked, ImpulseView.Verdict.NOT_ASKED, false));
+                continue;
+            }
+            boolean relevant = ranked.impulse.isRelevant();
+            walk.add(new ImpulseView(ranked,
+                    relevant ? ImpulseView.Verdict.YES : ImpulseView.Verdict.NO, relevant));
+            if (relevant){
+                selected = ranked.impulse;
             }
         }
-        return null;
+        return selected;
     }
 
     protected Entity owner;
@@ -107,6 +133,48 @@ public class AI implements Serializable, IEventListener{
     /** The action holding the body right now, or null. */
     protected IAIAction activeAction(){
         return active;
+    }
+
+    /** Same, for the debug overlay: what is actually driving the body this turn. */
+    public IAIAction debugActiveAction(){
+        return active;
+    }
+
+    /**
+     * The last impulse walk, highest priority first: every trigger, the answer it gave, and
+     * the one that won. Deciding what to do <i>is</i> this walk, so this is the decision
+     * itself — "why is he not chasing me" is answered by whichever row above the chase row
+     * said yes.
+     *
+     * <p>Recorded during {@link #selectImpulse()} rather than re-run on demand, and that is
+     * not an optimisation. Triggers are stateful: a flee trigger starts its own stopwatch
+     * the first time it says yes and logs when it lets go. Asking one whether it is relevant
+     * from a render pass is not a question, it is a change — sixty times a second.
+     */
+    public List<ImpulseView> debugImpulses(){
+        return walk();
+    }
+
+    /** One row of {@link #debugImpulses}: a trigger, its answer, and whether it won. */
+    public static class ImpulseView {
+
+        /** {@code NOT_ASKED}: something above it already said yes, so it was never consulted. */
+        public enum Verdict { YES, NO, NOT_ASKED }
+
+        public final int priority;
+        public final String name;
+        public final String state;
+        public final Verdict verdict;
+        /** The first relevant one — the row that actually named this turn's state. */
+        public final boolean selected;
+
+        ImpulseView(RankedImpulse ranked, Verdict verdict, boolean selected){
+            this.priority = ranked.priority;
+            this.name = ranked.impulse.name();
+            this.state = ranked.impulse.state();
+            this.verdict = verdict;
+            this.selected = selected;
+        }
     }
 
     public boolean entity_in_fov(Entity ent){

@@ -56,6 +56,7 @@ import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
 import com.nuclearunicorn.serialkiller.render.AsciiWorldView;
 import com.nuclearunicorn.serialkiller.render.RenderConfig;
 import com.nuclearunicorn.serialkiller.render.RLMessages;
+import com.nuclearunicorn.serialkiller.render.overlays.NpcDebugOverlay;
 import org.newdawn.slick.Color;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.Point;
@@ -232,6 +233,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         //DebugPathfindingGraph.debugAdaptiveGraph(); //>:3
         DebugOverlay.debugPathfinding();    //heavy, but very useful
         overlay.render();
+        NpcDebugOverlay.render();   //ALT: what the town is thinking
 
         if (typeMode){
             OverlaySystem.ttf.drawString(15,
@@ -346,6 +348,18 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
                 case Keyboard.KEY_F4:
                     RenderConfig.REVEAL = !RenderConfig.REVEAL;
                     RLMessages.message("reveal map: " + RenderConfig.REVEAL, Color.yellow);
+                break;
+                //NPC brain inspector (hold ALT to see it). Pinning matters more than it
+                //sounds: the panel follows the mouse, and the NPC you are reading walks
+                //away the moment you press a key to advance the turn.
+                case Keyboard.KEY_F5:
+                    NpcDebugOverlay.togglePin();
+                break;
+                case Keyboard.KEY_F6:
+                    NpcDebugOverlay.cycleFocus();
+                break;
+                case Keyboard.KEY_F7:
+                    NpcDebugOverlay.dumpFocus();
                 break;
             }
         }

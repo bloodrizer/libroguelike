@@ -119,10 +119,10 @@ public class AsciiEntRenderer extends EntityRenderer {
             return;
         }
         if (!drewSprite || RenderConfig.ASCII_OVER_SPRITES) {
-            Glyphs.draw(x, y, debugSymbol(), color, 0);
+            Glyphs.draw(x, y, symbol, color, 0);
         } else if (isStateGlyph(sprite)) {
             // small marker above the head, not on top of the sprite
-            Glyphs.draw(x, y, debugSymbol(), color, RenderConfig.spriteH() - 2);
+            Glyphs.draw(x, y, symbol, color, RenderConfig.spriteH() - 2);
         }
     }
 
@@ -180,19 +180,20 @@ public class AsciiEntRenderer extends EntityRenderer {
         return (h & 0x7FFFFFFF) % count;
     }
 
-    private String debugSymbol() {
-        if (ent instanceof EntityRLHuman && Input.key_state_alt) {
-            return symbol + " [" + ent.get_uid() + "]";
-        }
-        return symbol;
-    }
-
-    /** Only actors get a state glyph, and only when they are not just idling. */
+    /**
+     * Only actors get a state glyph, and only when they are not just idling.
+     *
+     * <p>Under ALT this used to append the entity's uid to the glyph and draw the pair in
+     * cell-sized type — a UUID over every head, which is neither readable at that size nor
+     * an answer to anything. Who an NPC is and what is driving it now belong to {@link
+     * com.nuclearunicorn.serialkiller.render.overlays.NpcDebugOverlay}, which has the room
+     * to say it.
+     */
     private boolean isStateGlyph(int sprite) {
         if (sprite != SpriteAtlas.OBJ_PERSON) {
             return false;
         }
-        return !"@".equals(symbol) || Input.key_state_alt;
+        return !"@".equals(symbol);
     }
 
     private static boolean castsShadow(int sprite) {

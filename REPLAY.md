@@ -107,6 +107,11 @@ behind something that will never shift.
 split the town into four components with 3 of 46 beds reachable, a generator bug that was
 invisible until an NPC needed to walk through it.
 
+For one NPC rather than the town, the ALT overlay is the live view of the same data —
+impulse walk, stimulus stream, beliefs, planner queue and the model's last reply — and its
+F7 dump lands in the replay alongside the `npc` records. See
+[RENDERING.md](RENDERING.md#the-npc-brain-inspector).
+
 `world=map` is the one to reach for when a town is *connected* and still wrong. A count cannot
 tell you that a room came out ringed with doors, its windows torn out, or that a house was
 furnished as a dormitory — those read at a glance in the picture and nowhere else. Both of

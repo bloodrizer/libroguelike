@@ -25,6 +25,12 @@ public class GotoCommand implements NpcCommand {
     }
 
     @Override
+    public String describe() {
+        return "goto " + targetSymbol
+                + (target == null ? "" : " (" + target.getX() + "," + target.getY() + ")");
+    }
+
+    @Override
     public void onEnter(AgentContext ctx) {
         target = ctx.resolve(targetSymbol);
         if (target != null) {

@@ -22,6 +22,11 @@ public class WaitCommand implements NpcCommand {
     }
 
     @Override
+    public String describe() {
+        return "wait " + remaining;
+    }
+
+    @Override
     public Status step(AgentContext ctx) {
         if (remaining <= 0) {
             return Status.SUCCESS;

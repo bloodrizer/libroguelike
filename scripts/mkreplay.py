@@ -36,6 +36,8 @@ K = {
     's': 83, 't': 84, 'u': 85, 'v': 86, 'w': 87, 'x': 88, 'y': 89, 'z': 90,
     'space': 32, 'enter': 257, 'return': 257, 'backspace': 259, 'escape': 256, 'tab': 258,
     'up': 265, 'down': 264, 'left': 263, 'right': 262, 'lctrl': 341, 'lshift': 340,
+    # Render toggles (F1-F4) and the NPC brain inspector (F5 pin, F6 cycle, F7 dump).
+    'f1': 290, 'f2': 291, 'f3': 292, 'f4': 293, 'f5': 294, 'f6': 295, 'f7': 296,
 }
 DIRS = {'w': 'w', 'a': 'a', 's': 's', 'd': 'd',
         'up': 'up', 'down': 'down', 'left': 'left', 'right': 'right'}

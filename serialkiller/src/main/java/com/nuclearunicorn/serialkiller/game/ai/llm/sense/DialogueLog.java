@@ -2,6 +2,7 @@ package com.nuclearunicorn.serialkiller.game.ai.llm.sense;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -25,11 +26,12 @@ public class DialogueLog implements Serializable {
     /** How an own turn is stored and marked. Rendered as "<name> (you)" — see {@link #render}. */
     private static final String SELF = "you";
 
-    private static final class Line implements Serializable {
-        final long turn;
-        final String speaker;
-        final String text;
-        final boolean overheard;
+    /** One attributed turn of talk. Public so the debug overlay can render the transcript. */
+    public static final class Line implements Serializable {
+        public final long turn;
+        public final String speaker;
+        public final String text;
+        public final boolean overheard;
 
         Line(long turn, String speaker, String text, boolean overheard) {
             this.turn = turn;
@@ -70,6 +72,16 @@ public class DialogueLog implements Serializable {
     /** Lines held, for the replay log. */
     public int size() {
         return lines.size();
+    }
+
+    /** The transcript itself, oldest first, for the debug overlay. */
+    public List<Line> lines() {
+        return Collections.unmodifiableList(lines);
+    }
+
+    /** True if this line is the NPC's own. The marker is private; the question is not. */
+    public static boolean isSelf(Line line) {
+        return line != null && SELF.equals(line.speaker);
     }
 
     /**

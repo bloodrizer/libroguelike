@@ -3,6 +3,7 @@ package com.nuclearunicorn.serialkiller.game.ai.llm.command;
 import com.nuclearunicorn.serialkiller.game.ai.llm.LlmDebug;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
@@ -82,6 +83,32 @@ public class PlanInterpreter {
 
     public boolean isIdle() {
         return agenda.isEmpty() && reactive.isEmpty();
+    }
+
+    /**
+     * Both queues as text, reactive first because that is the one that runs, with the step
+     * currently holding the body marked. The debug overlay's answer to "the model replied,
+     * so why is nothing happening" — a plan can be present and still never be stepped.
+     */
+    public List<String> debugPlan() {
+        List<String> out = new ArrayList<String>(reactive.size() + agenda.size());
+        for (NpcCommand cmd : reactive) {
+            out.add((cmd == active ? "> " : "  ") + cmd.describe());
+        }
+        for (NpcCommand cmd : agenda) {
+            out.add((cmd == active ? "> " : "  ") + cmd.describe() + "  [agenda]");
+        }
+        return out;
+    }
+
+    /** Turn the running reactive plan was composed on, or -1. Age is what makes it stale. */
+    public long debugReactiveTurn() {
+        return reactive.isEmpty() ? -1 : reactiveTurn;
+    }
+
+    /** Whether the reactive plan has ever had the body. A plan that never ran is a symptom. */
+    public boolean debugReactiveStarted() {
+        return reactiveStarted;
     }
 
     public void tick(AgentContext ctx) {

@@ -100,6 +100,20 @@ public class StimulusMemory implements Serializable {
         return best;
     }
 
+    /** This entry's salience after decay, on the same clock the ranking uses. */
+    public int effectiveSalience(Stimulus stimulus) {
+        return stimulus == null ? 0 : stimulus.effectiveSalience(GameTurn.current(), decayPerTurn);
+    }
+
+    /** How full the stream is — eviction pressure is a reason an NPC forgot something. */
+    public int size() {
+        return entries.size();
+    }
+
+    public int capacity() {
+        return capacity;
+    }
+
     /** Effective salience of the strongest unconsumed stimulus; 0 when there is none. */
     public int topSalience() {
         Stimulus top = peekTop();

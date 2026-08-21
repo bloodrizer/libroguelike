@@ -23,6 +23,11 @@ public class SayCommand implements NpcCommand {
     }
 
     @Override
+    public String describe() {
+        return "say \"" + (text == null ? "" : text) + "\"";
+    }
+
+    @Override
     public Status step(AgentContext ctx) {
         if (text != null && !text.isEmpty()) {
             ctx.say(text);
