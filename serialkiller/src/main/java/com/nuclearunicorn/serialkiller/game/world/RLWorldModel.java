@@ -20,7 +20,10 @@ public class RLWorldModel extends WorldModel implements ILosBoard {
     
     private List<RLTile> fovTiles = new ArrayList<RLTile>();
     
+    /** The player's own flat: where the family is, and where a citizen wakes up. */
     public static Point playerSafeHouseLocation;
+    /** Where this game actually opens - the preset's spawn place, resolved by the generator. */
+    public static Point playerSpawnLocation;
 
 
     List<Apartment> apartments = new ArrayList<Apartment>(16);

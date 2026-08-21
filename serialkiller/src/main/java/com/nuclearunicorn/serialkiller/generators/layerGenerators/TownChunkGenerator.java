@@ -12,6 +12,9 @@ import com.nuclearunicorn.serialkiller.game.ItemFactory;
 import com.nuclearunicorn.serialkiller.game.ai.PedestrianAI;
 import com.nuclearunicorn.serialkiller.game.ai.PoliceAI;
 import com.nuclearunicorn.serialkiller.game.ai.llm.LlmRuntime;
+import com.nuclearunicorn.serialkiller.game.character.CharacterPreset;
+import com.nuclearunicorn.serialkiller.game.character.CharacterSetup;
+import com.nuclearunicorn.serialkiller.game.character.SpawnPlace;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
 import com.nuclearunicorn.serialkiller.game.controllers.RLController;
 import com.nuclearunicorn.serialkiller.game.modes.in_game.InGameMode;
@@ -72,6 +75,7 @@ public class TownChunkGenerator extends ChunkGenerator {
     //everything that has to wait until the whole street is built - see generate()
     private final List<Point> lampposts = new ArrayList<Point>();
     private final List<Building> yards = new ArrayList<Building>();
+    private final List<Block> parks = new ArrayList<Block>();
     private int loiterers;
 
     //List<Block> apartments = new ArrayList<Block>();
@@ -141,6 +145,7 @@ public class TownChunkGenerator extends ChunkGenerator {
         playerHome = null;
         lampposts.clear();
         yards.clear();
+        parks.clear();
         loiterers = 0;
 
         for(Block district: districts){
@@ -239,6 +244,9 @@ public class TownChunkGenerator extends ChunkGenerator {
 
         //last, before the nav graph is built off it: make sure the place hangs together
         repairConnectivity(x, y, size);
+
+        //the town is final, so the preset's spawn place can now be looked up in it
+        resolvePlayerSpawn();
 
         NLTimer graphTimer = new NLTimer();
         graphTimer.push();
@@ -1165,14 +1173,7 @@ public class TownChunkGenerator extends ChunkGenerator {
         }
         List<Point> free = new ArrayList<Point>();
         for (Block room : apt.rooms){
-            for (int i = 1; i < room.getW(); i++){
-                for (int j = 1; j < room.getH(); j++){
-                    int wx = room.getX() + i, wy = room.getY() + j;
-                    if (isFreeFloor(wx, wy)){
-                        free.add(new Point(wx, wy));
-                    }
-                }
-            }
+            collectFreeFloor(room, free);
         }
         if (free.isEmpty()){
             return null;
@@ -1213,19 +1214,96 @@ public class TownChunkGenerator extends ChunkGenerator {
             return posts;
         }
         for (Room room : policeStation.roomList){
-            if (room.type != RoomType.LOBBY){
-                continue;
-            }
-            for (int i = 1; i < room.getW(); i++){
-                for (int j = 1; j < room.getH(); j++){
-                    int wx = room.getX() + i, wy = room.getY() + j;
-                    if (isFreeFloor(wx, wy)){
-                        posts.add(new Point(wx, wy));
-                    }
-                }
+            if (room.type == RoomType.LOBBY){
+                collectFreeFloor(room, posts);
             }
         }
         return posts;
+    }
+
+    /**
+     * Where the chosen preset wakes the player up, looked up in the town that has just been
+     * built and left for {@code InGameMode} to move them to.
+     *
+     * <p>Only the chunk that built the safehouse answers: it is the one the player was
+     * spawned into, and a neighbour generated later must not quietly move them out of it.
+     *
+     * <p>A place this town does not contain - the brothel cap is one per chunk, and a chunk
+     * of small lots may hold none - falls back home. Starting in your own bed is a worse
+     * start than the one you asked for; starting nowhere is not a start at all.
+     */
+    private void resolvePlayerSpawn() {
+        if (playerHome == null){
+            return;
+        }
+
+        CharacterPreset preset = CharacterSetup.current();
+        SpawnPlace place = preset.getSpawn();
+        Point spot = spawnPoint(place);
+
+        if (spot == null && place != SpawnPlace.HOME){
+            System.out.println("[preset] no " + place + " in this town - "
+                    + preset.getId() + " starts at home instead");
+            spot = RLWorldModel.playerSafeHouseLocation;
+        }
+        RLWorldModel.playerSpawnLocation = spot;
+    }
+
+    private Point spawnPoint(SpawnPlace place) {
+        switch (place){
+            case HOME:   return RLWorldModel.playerSafeHouseLocation;
+            case STREET: return outdoorTile(roads);
+            case PARK:   return outdoorTile(parks);
+            default:     return roomTile(place.building, place.room);
+        }
+    }
+
+    /** A free tile in a room of that type, in a building of that type, or null. */
+    private Point roomTile(BuildingType buildingType, RoomType roomType) {
+        List<Point> free = new ArrayList<Point>();
+        for (Apartment apt : getApartments()){
+            if (!(apt instanceof Building)){
+                continue;
+            }
+            Building building = (Building)apt;
+            if (building.type != buildingType || building.roomList == null){
+                continue;
+            }
+            for (Room room : building.roomList){
+                if (room.type == roomType){
+                    collectFreeFloor(room, free);
+                }
+            }
+        }
+        if (free.isEmpty()){
+            return null;
+        }
+        return free.get(chunk_random.nextInt(free.size()));
+    }
+
+    /** Somewhere to stand on one of these open-air blocks - a street, a park. */
+    private Point outdoorTile(List<Block> blocks) {
+        List<Block> shuffled = new ArrayList<Block>(blocks);
+        Collections.shuffle(shuffled, chunk_random);
+        for (Block block : shuffled){
+            Point spot = block.getFreeTileSafe(chunk_random, getLayer());
+            if (spot != null){
+                return spot;
+            }
+        }
+        return null;
+    }
+
+    /** Every free interior tile of the room, appended to {@code out}. */
+    private void collectFreeFloor(Block room, List<Point> out) {
+        for (int i = 1; i < room.getW(); i++){
+            for (int j = 1; j < room.getH(); j++){
+                int wx = room.getX() + i, wy = room.getY() + j;
+                if (isFreeFloor(wx, wy)){
+                    out.add(new Point(wx, wy));
+                }
+            }
+        }
     }
 
     public void placeEntity(int x, int y, EntityRLActor entity, String symbol, String name, Color color) {
@@ -1267,6 +1345,8 @@ public class TownChunkGenerator extends ChunkGenerator {
 
     private void generatePark(Block block) {
         //RLTile tile = (RLTile)(getLayer().get_tile(i,j));
+
+        parks.add(block);   //nothing on the finished map says "park", so remember them
 
         for(int i = 0; i<=block.getW(); i++ )
             for(int j = 0; j<=block.getH(); j++ ){

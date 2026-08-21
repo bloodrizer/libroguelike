@@ -13,8 +13,10 @@ import com.nuclearunicorn.libroguelike.vgui.NE_GUI_Label;
 import com.nuclearunicorn.libroguelike.vgui.NE_GUI_System;
 import com.nuclearunicorn.serialkiller.game.Main;
 import com.nuclearunicorn.serialkiller.game.SkillerGame;
+import com.nuclearunicorn.serialkiller.game.character.CharacterPreset;
+import com.nuclearunicorn.serialkiller.game.character.CharacterSetup;
 import com.nuclearunicorn.serialkiller.utils.pathfinder.adaptive.AdaptivePathfinder;
-import com.nuclearunicorn.serialkiller.vgui.VGUICreateCharacterScreeen;
+import com.nuclearunicorn.serialkiller.vgui.VGUINewGameWizard;
 import org.newdawn.slick.Color;
 import org.lwjgl.input.Keyboard;
 
@@ -24,7 +26,7 @@ import org.lwjgl.input.Keyboard;
 public class MainMenuUI implements IUserInterface, IEventListener {
 
     public NE_GUI_System ui;
-    private VGUICreateCharacterScreeen createCharScreen;
+    private VGUINewGameWizard newGameWizard;
     final NE_GUI_FrameModern frame = new NE_GUI_FrameModern();
     private final MainMenuMode mode;
 
@@ -43,8 +45,23 @@ public class MainMenuUI implements IUserInterface, IEventListener {
 
         //allow esc to cycle game menu
         if (event instanceof EKeyPress){
+            //the menu is reachable by keyboard as well as by mouse: replays carry keys and
+            //not clicks, so a mouse-only new game is a new game no test can ever start
+            if (((EKeyPress) event).key == Keyboard.KEY_N
+                    && (newGameWizard == null || !newGameWizard.visible)){
+                event.dispatch();
+                openNewGameWizard();
+                return;
+            }
+
             if (((EKeyPress) event).key == Keyboard.KEY_ESCAPE){
                 event.dispatch();
+
+                //escape backs out one screen at a time: the wizard first, the menu second
+                if (newGameWizard != null && newGameWizard.visible){
+                    newGameWizard.cancel();
+                    return;
+                }
 
                 SkillerGame game = Main.game;
                 game.set_state("inGame");
@@ -80,37 +97,15 @@ public class MainMenuUI implements IUserInterface, IEventListener {
         NE_GUI_Button newGameButon = new NE_GUI_Button(){
             @Override
             public void e_on_mouse_click(EMouseClick e) {
-
-                frame.visible = false;
-
-                ClientGameEnvironment.reset();  //reset env, or wierd shit will happen
-                AdaptivePathfinder.reset();
-
-                
-
-                game.resetState("inGame");
-                game.set_state("inGame");
+                openNewGameWizard();
             }
         };
         newGameButon.set_tw(4);
         newGameButon.set_coord(130, 50);
-        newGameButon.text = "New game";
+        newGameButon.text = "New game (n)";
         newGameButon.color = Color.lightGray;
 
         frame.add(newGameButon);
-
-        NE_GUI_Button customGameButton = new NE_GUI_Button(){
-            @Override
-            public void e_on_mouse_click(EMouseClick e) {
-                createCharScreen.visible = true;
-            }
-        };
-        customGameButton.set_tw(4);
-        customGameButton.set_coord(130, 110);
-        customGameButton.text = "Custom game";
-        customGameButton.color = Color.lightGray;
-
-        frame.add(customGameButton);
 
         NE_GUI_Button continueButton = new NE_GUI_Button(){
             @Override
@@ -119,24 +114,55 @@ public class MainMenuUI implements IUserInterface, IEventListener {
             }
         };
         continueButton.set_tw(4);
-        continueButton.set_coord(130, 170);
+        continueButton.set_coord(130, 110);
         continueButton.text = "Continue";
         continueButton.color = Color.lightGray;
 
         frame.add(continueButton);
-        
+
         //-------------------------
-        createCharScreen = new VGUICreateCharacterScreeen();
-        createCharScreen.set_tw(14);
-        createCharScreen.set_th(10);
-        createCharScreen.center();
-        createCharScreen.title = "Create new character";
-        createCharScreen.dragable = false;
+        //the character screen the "custom game" button used to open was an empty frame; this
+        //is what it was a placeholder for
+        newGameWizard = new VGUINewGameWizard(new VGUINewGameWizard.Listener(){
+            @Override
+            public void onBegin(CharacterPreset preset) {
+                startNewGame();
+            }
 
-        createCharScreen.visible = false;
+            @Override
+            public void onCancel() {
+                frame.visible = true;
+            }
+        });
+        newGameWizard.center();
+        newGameWizard.visible = false;
 
-        ui.root.add(createCharScreen);
+        ui.root.add(newGameWizard);
 
+    }
+
+    /** A new game is a choice of life first; the wizard starts it once one is made. */
+    private void openNewGameWizard() {
+        if (newGameWizard == null){
+            return;   //keys can arrive before build_ui() has run
+        }
+        frame.visible = false;
+        newGameWizard.visible = true;
+    }
+
+    /** Throw away the world that was and build one for the preset just chosen. */
+    private void startNewGame() {
+        SkillerGame game = Main.game;
+
+        frame.visible = false;
+        newGameWizard.visible = false;
+
+        ClientGameEnvironment.reset();  //reset env, or wierd shit will happen
+        AdaptivePathfinder.reset();
+        CharacterSetup.reset();         //re-roll "random" for the town about to be built
+
+        game.resetState("inGame");
+        game.set_state("inGame");
     }
 
     @Override
@@ -157,5 +183,8 @@ public class MainMenuUI implements IUserInterface, IEventListener {
     @Override
     public void init() {
         frame.visible = true;
+        if (newGameWizard != null){
+            newGameWizard.visible = false;   //back from a game: the menu, not the wizard
+        }
     }
 }

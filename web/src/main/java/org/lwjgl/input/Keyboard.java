@@ -20,6 +20,7 @@ public final class Keyboard {
     public static final int KEY_I = 'I';
     public static final int KEY_L = 'L';
     public static final int KEY_M = 'M';
+    public static final int KEY_N = 'N';
     public static final int KEY_Q = 'Q';
     public static final int KEY_S = 'S';
     public static final int KEY_T = 'T';

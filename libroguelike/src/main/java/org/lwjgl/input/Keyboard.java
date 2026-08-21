@@ -14,6 +14,7 @@ public final class Keyboard {
     public static final int KEY_I = GLFW_KEY_I;
     public static final int KEY_L = GLFW_KEY_L;
     public static final int KEY_M = GLFW_KEY_M;
+    public static final int KEY_N = GLFW_KEY_N;
     public static final int KEY_Q = GLFW_KEY_Q;
     public static final int KEY_S = GLFW_KEY_S;
     public static final int KEY_T = GLFW_KEY_T;

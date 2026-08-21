@@ -14,7 +14,6 @@ import com.nuclearunicorn.libroguelike.game.combat.Combat;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.ent.EntityActor;
 import com.nuclearunicorn.libroguelike.game.ent.controller.NpcController;
-import com.nuclearunicorn.libroguelike.game.items.BaseItem;
 import com.nuclearunicorn.libroguelike.game.modes.AbstractGameMode;
 import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.libroguelike.game.ui.IUserInterface;
@@ -29,7 +28,6 @@ import com.nuclearunicorn.libroguelike.render.overlay.OverlaySystem;
 import com.nuclearunicorn.libroguelike.utils.NLTimer;
 import com.nuclearunicorn.libroguelike.utils.Timer;
 import com.nuclearunicorn.libroguelike.vgui.effects.EffectsSystem;
-import com.nuclearunicorn.serialkiller.game.ItemFactory;
 import com.nuclearunicorn.serialkiller.game.Main;
 import com.nuclearunicorn.serialkiller.game.SkillerGame;
 import com.nuclearunicorn.libroguelike.core.replay.Replay;
@@ -39,6 +37,8 @@ import com.nuclearunicorn.serialkiller.game.ai.llm.sense.GameTurn;
 import com.nuclearunicorn.serialkiller.game.ai.llm.sense.HearingSensor;
 import com.nuclearunicorn.serialkiller.game.ai.llm.sense.CrimeSensor;
 import com.nuclearunicorn.serialkiller.game.ai.llm.sense.PainSensor;
+import com.nuclearunicorn.serialkiller.game.character.CharacterPreset;
+import com.nuclearunicorn.serialkiller.game.character.CharacterSetup;
 import com.nuclearunicorn.serialkiller.game.sound.PlayerEars;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
 import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
@@ -150,10 +150,20 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
          * As an effect of chunk building, generator sets player location inside of generated safehouses
          * Then, we finally able to use pre-generated player and place it into the safehouse
          */
+        //both are statics the generator writes into, and a second game in the same session
+        //would otherwise start by teleporting the player to the last town's address
+        RLWorldModel.playerSafeHouseLocation = null;
+        RLWorldModel.playerSpawnLocation = null;
+
         model.update();
 
-        if (RLWorldModel.playerSafeHouseLocation != null){
-            Player.get_ent().move_to(RLWorldModel.playerSafeHouseLocation);
+        //where the preset asked to wake up - the safehouse for a citizen, a room at the
+        //brothel or a spot on the street for anyone else. The home is still theirs either
+        //way; only the tile the game opens on moves
+        Point start = RLWorldModel.playerSpawnLocation != null
+                ? RLWorldModel.playerSpawnLocation : RLWorldModel.playerSafeHouseLocation;
+        if (start != null){
+            Player.get_ent().move_to(start);
         }
         //hack end
 
@@ -436,7 +446,14 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         }
     }
 
+    /**
+     * Build the player and put them on the map. The preset picked on the new-game screen
+     * decides who that is - sex, age and kit - so everything below the stat roll is the
+     * preset's to overrule; see {@link CharacterSetup}.
+     */
     public static void spawn_player(Point location){
+
+        CharacterPreset preset = CharacterSetup.current();
 
         EntityRLPlayer playerEnt = new EntityRLPlayer();
         playerEnt.set_combat(new RLCombat());
@@ -460,21 +477,15 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         Player.set_ent(playerEnt);
 
         //---------------------------------------------------
-        playerEnt.getContainer().add_item(ItemFactory.produce("hammer"));
-        playerEnt.getContainer().add_item(ItemFactory.produce("knife"));
-        playerEnt.getContainer().add_item(ItemFactory.produce("taser"));
-
-        playerEnt.getContainer().add_item(ItemFactory.produce("valium"));
-
-        BaseItem food = ItemFactory.produceFood("generic food", 10);
-        food.set_count(5);
-        playerEnt.getContainer().add_item(food);
-
-        /*for (BaseItem item: playerEnt.container.getItems()){
-            System.out.println("Player's item: " + item + " , container:" + item.get_container());
-        }*/
-
+        //stats first, the preset second: generateNPCStats rolls a random person - sex, age,
+        //name and all - and the whole point of a preset is to say who that person is
         NPCGenerator.generateNPCStats(Rng.derive(Rng.COMBAT), playerEnt);
+
+        playerEnt.setRole(preset.getRole());
+        CharacterSetup.apply(playerEnt);
+
+        //the safehouse generator renames the player into their own family; this is what
+        //they are called if they somehow start a game without one
         playerEnt.setName("Player");
     }
 }

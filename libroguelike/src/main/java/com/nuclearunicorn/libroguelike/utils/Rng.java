@@ -53,6 +53,8 @@ public final class Rng {
     public static final String COMBAT = "combat";
     /** Ambient world events on the clock — weather, spawns, the passage of time. */
     public static final String WORLD = "world";
+    /** Who the player is: preset choice, starting sex, age and kit. */
+    public static final String CHARACTER = "character";
     /** Anything not yet assigned a stream of its own. */
     public static final String DEFAULT = "default";
 

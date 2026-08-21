@@ -6,10 +6,16 @@ import com.nuclearunicorn.libroguelike.game.combat.Combat;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.render.EntityRenderer;
 import com.nuclearunicorn.libroguelike.render.NPCRenderer;
+import com.nuclearunicorn.serialkiller.game.character.PlayerRole;
 
 /**
  */
 public class EntityRLPlayer extends EntityRLHuman {
+
+    //the cover the killer lives behind, straight off the new-game screen. Nothing branches
+    //on it - the player supplies their own behaviour - but the town, and the character
+    //sheet, are entitled to know what you tell people you are
+    private PlayerRole role = PlayerRole.CITIZEN;
 
     public EntityRLPlayer(){
 
@@ -24,6 +30,14 @@ public class EntityRLPlayer extends EntityRLHuman {
     @Override
     public boolean isPlayerEnt(){
         return true;
+    }
+
+    public PlayerRole getRole(){
+        return role;
+    }
+
+    public void setRole(PlayerRole role){
+        this.role = role;
     }
 
     @Override

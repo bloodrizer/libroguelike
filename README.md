@@ -64,10 +64,29 @@ The resource block in each module's `pom.xml` keeps the in-jar layout at
 `/resources/...` so existing `getResourceAsStream("/resources/foo.png")`
 callsites don't need touching.
 
+## Starting a new game
+
+`New game` on the main menu opens a wizard: pick the life you start with, then
+`Begin`. A preset is one object — role, spawn place, sex, age range and starting
+kit — so adding one is a table entry in
+`serialkiller/.../game/character/CharacterPresets.java` and nothing else. The
+spawn place is looked up in the town once it exists (a room at the brothel, a
+spot on the street); a town that has no such place starts you at home instead.
+
+```sh
+# skip the menu and start as somebody: citizen|prostitute|postman|shopkeeper|vagrant|random
+./scripts/run.sh -Dlrl.preset=postman
+
+# what the town was built out of, and where it put the player
+./scripts/run.sh -Ddebug.world=town
+```
+
 ## Controls
 
 - `wsad` / arrow keys — move
 - `space` — skip turn
 - `ctrl` + direction — attack
+- `t` — talk to nearby people
 - `tab` — character screen / inventory
-- `esc` — quit
+- `esc` — main menu (and back)
+- `n` — new game, from the main menu

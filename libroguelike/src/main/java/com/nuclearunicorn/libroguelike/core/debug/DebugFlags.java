@@ -13,6 +13,7 @@ package com.nuclearunicorn.libroguelike.core.debug;
  *                            crossing a tile the pathfinder itself calls blocked
  *   -Ddebug.world=ready      one dump of the map and its connected components at world-ready
  *   -Ddebug.world=map        one ASCII picture of the finished town at world-ready
+ *   -Ddebug.world=town       what the town was built out of: buildings, rooms, player spawn
  *   -Ddebug.census=&lt;n&gt;       every n turns, a town-wide tally of what the NPCs are doing
  *   -Ddebug.strict=true      a violated check throws instead of printing (for CI)
  * </pre>
@@ -40,6 +41,11 @@ public final class DebugFlags {
     /** {@code -Ddebug.world=map}: print the finished town as ASCII, one line per row. */
     public static boolean dumpMapAtReady() {
         return "map".equalsIgnoreCase(world);
+    }
+
+    /** {@code -Ddebug.world=town}: the town's buildings and rooms, and where the player woke up. */
+    public static boolean dumpTownAtReady() {
+        return "town".equalsIgnoreCase(world);
     }
 
     /** Turns between censuses, or 0 for off. */

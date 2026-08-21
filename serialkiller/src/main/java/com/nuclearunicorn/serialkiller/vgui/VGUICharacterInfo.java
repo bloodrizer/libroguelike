@@ -8,6 +8,7 @@ import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
 import com.nuclearunicorn.serialkiller.game.combat.NPCStats;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
+import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLPlayer;
 import org.newdawn.slick.Color;
 
 public class VGUICharacterInfo extends NE_GUI_FrameModern{
@@ -51,6 +52,13 @@ public class VGUICharacterInfo extends NE_GUI_FrameModern{
     }
 
     public void updateInfo(){
+        //who you are goes in the title bar: the stats column below is already full to the
+        //line, and the name and the cover story are the two things a preset actually gives you
+        if (Player.get_ent() instanceof EntityRLPlayer){
+            EntityRLPlayer player = (EntityRLPlayer) Player.get_ent();
+            title = player.getName() + ", " + player.getRole().displayName();
+        }
+
         stats.clearLines();
         RLCombat combat = (RLCombat) Player.get_ent().get_combat();
         BodySimulation bodySimulation = ((EntityRLHuman)Player.get_ent()).getBodysim();

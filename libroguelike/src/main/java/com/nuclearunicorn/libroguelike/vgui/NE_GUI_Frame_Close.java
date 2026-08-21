@@ -37,5 +37,11 @@ public class NE_GUI_Frame_Close extends NE_GUI_Element{
     @Override
     public void e_on_mouse_click(EMouseClick e){
         parent.visible = false;
+
+        //tell the frame it was closed. Without this a window can only find out by polling
+        //its own visible flag, which is why on_close() sat unused since it was written
+        if (parent instanceof NE_GUI_Frame){
+            ((NE_GUI_Frame)parent).on_close();
+        }
     }
 }

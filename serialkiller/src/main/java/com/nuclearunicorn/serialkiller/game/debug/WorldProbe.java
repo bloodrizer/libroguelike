@@ -10,6 +10,11 @@ import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
 import com.nuclearunicorn.libroguelike.game.world.WorldCluster;
 import com.nuclearunicorn.libroguelike.game.world.layers.WorldLayer;
 import com.nuclearunicorn.serialkiller.game.ai.llm.sense.GameTurn;
+import com.nuclearunicorn.serialkiller.game.character.CharacterSetup;
+import com.nuclearunicorn.serialkiller.game.world.RLWorldModel;
+import com.nuclearunicorn.serialkiller.generators.Apartment;
+import com.nuclearunicorn.serialkiller.generators.town.Building;
+import com.nuclearunicorn.serialkiller.generators.town.Room;
 import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityBed;
@@ -60,6 +65,51 @@ public final class WorldProbe {
         if (DebugFlags.dumpMapAtReady()) {
             dumpMap();
         }
+        if (DebugFlags.dumpTownAtReady()) {
+            dumpTown();
+        }
+    }
+
+    /**
+     * What this town was built out of, and where it put the player.
+     *
+     * <p>The building mix is rolled per chunk under caps (at most one brothel, at least 60%
+     * apartments) and filtered by which templates fit the lots the splitter happened to cut,
+     * so a town with no shop in it at all is a normal outcome and not a bug. Which matters
+     * the moment a character preset asks to start behind a counter: without this you cannot
+     * tell "the spawn lookup is broken" from "this town has no shops", and the two want
+     * opposite fixes.
+     */
+    public static void dumpTown() {
+        RLWorldModel model = (RLWorldModel) ClientGameEnvironment.getEnvironment().getWorld();
+
+        Map<String,Integer> buildings = new TreeMap<String,Integer>();
+        Map<String,Integer> rooms = new TreeMap<String,Integer>();
+
+        for (Apartment apt : model.getApartments()) {
+            String type = (apt instanceof Building)
+                    ? ((Building) apt).type.toString() : "APARTMENT(legacy)";
+            tally(buildings, type);
+
+            if (!(apt instanceof Building)) {
+                continue;
+            }
+            for (Room room : ((Building) apt).roomList) {
+                tally(rooms, type + "." + (room.type == null ? "untyped" : room.type.toString()));
+            }
+        }
+
+        System.err.println("DEBUG-TOWN buildings " + buildings);
+        System.err.println("DEBUG-TOWN rooms " + rooms);
+        System.err.println("DEBUG-TOWN preset " + CharacterSetup.current().getId()
+                + " wanted " + CharacterSetup.current().getSpawn()
+                + ", home " + RLWorldModel.playerSafeHouseLocation
+                + ", spawn " + RLWorldModel.playerSpawnLocation);
+    }
+
+    private static void tally(Map<String,Integer> counts, String key) {
+        Integer seen = counts.get(key);
+        counts.put(key, seen == null ? 1 : seen + 1);
     }
 
     /**
