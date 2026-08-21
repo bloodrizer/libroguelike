@@ -7,6 +7,7 @@ import com.nuclearunicorn.libroguelike.game.ent.controller.NpcController;
 import com.nuclearunicorn.serialkiller.game.ai.TownAI;
 import com.nuclearunicorn.serialkiller.game.ai.llm.LlmDebug;
 import com.nuclearunicorn.serialkiller.game.ai.llm.sense.GameTurn;
+import com.nuclearunicorn.serialkiller.game.ai.llm.sense.Relations;
 import com.nuclearunicorn.serialkiller.game.ai.mind.Narrating;
 import com.nuclearunicorn.serialkiller.game.ai.mind.Percept;
 import com.nuclearunicorn.serialkiller.game.ai.mind.Tuning;
@@ -119,8 +120,9 @@ public class FleeAction implements IAIAction, Narrating {
         return brain.entity(threatUid());
     }
 
+    /** Relation-first, in-sentence: "running away from your husband ASHLEY ANDREWS". */
     private String displayName(Entity ent) {
-        return ent.isPlayerEnt() ? "the player" : ent.getName();
+        return Relations.describe(brain.human(), ent);
     }
 
     /**

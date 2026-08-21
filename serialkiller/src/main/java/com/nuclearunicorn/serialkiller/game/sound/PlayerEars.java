@@ -32,8 +32,8 @@ import org.newdawn.slick.Color;
  *
  * <table>
  *   <tr><th></th><th>heard</th><th>not heard</th></tr>
- *   <tr><td><b>seen</b></td><td>the line, in a bubble</td><td>a "..." bubble: lips move</td></tr>
- *   <tr><td><b>unseen</b></td><td>a message-log line with a bearing</td><td>nothing at all</td></tr>
+ *   <tr><td><b>seen</b></td><td>a bubble, and a named line in the log</td><td>a "..." bubble: lips move</td></tr>
+ *   <tr><td><b>unseen</b></td><td>an anonymous log line with a bearing</td><td>nothing at all</td></tr>
  * </table>
  */
 public final class PlayerEars implements IEventListener, PlayerSpeech.Filter {
@@ -65,6 +65,7 @@ public final class PlayerEars implements IEventListener, PlayerSpeech.Filter {
     /** What a bubble shows when you can see someone speak but cannot hear them. */
     static final String INAUDIBLE_BUBBLE = "...";
 
+    private static final Color SPOKEN = new Color(225, 228, 240);
     private static final Color OVERHEARD = new Color(170, 175, 200);
 
     private static PlayerEars instance;
@@ -150,8 +151,10 @@ public final class PlayerEars implements IEventListener, PlayerSpeech.Filter {
     // --------------------------------------------------------------- the event
 
     /**
-     * Speech you heard but could not see gets a line in the message log — it is the only
-     * channel that can carry it, since there is nothing on screen to draw it over.
+     * Every line whose words reached the player gets one in the message log, alongside the
+     * bubble. A bubble is gone in a second and only exists while you are looking at the
+     * speaker; the log is where you go to find out what was actually said, so the two channels
+     * carry the same speech and differ only in how much they can attribute it to.
      */
     @Override
     public void e_on_event(Event event) {
@@ -165,13 +168,28 @@ public final class PlayerEars implements IEventListener, PlayerSpeech.Filter {
             return;
         }
         Verdict verdict = verdict(chat, speaker);
-        if (verdict.heard != Heard.EARSHOT) {
-            return;
+        switch (verdict.heard) {
+            case WORDS:
+                RLMessages.message(speakerName(speaker) + ": \"" + chat.message + "\"", SPOKEN);
+                break;
+            case EARSHOT:
+                // Deliberately anonymous: hearing gives you the words, not the face. Naming them
+                // would hand the player an identification through a wall that they never earned.
+                RLMessages.message("Someone to the " + verdict.bearing
+                        + ": \"" + chat.message + "\"", OVERHEARD);
+                break;
+            default:
+                break;  //lips you cannot read, or nothing at all: there are no words to log
         }
-        // Deliberately anonymous: hearing gives you the words, not the face. Naming them
-        // would hand the player an identification through a wall that they never earned.
-        RLMessages.message("You hear someone to the " + verdict.bearing
-                + " say: \"" + chat.message + "\"", OVERHEARD);
+    }
+
+    /** How the log names someone you watched speak — yourself included, marked as such. */
+    private static String speakerName(Entity speaker) {
+        String name = speaker.getName();
+        if (name == null || name.isEmpty()) {
+            name = speaker.get_uid();   //nameless props still get attributed to something
+        }
+        return speaker == Player.get_ent() ? name + " (you)" : name;
     }
 
     // ------------------------------------------------------------------ innards

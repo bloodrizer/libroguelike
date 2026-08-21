@@ -17,6 +17,7 @@ Actions (keyboard):
 Actions (scenario) - state the situation instead of navigating to it. These are honoured
 only while a replay is driving the session, so they cannot be used as a console:
     tp <x> <y>          put the player here
+    tp <who>            put the player next to them; "mate" is the player's spouse
     hurt <who> [times]  the player strikes them; who is "nearest", a name, or a uid prefix
     spawn <kind> <x> <y>  kind is pedestrian|police
     saidby <who> <text> somebody other than the player says something out loud

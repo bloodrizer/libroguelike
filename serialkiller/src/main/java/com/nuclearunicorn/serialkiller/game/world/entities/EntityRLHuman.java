@@ -158,6 +158,20 @@ public class EntityRLHuman extends EntityRLActor {
     }
 
     /**
+     * Read-only views of the rest of the household. Family used to be reachable only through
+     * {@link #relationTo}, which answers "what is this person to me" and cannot answer "who
+     * are my people" — so an NPC could name a relative standing in front of her and had no
+     * way to mention one who was not.
+     */
+    public List<EntityRLHuman> getChildren(){
+        return Collections.unmodifiableList(children);
+    }
+
+    public List<EntityRLHuman> getSiblings(){
+        return Collections.unmodifiableList(siblings);
+    }
+
+    /**
      * What {@code other} is to us: "wife", "son", "father", "sister"... or null for a
      * stranger. Named from {@code other}'s side and gendered by <i>their</i> sex, so it
      * reads as an address: my mate who is female is my "wife".

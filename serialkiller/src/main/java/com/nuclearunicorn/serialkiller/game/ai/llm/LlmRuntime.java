@@ -68,6 +68,7 @@ public final class LlmRuntime {
         if (config == null) {
             config = LlmConfig.load();
             LlmDebug.setEnabled(config.debug);
+            LlmDebug.setPromptsEnabled(config.debugPrompts);
         }
         return config;
     }

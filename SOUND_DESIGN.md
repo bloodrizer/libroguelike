@@ -249,16 +249,21 @@ are the interesting ones. `PlayerEars` crosses them:
 
 |  | **heard** | **not heard** |
 |---|---|---|
-| **seen** | `WORDS` — the line, in a bubble over their head | `LIPS` — a `...` bubble: you can see them talking and that is all |
-| **unseen** | `EARSHOT` — a message-log line with a bearing, no bubble | `NOTHING` |
+| **seen** | `WORDS` — the line, in a bubble over their head and a named line in the log | `LIPS` — a `...` bubble: you can see them talking and that is all |
+| **unseen** | `EARSHOT` — an anonymous log line with a bearing, no bubble | `NOTHING` |
 
 Seeing is `RLTile.isVisible()`, the renderer's own FOV mask — deliberately, because
 the question a bubble asks is *"is there anything on screen to hang this on"*, and
 that flag is the exact answer. (It is the wrong flag for anyone else: see pitfall 6
 and `CrimeSensor`, where using the player's mask for an NPC made a crate a witness.)
 
-`EARSHOT` is anonymous — *"You hear someone to the south-west say: …"*. Hearing gives
-you the words, not the face, and naming the speaker would hand the player an
+Anything whose words arrived is transcribed in the message log, in one shape:
+*`Marta Kaiser: "…"`*, with a `(you)` suffix on your own lines. The bubble is gone in a
+second and only exists while you are watching the speaker; the log is where you go to
+find out what was said.
+
+`EARSHOT` keeps that shape but is anonymous — *"Someone to the south-west: …"*. Hearing
+gives you the words, not the face, and naming the speaker would hand the player an
 identification through a wall that they never earned. The bearing comes free from the
 direction field, so it points at the doorway the voice came out of rather than at the
 speaker.

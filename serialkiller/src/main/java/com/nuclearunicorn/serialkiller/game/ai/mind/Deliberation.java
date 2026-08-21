@@ -12,6 +12,7 @@ import com.nuclearunicorn.serialkiller.game.ai.llm.command.AgentContext;
 import com.nuclearunicorn.serialkiller.game.ai.llm.command.NpcCommand;
 import com.nuclearunicorn.serialkiller.game.ai.llm.command.PlanInterpreter;
 import com.nuclearunicorn.serialkiller.game.ai.llm.sense.GameTurn;
+import com.nuclearunicorn.serialkiller.game.ai.llm.sense.Relations;
 import com.nuclearunicorn.serialkiller.game.ai.llm.sense.Salience;
 import com.nuclearunicorn.serialkiller.game.ai.llm.sense.Stimulus;
 import com.nuclearunicorn.serialkiller.game.controllers.RLController;
@@ -92,12 +93,14 @@ public class Deliberation {
             lastRequestTurn = -1;
             return;
         }
+        boolean planJustLanded = false;
         if (completion != null) {
             LlmDebug.log("%s: completion received: %s", uid, completion.replace('\n', ' '));
             List<NpcCommand> plan = LlmRuntime.registry().parse(completion);
             if (!plan.isEmpty()) {
                 LlmDebug.log("%s: plan parsed (%d cmds): %s", uid, plan.size(), verbList(plan));
                 interpreter.setReactive(plan, GameTurn.current());
+                planJustLanded = true;
             } else {
                 // Empty array is a real failure mode on small models, not a no-op. Re-plan
                 // on the next cadence rather than letting the NPC look unresponsive.
@@ -112,6 +115,20 @@ public class Deliberation {
 
         int top = knowledge.stream().topSalience();
         if (top >= Tuning.priority().interruptAt) {
+            // Not in the same call that installed it. A completion is installed at the top of
+            // pump() and the preempt below fires at the bottom of it, so a reply that has not
+            // had one tick to run was destroyed before tick() ever saw it — and in a
+            // conversation there is always a hot stimulus, so this was every reply. Traced in
+            // a replay: the player asked his wife "who am I?", her model answered "Hello,
+            // Giovanni.", and the line was binned unspoken. Twice, so she never said a word
+            // to him — each thing he said killed the answer to the one before.
+            //
+            // The stimulus is not consumed here, so it is still hot next turn and preempts
+            // then. The cost is one turn; what it buys is finishing your sentence.
+            if (planJustLanded) {
+                LlmDebug.log("%s: interrupt held one turn - a reply just landed", uid);
+                return;
+            }
             submit(service, situation, top, "interrupt");
             return;
         }
@@ -179,8 +196,9 @@ public class Deliberation {
         LlmDebug.log("%s: %s -> submitting at %s (score %d, turn %d)",
                 uid, why, Salience.label(top == null ? priority : top.salience),
                 priority, GameTurn.current());
-        service.submit(uid, Perception.snapshot(owner, knowledge.stream(), voice.log(), situation),
-                priority);
+        String prompt = Perception.snapshot(owner, knowledge, voice.log(), situation);
+        LlmDebug.prompt(uid, prompt);
+        service.submit(uid, prompt, priority);
 
         // Consume at submit time, not at reply time: a round trip takes seconds, and a
         // stimulus left unconsumed re-fires the interrupt every turn until then.
@@ -246,14 +264,11 @@ public class Deliberation {
     }
 
     public String displayName(String uid) {
-        if (uid == null) {
+        if (uid == null || owner.getEnvironment() == null) {
             return null;
         }
         Entity ent = owner.getEnvironment().getEntityManager().get_entity(uid);
-        if (ent == null) {
-            return null;
-        }
-        return ent.isPlayerEnt() ? "the player" : ent.getName();
+        return ent == null ? null : Relations.describe(owner, ent);
     }
 
     private static String verbList(List<NpcCommand> plan) {

@@ -22,7 +22,7 @@ import java.util.List;
  */
 public class DialogueLog implements Serializable {
 
-    /** What we call ourselves in the transcript, so the model can see its own turns. */
+    /** How an own turn is stored and marked. Rendered as "<name> (you)" — see {@link #render}. */
     private static final String SELF = "you";
 
     private static final class Line implements Serializable {
@@ -94,12 +94,22 @@ public class DialogueLog implements Serializable {
         return text == null ? "" : text.toLowerCase().replaceAll("[^a-z0-9]", "");
     }
 
-    /** The transcript block, oldest first, one attributed line each. */
-    public String render() {
+    /**
+     * The transcript block, oldest first, one attributed line each.
+     *
+     * <p>{@code selfName} is the speaker's own name, and leaving it out was a real bug. Own
+     * turns were labelled with a bare "you", so the NPC's name appeared in its own transcript
+     * only inside somebody else's quoted vocative — and a small model reaching for a name to
+     * address someone with grabs the nearest one it can see. Observed: DANIAL MICHAEL, told
+     * <i>"Sure, Danial. Come on in."</i>, replied <i>"What's new with you, Danial?"</i>.
+     * Labelling the line "DANIAL MICHAEL (you)" binds the name to the speaker instead.
+     */
+    public String render(String selfName) {
+        String self = selfName == null || selfName.isEmpty() ? SELF : selfName + " (" + SELF + ")";
         StringBuilder sb = new StringBuilder(256);
         sb.append("Conversation so far, oldest first:\n");
         for (Line line : lines) {
-            sb.append("  ").append(line.speaker);
+            sb.append("  ").append(SELF.equals(line.speaker) ? self : line.speaker);
             if (line.overheard) {
                 sb.append(" (overheard, not said to you)");
             }
