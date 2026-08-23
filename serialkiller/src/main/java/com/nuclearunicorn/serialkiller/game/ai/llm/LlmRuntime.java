@@ -16,6 +16,7 @@ public final class LlmRuntime {
     private static LlmConfig config;
     private static CommandRegistry registry;
     private static InferenceService reactor;
+    private static InferenceService director;
     private static LlamaServerManager serverManager;
     private static volatile String degradedReason;
 
@@ -51,6 +52,32 @@ public final class LlmRuntime {
                     + "), using stub inference");
             LlmDebug.log("reactor server UNAVAILABLE — falling back to canned StubInferenceService");
             reactor = new StubInferenceService();
+        }
+
+        bootDirector();
+    }
+
+    /**
+     * The long-term / reflection tier (M2). A second llama-server on its own port, free-text
+     * (no command grammar — reflections are prose, not programs). Failure degrades silently:
+     * the reactor keeps working, and {@link #director()} stays null so reflection is skipped.
+     */
+    private static void bootDirector() {
+        if (config.director == null || config.director.model == null
+                || config.director.model.isEmpty()) {
+            return;   // no director configured: reactor-only
+        }
+        LlmDebug.log("booting director tier (model=%s, port=%d, threads=%d)",
+                config.director.model, config.director.port, config.director.threads);
+        if (serverManager.startTier(config.director)) {
+            director = new LlamaHttpInferenceService(
+                    config.director.port, null, config.director.maxTokens,
+                    config.director.queueCapacity);
+            LlmDebug.log("director server healthy on port %d", config.director.port);
+        } else {
+            System.err.println("LlmRuntime: director server unavailable ("
+                    + serverManager.getLastError() + "), reflection disabled");
+            LlmDebug.log("director server UNAVAILABLE — reflection disabled");
         }
     }
 
@@ -102,5 +129,10 @@ public final class LlmRuntime {
 
     public static InferenceService reactor() {
         return reactor;
+    }
+
+    /** The reflection tier, or null when it did not boot or is not configured. */
+    public static InferenceService director() {
+        return director;
     }
 }

@@ -44,6 +44,11 @@ public class PoliceAI extends PedestrianAI {
         removeImpulse("threat");
         removeImpulse("night");    //the walk home...
         removeImpulse("asleep");   //...and the bed at the end of it
+        // Nor does an officer run the libido drive. A cop who raped a citizen would be a
+        // crime in uniform - the exact chain reaction the arrest logic already guards
+        // against - and duty is not the place to slip off to the brothel either.
+        removeImpulse("sex");
+        removeImpulse("rape");
 
         registerImpulse(PRIORITY_SUSPECT, new PursueAction.Trigger(this));
         registerImpulse(PRIORITY_CRIME_SCENE, new InvestigateAction.Trigger(this));

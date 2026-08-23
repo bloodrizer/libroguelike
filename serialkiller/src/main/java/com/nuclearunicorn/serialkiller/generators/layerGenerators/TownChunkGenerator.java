@@ -11,6 +11,7 @@ import com.nuclearunicorn.libroguelike.utils.NLTimer;
 import com.nuclearunicorn.serialkiller.game.ItemFactory;
 import com.nuclearunicorn.serialkiller.game.ai.PedestrianAI;
 import com.nuclearunicorn.serialkiller.game.ai.PoliceAI;
+import com.nuclearunicorn.serialkiller.game.ai.ProstituteAI;
 import com.nuclearunicorn.serialkiller.game.ai.llm.LlmRuntime;
 import com.nuclearunicorn.serialkiller.game.character.CharacterPreset;
 import com.nuclearunicorn.serialkiller.game.character.CharacterSetup;
@@ -58,6 +59,7 @@ public class TownChunkGenerator extends ChunkGenerator {
 
     private static final int NPC_PER_ROAD_RATE = 35;    //50% is a hell lot of npc , 35 is sorta ok
     private static final int MAX_POLICEMAN_COUNT = 4;
+    private static final int MAX_PROSTITUTE_COUNT = 3;  //workers who live (and work) at the brothel
     private static final int MAX_HOUSEHOLD = 4;         //people per home, however big the house
 
     long seed;
@@ -70,6 +72,7 @@ public class TownChunkGenerator extends ChunkGenerator {
     //per-chunk building-type picker, the police station and the player's own home
     private TypeSelector typeSelector;
     private Building policeStation;
+    private Building brothel;
     private Building playerHome;
 
     //everything that has to wait until the whole street is built - see generate()
@@ -142,6 +145,7 @@ public class TownChunkGenerator extends ChunkGenerator {
 
         typeSelector = new TypeSelector();
         policeStation = null;
+        brothel = null;
         playerHome = null;
         lampposts.clear();
         yards.clear();
@@ -1127,6 +1131,59 @@ public class TownChunkGenerator extends ChunkGenerator {
 
 
         }
+
+        //prostitutes — live and work at the brothel, so libido has a lawful outlet (see SexAction)
+        spawnProstitutes();
+    }
+
+    /**
+     * The brothel's staff. Unlike the pedestrians above they are not housed in a random flat:
+     * the brothel is their home, so at night "go home" puts them in a private-room bed and by
+     * day the workplace impulse keeps them where a customer can find them.
+     */
+    private void spawnProstitutes() {
+        if (brothel == null) {
+            return;
+        }
+        List<Point> posts = brothelSpawnPoints();
+        for (int i = 0; i < MAX_PROSTITUTE_COUNT && !posts.isEmpty(); i++) {
+            Point coord = posts.remove(chunk_random.nextInt(posts.size()));
+
+            EntityRLHuman prostitute = NPCGenerator.generateNPC(chunk_random, this,
+                    coord.getX(), coord.getY());
+            prostitute.age = NPCGenerator.generateAge(chunk_random, true);
+            prostitute.setSex(EntityRLHuman.Sex.FEMALE);
+            prostitute.setName(new NameGenerator().generate(false));
+
+            prostitute.set_ai(new ProstituteAI());
+            prostitute.set_controller(new RLController());
+            prostitute.set_combat(new RLCombat());
+            prostitute.setApartment(brothel);   //home is the brothel, not a flat of her own
+
+            com.nuclearunicorn.serialkiller.game.ai.llm.LlmDebug.log(
+                    "spawned prostitute %s at %d,%d", prostitute.get_uid(), coord.getX(), coord.getY());
+        }
+    }
+
+    /** Free floor tiles in the brothel's private rooms, or its reception as a fallback. */
+    private List<Point> brothelSpawnPoints() {
+        List<Point> posts = new ArrayList<Point>();
+        if (brothel == null || brothel.roomList == null) {
+            return posts;
+        }
+        for (Room room : brothel.roomList) {
+            if (room.type == RoomType.PRIVATE_ROOM) {
+                collectFreeFloor(room, posts);
+            }
+        }
+        if (posts.isEmpty()) {
+            for (Room room : brothel.roomList) {
+                if (room.type == RoomType.RECEPTION) {
+                    collectFreeFloor(room, posts);
+                }
+            }
+        }
+        return posts;
     }
 
     /**
@@ -1505,6 +1562,13 @@ public class TownChunkGenerator extends ChunkGenerator {
         //remember the police station so patrolmen spawn at its lobby
         if (building.type == BuildingType.POLICE_STATION){
             policeStation = building;
+        }
+        //remember the brothel too, so prostitutes can live and work there and customers
+        //(and the model's "goto brothel") can route to its front door
+        if (building.type == BuildingType.BROTHEL){
+            brothel = building;
+            RLWorldModel.brothelLocation = building.entrance != null
+                    ? new Point(building.entrance) : new Point(building.getX() + 1, building.getY() + 1);
         }
         return true;
     }

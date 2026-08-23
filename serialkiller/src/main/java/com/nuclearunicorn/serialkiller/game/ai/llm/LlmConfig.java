@@ -21,6 +21,12 @@ public class LlmConfig {
         public int maxTokens;
         public boolean batch;
         /**
+         * CPU threads handed to llama-server as {@code -t}. 0 lets llama-server pick its own
+         * (all cores). Split when two tiers share a box, so the two models don't thrash each
+         * other: e.g. reactor 12 + director 4 on a 16-core machine.
+         */
+        public int threads = 0;
+        /**
          * Turns between ambient re-plans. Cadence is counted in turns, not milliseconds:
          * the world only advances when the player acts, so a wall clock throttles a
          * standing-still player and outruns one holding shift.

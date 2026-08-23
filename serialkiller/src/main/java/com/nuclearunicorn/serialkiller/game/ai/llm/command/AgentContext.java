@@ -47,9 +47,10 @@ public class AgentContext {
 
     /**
      * Resolve a symbolic target to a world Point (§6). Keywords: {@code home} (own
-     * apartment), {@code random} (a random milestone). Otherwise treat the symbol as an
-     * entity uid or name and use its origin. Returns null if unresolvable — the goto
-     * command then reports FAILURE.
+     * apartment), {@code brothel} (the town brothel's front door, if there is one),
+     * {@code random} (a random milestone). Otherwise treat the symbol as an entity uid or
+     * name and use its origin. Returns null if unresolvable — the goto command then
+     * reports FAILURE.
      */
     public Point resolve(String symbol) {
         if (symbol == null) {
@@ -63,6 +64,14 @@ public class AgentContext {
             case "home": {
                 Apartment apt = owner.getApartment();
                 resolved = apt != null ? new Point(chunk.getNearestMilestone(apt)) : null;
+                break;
+            }
+            case "brothel": {
+                // The town's brothel, if it has one. Route to its front door, exactly as a
+                // customer would: the model can send an NPC there without ever knowing a tile.
+                resolved = com.nuclearunicorn.serialkiller.game.world.RLWorldModel.brothelLocation != null
+                        ? new Point(com.nuclearunicorn.serialkiller.game.world.RLWorldModel.brothelLocation)
+                        : null;
                 break;
             }
             case "random": {

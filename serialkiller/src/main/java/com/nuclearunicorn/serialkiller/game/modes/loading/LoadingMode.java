@@ -52,8 +52,8 @@ public class LoadingMode extends AbstractGameMode implements IEventListener {
             binaryWarning = "'" + config.serverBinary + "' not on PATH - install llama.cpp for live NPCs";
         }
 
-        //reactor only: the director tier gets staged here too once M2 actually boots it
-        downloader = new ModelDownloader(config.reactor);
+        //stage both tiers; a tier with no model is skipped inside ModelDownloader
+        downloader = new ModelDownloader(config.reactor, config.director);
 
         Thread worker = new Thread(() -> {
             downloader.run();

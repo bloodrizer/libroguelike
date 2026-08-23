@@ -26,4 +26,8 @@ public final class Tuning {
     public static LlmConfig.Memory memory() {
         return LlmRuntime.peekConfig().memory;
     }
+
+    public static LlmConfig.Tier director() {
+        return LlmRuntime.peekConfig().director;
+    }
 }

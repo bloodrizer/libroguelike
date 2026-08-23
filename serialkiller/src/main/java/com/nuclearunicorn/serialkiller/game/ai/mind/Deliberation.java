@@ -53,6 +53,9 @@ public class Deliberation {
      *  that overflows, and a negative "elapsed" silently disables the cadence forever. */
     private long lastRequestTurn = -1;
 
+    /** Turn of the last <i>director</i> (reflection) submit; negative means never. */
+    private long lastDirectorTurn = -1;
+
     // Conversation focus (§8): who last addressed us, and until when. Not a dialogue
     // manager - just a bias on cadence and prompt framing, so exchanges hold together.
     private String attentionUid;
@@ -85,10 +88,17 @@ public class Deliberation {
      * to a conversation that ended eight hours ago. Asleep, the queue is drained and dropped.
      */
     public void pump(Perception.Situation situation, boolean asleep) {
+        // The reactor is the conversational tier, gated to the near bucket; the director
+        // (reflection) runs for every NPC and is what a far NPC still gets. Both are
+        // optional - pump() degrades cleanly to whichever tier actually booted.
         InferenceService service = LlmRuntime.reactor();
-        if (service == null) {
-            return;
+        if (service != null) {
+            pumpReactor(service, situation, asleep);
         }
+        pumpDirector(asleep);
+    }
+
+    private void pumpReactor(InferenceService service, Perception.Situation situation, boolean asleep) {
         String uid = owner.get_uid();
 
         String completion = service.poll(uid);
@@ -147,6 +157,41 @@ public class Deliberation {
         if (interpreter.isIdle() && elapsed >= cadenceTurns()) {
             submit(service, situation, Math.max(top, Salience.AMBIENT),
                     sensedSinceRequest() ? "ambient re-plan" : "idle re-plan");
+        }
+    }
+
+    /**
+     * The long-term tier (§ reflection): ask the director model, at a very low cadence, to
+     * consolidate recent observations into a durable belief. Free text, not a command array —
+     * the result is stored on {@link Knowledge} and surfaced in every later reactor prompt.
+     *
+     * <p>Runs for every NPC, near or far, which is the whole point of a director: a distant
+     * NPC that never gets the reactor still ends the day with an opinion about what happened.
+     */
+    private void pumpDirector(boolean asleep) {
+        InferenceService service = LlmRuntime.director();
+        if (service == null) {
+            return;
+        }
+        String uid = owner.get_uid();
+
+        String completion = service.poll(uid);
+        if (completion != null && !asleep) {
+            String belief = completion.trim().replace('\n', ' ');
+            if (!belief.isEmpty()) {
+                knowledge.addReflection(belief);
+                LlmDebug.log("%s: reflected \"%s\"", uid, belief);
+            }
+        }
+        if (asleep) {
+            return;   // no reflecting in your sleep either; the clock just keeps counting
+        }
+
+        long elapsed = lastDirectorTurn < 0 ? Long.MAX_VALUE : GameTurn.current() - lastDirectorTurn;
+        if (elapsed >= Tuning.director().cadenceTurns && !service.isBusy(uid)) {
+            LlmDebug.log("%s: requesting reflection (turn %d)", uid, GameTurn.current());
+            service.submit(uid, Perception.reflectPrompt(owner, knowledge), Salience.AMBIENT);
+            lastDirectorTurn = GameTurn.current();
         }
     }
 

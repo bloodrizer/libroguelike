@@ -155,6 +155,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         //would otherwise start by teleporting the player to the last town's address
         RLWorldModel.playerSafeHouseLocation = null;
         RLWorldModel.playerSpawnLocation = null;
+        RLWorldModel.brothelLocation = null;
 
         model.update();
 

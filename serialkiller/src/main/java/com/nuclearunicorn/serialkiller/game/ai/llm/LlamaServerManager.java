@@ -35,11 +35,20 @@ public class LlamaServerManager {
      * then degrades that tier (§10, §12).
      */
     public boolean startTier(LlmConfig.Tier tier) {
-        ProcessBuilder pb = new ProcessBuilder(
-                serverBinary,
-                "-m", tier.model,
-                "--port", Integer.toString(tier.port),
-                "--host", "127.0.0.1");
+        List<String> cmd = new ArrayList<String>();
+        cmd.add(serverBinary);
+        cmd.add("-m");
+        cmd.add(tier.model);
+        cmd.add("--port");
+        cmd.add(Integer.toString(tier.port));
+        cmd.add("--host");
+        cmd.add("127.0.0.1");
+        if (tier.threads > 0) {
+            cmd.add("-t");
+            cmd.add(Integer.toString(tier.threads));
+        }
+
+        ProcessBuilder pb = new ProcessBuilder(cmd);
         pb.redirectErrorStream(true);
         pb.redirectOutput(ProcessBuilder.Redirect.DISCARD);
 

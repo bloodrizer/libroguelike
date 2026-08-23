@@ -5,6 +5,7 @@ import com.nuclearunicorn.libroguelike.game.ent.Entity;
 import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.libroguelike.game.world.WorldTimer;
 import com.nuclearunicorn.libroguelike.utils.Fov;
+import com.nuclearunicorn.serialkiller.game.ai.Libido;
 import com.nuclearunicorn.serialkiller.game.ai.llm.sense.DialogueLog;
 import com.nuclearunicorn.serialkiller.game.ai.llm.sense.GameTurn;
 import com.nuclearunicorn.serialkiller.game.ai.llm.sense.Relations;
@@ -85,6 +86,7 @@ public final class Perception {
         appendNearby(sb, owner, visible);
         appendBeliefs(sb, owner, knowledge, visible);
         appendCondition(sb, owner, situation);
+        appendReflections(sb, knowledge);
         appendDialogue(sb, owner, dialogue);
 
         // Two different questions: what earned this re-plan, and what matters most now.
@@ -182,6 +184,16 @@ public final class Perception {
                     ? "You are hurt and bleeding.\n"
                     : "You are badly wounded and barely able to stand.\n");
         }
+        // Libido is a condition, not an event: it is a standing fact about the body, and the
+        // model should be able to talk about it the same way it talks about being wounded.
+        if (owner.getBodysim() != null) {
+            float libido = owner.getBodysim().getAttribute("libido");
+            if (libido >= Libido.FRENZY) {
+                sb.append("You are overwhelmed by lust and barely in control of yourself.\n");
+            } else if (libido >= Libido.NEEDY) {
+                sb.append("You are in the mood and looking for a partner.\n");
+            }
+        }
         // Positive and actionable, and written by the behaviour actually running. "Do not
         // chat as if nothing happened" is a prohibition with no alternative, and a 3.8B
         // model handed one answered with an empty array.
@@ -191,6 +203,61 @@ public final class Perception {
                 sb.append('\n');
             }
         }
+    }
+
+    /**
+     * Durable, second-order beliefs an NPC has formed for itself — the reflection tier's
+     * output (§ reflection). Unlike a {@link Stimulus}, these do not decay; a suspicion can
+     * survive the night. Surfaced so the reactor's reply is built on what the NPC has come
+     * to <i>believe</i>, not only on what it has just <i>sensed</i>.
+     */
+    private static void appendReflections(StringBuilder sb, Knowledge knowledge) {
+        if (knowledge == null || knowledge.reflections().isEmpty()) {
+            return;
+        }
+        sb.append("What you have come to believe:\n");
+        for (String reflection : knowledge.reflections()) {
+            sb.append("- ").append(reflection).append("\n");
+        }
+    }
+
+    /**
+     * The director tier's question (§ reflection): free text, no command grammar. Built from
+     * what the NPC has observed and already believes, and answered in one or two sentences.
+     * A distant NPC gets no reactor, but it still gets this — the long-term, latency-free
+     * half of the brain.
+     */
+    public static String reflectPrompt(EntityRLHuman owner, Knowledge knowledge) {
+        StringBuilder sb = new StringBuilder(512);
+        appendIdentity(sb, owner);
+        sb.append(" in this town.\n");
+
+        StimulusMemory memory = knowledge == null ? null : knowledge.stream();
+        if (memory != null && !memory.isEmpty()) {
+            boolean any = false;
+            for (Stimulus s : memory.ranked()) {
+                if (s.salience < Salience.NOTABLE) {
+                    continue;
+                }
+                if (!any) {
+                    sb.append("Recently:\n");
+                    any = true;
+                }
+                sb.append("- ").append(s.text()).append("\n");
+            }
+        }
+
+        if (knowledge != null && !knowledge.reflections().isEmpty()) {
+            sb.append("You already believe:\n");
+            for (String r : knowledge.reflections()) {
+                sb.append("- ").append(r).append("\n");
+            }
+        }
+
+        sb.append("\nReflect on what you have experienced. What do you now believe or suspect")
+          .append(" about the people of this town? Answer in one or two short first-person")
+          .append(" sentences. Do not repeat a belief you already hold.\n");
+        return sb.toString();
     }
 
     /** What has actually been said, in order and attributed. See {@link DialogueLog}. */
