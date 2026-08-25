@@ -35,6 +35,8 @@ public final class GL11 {
     public static final int GL_LINE_LOOP = 0x0002;
     public static final int GL_LINE_STRIP = 0x0003;
     public static final int GL_TRIANGLES = 0x0004;
+    public static final int GL_TRIANGLE_STRIP = 0x0005;
+    public static final int GL_TRIANGLE_FAN = 0x0006;
     public static final int GL_QUADS = 0x0007;
 
     public static final int GL_DEPTH_BUFFER_BIT = 0x0100;
