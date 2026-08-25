@@ -39,7 +39,7 @@ public final class LlmRuntime {
         registry = new CommandRegistry();
 
         serverManager = new LlamaServerManager(config.serverBinary);
-        boolean ready = serverManager.startTier(config.reactor);
+        boolean ready = serverManager.startTier(config.reactor, "reactor");
 
         if (ready) {
             LlmDebug.log("reactor server healthy on port %d — using live inference", config.reactor.port);
@@ -67,9 +67,27 @@ public final class LlmRuntime {
                 || config.director.model.isEmpty()) {
             return;   // no director configured: reactor-only
         }
+
+        // Both tiers on the same GGUF is the ordinary case now that one model is good enough
+        // for both jobs, and a second llama-server for it is a second full copy of the weights
+        // in RAM and a second cold load before the game opens. The tiers differ in cadence,
+        // token budget and grammar - all per-request - so one server serves both.
+        if (sharesReactorModel()) {
+            if (reactor instanceof LlamaHttpInferenceService) {
+                director = new LlamaHttpInferenceService(
+                        config.reactor.port, null, config.director.maxTokens,
+                        config.director.queueCapacity);
+                LlmDebug.log("director shares the reactor server on port %d (same model %s)",
+                        config.reactor.port, config.director.model);
+            } else {
+                LlmDebug.log("director shares the reactor tier, which is not live - reflection disabled");
+            }
+            return;
+        }
+
         LlmDebug.log("booting director tier (model=%s, port=%d, threads=%d)",
                 config.director.model, config.director.port, config.director.threads);
-        if (serverManager.startTier(config.director)) {
+        if (serverManager.startTier(config.director, "director")) {
             director = new LlamaHttpInferenceService(
                     config.director.port, null, config.director.maxTokens,
                     config.director.queueCapacity);
@@ -79,6 +97,11 @@ public final class LlmRuntime {
                     + serverManager.getLastError() + "), reflection disabled");
             LlmDebug.log("director server UNAVAILABLE — reflection disabled");
         }
+    }
+
+    /** Same weights as the reactor, so a server of its own would buy nothing. */
+    private static boolean sharesReactorModel() {
+        return config.reactor != null && config.director.model.equals(config.reactor.model);
     }
 
     /**

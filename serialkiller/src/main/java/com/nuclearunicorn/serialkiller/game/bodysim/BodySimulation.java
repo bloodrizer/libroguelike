@@ -4,6 +4,7 @@ import com.nuclearunicorn.libroguelike.utils.Rng;
 
 import com.nuclearunicorn.libroguelike.game.combat.Damage;
 import com.nuclearunicorn.libroguelike.game.ent.Entity;
+import com.nuclearunicorn.serialkiller.game.ai.Libido;
 import com.nuclearunicorn.serialkiller.game.combat.RLCombat;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
@@ -187,7 +188,7 @@ public class BodySimulation {
         adjustAttribute("hunger",-0.05f);
         adjustAttribute("stamina", -0.1f);
         adjustAttribute("bloodlust", 0.05f);
-        adjustAttribute("libido", 0.5f);
+        adjustAttribute("libido", Libido.PER_TURN);
 
         if (getStamina() <= 20){         //stamina < 20% - you start skipping turns
             if ( (int)(Rng.random(Rng.COMBAT)*100) <= 10 ){        //10% chance to skip turn

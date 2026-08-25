@@ -11,8 +11,11 @@ import com.nuclearunicorn.serialkiller.game.ai.llm.sense.Relations;
 import com.nuclearunicorn.serialkiller.game.ai.mind.Narrating;
 import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
 import com.nuclearunicorn.serialkiller.game.controllers.RLController;
+import com.nuclearunicorn.serialkiller.game.social.TownLog;
+import com.nuclearunicorn.serialkiller.game.sound.PlayerEars;
+import com.nuclearunicorn.serialkiller.game.sound.SoundEvent;
+import com.nuclearunicorn.serialkiller.game.sound.SoundKind;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
-import com.nuclearunicorn.serialkiller.render.RLMessages;
 import org.lwjgl.util.Point;
 import org.newdawn.slick.Color;
 
@@ -103,18 +106,28 @@ public class RapeAction implements IAIAction, Narrating {
     }
 
     private void resolve(EntityRLHuman victim) {
-        BodySimulation self = brain.human().getBodysim();
+        EntityRLHuman attacker = brain.human();
+        BodySimulation self = attacker.getBodysim();
         self.setAttribute("libido", 0f);
         self.depleteBloodlust(10f);   // the same cost the player's ActionRape pays
-        RLMessages.message(Relations.name(brain.human()) + " rapes " + Relations.name(victim),
-                Color.orange);
+
+        String line = Relations.name(attacker) + " rapes " + Relations.name(victim);
+        //Seen only. Unseen, this is the victim's scream below - which is what a rape
+        //sounds like from the next street, and is already reported as a crime.
+        PlayerEars.report(attacker, SoundKind.SCREAM.db(), line, null, Color.orange);
+        TownLog.record(TownLog.Kind.RAPE, line, attacker.x(), attacker.y());
+        if (victim.origin != null) {
+            new SoundEvent(victim.origin, SoundKind.SCREAM, victim, victim.getLayerId()).emit();
+        }
+
         transmitStd(self, victim.getBodysim());
         transmitStd(victim.getBodysim(), self);
     }
 
+    /** ~50% either way, on the body-simulation stream. See {@code SexAction.transmitStd}. */
     private static void transmitStd(BodySimulation carrier, BodySimulation other) {
         if (carrier != null && other != null && carrier.isInfected() && !other.isInfected()) {
-            if (Rng.derive(Rng.WORLDGEN).nextInt(100) <= 50) {
+            if (Rng.nextInt(Rng.COMBAT, 100) <= 50) {
                 other.setInfected(true);
             }
         }

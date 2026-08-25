@@ -26,3 +26,9 @@ replays/
 .DS_Store
 local-repo
 /CLAUDE.md
+
+# llama-server output, one file per tier
+logs/
+
+# lwjgl3 extracts natives here at runtime
+.lwjgl/

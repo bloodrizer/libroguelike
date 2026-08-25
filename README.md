@@ -90,3 +90,37 @@ spot on the street); a town that has no such place starts you at home instead.
 - `tab` — character screen / inventory
 - `esc` — main menu (and back)
 - `n` — new game, from the main menu
+
+### Debug views
+
+Hold `alt` to see what the town is thinking. Two panels share the key:
+
+- right: the **NPC inspector** — one person's body, drives, impulse walk, memory,
+  beliefs, reflections and the model's last reply. `F5` pins it, `F6` cycles,
+  `F7` dumps the whole brain (last prompt included) to stdout and the replay.
+- left: the **town view** — population, the libido drive across the whole town,
+  what everybody is doing, the inference queue, and a feed of everything that has
+  happened out of your sight. `F8` arms it, `shift+F8` dumps it.
+
+The town feed is the unfiltered record on purpose: the message console only tells
+you what you saw or heard, so it is not where you go to find out what the
+simulation is doing.
+
+`F1`-`F4` toggle render layers (sprites, smooth light, ascii overlay, reveal map).
+
+## LLM NPCs
+
+Live NPCs need `llama.cpp` on `PATH` and a GGUF staged under `models/`; see
+`llm-config.json`. When it will not come up, ask it why instead of watching the
+loading screen:
+
+```sh
+./scripts/run.sh --llm-check
+```
+
+That runs the whole boot path — config, binary, model files, both tiers, one real
+completion — and prints where it stopped. Each server's own output is kept in
+`logs/llama-<tier>-<port>.log`.
+
+Both tiers pointing at the same GGUF is normal and costs nothing: they share one
+`llama-server` rather than loading the weights twice.

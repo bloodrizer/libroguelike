@@ -19,6 +19,13 @@ public class Main {
     public static InGameMode inGameMode;
 
     public static void main(String[] args) {
+        //diagnose the LLM stack and exit - no window, no world, see LlmDoctor
+        for (String arg : args) {
+            if ("--llm-check".equals(arg)) {
+                System.exit(com.nuclearunicorn.serialkiller.game.ai.llm.LlmDoctor.run());
+            }
+        }
+
         // -Dlrl.seed=N fixes the town, so two builds can be screenshotted side
         // by side; without it the run picks its own and reports it as before.
         String seed = System.getProperty("lrl.seed");

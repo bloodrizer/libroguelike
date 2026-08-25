@@ -178,6 +178,7 @@
                                         <exclude>com/nuclearunicorn/serialkiller/game/ai/llm/LlamaServerManager.java</exclude>
                                         <exclude>com/nuclearunicorn/serialkiller/game/ai/llm/LlamaHttpInferenceService.java</exclude>
                                         <exclude>com/nuclearunicorn/serialkiller/game/ai/llm/ModelDownloader.java</exclude>
+                                        <exclude>com/nuclearunicorn/serialkiller/game/ai/llm/LlmDoctor.java</exclude>
                                         <!-- picks rlforj's PrecisePermissive, which TeaVM miscompiles -->
                                         <exclude>com/nuclearunicorn/serialkiller/game/world/fov/FovFactory.java</exclude>
                                     </excludes>

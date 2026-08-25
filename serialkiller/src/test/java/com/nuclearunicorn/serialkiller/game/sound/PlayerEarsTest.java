@@ -131,10 +131,52 @@ class PlayerEarsTest {
         assertFalse(PlayerEars.audible(Heard.NOTHING));
     }
 
+    // ------------------------------------------------------- acts, not only words
+
+    /**
+     * Anything an NPC <i>does</i> goes through the same four verdicts, at its own level.
+     * Which is the point of the overload: "X had sex with Y" used to be an unconditional
+     * console line, so the player was told about every coupling in town from anywhere in it.
+     */
+    @Test
+    void anActIsPerceivedOnTheSameTermsAsALine() {
+        WorldLayer street = TileGrid.open(60, 5);
+        int moan = SoundKind.MOAN.db();
+
+        assertEquals(Heard.EARSHOT, act(street, 0, 2, 10, 2, false, moan).heard,
+                "ten tiles down an open street, unseen: you hear it and nothing more");
+        assertEquals(Heard.NOTHING, act(street, 0, 2, 40, 2, false, moan).heard,
+                "the far side of town hears nothing, and the console must say nothing");
+        assertEquals(Heard.WORDS, act(street, 0, 2, 3, 2, true, moan).heard,
+                "in the same room, watching: the full named line");
+    }
+
+    /** Loudness is what separates them: a scream carries where a moan does not. */
+    @Test
+    void aLouderActCarriesFurther() {
+        WorldLayer street = TileGrid.open(60, 5);
+        assertEquals(Heard.NOTHING, act(street, 0, 2, 20, 2, false, SoundKind.MOAN.db()).heard);
+        assertEquals(Heard.EARSHOT, act(street, 0, 2, 20, 2, false, SoundKind.SCREAM.db()).heard,
+                "a rape is a scream, and a scream is heard two streets away");
+    }
+
+    /** Walls stop an act exactly as they stop a line. */
+    @Test
+    void aWallStopsAnActToo() {
+        assertEquals(Heard.NOTHING,
+                act(TileGrid.barrier(25, 5, 1, -1, 0, SoundConfig.TL_WALL_INNER),
+                        0, 2, 2, 2, false, SoundKind.MOAN.db()).heard);
+    }
+
     // ------------------------------------------------------------------- helpers
 
     private static Verdict heard(WorldLayer layer, int sx, int sy, int lx, int ly,
                                  boolean visible) {
         return PlayerEars.perceive(layer, sx, sy, lx, ly, EARS, visible);
+    }
+
+    private static Verdict act(WorldLayer layer, int sx, int sy, int lx, int ly,
+                               boolean visible, int loudness) {
+        return PlayerEars.perceive(layer, sx, sy, lx, ly, EARS, visible, loudness);
     }
 }

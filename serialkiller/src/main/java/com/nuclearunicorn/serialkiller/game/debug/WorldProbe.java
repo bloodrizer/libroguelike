@@ -10,6 +10,7 @@ import com.nuclearunicorn.libroguelike.game.world.WorldChunk;
 import com.nuclearunicorn.libroguelike.game.world.WorldCluster;
 import com.nuclearunicorn.libroguelike.game.world.layers.WorldLayer;
 import com.nuclearunicorn.serialkiller.game.ai.llm.sense.GameTurn;
+import com.nuclearunicorn.serialkiller.game.social.TownLog;
 import com.nuclearunicorn.serialkiller.game.character.CharacterSetup;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldModel;
 import com.nuclearunicorn.serialkiller.generators.Apartment;
@@ -272,7 +273,10 @@ public final class WorldProbe {
         long turn = GameTurn.current();
         System.err.println("DEBUG-CENSUS turn=" + turn + " people=" + people
                 + " inBed=" + inBed + "/" + housed
-                + " routed=" + routed + " moving=" + moving + " " + states);
+                + " routed=" + routed + " moving=" + moving
+                + " sex=" + TownLog.count(TownLog.Kind.SEX)
+                + " rape=" + TownLog.count(TownLog.Kind.RAPE)
+                + " " + states);
         Replay.observe("census", "turn", turn, "people", people, "inBed", inBed,
                 "housed", housed, "routed", routed, "moving", moving,
                 "states", states.toString());

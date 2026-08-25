@@ -45,6 +45,53 @@ class TownInvariantsTest {
     }
 
     /**
+     * Households are families: adults under one roof are paired, and everyone wears the
+     * same surname.
+     *
+     * <p>{@code setMate} used to be called exactly once in the entire generator, for the
+     * player. So no NPC in town had a mate, {@code Relations} could never say "your wife"
+     * about anybody, and the lawful half of the libido drive had nothing to resolve against
+     * — a town without a brothel could only escalate. Both halves are checked here because
+     * they come from the same pass and a mate you cannot recognise as family is half a fix.
+     */
+    @ParameterizedTest(name = "seed {0}")
+    @MethodSource("seeds")
+    void adultsSharingAHomeAreMarriedAndShareASurname(long seed) {
+        TownFixture.Town town = TownFixture.town(seed);
+        int couples = 0;
+        List<String> mismatched = new ArrayList<String>();
+
+        for (Entity ent : town.entities) {
+            if (!(ent instanceof EntityRLHuman) || ent instanceof EntityRLPlayer) {
+                continue;
+            }
+            EntityRLHuman person = (EntityRLHuman) ent;
+            EntityRLHuman mate = person.getMate();
+            if (mate == null) {
+                continue;
+            }
+            couples++;
+            if (!surname(person).equals(surname(mate))) {
+                mismatched.add(person.getName() + " is married to " + mate.getName());
+            }
+            if (person.getApartment() != null && mate.getApartment() != null
+                    && person.getApartment() != mate.getApartment()) {
+                mismatched.add(person.getName() + " does not live with " + mate.getName());
+            }
+        }
+
+        assertTrue(couples > 0, "nobody in this town is married - the whole adult population"
+                + " has to go to the brothel or escalate");
+        assertTrue(mismatched.isEmpty(), "a couple is one household: " + mismatched);
+    }
+
+    private static String surname(EntityRLHuman person) {
+        String name = person.getName() == null ? "" : person.getName().trim();
+        int space = name.lastIndexOf(' ');
+        return space < 0 ? name : name.substring(space + 1);
+    }
+
+    /**
      * C1. Nothing you would have to walk around stands in a doorway or under a window.
      *
      * <p>Furniture here means a prop on the floor: the doors are the openings themselves, and

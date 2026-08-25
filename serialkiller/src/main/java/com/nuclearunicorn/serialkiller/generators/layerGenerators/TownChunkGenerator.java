@@ -49,7 +49,9 @@ import org.newdawn.slick.Color;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
@@ -59,7 +61,9 @@ public class TownChunkGenerator extends ChunkGenerator {
 
     private static final int NPC_PER_ROAD_RATE = 35;    //50% is a hell lot of npc , 35 is sorta ok
     private static final int MAX_POLICEMAN_COUNT = 4;
-    private static final int MAX_PROSTITUTE_COUNT = 3;  //workers who live (and work) at the brothel
+    //one worker per private room - the brothel template builds 3 to 6 of them, so a big
+    //house keeps more girls than a small one and nobody is doubled up in a bedroom
+    private static final int MAX_PROSTITUTE_COUNT = 6;
     private static final int MAX_HOUSEHOLD = 4;         //people per home, however big the house
 
     long seed;
@@ -1070,6 +1074,10 @@ public class TownChunkGenerator extends ChunkGenerator {
             }
         }
 
+        //who ended up under which roof, so the household can be made into a family below
+        Map<Apartment, List<EntityRLHuman>> households =
+                new LinkedHashMap<Apartment, List<EntityRLHuman>>();
+
         for (int i = 0; i < population; i++){
             if (residential.isEmpty()){ break; }   //nowhere to live (all parks)
             Apartment apt = claimHome(residential, taken);
@@ -1083,7 +1091,16 @@ public class TownChunkGenerator extends ChunkGenerator {
 
             npc.setApartment(apt);
             stampOwnership(apt, npc);
+
+            List<EntityRLHuman> household = households.get(apt);
+            if (household == null){
+                household = new ArrayList<EntityRLHuman>();
+                households.put(apt, household);
+            }
+            household.add(npc);
         }
+
+        marryHouseholds(households);
 
         //police — spawn at the police station lobby if one exists, else on roads
         List<Point> policePosts = policeSpawnPoints();
@@ -1146,7 +1163,8 @@ public class TownChunkGenerator extends ChunkGenerator {
             return;
         }
         List<Point> posts = brothelSpawnPoints();
-        for (int i = 0; i < MAX_PROSTITUTE_COUNT && !posts.isEmpty(); i++) {
+        int staff = Math.min(MAX_PROSTITUTE_COUNT, Math.max(1, privateRooms()));
+        for (int i = 0; i < staff && !posts.isEmpty(); i++) {
             Point coord = posts.remove(chunk_random.nextInt(posts.size()));
 
             EntityRLHuman prostitute = NPCGenerator.generateNPC(chunk_random, this,
@@ -1163,6 +1181,19 @@ public class TownChunkGenerator extends ChunkGenerator {
             com.nuclearunicorn.serialkiller.game.ai.llm.LlmDebug.log(
                     "spawned prostitute %s at %d,%d", prostitute.get_uid(), coord.getX(), coord.getY());
         }
+    }
+
+    /** How many rooms the brothel has to take a client into, and so how many girls it keeps. */
+    private int privateRooms() {
+        int rooms = 0;
+        if (brothel != null && brothel.roomList != null) {
+            for (Room room : brothel.roomList) {
+                if (room.type == RoomType.PRIVATE_ROOM) {
+                    rooms++;
+                }
+            }
+        }
+        return rooms;
     }
 
     /** Free floor tiles in the brothel's private rooms, or its reception as a fallback. */
@@ -1236,6 +1267,62 @@ public class TownChunkGenerator extends ChunkGenerator {
             return null;
         }
         return free.get(chunk_random.nextInt(free.size()));
+    }
+
+    /**
+     * Turn each household of strangers into a family: one surname, and the adults paired off.
+     *
+     * <p>Only the player used to get a mate — {@code setMate} was called exactly once in the
+     * whole generator. So {@code Relations} could say "your wife" and never did for anybody
+     * but you, and {@link com.nuclearunicorn.serialkiller.game.ai.behavior.SexAction}'s mate
+     * branch was dead for the entire town: every adult in it had to walk to the brothel or
+     * escalate, and towns without a brothel could only escalate. Measured before this, over
+     * 900 turns: 0 couplings and 106 rapes.
+     *
+     * <p>Pairing is opposite-sex first because that is the household the rest of the family
+     * code already models (the player's mate is chosen the same way). Whoever is left over
+     * stays single — a town where everybody is married has no reason to have a brothel.
+     */
+    private void marryHouseholds(Map<Apartment, List<EntityRLHuman>> households) {
+        int couples = 0;
+        for (List<EntityRLHuman> household : households.values()){
+            if (household.size() < 2){
+                continue;   //a lodger on their own is not a family
+            }
+            renameAsFamily(household);
+
+            List<EntityRLHuman> men = new ArrayList<EntityRLHuman>();
+            List<EntityRLHuman> women = new ArrayList<EntityRLHuman>();
+            for (EntityRLHuman person : household){
+                if (!person.isAdult()){
+                    continue;   //the children of the house, who are nobody's mate
+                }
+                (person.getSex() == EntityRLHuman.Sex.MALE ? men : women).add(person);
+            }
+            for (int i = 0; i < men.size() && i < women.size(); i++){
+                men.get(i).setMate(women.get(i));
+                couples++;
+            }
+        }
+        com.nuclearunicorn.serialkiller.game.ai.llm.LlmDebug.log(
+                "married %d couple(s) across %d household(s)", couples, households.size());
+    }
+
+    /**
+     * One roof, one surname. Their given names are already rolled and are theirs to keep —
+     * only the family name is replaced, so the household reads as the Hales rather than as
+     * four unrelated people who happen to share a kitchen.
+     */
+    private void renameAsFamily(List<EntityRLHuman> household) {
+        String surname = new NameGenerator().generateSurname();
+        for (EntityRLHuman person : household){
+            String name = person.getName();
+            if (name == null || name.trim().isEmpty()){
+                continue;
+            }
+            int space = name.indexOf(' ');
+            person.setName((space < 0 ? name : name.substring(0, space)) + " " + surname);
+        }
     }
 
     /** How many residents a home holds: a room each, less one for the kitchen. */

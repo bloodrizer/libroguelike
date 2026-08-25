@@ -22,6 +22,9 @@ public enum SoundKind {
     FOOTSTEP_WALK(20, false),
     FOOTSTEP_RUN(34, false),
 
+    /** Sex. Loud enough to carry through a doorway, not through a wall. */
+    MOAN(34, false),
+
     DOOR_OPEN(22, false),
     DOOR_SLAM(45, false),
     DOOR_KICK(60, true),

@@ -12,9 +12,11 @@ import com.nuclearunicorn.serialkiller.game.ai.llm.sense.Relations;
 import com.nuclearunicorn.serialkiller.game.ai.mind.Narrating;
 import com.nuclearunicorn.serialkiller.game.bodysim.BodySimulation;
 import com.nuclearunicorn.serialkiller.game.controllers.RLController;
-import com.nuclearunicorn.serialkiller.game.world.RLWorldModel;
+import com.nuclearunicorn.serialkiller.game.social.TownLog;
+import com.nuclearunicorn.serialkiller.game.sound.PlayerEars;
+import com.nuclearunicorn.serialkiller.game.sound.SoundEvent;
+import com.nuclearunicorn.serialkiller.game.sound.SoundKind;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLHuman;
-import com.nuclearunicorn.serialkiller.render.RLMessages;
 import org.lwjgl.util.Point;
 import org.newdawn.slick.Color;
 
@@ -50,7 +52,7 @@ public class SexAction implements IAIAction, Narrating {
         if (npcController == null) {
             return;
         }
-        EntityRLHuman partner = pickPartner();
+        EntityRLHuman partner = partnerFor(brain);
         if (partner == null || partner.origin == null) {
             if (npcController.hasPath()) {
                 npcController.clearPath();
@@ -73,16 +75,24 @@ public class SexAction implements IAIAction, Narrating {
         }
     }
 
-    /** Mate first, then the nearest live prostitute. Whoever is closest to hand. */
-    private EntityRLHuman pickPartner() {
+    /**
+     * Mate first, then the nearest live prostitute. Whoever is closest to hand.
+     *
+     * <p>Static and shared with {@link Trigger}, which is the whole point: the trigger used
+     * to ask whether the town <i>has</i> a brothel while the action asked whether anyone is
+     * actually in it. A town whose working girls have all been murdered therefore answered
+     * yes to the first and null to the second, and every adult in it stood still with a
+     * satisfiable-looking urge until libido hit the ceiling and {@link RapeAction} took over.
+     */
+    static EntityRLHuman partnerFor(TownAI brain) {
         EntityRLHuman mate = brain.human().getMate();
         if (mate != null && mate.origin != null && TownAI.isAlive(mate) && mate.isAdult()) {
             return mate;
         }
-        return nearestProstitute();
+        return nearestProstitute(brain);
     }
 
-    private EntityRLHuman nearestProstitute() {
+    private static EntityRLHuman nearestProstitute(TownAI brain) {
         if (brain.human().getEnvironment() == null || brain.human().origin == null) {
             return null;
         }
@@ -110,19 +120,46 @@ public class SexAction implements IAIAction, Narrating {
         return best;
     }
 
+    /** Pink enough to read at a glance over a head, and against the town's muted palette. */
+    private static final Color HEART = new Color(255, 120, 180);
+
+    /** Turns the heart stays up. Long enough to catch across a couple of key presses. */
+    private static final int EMOTE_TURNS = 6;
+
     private void resolve(EntityRLHuman partner) {
-        BodySimulation self = brain.human().getBodysim();
-        self.setAttribute("libido", 0f);
-        RLMessages.message(Relations.name(brain.human()) + " had sex with " + Relations.name(partner),
-                Color.magenta);
-        transmitStd(self, partner.getBodysim());
-        transmitStd(partner.getBodysim(), self);
+        EntityRLHuman self = brain.human();
+        BodySimulation body = self.getBodysim();
+        body.setAttribute("libido", 0f);
+        //both of them, or the other half walks over afterwards and reports it a second time
+        if (partner.getBodysim() != null) {
+            partner.getBodysim().setAttribute("libido", 0f);
+        }
+
+        self.emote("<3", HEART, EMOTE_TURNS);
+        partner.emote("<3", HEART, EMOTE_TURNS);
+
+        String line = Relations.name(self) + " had sex with " + Relations.name(partner);
+        //the console is the player's record, not the town's: only what you saw or heard
+        PlayerEars.report(self, SoundKind.MOAN.db(), line, "You hear moaning", Color.magenta);
+        TownLog.record(TownLog.Kind.SEX, line, self.x(), self.y());
+        if (self.origin != null) {
+            new SoundEvent(self.origin, SoundKind.MOAN, self, self.getLayerId()).emit();
+        }
+
+        transmitStd(body, partner.getBodysim());
+        transmitStd(partner.getBodysim(), body);
     }
 
-    /** An infected partner can pass it on, ~50% either way. Mirrors ActionRape's roll. */
+    /**
+     * An infected partner can pass it on, ~50% either way.
+     *
+     * <p>On the body-simulation stream, not the world-generation one {@code ActionRape} rolls
+     * on: {@link Rng} splits the streams precisely so a runtime roll cannot reshuffle the
+     * town, and a per-act {@code derive} on WORLDGEN advances it on every act.
+     */
     private static void transmitStd(BodySimulation carrier, BodySimulation other) {
         if (carrier != null && other != null && carrier.isInfected() && !other.isInfected()) {
-            if (Rng.derive(Rng.WORLDGEN).nextInt(100) <= 50) {
+            if (Rng.nextInt(Rng.COMBAT, 100) <= 50) {
                 other.setInfected(true);
             }
         }
@@ -172,12 +209,7 @@ public class SexAction implements IAIAction, Narrating {
             if (libido < Libido.NEEDY || libido >= Libido.FRENZY) {
                 return false;
             }
-            return mateAvailable() || RLWorldModel.brothelLocation != null;
-        }
-
-        private boolean mateAvailable() {
-            EntityRLHuman mate = brain.human().getMate();
-            return mate != null && mate.origin != null && TownAI.isAlive(mate) && mate.isAdult();
+            return partnerFor(brain) != null;
         }
     }
 }

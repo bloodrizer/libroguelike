@@ -56,7 +56,9 @@ import com.nuclearunicorn.serialkiller.render.AsciiEntRenderer;
 import com.nuclearunicorn.serialkiller.render.AsciiWorldView;
 import com.nuclearunicorn.serialkiller.render.RenderConfig;
 import com.nuclearunicorn.serialkiller.render.RLMessages;
+import com.nuclearunicorn.serialkiller.game.social.TownLog;
 import com.nuclearunicorn.serialkiller.render.overlays.NpcDebugOverlay;
+import com.nuclearunicorn.serialkiller.render.overlays.TownDebugOverlay;
 import org.newdawn.slick.Color;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.Point;
@@ -156,6 +158,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         RLWorldModel.playerSafeHouseLocation = null;
         RLWorldModel.playerSpawnLocation = null;
         RLWorldModel.brothelLocation = null;
+        TownLog.clear();
 
         model.update();
 
@@ -235,6 +238,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         DebugOverlay.debugPathfinding();    //heavy, but very useful
         overlay.render();
         NpcDebugOverlay.render();   //ALT: what the town is thinking
+        TownDebugOverlay.render();  //ALT + F8: what the town is doing, all of it at once
 
         if (typeMode){
             OverlaySystem.ttf.drawString(15,
@@ -361,6 +365,15 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
                 break;
                 case Keyboard.KEY_F7:
                     NpcDebugOverlay.dumpFocus();
+                break;
+                //the town-wide view: population, drives, the model queue and what has
+                //happened out of sight. F8 arms it, ALT shows it like the rest.
+                case Keyboard.KEY_F8:
+                    if (Input.key_state_shft) {
+                        TownDebugOverlay.dump();
+                    } else {
+                        TownDebugOverlay.toggle();
+                    }
                 break;
             }
         }

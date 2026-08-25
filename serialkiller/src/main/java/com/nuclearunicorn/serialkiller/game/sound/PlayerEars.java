@@ -97,7 +97,13 @@ public final class PlayerEars implements IEventListener, PlayerSpeech.Filter {
      */
     public static Verdict perceive(WorldLayer layer, int sx, int sy, int lx, int ly,
                                    int listenerThreshold, boolean visible) {
-        SoundField field = Acoustics.propagate(layer, sx, sy, SoundKind.TALK.db(), 0);
+        return perceive(layer, sx, sy, lx, ly, listenerThreshold, visible, SoundKind.TALK.db());
+    }
+
+    /** The same question about a noise made at some other level than talking. */
+    public static Verdict perceive(WorldLayer layer, int sx, int sy, int lx, int ly,
+                                   int listenerThreshold, boolean visible, int loudness) {
+        SoundField field = Acoustics.propagate(layer, sx, sy, loudness, 0);
         if (field == null) {
             return new Verdict(visible ? Heard.LIPS : Heard.NOTHING, null);
         }
@@ -120,6 +126,56 @@ public final class PlayerEars implements IEventListener, PlayerSpeech.Filter {
             instance = new PlayerEars();
         }
         return instance.verdict(chat, speaker);
+    }
+
+    // ------------------------------------------------------------ acts, not words
+
+    /**
+     * What the player made of something an actor <i>did</i> where they are standing.
+     *
+     * <p>Speech is not the only thing that should stop at the edge of the player's senses.
+     * Anything an NPC does out in the town is subject to the same two questions — could you
+     * see it, could you hear it — so the four verdicts are the same ones, and an act nobody
+     * perceived produces no line at all.
+     */
+    public static Verdict witness(Entity actor, int loudness) {
+        Entity player = Player.get_ent();
+        if (actor == null || actor.origin == null) {
+            return new Verdict(Heard.NOTHING, null);
+        }
+        if (player == null || player.origin == null) {
+            return new Verdict(Heard.WORDS, null);   //no player to filter for: report everything
+        }
+        if (actor.getLayerId() != player.getLayerId()) {
+            return new Verdict(Heard.NOTHING, null); //floors are acoustically sealed (11)
+        }
+        return perceive(ClientGameEnvironment.getWorldLayer(actor.getLayerId()),
+                actor.x(), actor.y(), player.x(), player.y(),
+                Acoustics.threshold(player), sees(actor), loudness);
+    }
+
+    /**
+     * Log an act the way it was actually perceived: named when you watched it happen,
+     * anonymous with a bearing when you only heard it, and silent when neither.
+     *
+     * <p>{@code heard} may be null for an act with no sound of its own worth reporting.
+     */
+    public static void report(Entity actor, int loudness, String seen, String heard,
+                              Color color) {
+        Verdict verdict = witness(actor, loudness);
+        switch (verdict.heard) {
+            case WORDS:
+            case LIPS:
+                RLMessages.message(seen, color);    //you are looking straight at it
+                break;
+            case EARSHOT:
+                if (heard != null) {
+                    RLMessages.message(heard + " to the " + verdict.bearing, color);
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     // ------------------------------------------------------- PlayerSpeech.Filter

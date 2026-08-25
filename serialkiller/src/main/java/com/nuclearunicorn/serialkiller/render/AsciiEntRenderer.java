@@ -48,6 +48,10 @@ public class AsciiEntRenderer extends EntityRenderer {
     public String symbol = "?";
     Color color = Color.white;
 
+    /** Short-lived mood glyph floating above the head ("<3"), set by the entity itself. */
+    public String emote;
+    public Color emoteColor = Color.white;
+
     private int kind = KIND_UNRESOLVED;
 
     public AsciiEntRenderer(String s) {
@@ -123,6 +127,11 @@ public class AsciiEntRenderer extends EntityRenderer {
         } else if (isStateGlyph(sprite)) {
             // small marker above the head, not on top of the sprite
             Glyphs.draw(x, y, symbol, color, RenderConfig.spriteH() - 2);
+        }
+        // An emote is what an actor is doing, not what state it is in, so it gets its own
+        // line clear of the state glyph and is drawn whichever layer won above.
+        if (emote != null) {
+            Glyphs.draw(x, y, emote, emoteColor, RenderConfig.spriteH() + 6);
         }
     }
 

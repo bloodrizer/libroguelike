@@ -27,6 +27,7 @@ public final class Keyboard {
     public static final int KEY_F5       = GLFW_KEY_F5;
     public static final int KEY_F6       = GLFW_KEY_F6;
     public static final int KEY_F7       = GLFW_KEY_F7;
+    public static final int KEY_F8       = GLFW_KEY_F8;
     public static final int KEY_TAB      = GLFW_KEY_TAB;
     public static final int KEY_BACK     = GLFW_KEY_BACKSPACE;
     public static final int KEY_RETURN   = GLFW_KEY_ENTER;

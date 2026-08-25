@@ -27,6 +27,20 @@ public class LlmConfig {
          */
         public int threads = 0;
         /**
+         * Context window handed to llama-server as {@code -c}. 0 keeps its default, which
+         * recent builds take from the model card — 32k on Qwen2.5, whose KV cache costs
+         * gigabytes and seconds the prompts here never use. A couple of thousand is plenty.
+         */
+        public int contextSize = 0;
+        /** Layers offloaded to the GPU ({@code -ngl}). 0 is CPU-only. */
+        public int gpuLayers = 0;
+        /**
+         * How long to wait for {@code /health} before giving up on this tier. A 9GB model
+         * off a cold page cache does not load in the 60s this used to be fixed at; a server
+         * that dies is noticed at once regardless, so a generous ceiling costs nothing.
+         */
+        public int startupTimeoutSeconds = 180;
+        /**
          * Turns between ambient re-plans. Cadence is counted in turns, not milliseconds:
          * the world only advances when the player acts, so a wall clock throttles a
          * standing-still player and outruns one holding shift.

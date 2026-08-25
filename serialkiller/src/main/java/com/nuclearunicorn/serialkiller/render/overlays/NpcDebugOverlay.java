@@ -9,6 +9,7 @@ import com.nuclearunicorn.libroguelike.game.player.Player;
 import com.nuclearunicorn.libroguelike.game.world.WorldView;
 import com.nuclearunicorn.libroguelike.game.world.WorldViewCamera;
 import com.nuclearunicorn.libroguelike.render.WindowRender;
+import com.nuclearunicorn.serialkiller.game.ai.Libido;
 import com.nuclearunicorn.serialkiller.game.ai.TownAI;
 import com.nuclearunicorn.serialkiller.game.ai.llm.LlmRuntime;
 import com.nuclearunicorn.serialkiller.game.ai.llm.sense.DialogueLog;
@@ -32,21 +33,10 @@ import com.nuclearunicorn.serialkiller.render.RenderConfig;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.util.Point;
 import org.newdawn.slick.Color;
-import org.newdawn.slick.FontSpec;
 import org.newdawn.slick.TrueTypeFont;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.lwjgl.opengl.GL11.GL_LINE_LOOP;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11.glBegin;
-import static org.lwjgl.opengl.GL11.glColor4f;
-import static org.lwjgl.opengl.GL11.glDisable;
-import static org.lwjgl.opengl.GL11.glEnable;
-import static org.lwjgl.opengl.GL11.glEnd;
-import static org.lwjgl.opengl.GL11.glLineWidth;
-import static org.lwjgl.opengl.GL11.glVertex2f;
 
 /**
  * Hold ALT to see what the town is thinking.
@@ -100,18 +90,17 @@ public final class NpcDebugOverlay {
     private static final int MAX_PLAN = 4;
     private static final int MAX_TALK = 4;
 
-    private static final Color HEADER = new Color(255, 226, 120);
-    private static final Color SECTION = new Color(120, 200, 235);
-    private static final Color KEY = new Color(150, 150, 160);
-    private static final Color VALUE = new Color(225, 225, 230);
-    private static final Color DIM = new Color(120, 120, 130);
-    private static final Color HOT = new Color(255, 110, 100);
-    private static final Color WARM = new Color(245, 175, 80);
-    private static final Color GOOD = new Color(130, 220, 130);
-    private static final Color POLICE = new Color(120, 190, 255);
-
-    private static TrueTypeFont panelFont;
-    private static TrueTypeFont tagFont;
+    // One palette across every debug panel; see Panel.
+    private static final Color HEADER = Panel.HEADER;
+    private static final Color SECTION = Panel.SECTION;
+    private static final Color KEY = Panel.KEY;
+    private static final Color VALUE = Panel.VALUE;
+    private static final Color DIM = Panel.DIM;
+    private static final Color HOT = Panel.HOT;
+    private static final Color WARM = Panel.WARM;
+    private static final Color GOOD = Panel.GOOD;
+    private static final Color POLICE = Panel.POLICE;
+    private static final Color LUST = Panel.LUST;
 
     /** Uid the inspector is locked to, or null while it follows the mouse. */
     private static String pinnedUid;
@@ -205,7 +194,7 @@ public final class NpcDebugOverlay {
     private static void drawTag(EntityRLHuman npc, boolean focused) {
         float x = Grid.cellX(npc.x()) - WorldViewCamera.camera_x;
         float y = Grid.boxTop(npc.y()) - WorldViewCamera.camera_y;
-        TrueTypeFont font = tagFont();
+        TrueTypeFont font = Panel.tagFont();
         int lh = font.getHeight() - 2;
 
         TownAI brain = brainOf(npc);
@@ -219,8 +208,8 @@ public final class NpcDebugOverlay {
         Draw.quad(x - 2, top, w, lh * 2 + 2, 0, 0, 0, focused ? 0.75f : 0.45f);
         Draw.endFlat();
         if (focused) {
-            box(x - 2, top, w, lh * 2 + 2, HEADER);
-            box(x, Grid.boxTop(npc.y()) - WorldViewCamera.camera_y,
+            Panel.box(x - 2, top, w, lh * 2 + 2, HEADER);
+            Panel.box(x, Grid.boxTop(npc.y()) - WorldViewCamera.camera_y,
                     RenderConfig.CELL, RenderConfig.spriteH(), HEADER);
         }
 
@@ -256,21 +245,19 @@ public final class NpcDebugOverlay {
     // ------------------------------------------------------------------ panel
 
     private static void drawPanel(EntityRLHuman npc) {
-        TrueTypeFont font = panelFont();
+        TrueTypeFont font = Panel.font();
         int x = WindowRender.get_window_w() - PANEL_W - MARGIN;
         int maxY = WindowRender.get_window_h() - PANEL_BOTTOM_GAP;
 
         TownAI brain = brainOf(npc);
         if (brain == null) {
-            Draw.beginFlat();
-            Draw.quad(x, PANEL_TOP, PANEL_W, font.getHeight() + 8, 0.05f, 0.05f, 0.08f, 0.85f);
-            Draw.endFlat();
+            Panel.backdrop(x, PANEL_TOP, PANEL_W, font.getHeight() + 8);
             font.drawString(x + 6, PANEL_TOP + 4,
                     "no NPC under cursor - hover one, or F6 to cycle", DIM);
             return;
         }
 
-        Text text = new Text(font, x + 6, PANEL_TOP + 4, PANEL_W - 12, maxY);
+        Panel.Text text = new Panel.Text(font, x + 6, PANEL_TOP + 4, PANEL_W - 12, maxY);
 
         header(text, npc, brain);
         body(text, npc);
@@ -285,14 +272,11 @@ public final class NpcDebugOverlay {
 
         // Background last: the layout decides its own height, and a panel sized to the
         // section list beats a fixed box with a ragged half-empty bottom.
-        Draw.beginFlat();
-        Draw.quad(x, PANEL_TOP, PANEL_W, text.height() + 8, 0.05f, 0.05f, 0.08f, 0.85f);
-        Draw.endFlat();
-        box(x, PANEL_TOP, PANEL_W, text.height() + 8, new Color(70, 70, 90));
+        Panel.backdrop(x, PANEL_TOP, PANEL_W, text.height() + 8);
         text.flush();
     }
 
-    private static void header(Text text, EntityRLHuman npc, TownAI brain) {
+    private static void header(Panel.Text text, EntityRLHuman npc, TownAI brain) {
         String name = npc.getName() == null ? "?" : npc.getName();
         text.line(name + (npc.get_uid() != null && npc.get_uid().equals(pinnedUid)
                 ? "   [PINNED]" : ""), HEADER);
@@ -302,7 +286,7 @@ public final class NpcDebugOverlay {
                 + " / " + shortUid(npc.get_uid()), KEY);
     }
 
-    private static void body(Text text, EntityRLHuman npc) {
+    private static void body(Panel.Text text, EntityRLHuman npc) {
         text.section("BODY");
         StringBuilder sb = new StringBuilder();
         if (npc.get_combat() != null) {
@@ -351,9 +335,32 @@ public final class NpcDebugOverlay {
         if (!flags.isEmpty()) {
             text.wrap(join(flags, ", "), HOT);
         }
+        drives(text, sim);
     }
 
-    private static void doing(Text text, TownAI brain) {
+    /**
+     * The homeostatic needs, as bars. Libido is why this section exists: it now drives two
+     * impulses of its own, so an NPC walking across town for no visible reason is explained
+     * by a number that was previously readable nowhere at all.
+     */
+    private static void drives(Panel.Text text, BodySimulation sim) {
+        if (sim == null) {
+            return;
+        }
+        float libido = sim.getAttribute("libido");
+        text.line("libido    " + Panel.bar(libido, 100, 20) + " " + Math.round(libido)
+                + (libido >= Libido.FRENZY ? "  FRENZY"
+                        : libido >= Libido.NEEDY ? "  needy" : ""),
+                libido >= Libido.FRENZY ? HOT : libido >= Libido.NEEDY ? LUST : KEY);
+        text.line("bloodlust " + Panel.bar(sim.getAttribute("bloodlust"), 100, 20)
+                + " " + Math.round(sim.getAttribute("bloodlust")), KEY);
+        text.line("hunger    " + Panel.bar(sim.getAttribute("hunger"), 100, 20)
+                + " " + Math.round(sim.getAttribute("hunger")), KEY);
+        text.line("stamina   " + Panel.bar(sim.getAttribute("stamina"), 100, 20)
+                + " " + Math.round(sim.getAttribute("stamina")), KEY);
+    }
+
+    private static void doing(Panel.Text text, TownAI brain) {
         text.section("DOING");
         Object action = brain.debugActiveAction();
         text.wrap(stateLabel(brain.getState())
@@ -378,7 +385,7 @@ public final class NpcDebugOverlay {
      * an NPC that will not react is answered by whichever row above the one you expected
      * said yes.
      */
-    private static void impulses(Text text, TownAI brain) {
+    private static void impulses(Panel.Text text, TownAI brain) {
         text.section("IMPULSES");
         List<AI.ImpulseView> walk = brain.debugImpulses();
         if (walk.isEmpty()) {
@@ -397,7 +404,7 @@ public final class NpcDebugOverlay {
         }
     }
 
-    private static void mind(Text text, TownAI brain) {
+    private static void mind(Panel.Text text, TownAI brain) {
         text.section("MIND");
         Knowledge knowledge = brain.knowledge();
         if (knowledge == null) {
@@ -433,7 +440,7 @@ public final class NpcDebugOverlay {
     }
 
     /** Who this NPC has an opinion about, and how sure it still is. */
-    private static void beliefs(Text text, TownAI brain) {
+    private static void beliefs(Panel.Text text, TownAI brain) {
         text.section("BELIEFS");
         Knowledge knowledge = brain.knowledge();
         if (knowledge == null || knowledge.beliefs().isEmpty()) {
@@ -476,10 +483,28 @@ public final class NpcDebugOverlay {
                 + "   suspect " + (suspect == null ? "-" : nameOf(brain, suspect.uid))
                 + "   scene " + (scene == null ? "-" : scene.getX() + "," + scene.getY()),
                 threat != null || suspect != null ? WARM : KEY);
+
+        reflections(text, knowledge);
+    }
+
+    /**
+     * The director tier's output: durable second-order beliefs that do not decay. They go
+     * into every later reactor prompt, so an NPC saying something inexplicable is usually
+     * explained here rather than by anything it has just sensed.
+     */
+    private static void reflections(Panel.Text text, Knowledge knowledge) {
+        text.section("REFLECTIONS");
+        if (knowledge.reflections().isEmpty()) {
+            text.line(LlmRuntime.director() == null ? "director tier off" : "nothing yet", DIM);
+            return;
+        }
+        for (String belief : knowledge.reflections()) {
+            text.wrap("\"" + belief + "\"", SECTION);
+        }
     }
 
     /** The slow half: whether the model has the NPC, and what it last said back. */
-    private static void planner(Text text, TownAI brain) {
+    private static void planner(Panel.Text text, TownAI brain) {
         text.section("PLANNER");
         Deliberation mind = brain.deliberation();
         if (mind == null) {
@@ -521,7 +546,7 @@ public final class NpcDebugOverlay {
         }
     }
 
-    private static void talk(Text text, TownAI brain) {
+    private static void talk(Panel.Text text, TownAI brain) {
         if (brain.voice() == null || brain.voice().log().isEmpty()) {
             return;
         }
@@ -719,136 +744,12 @@ public final class NpcDebugOverlay {
         return value ? "yes" : "no";
     }
 
-    /** Left-align in a column, always leaving a separator: names run longer than the width. */
     private static String pad(String text, int width) {
-        StringBuilder sb = new StringBuilder(text == null ? "?" : text);
-        do {
-            sb.append(' ');
-        } while (sb.length() < width);
-        return sb.toString();
+        return Panel.pad(text, width);
     }
 
     private static String join(List<String> parts, String separator) {
-        StringBuilder sb = new StringBuilder();
-        for (String part : parts) {
-            if (sb.length() > 0) {
-                sb.append(separator);
-            }
-            sb.append(part);
-        }
-        return sb.toString();
+        return Panel.join(parts, separator);
     }
 
-    private static void box(float x, float y, float w, float h, Color color) {
-        glDisable(GL_TEXTURE_2D);
-        glLineWidth(1);
-        glBegin(GL_LINE_LOOP);
-        glColor4f(color.r, color.g, color.b, 0.9f);
-        glVertex2f(x, y);
-        glVertex2f(x + w, y);
-        glVertex2f(x + w, y + h);
-        glVertex2f(x, y + h);
-        glEnd();
-        glEnable(GL_TEXTURE_2D);
-    }
-
-    private static TrueTypeFont panelFont() {
-        if (panelFont == null) {
-            panelFont = new TrueTypeFont(new FontSpec("Monospaced", 12, false), true);
-        }
-        return panelFont;
-    }
-
-    private static TrueTypeFont tagFont() {
-        if (tagFont == null) {
-            tagFont = new TrueTypeFont(new FontSpec("Monospaced", 11, true), true);
-        }
-        return tagFont;
-    }
-
-    /**
-     * A column of text that measures itself, wraps to the panel width and stops when it runs
-     * out of room. Lines are buffered rather than drawn, because the panel's background has
-     * to be sized to the content and is therefore drawn after it.
-     */
-    private static final class Text {
-
-        private final TrueTypeFont font;
-        private final float x;
-        private final float top;
-        private final int width;
-        private final int maxY;
-        private final List<float[]> positions = new ArrayList<float[]>();
-        private final List<String> texts = new ArrayList<String>();
-        private final List<Color> colors = new ArrayList<Color>();
-        private float y;
-
-        Text(TrueTypeFont font, float x, float y, int width, int maxY) {
-            this.font = font;
-            this.x = x;
-            this.top = y;
-            this.y = y;
-            this.width = width;
-            this.maxY = maxY;
-        }
-
-        void line(String text, Color color) {
-            if (y + font.getHeight() > maxY) {
-                return;
-            }
-            positions.add(new float[] {x, y});
-            texts.add(text);
-            colors.add(color);
-            y += font.getHeight() - 2;
-        }
-
-        void blank() {
-            if (y + font.getHeight() > maxY) {
-                return;   // out of room: a gap here would only lengthen the background
-            }
-            y += 4;
-        }
-
-        void section(String title) {
-            blank();
-            line(title, SECTION);
-        }
-
-        /** Break a long line at word boundaries; continuations are indented under the first. */
-        void wrap(String text, Color color) {
-            if (text == null) {
-                return;
-            }
-            String rest = text;
-            String indent = "";
-            while (font.getWidth(rest) > width) {
-                int cut = rest.length();
-                while (cut > 1 && font.getWidth(rest.substring(0, cut)) > width) {
-                    cut--;
-                }
-                int space = rest.lastIndexOf(' ', cut);
-                if (space <= 0) {
-                    space = cut;
-                }
-                line(indent + rest.substring(0, space).trim(), color);
-                rest = rest.substring(space).trim();
-                indent = "  ";
-                if (y + font.getHeight() > maxY) {
-                    return;
-                }
-            }
-            line(indent + rest, color);
-        }
-
-        float height() {
-            return y - top;
-        }
-
-        void flush() {
-            for (int i = 0; i < texts.size(); i++) {
-                float[] at = positions.get(i);
-                font.drawString(at[0], at[1], texts.get(i), colors.get(i));
-            }
-        }
-    }
 }
