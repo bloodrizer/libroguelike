@@ -575,15 +575,22 @@ staging script (§10.1). External file wins if present.
 {
   "enabled": true,
   "serverBinary": "/usr/local/bin/llama-server",
-  "reactor":  { "model": "models/phi-4-mini.gguf", "port": 8081,
-                "cadenceMs": 4000,  "maxTokens": 512 },
-  "director": { "model": "models/phi-4.gguf",      "port": 8082,
-                "cadenceMs": 60000, "maxTokens": 1024, "batch": true },
+  "reactor":  { "model": "models/qwen3-4b-instruct-2507.gguf", "port": 8081,
+                "cadenceMs": 4000,  "maxTokens": 768,  "threads": 10 },
+  "director": { "model": "models/qwen2.5-14b-instruct.gguf",   "port": 8082,
+                "cadenceMs": 60000, "maxTokens": 160, "threads": 6, "batch": true },
   "throttle": { "mode": "buckets", "nearRadius": 24 },
   "far":      { "teleport": false },
   "memory":   { "observations": 8 }
 }
 ```
+
+**`[DECIDED]` tier sizing:** the reactor is deliberately a *small* model (Qwen3-4B-Instruct-2507,
+~2.5GB) and the director a large one (Qwen2.5-14B, ~9GB). Both tiers pointed at the same 14B
+GGUF for a while — one server served both (see `LlmRuntime.bootDirector`) and every reflection
+stalled the reactor queue behind it, so an NPC spoken to waited out a 14B reflection before it
+could answer. A 4B reactor of the 2507 generation answers in a fraction of the time at
+comparable instruction-following quality, and the two servers no longer share a queue.
 
 **`[DECIDED]` models on disk:** `LlamaServerManager` assumes the `.gguf` files exist at
 the configured paths. Getting them there is `ModelDownloader`'s job (§10.1); the shell

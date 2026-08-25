@@ -49,6 +49,7 @@ public final class Keyboard {
     public static final int KEY_F5 = 1021;
     public static final int KEY_F6 = 1022;
     public static final int KEY_F7 = 1023;
+    public static final int KEY_F8 = 1024;
 
     private static InputBridge.KeyEvent current;
 

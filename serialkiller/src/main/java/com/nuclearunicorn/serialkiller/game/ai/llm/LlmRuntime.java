@@ -68,10 +68,11 @@ public final class LlmRuntime {
             return;   // no director configured: reactor-only
         }
 
-        // Both tiers on the same GGUF is the ordinary case now that one model is good enough
-        // for both jobs, and a second llama-server for it is a second full copy of the weights
-        // in RAM and a second cold load before the game opens. The tiers differ in cadence,
-        // token budget and grammar - all per-request - so one server serves both.
+        // Both tiers on one GGUF: skip the second server, which would only be a second copy
+        // of the same weights in RAM and a second cold load. The tiers differ in cadence,
+        // token budget and grammar - all per-request - so one server serves both. Note this
+        // also puts them on one queue, and a 14B reflection then blocks every reactor plan
+        // behind it; that is why the tiers run different models by default.
         if (sharesReactorModel()) {
             if (reactor instanceof LlamaHttpInferenceService) {
                 director = new LlamaHttpInferenceService(

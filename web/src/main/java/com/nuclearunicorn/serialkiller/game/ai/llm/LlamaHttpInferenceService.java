@@ -23,6 +23,20 @@ public class LlamaHttpInferenceService implements InferenceService {
         return 0;
     }
 
+    // Debug-overlay counters. Nothing is ever queued here, so they read as an idle service.
+
+    public int queueDepth() {
+        return 0;
+    }
+
+    public int inFlightCount() {
+        return 0;
+    }
+
+    public long lastLatencyMs() {
+        return 0;
+    }
+
     @Override
     public String poll(String uid) {
         return null;

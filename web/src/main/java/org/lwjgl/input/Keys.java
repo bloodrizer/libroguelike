@@ -39,6 +39,7 @@ final class Keys {
         letter("F5", Keyboard.KEY_F5);
         letter("F6", Keyboard.KEY_F6);
         letter("F7", Keyboard.KEY_F7);
+        letter("F8", Keyboard.KEY_F8);
         letter("Tab", Keyboard.KEY_TAB);
         letter("Backspace", Keyboard.KEY_BACK);
         letter("Enter", Keyboard.KEY_RETURN);

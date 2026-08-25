@@ -23,7 +23,7 @@ public class LlmConfig {
         /**
          * CPU threads handed to llama-server as {@code -t}. 0 lets llama-server pick its own
          * (all cores). Split when two tiers share a box, so the two models don't thrash each
-         * other: e.g. reactor 12 + director 4 on a 16-core machine.
+         * other: e.g. reactor 10 + director 6 on a 16-core machine.
          */
         public int threads = 0;
         /**
