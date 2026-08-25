@@ -8,6 +8,7 @@ import org.lwjgl.util.Point;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,8 +27,13 @@ import java.util.Map;
  */
 public class Knowledge implements Serializable {
 
+    /** How many durable reflections an NPC keeps. They do not decay like stimuli do. */
+    private static final int REFLECTION_CAP = 3;
+
     private final StimulusMemory stream;
     private final Map<String, Percept> beliefs = new HashMap<String, Percept>();
+    /** Second-order beliefs the director tier has formed; surfaced to the reactor prompt. */
+    private final List<String> reflections = new java.util.ArrayList<String>();
 
     /** Crime scene nobody has closed yet — what a patrolling officer walks towards. */
     private Point openCrimeScene;
@@ -39,6 +45,29 @@ public class Knowledge implements Serializable {
 
     public StimulusMemory stream() {
         return stream;
+    }
+
+    /** Durable beliefs, oldest first. Read by the prompt; written by the reflection tier. */
+    public List<String> reflections() {
+        return reflections;
+    }
+
+    /**
+     * Fold in a reflection the director tier produced. Trimmed, deduplicated, capped — a
+     * belief that never decays should not also be allowed to accumulate without bound.
+     */
+    public void addReflection(String text) {
+        if (text == null) {
+            return;
+        }
+        String belief = text.trim().replace('\n', ' ').replaceAll("\\s+", " ");
+        if (belief.isEmpty() || reflections.contains(belief)) {
+            return;
+        }
+        reflections.add(belief);
+        while (reflections.size() > REFLECTION_CAP) {
+            reflections.remove(0);
+        }
     }
 
     /** Everything we believe, so a debug dump can show why an NPC is behaving as it is. */

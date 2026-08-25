@@ -19,7 +19,8 @@ public class VersionOverlay {
     private static final String BUILD_NUMBER = "2035";
 
 public static void render(){
-        OverlaySystem.ttf.drawString(WindowRender.get_window_w() - 110, 30,
+        //below the clock plate, which owns the top right corner now
+        OverlaySystem.ttf.drawString(WindowRender.get_window_w() - 110, 70,
         "Ver."+CLIENT_VER +
         "("+BUILD_NUMBER+")",
         Color.white);

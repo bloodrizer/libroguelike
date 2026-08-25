@@ -55,6 +55,7 @@ public class LlamaHttpInferenceService implements InferenceService {
 
     private final Thread worker;
     private volatile boolean running = true;
+    private volatile long lastLatencyMs;
 
     private static class Request {
         final String uid;
@@ -154,6 +155,23 @@ public class LlamaHttpInferenceService implements InferenceService {
         return inFlight.containsKey(uid);
     }
 
+    /** Requests waiting to be sent. The overlay's answer to "why is nobody talking". */
+    public int queueDepth() {
+        synchronized (queue) {
+            return queue.size();
+        }
+    }
+
+    /** Requests queued or running, i.e. NPCs currently waiting on the model. */
+    public int inFlightCount() {
+        return inFlight.size();
+    }
+
+    /** Round-trip of the last completed request, in ms, or 0 before the first one. */
+    public long lastLatencyMs() {
+        return lastLatencyMs;
+    }
+
     /** Priority of this uid's pending request, or 0 when it has none. */
     public int pendingPriority(String uid) {
         Integer p = inFlight.get(uid);
@@ -228,6 +246,7 @@ public class LlamaHttpInferenceService implements InferenceService {
 
         long start = System.currentTimeMillis();
         HttpResponse<String> response = http.send(request, HttpResponse.BodyHandlers.ofString());
+        lastLatencyMs = System.currentTimeMillis() - start;
         if (response.statusCode() != 200) {
             System.err.println("llama-server returned " + response.statusCode());
             LlmDebug.log("HTTP non-200: %d", response.statusCode());

@@ -16,6 +16,7 @@ public final class LlmRuntime {
     private static LlmConfig config;
     private static CommandRegistry registry;
     private static InferenceService reactor;
+    private static InferenceService director;
     private static LlamaServerManager serverManager;
     private static volatile String degradedReason;
 
@@ -38,7 +39,7 @@ public final class LlmRuntime {
         registry = new CommandRegistry();
 
         serverManager = new LlamaServerManager(config.serverBinary);
-        boolean ready = serverManager.startTier(config.reactor);
+        boolean ready = serverManager.startTier(config.reactor, "reactor");
 
         if (ready) {
             LlmDebug.log("reactor server healthy on port %d — using live inference", config.reactor.port);
@@ -52,6 +53,56 @@ public final class LlmRuntime {
             LlmDebug.log("reactor server UNAVAILABLE — falling back to canned StubInferenceService");
             reactor = new StubInferenceService();
         }
+
+        bootDirector();
+    }
+
+    /**
+     * The long-term / reflection tier (M2). A second llama-server on its own port, free-text
+     * (no command grammar — reflections are prose, not programs). Failure degrades silently:
+     * the reactor keeps working, and {@link #director()} stays null so reflection is skipped.
+     */
+    private static void bootDirector() {
+        if (config.director == null || config.director.model == null
+                || config.director.model.isEmpty()) {
+            return;   // no director configured: reactor-only
+        }
+
+        // Both tiers on one GGUF: skip the second server, which would only be a second copy
+        // of the same weights in RAM and a second cold load. The tiers differ in cadence,
+        // token budget and grammar - all per-request - so one server serves both. Note this
+        // also puts them on one queue, and a 14B reflection then blocks every reactor plan
+        // behind it; that is why the tiers run different models by default.
+        if (sharesReactorModel()) {
+            if (reactor instanceof LlamaHttpInferenceService) {
+                director = new LlamaHttpInferenceService(
+                        config.reactor.port, null, config.director.maxTokens,
+                        config.director.queueCapacity);
+                LlmDebug.log("director shares the reactor server on port %d (same model %s)",
+                        config.reactor.port, config.director.model);
+            } else {
+                LlmDebug.log("director shares the reactor tier, which is not live - reflection disabled");
+            }
+            return;
+        }
+
+        LlmDebug.log("booting director tier (model=%s, port=%d, threads=%d)",
+                config.director.model, config.director.port, config.director.threads);
+        if (serverManager.startTier(config.director, "director")) {
+            director = new LlamaHttpInferenceService(
+                    config.director.port, null, config.director.maxTokens,
+                    config.director.queueCapacity);
+            LlmDebug.log("director server healthy on port %d", config.director.port);
+        } else {
+            System.err.println("LlmRuntime: director server unavailable ("
+                    + serverManager.getLastError() + "), reflection disabled");
+            LlmDebug.log("director server UNAVAILABLE — reflection disabled");
+        }
+    }
+
+    /** Same weights as the reactor, so a server of its own would buy nothing. */
+    private static boolean sharesReactorModel() {
+        return config.reactor != null && config.director.model.equals(config.reactor.model);
     }
 
     /**
@@ -102,5 +153,10 @@ public final class LlmRuntime {
 
     public static InferenceService reactor() {
         return reactor;
+    }
+
+    /** The reflection tier, or null when it did not boot or is not configured. */
+    public static InferenceService director() {
+        return director;
     }
 }

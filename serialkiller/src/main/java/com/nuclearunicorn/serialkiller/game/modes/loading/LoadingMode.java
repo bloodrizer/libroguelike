@@ -23,7 +23,7 @@ import static org.lwjgl.opengl.GL11.*;
 public class LoadingMode extends AbstractGameMode implements IEventListener {
 
     /** How long a staging failure stays on screen before the game starts without LLM NPCs. */
-    private static final long ERROR_DWELL_MS = 4000;
+    private static final long ERROR_DWELL_MS = 8000;
     private static final int BAR_W = 420;
     private static final int BAR_H = 14;
 
@@ -52,8 +52,8 @@ public class LoadingMode extends AbstractGameMode implements IEventListener {
             binaryWarning = "'" + config.serverBinary + "' not on PATH - install llama.cpp for live NPCs";
         }
 
-        //reactor only: the director tier gets staged here too once M2 actually boots it
-        downloader = new ModelDownloader(config.reactor);
+        //stage both tiers; a tier with no model is skipped inside ModelDownloader
+        downloader = new ModelDownloader(config.reactor, config.director);
 
         Thread worker = new Thread(() -> {
             downloader.run();
@@ -105,18 +105,18 @@ public class LoadingMode extends AbstractGameMode implements IEventListener {
 
         //staging failure kills the tier outright; a dead server only downgrades it to canned plans
         if (ready && downloader.getError() != null) {
-            drawCentered(ttf, y + 30, downloader.getError(), Color.red);
-            drawCentered(ttf, y + 55, "starting without LLM NPCs...", Color.lightGray);
+            int next = drawReason(ttf, y + 30, downloader.getError());
+            drawCentered(ttf, next, "starting without LLM NPCs...", Color.lightGray);
             return;
         }
         if (ready && LlmRuntime.degradedReason() != null) {
-            drawCentered(ttf, y + 30, LlmRuntime.degradedReason(), Color.red);
-            drawCentered(ttf, y + 55, "NPCs will use canned replies...", Color.lightGray);
+            int next = drawReason(ttf, y + 30, LlmRuntime.degradedReason());
+            drawCentered(ttf, next, "NPCs will use canned replies...", Color.lightGray);
             return;
         }
 
         if (bootingServer) {
-            drawCentered(ttf, y + 30, "starting llama-server...", Color.yellow);
+            drawServerBoot(ttf, y);
         } else {
             drawCentered(ttf, y + 30, downloader.getStatus(), Color.yellow);
 
@@ -133,6 +133,45 @@ public class LoadingMode extends AbstractGameMode implements IEventListener {
         //keep the missing-binary warning up for the whole wait, not just at the end
         if (binaryWarning != null) {
             drawCentered(ttf, y + 120, binaryWarning, Color.orange);
+        }
+    }
+
+    /**
+     * A failure reason across as many lines as it needs. The diagnosis now carries the
+     * server's own error, what to do about it and where the log is — three clauses that do
+     * not fit on one centred line and are the only useful thing on the screen when they fire.
+     *
+     * @return the y to carry on drawing at
+     */
+    private static int drawReason(TrueTypeFont ttf, int y, String reason) {
+        for (String part : reason.split(" -> | \\(see ")) {
+            drawCentered(ttf, y, part.endsWith(")") ? part.substring(0, part.length() - 1) : part,
+                    Color.red);
+            y += 22;
+        }
+        return y + 8;
+    }
+
+    /**
+     * The server coming up, in the server's own words. A 9GB model is a minute of nothing
+     * happening, and a minute of nothing happening looks exactly like a hang unless the
+     * screen says which tier, how long it has been, and what llama-server last printed.
+     */
+    private static void drawServerBoot(TrueTypeFont ttf, int y) {
+        String tier = LlamaServerManager.bootTier();
+        String stage = LlamaServerManager.bootStage();
+        int elapsed = LlamaServerManager.bootElapsedSeconds();
+
+        drawCentered(ttf, y + 30, "llama-server: " + (tier == null ? "" : tier + " tier - ")
+                + (stage.isEmpty() ? "starting" : stage) + "   " + elapsed + "s", Color.yellow);
+
+        String detail = LlamaServerManager.bootDetail();
+        if (detail != null && !detail.isEmpty()) {
+            drawCentered(ttf, y + 55, detail, Color.lightGray);
+        }
+        String log = LlamaServerManager.bootLog();
+        if (log != null && !log.isEmpty()) {
+            drawCentered(ttf, y + 80, log, Color.darkGray);
         }
     }
 

@@ -262,6 +262,22 @@ public class EntityRLHuman extends EntityRLActor {
 
     }
 
+    //a six-turn glyph over a head has no business in a save file
+    private transient String emoteGlyph;
+    private transient Color emoteColor;
+    private transient int emoteTurns;
+
+    /**
+     * Float a glyph over this person's head for a few turns — what they are <i>doing</i>,
+     * as against the state glyph, which is what they are. Ticks down in
+     * {@link #updateASCIIModel()}, so it costs a caller one line and no bookkeeping.
+     */
+    public void emote(String glyph, Color color, int turns) {
+        emoteGlyph = glyph;
+        emoteColor = color;
+        emoteTurns = turns;
+    }
+
     private void updateASCIIModel() {
         AsciiEntRenderer renderer = (AsciiEntRenderer)get_render();
         renderer.symbol = "@";
@@ -283,6 +299,15 @@ public class EntityRLHuman extends EntityRLActor {
         }
         if (combat != null && !combat.is_alive()){
             renderer.symbol = "%";
+            emoteTurns = 0;
+        }
+
+        if (emoteTurns > 0){
+            emoteTurns--;
+            renderer.emote = emoteGlyph;
+            renderer.emoteColor = emoteColor == null ? Color.white : emoteColor;
+        } else {
+            renderer.emote = null;
         }
     }
 

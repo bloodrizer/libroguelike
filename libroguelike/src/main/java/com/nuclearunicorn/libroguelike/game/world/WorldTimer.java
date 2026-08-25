@@ -15,10 +15,20 @@ import java.util.Calendar;
  */
 public class WorldTimer {
 
+    /** When the sun is up. The light field, the AI schedules and the HUD clock all use these. */
+    public static final float DAWN = 7.0f;
+    public static final float DUSK = 21.0f;
+
     public static final Calendar datetime = Calendar.getInstance();
     static {
-        //java.util.Timer timer = new java.util.Timer();
-        datetime.set(Calendar.HOUR_OF_DAY, 21); //debug shit
+        setTime(System.getProperty("lrl.time", "21:00"));
+    }
+
+    /** {@code -Dlrl.time=HH} or {@code HH:MM} — open the world at that hour, for shots and tests. */
+    public static void setTime(String hhmm){
+        String[] parts = hhmm.trim().split(":");
+        datetime.set(Calendar.HOUR_OF_DAY, Integer.parseInt(parts[0]));
+        datetime.set(Calendar.MINUTE, parts.length > 1 ? Integer.parseInt(parts[1]) : 0);
         datetime.set(Calendar.SECOND, 0);
     }
 
@@ -32,19 +42,24 @@ public class WorldTimer {
         }
     }
 
+    /** Time of day as a fraction of an hour: 13:30 is 13.5. */
+    public static float hourOfDay(){
+        return datetime.get(Calendar.HOUR_OF_DAY) + datetime.get(Calendar.MINUTE)/60.0f;
+    }
+
     public static float get_light_amt(){
 
-        float hour = datetime.get(Calendar.HOUR_OF_DAY) + datetime.get(Calendar.MINUTE)/60.0f;
+        float hour = hourOfDay();
         float amt = 1.0f;
 
-        if (hour < 7 || hour >= 21){
+        if (hour < DAWN || hour >= DUSK){
             amt = 0.0f;
         }
-        if ( hour >=7 && hour <= 10  ) {
-            amt = (hour-7)/3.0f;
+        if ( hour >= DAWN && hour <= 10  ) {
+            amt = (hour-DAWN)/3.0f;
         }
-        if ( hour >= 17 && hour < 21){
-            amt = (21.0f-hour)/5.0f;
+        if ( hour >= 17 && hour < DUSK){
+            amt = (DUSK-hour)/5.0f;
         }
    
         //amt = amt/2.0f;
@@ -53,8 +68,8 @@ public class WorldTimer {
     }
 
     public static boolean is_night(){
-       float hour = datetime.get(Calendar.HOUR_OF_DAY) + datetime.get(Calendar.MINUTE)/60.0f;
-       return (hour < 7 || hour >= 21);
+       float hour = hourOfDay();
+       return (hour < DAWN || hour >= DUSK);
     }
 
     private static void e_on_new_hour() {

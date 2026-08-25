@@ -81,7 +81,7 @@ public class DebugOverlay {
             OverlaySystem.ttf.drawString(10, yOffset+80, "Update calls: " + updateTime + "ms");
             OverlaySystem.ttf.drawString(10, yOffset+100, "Render calls: " + renderTime + "ms");
 
-            OverlaySystem.ttf.drawString(WindowRender.get_window_w()-100 , 10, "z-index: " + WorldView.get_zindex(), Color.white);
+            OverlaySystem.ttf.drawString(WindowRender.get_window_w()-100 , 90, "z-index: " + WorldView.get_zindex(), Color.white);
         }
 
     }

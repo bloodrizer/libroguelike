@@ -24,6 +24,8 @@ public class RLWorldModel extends WorldModel implements ILosBoard {
     public static Point playerSafeHouseLocation;
     /** Where this game actually opens - the preset's spawn place, resolved by the generator. */
     public static Point playerSpawnLocation;
+    /** The town brothel's street entrance, or null when this town has none. Routes "goto brothel". */
+    public static Point brothelLocation;
 
 
     List<Apartment> apartments = new ArrayList<Apartment>(16);
