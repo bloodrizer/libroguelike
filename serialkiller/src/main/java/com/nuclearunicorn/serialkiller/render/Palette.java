@@ -79,7 +79,7 @@ public final class Palette {
     }
 
     /** Sidewalk and asphalt are both ROAD; the generator tints them apart. */
-    private static boolean isSidewalk(RLTile tile) {
+    public static boolean isSidewalk(RLTile tile) {
         Color c = tile.getTileModelColor();
         return c != null && c.b > 0.1f;   // sidewalk is grey (90,90,90), asphalt is (127,127,0)
     }

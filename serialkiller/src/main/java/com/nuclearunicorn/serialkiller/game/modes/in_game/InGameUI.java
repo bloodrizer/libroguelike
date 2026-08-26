@@ -141,6 +141,7 @@ public class InGameUI implements IUserInterface, IEventListener {
         console.add_line("Press 'wsad' to move, 'space' to skil turn");
         console.add_line("Use 'ctrl' (or Command) + direction to attack ");
         console.add_line("Press 't' to talk to nearby people ");
+        console.add_line("Press 'm' for the town map ");
         console.add_line("Press 'tab' to view your character screen and inventory ");
 
         frame.add(console);

@@ -101,6 +101,11 @@ public class TownChunkGenerator extends ChunkGenerator {
         return ((RLWorldModel)environment.getWorld()).getApartments();
     }
 
+    /* Every building that went up, safehouse included - the town map reads this one */
+    public List<Building> getBuildings(){
+        return ((RLWorldModel)environment.getWorld()).getBuildings();
+    }
+
     public void generate(WorldChunk chunk){
 
         if (chunk instanceof RLWorldChunk){
@@ -215,6 +220,7 @@ public class TownChunkGenerator extends ChunkGenerator {
             //second time billeted strangers in the player's flat and laid a second set of beds
             //on top of the family's, which is the room full of beds you start the game in.
             playerHome = safehouse;
+            safehouse.isPlayerHome = true;
             break;
         }
 
@@ -1657,6 +1663,7 @@ public class TownChunkGenerator extends ChunkGenerator {
             RLWorldModel.brothelLocation = building.entrance != null
                     ? new Point(building.entrance) : new Point(building.getX() + 1, building.getY() + 1);
         }
+        getBuildings().add(building);
         return true;
     }
 

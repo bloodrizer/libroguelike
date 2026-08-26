@@ -10,6 +10,7 @@ import com.nuclearunicorn.serialkiller.game.events.CriminalActionEvent;
 import com.nuclearunicorn.serialkiller.game.events.NPCWitnessCrimeEvent;
 import com.nuclearunicorn.serialkiller.game.world.entities.EntityRLActor;
 import com.nuclearunicorn.serialkiller.generators.Apartment;
+import com.nuclearunicorn.serialkiller.generators.town.Building;
 import org.lwjgl.util.Point;
 import rlforj.los.ILosBoard;
 
@@ -29,6 +30,10 @@ public class RLWorldModel extends WorldModel implements ILosBoard {
 
 
     List<Apartment> apartments = new ArrayList<Apartment>(16);
+
+    /* Every building the generator raised, safehouse included - what the town map reads.
+       Distinct from apartments, which is "homes going spare" and skips the player's own. */
+    List<Building> buildings = new ArrayList<Building>(32);
 
     public RLWorldModel(int layersCount) {
         this.LAYER_COUNT = layersCount;
@@ -128,6 +133,10 @@ public class RLWorldModel extends WorldModel implements ILosBoard {
 
     public List<Apartment> getApartments() {
         return apartments;
+    }
+
+    public List<Building> getBuildings() {
+        return buildings;
     }
 
 }

@@ -20,6 +20,7 @@ public class Building extends Apartment {
     public List<Room> roomList = new ArrayList<Room>();  // typed rooms (commercial layout)
     public Point entrance;                                // world coords of main door
     public int residentCount = 0;                         // owners stamped in populateMap
+    public boolean isPlayerHome = false;                  // the safehouse, for the town map
 
     public boolean isResidential() {
         return type == BuildingType.APARTMENT;

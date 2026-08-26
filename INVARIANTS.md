@@ -27,3 +27,10 @@ E1. Every milestone must be a node of the nav graph (a doorway is a milestone to
 E2. Every milestone must be routable from every other one
 E3. A route handed to a walker must be contiguous - no step may be a leap
 E4. An NPC sent to the far side of town must get a route, not a straight line at it
+
+#F. Town map
+
+F1. Every building the generator raised must be on the map, in its own type's colour
+F2. A house nobody has walked into must not be on the map at all
+F3. ...unless it is a landmark or the player's home, which are known from the first turn
+F4. The raster must cover the chunk, and no label may sit off the edge of it

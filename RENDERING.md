@@ -136,6 +136,32 @@ Each layer can be switched at run time or from the command line:
 | | `-Dlrl.cell=32` | zoom: screen pixels per tile, and the art resolution |
 | | `-Dlrl.fov=6` | pin the player's sight radius (what memory looks like) |
 | | `-Dlrl.seed=7` | fix the town, so two builds can be compared |
+| M | `-Dlrl.map=true` | open the full town map |
+| | `-Dlrl.minimap=false` | take the corner map off, for a clean screenshot |
+
+## The town map
+
+A plate under the clock, always up, and the same picture full screen on **M**. One pixel
+per tile: streets as they are, buildings as blocks of their type's colour — brick for flats,
+pink for the brothel, gold for the bank, blue for the police station, orange for shops,
+cyan for your own flat — with a white dot on every door, and the player on top.
+
+What it shows is not everything. Streets and houses appear as they are walked, off the same
+`RLTile.isExplored` the world view dims unlit tiles with. **Public buildings are the
+exception**: a town knows where its own bank is, so landmarks are on the map from the first
+turn at a third of their brightness and come up to full once you have been inside. Your own
+flat is known for the obvious reason. So a fresh game opens on a blank sheet with four or
+five ghosts on it, which is exactly what the player knows.
+
+The full sheet also carries the legend and a directory of places by distance, nearest first.
+It suppresses the movement keys while it is open — walking blind behind a sheet of paper is
+not a feature — and **ESC** backs out of it rather than out of the game.
+
+The raster is [`render/map/TownMap.java`](serialkiller/src/main/java/com/nuclearunicorn/serialkiller/render/map/TownMap.java),
+which touches no GL at all: it is a projection of the world model, so it is asserted on in
+`TownMapTest` across six generated towns (INVARIANTS.md §F). The overlay uploads it as one
+texture per turn and draws quads — rebuilding per frame would be 16k tile reads for a picture
+that only changes when the player moves.
 
 ## The NPC brain inspector
 

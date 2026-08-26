@@ -58,6 +58,7 @@ import com.nuclearunicorn.serialkiller.render.RenderConfig;
 import com.nuclearunicorn.serialkiller.render.RLMessages;
 import com.nuclearunicorn.serialkiller.game.social.TownLog;
 import com.nuclearunicorn.serialkiller.render.overlays.ClockOverlay;
+import com.nuclearunicorn.serialkiller.render.overlays.MiniMap;
 import com.nuclearunicorn.serialkiller.render.overlays.NpcDebugOverlay;
 import com.nuclearunicorn.serialkiller.render.overlays.TownDebugOverlay;
 import org.newdawn.slick.Color;
@@ -160,6 +161,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         RLWorldModel.playerSpawnLocation = null;
         RLWorldModel.brothelLocation = null;
         TownLog.clear();
+        MiniMap.reset();
 
         model.update();
 
@@ -241,6 +243,7 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         ClockOverlay.render();      //HUD: what time it is in there
         NpcDebugOverlay.render();   //ALT: what the town is thinking
         TownDebugOverlay.render();  //ALT + F8: what the town is doing, all of it at once
+        MiniMap.render();           //HUD corner plate, and the whole town on M
 
         if (typeMode){
             OverlaySystem.ttf.drawString(15,
@@ -296,6 +299,11 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
                 //very event is still being handed down the listener chain
                 event.dispatch();
 
+                if (MiniMap.isFull()){
+                    MiniMap.close();    //back out of the map first, not out of the game
+                    return;
+                }
+
                 SkillerGame game = Main.game;
                 game.set_state("mainMenu");
                 game.initStateUI();
@@ -315,7 +323,14 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
         }
 
         if (event instanceof EKeyPress){
+            //the map is a full-screen sheet: walking blind behind it is not a feature
+            if (MiniMap.isFull() && isWalkKey(((EKeyPress) event).key)){
+                return;
+            }
             switch(((EKeyPress) event).key){
+                case Keyboard.KEY_M:
+                    MiniMap.toggle();
+                break;
                 case Keyboard.KEY_UP: case Keyboard.KEY_W:
                     Player.move(Player.get_ent().x(),Player.get_ent().y()-1);
                     isNextTurn = true;
@@ -382,6 +397,21 @@ public class InGameMode extends AbstractGameMode implements IEventListener {
 
         if (isNextTurn){
             makeTurn();
+        }
+    }
+
+    /** Keys that spend a turn. The map suppresses exactly these and leaves the rest alone. */
+    private static boolean isWalkKey(int key){
+        switch (key){
+            case Keyboard.KEY_UP: case Keyboard.KEY_W:
+            case Keyboard.KEY_DOWN: case Keyboard.KEY_S:
+            case Keyboard.KEY_LEFT: case Keyboard.KEY_A:
+            case Keyboard.KEY_RIGHT: case Keyboard.KEY_D:
+            case Keyboard.KEY_SPACE:
+            case Keyboard.KEY_T:
+                return true;
+            default:
+                return false;
         }
     }
 

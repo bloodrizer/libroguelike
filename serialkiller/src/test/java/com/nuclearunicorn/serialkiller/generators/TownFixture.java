@@ -13,6 +13,7 @@ import com.nuclearunicorn.libroguelike.utils.Timer;
 import com.nuclearunicorn.serialkiller.game.world.RLTile;
 import com.nuclearunicorn.serialkiller.game.world.RLWorldModel;
 import com.nuclearunicorn.serialkiller.generators.layerGenerators.TownChunkGenerator;
+import com.nuclearunicorn.serialkiller.generators.town.Building;
 import com.nuclearunicorn.serialkiller.render.RLMessages;
 import com.nuclearunicorn.serialkiller.utils.pathfinder.adaptive.AdaptivePathfinder;
 import org.lwjgl.util.Point;
@@ -48,13 +49,17 @@ public final class TownFixture {
         public final List<Entity> entities;
         /** Where the generator wants the player put, copied out of the static it lands in. */
         public final Point playerStart;
+        /** Every building that went up, safehouse included - what the town map is cut from. */
+        public final List<Building> buildings;
 
-        Town(long seed, WorldLayer layer, int size, List<Entity> entities, Point playerStart) {
+        Town(long seed, WorldLayer layer, int size, List<Entity> entities, Point playerStart,
+             List<Building> buildings) {
             this.seed = seed;
             this.layer = layer;
             this.size = size;
             this.entities = entities;
             this.playerStart = playerStart;
+            this.buildings = buildings;
         }
 
         public RLTile tile(int x, int y) {
@@ -137,7 +142,8 @@ public final class TownFixture {
         //copy it now or a cached town answers with a neighbouring seed's front room
         Point start = RLWorldModel.playerSafeHouseLocation;
         return new Town(seed, layer, WorldChunk.CHUNK_SIZE, entities,
-                start == null ? null : new Point(start));
+                start == null ? null : new Point(start),
+                new ArrayList<Building>(model.getBuildings()));
     }
 
     /**
